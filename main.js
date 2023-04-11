@@ -8,8 +8,8 @@ function createMainWindow() {
     height: 600,
   });
 
-  // mainWindow.loadFile(path.join(__dirname, '/index.html'));
-  mainWindow.loadURL('http://localhost:5173/');
+  mainWindow.loadFile(path.join(__dirname, '/index.html'));
+  // mainWindow.loadURL('http://localhost:4173/');
 }
 
 app.whenReady().then(() => {
