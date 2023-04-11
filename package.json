@@ -6,12 +6,13 @@
   "type": "commonjs",
   "main": "main.js",
   "scripts": {
-    "dev": "vite",
+    "start": "npm run build && electron .",
+    "dev": "electron .",
     "build": "vite build",
-    "preview": "vite preview",
-    "start": "electron ."
+    "preview": "vite preview"
   },
   "dependencies": {
+    "express": "^4.18.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
