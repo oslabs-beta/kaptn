@@ -1,5 +1,6 @@
 const path = require('path');
 const { app, BrowserWindow } = require('electron');
+// const process = require('process');
 
 function createMainWindow() {
   const mainWindow = new BrowserWindow({
@@ -8,8 +9,9 @@ function createMainWindow() {
     height: 600,
   });
 
-  mainWindow.loadFile(path.join(__dirname, '/index.html'));
-  // mainWindow.loadURL('http://localhost:4173/');
+  // mainWindow.loadFile(process.cwd());
+  // mainWindow.loadFile('index.html');
+  mainWindow.loadURL('http://localhost:3333/');
 }
 
 app.whenReady().then(() => {

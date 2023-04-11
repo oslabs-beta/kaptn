@@ -6,8 +6,8 @@
   "type": "commonjs",
   "main": "main.js",
   "scripts": {
-    "start": "npm run dev && build",
-    "dev": "electron .",
+    "start": "electron .",
+    "dev": "vite",
     "build": "vite build",
     "preview": "vite preview"
   },

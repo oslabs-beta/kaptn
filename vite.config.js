@@ -6,9 +6,8 @@ const SERVER = 'http://localhost:3000/';
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [
-    react({
-      include: '**/*.{jsx}',
-    }),
-  ],
-});
+  plugins: [react()],
+  server: {
+    port: 3333
+  }
+})
