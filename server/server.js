@@ -2,6 +2,11 @@ const express = require('express');
 const app = express();
 const path = require('path');
 const apiRouter = require('./routes/apiRouter.js');
+const mongoose = require('mongoose');
+mongoose.connect('mongodb+srv://osp5:9dm8OGGfECIJmZdQ@cluster.zboxzus.mongodb.net/test')
+mongoose.connection.once('open', () => {
+  console.log(':D');
+});
 
 const PORT = 3000;
 
