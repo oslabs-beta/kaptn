@@ -1,7 +1,23 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
+import Signup from './components/Signup';
+import Login from './components/Login';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+// import Homepage from './components/Homepage';
+
+const routes = createBrowserRouter([
+  {
+    path: "/signup",
+    element: <Signup />,
+  },
+  {
+    path: "/",
+    element: <Login />,
+  },
+  // {
+  //   path: "/homepage",
+  //   element: <Homepage />,
+  // }
+]);
 
 function App() {
   const [count, setCount] = useState(0)
@@ -29,7 +45,7 @@ function App() {
         Click on the Vite and React logos to learn more
       </p>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
