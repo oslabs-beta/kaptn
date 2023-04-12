@@ -11,6 +11,7 @@ function Signup() {
         console.log('in create user front end');
         try {
             await fetch("http://localhost:3000/user/createuser", {
+                mode: 'no-cors',
                 method: "POST",
                 headers: {'Content-Type': "application/json"},
                 body: JSON.stringify({
@@ -19,7 +20,7 @@ function Signup() {
                     password: inputPassword
                 })
             })
-            window.location.href = "http://localhost:3000/"; //edit as needed
+            window.location.href = "http://localhost:4444/"; //edit as needed
         } catch(err) {
             console.error("Error in posting")
         }

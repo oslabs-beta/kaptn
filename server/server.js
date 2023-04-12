@@ -14,12 +14,12 @@ mongoose.connection.once('open', () => {
 });
 
 const PORT = 3000;
+// Body parser
+app.use(express.json());
 
 //??not sure what this does (LOL honestly me neither --natalie)
 app.use(express.urlencoded({ extended: true }));
 
-// Body parser
-app.use(express.json());
 
 //designating /api as endpoint of apiRouter????????
 app.use('/api', apiRouter);

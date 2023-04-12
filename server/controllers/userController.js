@@ -1,11 +1,14 @@
 const Users = require('../models/userModel');
+var qs = require('querystring')
 
 const userController = {};
 
 userController.createUser = async (req, res, next) => {
   console.log('in create user');
+  const body = qs.parse(req.body)
+  console.log(body)
 //destructuring usesr input from request body
-  const { username, email, password } = req.body;
+  // const { username, email, password } = req.body;
   try {
     //check to ensure all 3 inputs were entered, can later adjust to only username and password if needed
     if (username && email && password) {
@@ -26,10 +29,20 @@ userController.createUser = async (req, res, next) => {
 };
 
 userController.verifyUser = async (req, res, next) => {
+  console.log('IN VERIFY USER')
+  // const body = Object.keys(req.body);
+  console.log(req.body)
+  // const request = req.json()
+  // console.log(request)
 //destructuring email and password from request body
-  const { email, password } = req.body;
+  // const values = Object.values(body[0]);
+  // const username = values[0];
+  // const password = values[1];
+  const { username, password } = req.body;
+  console.log('USERNAME', username);
+  console.log('PASSWORD', password);
   //declare constant user, initialized to first instance of entry with matching username in User DB
-  const user = await Users.findOne({ email });
+  const user = await Users.findOne({ username });
   //if user does not exist, return error
   if (!user) {
     res.locals.error = 'Incorrect email';
