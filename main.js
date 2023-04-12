@@ -11,7 +11,8 @@ function createMainWindow() {
 
   // mainWindow.loadFile(process.cwd());
   // mainWindow.loadFile('index.html');
-  mainWindow.loadURL('http://localhost:3333/');
+  mainWindow.loadURL('http://localhost:4444/');
+  mainWindow.webContents.openDevTools();
 }
 
 app.whenReady().then(() => {

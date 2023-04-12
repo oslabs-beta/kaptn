@@ -7,8 +7,14 @@ const PORT = 3000;
 
 // Body parser
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+
 
 app.use('/api', apiRouter);
+
+// Send static files
+// app.use(express.static(path.join(__dirname, '../index')));
 
 // Endpoint does not exist
 app.use((req, res) => {
