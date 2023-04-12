@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { InputAdornment } from '@mui/material';
+import { TextField } from '@mui/material';
 
 const CommandLine = (props) => {
   return (
@@ -8,8 +10,15 @@ const CommandLine = (props) => {
         onChange={(e) => props.setCommand(e.target.value)}
         value={props.command}
       >
-        <input type='text'></input>
-        <button type='submit'>Enter</button>
+        <TextField
+          id='outlined-start-adornment'
+          sx={{ m: 1, width: '60ch' }}
+          InputProps={{
+            startAdornment: <InputAdornment position='start'>$</InputAdornment>,
+          }}
+        />
+        {/* <input type='text'></input> */}
+        {/* <button type='submit'>Enter</button> */}
       </form>
     </div>
   );

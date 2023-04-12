@@ -7,6 +7,9 @@ function createMainWindow() {
     title: 'Kaptn',
     width: 600,
     height: 600,
+    webPreferences: {
+      nodeIntegration: true,
+    },
   });
 
   // mainWindow.loadFile(process.cwd());

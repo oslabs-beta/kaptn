@@ -24,14 +24,46 @@ import Avatar from '@mui/material/Avatar';
 import Tooltip from '@mui/material/Tooltip';
 import AdbIcon from '@mui/icons-material/Adb';
 import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete';
+import CommandLine from './CommandLine.jsx';
+import Terminal from './Terminal.jsx';
 
 function Dashboard() {
-  const [command, setCommand] = React.useState('');
   const [type, setType] = React.useState('');
   const [name, setName] = React.useState('');
+  const [command, setCommand] = useState('');
+  const [response, setResponse] = useState([]);
 
-  const handleCommand = (event) => {
-    setCommand(event.target.value);
+  const postCommand = async (command) => {
+    try {
+      const response = await fetch('/api', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ command }),
+      });
+      const cliResponse = await response.json();
+      console.log('the server responded: ', cliResponse);
+      return cliResponse;
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log('enter button clicked');
+    console.log(command);
+    // Fetch request
+    const getCliResponse = async () => {
+      const cliResponse = await postCommand(command);
+      const newResponseState = [
+        ...response,
+        { command: command, 
+          response: cliResponse },
+      ];
+      setResponse(newResponseState);
+    };
+    getCliResponse();
+    console.log('response ', response);
   };
 
   const handleType = (event) => {
@@ -273,7 +305,7 @@ function Dashboard() {
               color: 'white',
             }}
           >
-            Terminal Logs
+            <Terminal response={response} />
           </div>
           <div
             style={{
@@ -285,7 +317,12 @@ function Dashboard() {
               color: 'white',
             }}
           >
-            Command Line
+            <CommandLine
+              handleSubmit={handleSubmit}
+              postCommand={postCommand}
+              setCommand={setCommand}
+              command={command}
+            />
           </div>
         </Grid>
       </Grid>
