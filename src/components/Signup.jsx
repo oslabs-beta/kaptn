@@ -55,7 +55,7 @@ function Signup() {
                 setInputPassword(e.target.value);
               }} />
             </div>
-            <button type='submit'>Signup</button>
+            <button type='submit'><Link to = '/'>Signup</Link></button>
         </form>
         </div>
     </div>
