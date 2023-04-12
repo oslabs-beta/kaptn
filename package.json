@@ -6,12 +6,17 @@
   "type": "commonjs",
   "main": "main.js",
   "scripts": {
+    "start": "electron .",
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview",
-    "start": "electron ."
+    "preview": "vite preview"
   },
   "dependencies": {
+    "@emotion/react": "^11.10.6",
+    "@emotion/styled": "^11.10.6",
+    "@fontsource/roboto": "^4.5.8",
+    "@mui/icons-material": "^5.11.16",
+    "@mui/material": "^5.12.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },

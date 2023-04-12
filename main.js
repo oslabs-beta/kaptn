@@ -8,7 +8,7 @@ function createMainWindow() {
     height: 600,
   });
 
-  mainWindow.loadFile(path.join(__dirname, '/index.html'));
+  mainWindow.loadURL('http://localhost:3338/');
 }
 
 app.whenReady().then(() => {
