@@ -2,7 +2,7 @@ import './App.css';
 import Signup from './components/Signup';
 import Login from './components/Login';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import Homepage from './components/Homepage';
+import Dashboard from './components/Dashboard';
 
 const routes = createBrowserRouter([
   {
@@ -14,9 +14,9 @@ const routes = createBrowserRouter([
     element: <Login />,
   },
   {
-    path: '/homepage',
-    element: <Homepage />,
-  },
+    path: "/dashboard",
+    element: <Dashboard />,
+  }
 ]);
 
 function App() {
