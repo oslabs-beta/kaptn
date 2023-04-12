@@ -13,7 +13,7 @@ function Signup() {
             await fetch("http://localhost:3000/user/createuser", {
                 mode: 'no-cors',
                 method: "POST",
-                headers: {'Content-Type': "application/json"},
+                headers: {'Content-Type': "application/x-www-form-urlencoded"},
                 body: JSON.stringify({
                     username: inputUsername,
                     email: inputEmail,
