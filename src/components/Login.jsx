@@ -8,33 +8,37 @@ function Login() {
     const [inputPassword, setInputPassword] = useState("");
     const [inputUsername, setInputUsername] = useState("");
     const [loggedIn, setLoggedIn] = useState(false)
-    function checkLogin(event) {
+    // const [response, setResponse] = useState("")
+    async function checkLogin(event) {
       event.preventDefault()
-      // try {
-         fetch("http://localhost:3000/user/login", {
+      try {
+         const response = await fetch('http://localhost:3000/user/login', {
             mode: 'no-cors',
             method: "POST",
-            headers: {'Content-Type': "application/json"},
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            // headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({
                 username: inputUsername,
                 password: inputPassword
-            }),
+            })
         })
-        .then(res => console.log(res))
-        .then(res => res.json())
-        .then((res) => {
-        if (res.data.id) { //alter based on response from backend
-        console.log("correct input")
-        // window.location.href = "http://localhost:3333/homepage"; 
-      } else {
-        console.log("incorrect")
-      }
-    })
-      .catch(err => console.log(err))
+        // const res = await response.json();
+        // console.log(response)
+        // .then((res) => res.json())
+        // .then(res => console.log(res))
+        // .then((res) => {
+        // if (res.data.id) { //alter based on response from backend
+        // console.log("correct input")
+        // window.location.href = "http://localhost:3333/dashboard"; 
+      // } else {
+      //   console.log("incorrect")
+      // }
+    // })
+      // .catch(err => console.log(err))
   // })
-    // } catch (err) {
-    //   console.error("Error: ", err);
-    // }
+    } catch(err) {
+       console.error("Error: ", err);
+    }
   }
   return (
     <div>
@@ -45,8 +49,8 @@ function Login() {
             <input               
               type="text"
               name="username"
-              placeholder = 'username'
-              email={inputUsername}
+              placeholder = 'Username'
+              username={inputUsername}
               onChange={(e) => {
                 setInputUsername(e.target.value);
               }} />
