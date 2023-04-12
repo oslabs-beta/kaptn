@@ -91,6 +91,7 @@ function Dashboard() {
     { label: 'deployment' },
     { label: 'events' },
     { label: 'secret' },
+    { label: 'service' },
     { label: 'services' },
   ];
   return (
