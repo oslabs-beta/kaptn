@@ -10,11 +10,11 @@ function Signup() {
         event.preventDefault();
         console.log('in create user front end');
         try {
-            await fetch("http://localhost:5001/users/createusers", {
+            await fetch("http://localhost:3000/user/createuser", {
                 method: "POST",
                 headers: {'Content-Type': "application/json"},
                 body: JSON.stringify({
-                    name: inputUsername,
+                    username: inputUsername,
                     email: inputEmail,
                     password: inputPassword
                 })

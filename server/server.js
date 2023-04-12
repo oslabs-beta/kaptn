@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const path = require('path');
 const apiRouter = require('./routes/apiRouter.js');
+const userRouter = require('./routes/userRouter.js');
 const mongoose = require('mongoose');
 
 //connect to mongo database
@@ -14,7 +15,7 @@ mongoose.connection.once('open', () => {
 
 const PORT = 3000;
 
-//??not sure what this does
+//??not sure what this does (LOL honestly me neither --natalie)
 app.use(express.urlencoded({ extended: true }));
 
 // Body parser
@@ -23,11 +24,15 @@ app.use(express.json());
 //designating /api as endpoint of apiRouter????????
 app.use('/api', apiRouter);
 
+//designating /user as endpoint leading to userRouter
+app.use('/user', userRouter);
+
 app.use(express.static(path.join(__dirname, '../index')));
+
 app.get('/api', (req, res) => {
   // res.status(200).sendFile(path.join(__dirname, '/index.html'));
   res.send('weinhere')
-})
+});
 
 // Endpoint does not exist
 app.use((req, res) => {
