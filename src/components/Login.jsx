@@ -7,30 +7,36 @@ function Login() {
     const [inputPassword, setInputPassword] = useState("");
     const [inputUsername, setInputUsername] = useState("");
     const [loggedIn, setLoggedIn] = useState(false)
+    // const [response, setResponse] = useState("")
     async function checkLogin(event) {
       event.preventDefault()
       try {
-        await fetch("http://localhost:5001/users/", {
+         const response = await fetch('http://localhost:3000/user/login', {
+            mode: 'no-cors',
             method: "POST",
-            headers: {'Content-Type': "application/json"},
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            // headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({
-                name: inputUsername,
+                username: inputUsername,
                 password: inputPassword
             })
         })
-    //   const res = await axios.post("http://localhost:3000/users/login", {email: inputEmail, password: inputPassword})
-    //   console.log(res)
-      // .then(res => res.json())
-    //   const loginStatus = Cookies.get('loggedIn')
-      if (res.data.verified) { //alter based on response from backend
-        setLoggedIn(true);
-        console.log("correct input")
-        window.location.href = "http://localhost:3333/homepage"; //what is our local host?
-      } else {
-        console.log("incorrect")
-      }
-    } catch (err) {
-      console.error("Error: ", err);
+        // const res = await response.json();
+        // console.log(response)
+        // .then((res) => res.json())
+        // .then(res => console.log(res))
+        // .then((res) => {
+        // if (res.data.id) { //alter based on response from backend
+        // console.log("correct input")
+        // window.location.href = "http://localhost:3333/dashboard"; 
+      // } else {
+      //   console.log("incorrect")
+      // }
+    // })
+      // .catch(err => console.log(err))
+  // })
+    } catch(err) {
+       console.error("Error: ", err);
     }
   }
   return (
@@ -42,8 +48,8 @@ function Login() {
             <input               
               type="text"
               name="username"
-              placeholder = 'username'
-              email={inputUsername}
+              placeholder = 'Username'
+              username={inputUsername}
               onChange={(e) => {
                 setInputUsername(e.target.value);
               }} />
