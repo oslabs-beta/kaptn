@@ -1,8 +1,7 @@
 import React from 'react';
 import { useState } from 'react';
-import reactLogo from './assets/react.svg';
 import viteLogo from '/vite.svg';
-import './App.css';
+import '../App.css';
 import Button from '@mui/material/Button';
 import Box from '@mui/system/Box';
 import Grid from '@mui/system/Unstable_Grid';
@@ -264,6 +263,7 @@ function Dashboard() {
           </Box>
         </Grid>
         <Grid item md={8}>
+          {/* olivia's world */}
           <div
             style={{
               border: '2px solid #c6bebe',
