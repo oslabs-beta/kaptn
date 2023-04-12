@@ -9,7 +9,7 @@ function createMainWindow() {
   });
 
   // mainWindow.loadFile(path.join(__dirname, '/index.html'));
-  mainWindow.loadURL('http://localhost:5173/');
+  mainWindow.loadURL('http://localhost:4444/');
 }
 
 app.whenReady().then(() => {
