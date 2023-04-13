@@ -24,11 +24,25 @@ import Avatar from '@mui/material/Avatar';
 import Tooltip from '@mui/material/Tooltip';
 import AdbIcon from '@mui/icons-material/Adb';
 import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete';
+import zIndex from '@mui/material/styles/zIndex';
+import SettingsBackupRestoreOutlinedIcon from '@mui/icons-material/SettingsBackupRestoreOutlined';
+import LocalLibraryOutlinedIcon from '@mui/icons-material/LocalLibraryOutlined';
+import ManageAccountsOutlinedIcon from '@mui/icons-material/ManageAccountsOutlined';
+
+// import { makeStyles } from "@mui/styles";
 
 function Dashboard() {
   const [command, setCommand] = React.useState('');
   const [type, setType] = React.useState('');
   const [name, setName] = React.useState('');
+
+  const MyTextField = styled(TextField)({
+    // color: 'darkslategray',
+    color: '#edeaea',
+    background: '#767474',
+    height: '56px',
+    borderRadius: 4,
+  });
 
   const handleCommand = (event) => {
     setCommand(event.target.value);
@@ -94,7 +108,20 @@ function Dashboard() {
     { label: 'services' },
   ];
   return (
-    <div style={{ backgroundColor: '#5b5b5c', height: '100vh' }}>
+    <div
+      style={{
+        background: '#5b5b5c',
+        color: 'white',
+        height: '100vh',
+        position: 'absolute',
+        top: 0,
+        right: 0,
+        bottom: 0,
+        left: 0,
+        margin: 0,
+        padding: 0,
+      }}
+    >
       <Box display='flex' flexDirection='column'>
         <AppBar style={{ backgroundColor: '#1f1f1f' }} position='static'>
           <Container maxWidth='xl'>
@@ -221,38 +248,76 @@ function Dashboard() {
         </AppBar>
       </Box>
 
-      {/* COMMANDS, TYPES, NAMES, TAGS */}
+      {/* ------------------ COMMANDS, TYPES, NAMES, TAGS --------------------------------------- */}
 
       <Grid container spacing={2} sx={{ m: 2, color: 'white' }}>
-        <Grid item md={1}></Grid>
+        <Grid item md={1}>
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              backgroundColor: '#272727',
+              alignItems: 'center',
+              padding: '5px',
+              height: '100%',
+              borderRadius: '4px',
+            }}
+          >
+            <div style={{ marginTop: '10px' }}>
+              <SettingsBackupRestoreOutlinedIcon />
+            </div>
+            <div style={{ marginTop: '10px' }}>
+              <LocalLibraryOutlinedIcon />
+            </div>
+            <div style={{ marginTop: '10px' }}>
+              <ManageAccountsOutlinedIcon />
+            </div>
+          </div>
+        </Grid>
         <Grid item md={3}>
           <Box
             sx={{
-              border: 1,
+              // border: 1,
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              backgroundColor: '#414141',
-              color: 'white',
+              bgcolor: '#2e2d2d',
+              color: '#edeaea',
+              padding: '15px',
+              width: '190px',
+              borderRadius: '5px',
             }}
           >
             <Autocomplete
               disablePortal
               id='combo-box-demo'
               options={commands}
-              sx={{ width: 200, color: 'white' }}
+              sx={{
+                width: 200,
+                background: '#767474',
+              }}
               renderInput={(params) => (
-                <TextField {...params} label='Commands' />
+                <TextField
+                  {...params}
+                  label='Commands'
+                  style={{ color: 'pink' }}
+                />
               )}
             />
+            <br />
             <Autocomplete
               disablePortal
               id='combo-box-demo'
               options={types}
-              sx={{ width: 200 }}
+              sx={{
+                width: 200,
+                background: '#767474',
+                zIndex: 1000,
+              }}
               renderInput={(params) => <TextField {...params} label='Types' />}
             />
-            <TextField
+            <br />
+            <MyTextField
               style={{ minWidth: 200 }}
               id='outlined-basic'
               label='Name'
@@ -260,6 +325,19 @@ function Dashboard() {
               onKeyDown={handleKeyDown}
               // onInput={handleName}
             />
+            <br />
+            <Box
+              sx={{
+                height: '260px',
+                // border: 1,
+                minWidth: 200,
+                background: '#767474',
+                borderRadius: '4px',
+                fontFamily: 'Monospace',
+              }}
+            >
+              Click here for more info about your inputs
+            </Box>
           </Box>
         </Grid>
         <Grid item md={8}>
@@ -270,7 +348,9 @@ function Dashboard() {
               background: '#4c4747',
               height: '400px',
               width: 'auto',
-              color: 'white',
+              color: '#edeaea',
+              fontFamily: 'monospace',
+              padding: '5px',
             }}
           >
             Terminal Logs
@@ -282,7 +362,9 @@ function Dashboard() {
               height: '100px',
               width: 'auto',
               marginTop: '5px',
-              color: 'white',
+              color: '#edeaea',
+              fontFamily: 'monospace',
+              padding: '5px',
             }}
           >
             Command Line
