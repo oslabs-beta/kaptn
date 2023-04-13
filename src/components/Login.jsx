@@ -1,7 +1,9 @@
 import React, {useState, useEffect} from 'react';
 import {Link} from 'react-router-dom';
-// import "./assets/styles.scss";
-// import Cookies from 'js-cookie';
+import Button from '@mui/material/Button';
+import { Box } from '@mui/system';
+import { TextField } from '@mui/material';
+import { Typography } from '@mui/material';
 
 function Login() {
     const [inputPassword, setInputPassword] = useState("");
@@ -21,17 +23,17 @@ function Login() {
                 password: inputPassword
             })
         })
-        // const res = await response.json();
-        // console.log(response)
+        const res = await response.json();
+        console.log(res)
         // .then((res) => res.json())
         // .then(res => console.log(res))
         // .then((res) => {
-        // if (res.data.id) { //alter based on response from backend
-        // console.log("correct input")
-        // window.location.href = "http://localhost:3333/dashboard"; 
-      // } else {
-      //   console.log("incorrect")
-      // }
+        if (res.data.id) { //alter based on response from backend
+        console.log("correct input")
+        window.location.href = "http://localhost:3333/dashboard"; 
+      } else {
+        console.log("incorrect")
+      }
     // })
       // .catch(err => console.log(err))
   // })
@@ -40,36 +42,52 @@ function Login() {
     }
   }
   return (
-    <div>
-        <h1>Login</h1>
+    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 6}}>
+        <Typography component='h1' variant='h3'>Login</Typography>
         <div className = 'loginPage'>
-        <form onSubmit={checkLogin} >
-            <div className ="inputs">
-            <input               
-              type="text"
-              name="username"
-              placeholder = 'Username'
-              username={inputUsername}
-              onChange={(e) => {
-                setInputUsername(e.target.value);
-              }} />
-            <input               
-              type="password"
-              name="password"
-              placeholder = 'Password'
-              password={inputPassword}
-              onChange={(e) => {
-                setInputPassword(e.target.value);
-              }} />
-            </div>
-            <button type='submit'>Login</button>
-        </form>
-        <form>
-          <h3>Don't have an account? Sign up now</h3>
-          <button><Link to = '/signup'>Sign Up</Link></button>
-        </form>
+        <Box component='form' onSubmit={checkLogin} sx={{ mt: 6 }}>
+              <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <TextField
+                  type="text"
+                  name="username"
+                  label = 'Username'
+                  fullWidth
+                  username={inputUsername}
+                  sx = {{ mb: 3}}
+                  onChange={(e) => {
+                    setInputUsername(e.target.value);
+                  }} />
+                <TextField               
+                  type="password"
+                  name="password"
+                  label = 'Password'
+                  fullWidth
+                  password={inputPassword}
+                  sx = {{ mb: 3}}
+                  onChange={(e) => {
+                    setInputPassword(e.target.value);
+                  }} />
+              </Box>
+              <Button 
+                variant='contained' 
+                type='submit'
+                fullWidth
+                sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 2, mb: 2}}>
+                Login
+              </Button>
+          <Typography variant='h6'>Don't have an account? Sign up now</Typography>
+          <Button 
+            variant='outlined'
+            fullWidth
+            sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 2, mb: 2}}
+            >
+            <Link to = '/signup'>
+            Sign Up
+            </Link>
+          </Button>
+        </Box>
         </div>
-    </div>
+    </Box>
   )
 }
 
