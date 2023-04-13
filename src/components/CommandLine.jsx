@@ -16,6 +16,7 @@ const CommandLine = (props) => {
           InputProps={{
             startAdornment: <InputAdornment position='start'>$</InputAdornment>,
           }}
+          value={props.command}
         />
         {/* <input type='text'></input> */}
         {/* <button type='submit'>Enter</button> */}

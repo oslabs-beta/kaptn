@@ -32,6 +32,7 @@ function Dashboard() {
   const [name, setName] = React.useState('');
   const [command, setCommand] = useState('');
   const [response, setResponse] = useState([]);
+  const [error, setError] = useState(false);
 
   const postCommand = async (command) => {
     try {
@@ -45,20 +46,20 @@ function Dashboard() {
       return cliResponse;
     } catch (e) {
       console.log(e);
+      setError(true);
     }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log('enter button clicked');
-    console.log(command);
+    console.log('command ', command);
     // Fetch request
     const getCliResponse = async () => {
       const cliResponse = await postCommand(command);
       const newResponseState = [
         ...response,
-        { command: command, 
-          response: cliResponse },
+        { command: command, response: cliResponse },
       ];
       setResponse(newResponseState);
     };
@@ -99,7 +100,8 @@ function Dashboard() {
   const handleKeyDown = (event) => {
     if (event.key === 'Enter') {
       setName(event.target.value);
-
+      const newCommand = command + ' ' + e.target.value;
+      setCommand(newCommand);
       console.log('enter pressed');
     }
   };
@@ -273,6 +275,7 @@ function Dashboard() {
               id='combo-box-demo'
               options={commands}
               sx={{ width: 200, color: 'white' }}
+              onInputChange={(e, newInputValue) => setCommand(newInputValue)}
               renderInput={(params) => (
                 <TextField {...params} label='Commands' />
               )}
@@ -282,16 +285,30 @@ function Dashboard() {
               id='combo-box-demo'
               options={types}
               sx={{ width: 200 }}
+              onInputChange={(e, newInputValue) => {
+                const newCommand = command + ' ' + newInputValue;
+                setCommand(newCommand);
+              }}
               renderInput={(params) => <TextField {...params} label='Types' />}
             />
-            <TextField
-              style={{ minWidth: 200 }}
-              id='outlined-basic'
-              label='Name'
-              variant='outlined'
-              onKeyDown={handleKeyDown}
-              // onInput={handleName}
-            />
+            <form
+              onChange={(e) => {
+                setName(e.target.value);
+                console.log(name);
+              }}
+              onSubmit={(e) => {
+                const newCommand = command + ' ' + name;
+                setCommand(newCommand);
+              }}
+              value={name}
+            >
+              <TextField
+                style={{ minWidth: 200 }}
+                id='outlined-basic'
+                label='Name'
+                variant='outlined'
+              />
+            </form>
           </Box>
         </Grid>
         <Grid item md={8}>
