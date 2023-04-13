@@ -34,7 +34,7 @@ import ManageAccountsOutlinedIcon from '@mui/icons-material/ManageAccountsOutlin
 // import { makeStyles } from "@mui/styles";
 
 function Dashboard() {
-  const [command, setCommand] = React.useState('');
+  const [commands, setCommands] = React.useState('');
   const [type, setType] = React.useState('');
   const [name, setName] = React.useState('');
 
@@ -46,8 +46,8 @@ function Dashboard() {
     borderRadius: 4,
   });
 
-  const handleCommand = (event) => {
-    setCommand(event.target.value);
+  const handleCommands = (event) => {
+    setCommands(event.target.value);
   };
 
   const handleType = (event) => {
@@ -89,7 +89,7 @@ function Dashboard() {
   };
   // console.log(name);
 
-  const commands = [
+  const commandList = [
     { label: 'get', year: 1994 },
     { label: 'apply', year: 1972 },
     { label: 'create', year: 1974 },
@@ -255,7 +255,10 @@ function Dashboard() {
       <Grid container spacing={2} sx={{ m: 2, color: 'white' }}>
         {/* --------SIDEBAR---------- */}
         <Grid item md={1}>
-          <div
+
+
+          {/* ------------------------- OLD SIDEBAR BELOW--------------------- */}
+          {/* <div
             style={{
               position: 'absolute',
               left: '0',
@@ -277,9 +280,9 @@ function Dashboard() {
             <div style={{ marginTop: '10px', paddingLeft: '10px' }}>
               <ManageAccountsOutlinedIcon />
             </div>
-          </div>
+          </div> */}
         </Grid>
-        {/* ------------- command drop down text field -------------------- */}
+        {/* ------------- COMMANDS drop down text field -------------------- */}
         <Grid item md={3}>
           <Box
             sx={{
@@ -297,7 +300,7 @@ function Dashboard() {
             <Autocomplete
               disablePortal
               id='combo-box-demo'
-              options={commands}
+              options={commandList}
               sx={{
                 width: 200,
                 background: '#767474',
