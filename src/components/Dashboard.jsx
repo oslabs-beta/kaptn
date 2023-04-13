@@ -1,5 +1,5 @@
 import React from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import viteLogo from '/vite.svg';
 import '../App.css';
 import {
@@ -36,9 +36,10 @@ import Terminal from './Terminal.jsx';
 // import { makeStyles } from "@mui/styles";
 
 function Dashboard() {
-  const [verbs, setVerbs] = React.useState('');
+  const [verb, setVerb] = React.useState('');
   const [type, setType] = React.useState('');
   const [name, setName] = React.useState('');
+  const [userInput, setUserInput] = React.useState('');
   const [command, setCommand] = useState('');
   const [response, setResponse] = useState([]);
   const [error, setError] = useState(false);
@@ -51,12 +52,23 @@ function Dashboard() {
     borderRadius: 4,
   });
 
-  const postCommands = async (command) => {
+  // Set the correct command based on current inputs
+  useEffect(() => {
+    let newCommand = '';
+    if (verb !== '') newCommand += verb;
+    if (type !== '') newCommand += ' ' + type;
+    if (name !== '') newCommand += ' ' + name;
+    if (userInput !== '') newCommand += ' ' + userInput;
+    setCommand(newCommand);
+  });
+
+  // Post the command to the server
+  const postCommand = async (command) => {
     try {
       const response = await fetch('/api', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ commands }),
+        body: JSON.stringify({ command }),
       });
       const cliResponse = await response.json();
       console.log('the server responded: ', cliResponse);
@@ -67,21 +79,23 @@ function Dashboard() {
     }
   };
 
+  // Handle the CLI submit event
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log('enter button clicked');
     console.log('command ', command);
-    // Fetch request
     const getCliResponse = async () => {
       const cliResponse = await postCommand(command);
+      // Update response state with the returned CLI response
       const newResponseState = [
         ...response,
         { command: command, response: cliResponse },
       ];
       setResponse(newResponseState);
     };
+
+    // Invoke a fetch request to the server
     getCliResponse();
-    console.log('response ', response);
   };
 
   const pages = ['Easy Setup', 'Manage Pods', 'Tutorials'];
@@ -136,7 +150,6 @@ function Dashboard() {
   ];
 
   return (
-    
     <div
       style={{
         background: '#5b5b5c',
@@ -279,12 +292,11 @@ function Dashboard() {
       </Box>
 
       {/* ------------------ COMMANDS, TYPES, NAMES, TAGS --------------------------------------- */}
-      
+
       <Grid container spacing={2} sx={{ m: 2, color: 'white' }}>
         {/* --------SIDEBAR---------- */}
         <Grid item md={3}>
-        <SideNav />
-        
+          <SideNav />
 
           {/* ------------------------- OLD SIDEBAR BELOW--------------------- */}
           {/* <div
@@ -336,13 +348,12 @@ function Dashboard() {
               }}
               onInputChange={(e, newInputValue) => {
                 setVerb(newInputValue);
-                setCommand(newInputValue);
+                const newCommand = verb + ' ' + type + ' ' + name;
+                setCommand(newCommand);
+                // setCommand(newInputValue);
               }}
               renderInput={(params) => (
-                <TextField
-                  {...params}
-                  label='Commands'
-                />
+                <TextField {...params} label='Commands' />
               )}
             />
             <br />
@@ -358,7 +369,7 @@ function Dashboard() {
               }}
               onInputChange={(e, newInputValue) => {
                 setType(newInputValue);
-                const newCommand = command + ' ' + newInputValue;
+                const newCommand = verb + ' ' + type + ' ' + name;
                 setCommand(newCommand);
               }}
               renderInput={(params) => <TextField {...params} label='Types' />}
@@ -414,7 +425,8 @@ function Dashboard() {
             <CommandLine
               handleSubmit={handleSubmit}
               postCommand={postCommand}
-              setCommand={setCommand}
+              setUserInput={setUserInput}
+              userInput={userInput}
               command={command}
             />
           </div>
