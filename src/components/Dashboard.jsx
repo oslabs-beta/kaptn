@@ -2,28 +2,30 @@ import React from 'react';
 import { useState } from 'react';
 import viteLogo from '/vite.svg';
 import '../App.css';
-import Button from '@mui/material/Button';
-import Box from '@mui/system/Box';
+import {
+  Button,
+  Paper,
+  InputLabel,
+  Select,
+  NativeSelect,
+  MenuItem,
+  FormControl,
+  TextField,
+  AppBar,
+  Toolbar,
+  IconButton,
+  Typography,
+  Menu,
+  Container,
+  Avatar,
+  Tooltip,
+  Autocomplete,
+  createFilterOptions,
+} from '@mui/material';
+import { Box, styled } from '@mui/system';
 import Grid from '@mui/system/Unstable_Grid';
-import styled from '@mui/system/styled';
-import Paper from '@mui/material/Paper';
-import NativeSelect from '@mui/material/NativeSelect';
-import InputLabel from '@mui/material/InputLabel';
-import Select from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
-import FormControl from '@mui/material/FormControl';
-import TextField from '@mui/material/TextField';
-import AppBar from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
-import IconButton from '@mui/material/IconButton';
-import Typography from '@mui/material/Typography';
-import Menu from '@mui/material/Menu';
 import MenuIcon from '@mui/icons-material/Menu';
-import Container from '@mui/material/Container';
-import Avatar from '@mui/material/Avatar';
-import Tooltip from '@mui/material/Tooltip';
 import AdbIcon from '@mui/icons-material/Adb';
-import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete';
 import zIndex from '@mui/material/styles/zIndex';
 import SettingsBackupRestoreOutlinedIcon from '@mui/icons-material/SettingsBackupRestoreOutlined';
 import LocalLibraryOutlinedIcon from '@mui/icons-material/LocalLibraryOutlined';
@@ -251,29 +253,33 @@ function Dashboard() {
       {/* ------------------ COMMANDS, TYPES, NAMES, TAGS --------------------------------------- */}
 
       <Grid container spacing={2} sx={{ m: 2, color: 'white' }}>
+        {/* --------SIDEBAR---------- */}
         <Grid item md={1}>
           <div
             style={{
-              display: 'flex',
-              flexDirection: 'column',
+              position: 'absolute',
+              left: '0',
+              top: '69px',
               backgroundColor: '#272727',
               alignItems: 'center',
               padding: '5px',
               height: '100%',
-              borderRadius: '4px',
+              width: '50px',
+              // borderRadius: '4px',
             }}
           >
-            <div style={{ marginTop: '10px' }}>
+            <div style={{ marginTop: '10px', paddingLeft: '10px' }}>
               <SettingsBackupRestoreOutlinedIcon />
             </div>
-            <div style={{ marginTop: '10px' }}>
+            <div style={{ marginTop: '10px', paddingLeft: '10px' }}>
               <LocalLibraryOutlinedIcon />
             </div>
-            <div style={{ marginTop: '10px' }}>
+            <div style={{ marginTop: '10px', paddingLeft: '10px' }}>
               <ManageAccountsOutlinedIcon />
             </div>
           </div>
         </Grid>
+        {/* ------------- command drop down text field -------------------- */}
         <Grid item md={3}>
           <Box
             sx={{
@@ -305,6 +311,7 @@ function Dashboard() {
               )}
             />
             <br />
+            {/* ------------- TYPE drop down text field -------------------- */}
             <Autocomplete
               disablePortal
               id='combo-box-demo'
@@ -317,6 +324,7 @@ function Dashboard() {
               renderInput={(params) => <TextField {...params} label='Types' />}
             />
             <br />
+            {/* ------------- NAME text field -------------------- */}
             <MyTextField
               style={{ minWidth: 200 }}
               id='outlined-basic'
@@ -326,6 +334,7 @@ function Dashboard() {
               // onInput={handleName}
             />
             <br />
+            {/* ------------- MORE INFO pane/field -------------------- */}
             <Box
               sx={{
                 height: '260px',
