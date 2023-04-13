@@ -9,16 +9,17 @@ function Signup() {
         event.preventDefault();
         console.log('in create user front end');
         try {
-            await fetch("http://localhost:5001/users/createusers", {
+            await fetch("http://localhost:3000/user/createuser", {
+                mode: 'no-cors',
                 method: "POST",
-                headers: {'Content-Type': "application/json"},
+                headers: {'Content-Type': "application/x-www-form-urlencoded"},
                 body: JSON.stringify({
-                    name: inputUsername,
+                    username: inputUsername,
                     email: inputEmail,
                     password: inputPassword
                 })
             })
-            window.location.href = "http://localhost:3000/"; //edit as needed
+            window.location.href = "http://localhost:4444/"; //edit as needed
         } catch(err) {
             console.error("Error in posting")
         }
