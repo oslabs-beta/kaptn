@@ -30,7 +30,7 @@ import zIndex from '@mui/material/styles/zIndex';
 import SettingsBackupRestoreOutlinedIcon from '@mui/icons-material/SettingsBackupRestoreOutlined';
 import LocalLibraryOutlinedIcon from '@mui/icons-material/LocalLibraryOutlined';
 import ManageAccountsOutlinedIcon from '@mui/icons-material/ManageAccountsOutlined';
-
+import SideNav from './Sidebar';
 // import { makeStyles } from "@mui/styles";
 
 function Dashboard() {
@@ -110,6 +110,7 @@ function Dashboard() {
     { label: 'services' },
   ];
   return (
+    
     <div
       style={{
         background: '#5b5b5c',
@@ -124,6 +125,7 @@ function Dashboard() {
         padding: 0,
       }}
     >
+      {/* <SideNav /> */}
       <Box display='flex' flexDirection='column'>
         <AppBar style={{ backgroundColor: '#1f1f1f' }} position='static'>
           <Container maxWidth='xl'>
@@ -255,7 +257,7 @@ function Dashboard() {
       <Grid container spacing={2} sx={{ m: 2, color: 'white' }}>
         {/* --------SIDEBAR---------- */}
         <Grid item md={1}>
-
+        <SideNav />
 
           {/* ------------------------- OLD SIDEBAR BELOW--------------------- */}
           {/* <div
