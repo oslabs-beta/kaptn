@@ -28,6 +28,7 @@ import CommandLine from './CommandLine.jsx';
 import Terminal from './Terminal.jsx';
 
 function Dashboard() {
+  const [verb, setVerb] = React.useState('');
   const [type, setType] = React.useState('');
   const [name, setName] = React.useState('');
   const [command, setCommand] = useState('');
@@ -67,15 +68,6 @@ function Dashboard() {
     console.log('response ', response);
   };
 
-  const handleType = (event) => {
-    setType(event.target.value);
-  };
-
-  const handleName = (event) => {
-    setName(event.target.value);
-    // console.log(name);
-  };
-
   const pages = ['Easy Setup', 'Manage Pods', 'Tutorials'];
   const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
 
@@ -105,7 +97,6 @@ function Dashboard() {
       console.log('enter pressed');
     }
   };
-  // console.log(name);
 
   const commands = [
     { label: 'get', year: 1994 },
@@ -127,6 +118,7 @@ function Dashboard() {
     { label: 'service' },
     { label: 'services' },
   ];
+
   return (
     <div style={{ backgroundColor: '#5b5b5c', height: '100vh' }}>
       <Box display='flex' flexDirection='column'>
@@ -275,7 +267,10 @@ function Dashboard() {
               id='combo-box-demo'
               options={commands}
               sx={{ width: 200, color: 'white' }}
-              onInputChange={(e, newInputValue) => setCommand(newInputValue)}
+              onInputChange={(e, newInputValue) => {
+                setVerb(newInputValue);
+                setCommand(newInputValue);
+              }}
               renderInput={(params) => (
                 <TextField {...params} label='Commands' />
               )}
@@ -286,6 +281,7 @@ function Dashboard() {
               options={types}
               sx={{ width: 200 }}
               onInputChange={(e, newInputValue) => {
+                setType(newInputValue);
                 const newCommand = command + ' ' + newInputValue;
                 setCommand(newCommand);
               }}
@@ -297,7 +293,8 @@ function Dashboard() {
                 console.log(name);
               }}
               onSubmit={(e) => {
-                const newCommand = command + ' ' + name;
+                e.preventDefault();
+                const newCommand = verb + ' ' + type + ' ' + name;
                 setCommand(newCommand);
               }}
               value={name}
