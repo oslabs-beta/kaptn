@@ -2,45 +2,61 @@ import React from 'react';
 import { useState } from 'react';
 import viteLogo from '/vite.svg';
 import '../App.css';
-import Button from '@mui/material/Button';
-import Box from '@mui/system/Box';
+import {
+  Button,
+  Paper,
+  InputLabel,
+  Select,
+  NativeSelect,
+  MenuItem,
+  FormControl,
+  TextField,
+  AppBar,
+  Toolbar,
+  IconButton,
+  Typography,
+  Menu,
+  Container,
+  Avatar,
+  Tooltip,
+  Autocomplete,
+  createFilterOptions,
+} from '@mui/material';
+import { Box, styled } from '@mui/system';
 import Grid from '@mui/system/Unstable_Grid';
-import styled from '@mui/system/styled';
-import Paper from '@mui/material/Paper';
-import NativeSelect from '@mui/material/NativeSelect';
-import InputLabel from '@mui/material/InputLabel';
-import Select from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
-import FormControl from '@mui/material/FormControl';
-import TextField from '@mui/material/TextField';
-import AppBar from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
-import IconButton from '@mui/material/IconButton';
-import Typography from '@mui/material/Typography';
-import Menu from '@mui/material/Menu';
 import MenuIcon from '@mui/icons-material/Menu';
-import Container from '@mui/material/Container';
-import Avatar from '@mui/material/Avatar';
-import Tooltip from '@mui/material/Tooltip';
 import AdbIcon from '@mui/icons-material/Adb';
-import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete';
+import zIndex from '@mui/material/styles/zIndex';
+import SettingsBackupRestoreOutlinedIcon from '@mui/icons-material/SettingsBackupRestoreOutlined';
+import LocalLibraryOutlinedIcon from '@mui/icons-material/LocalLibraryOutlined';
+import ManageAccountsOutlinedIcon from '@mui/icons-material/ManageAccountsOutlined';
+import SideNav from './Sidebar';
 import CommandLine from './CommandLine.jsx';
 import Terminal from './Terminal.jsx';
+// import { makeStyles } from "@mui/styles";
 
 function Dashboard() {
-  const [verb, setVerb] = React.useState('');
+  const [verbs, setVerbs] = React.useState('');
   const [type, setType] = React.useState('');
   const [name, setName] = React.useState('');
   const [command, setCommand] = useState('');
   const [response, setResponse] = useState([]);
   const [error, setError] = useState(false);
 
-  const postCommand = async (command) => {
+  const MyTextField = styled(TextField)({
+    // color: 'darkslategray',
+    color: '#edeaea',
+    background: '#767474',
+    height: '56px',
+    borderRadius: 4,
+  });
+
+  const postCommands = async (command) => {
     try {
       const response = await fetch('/api', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ command }),
+        body: JSON.stringify({ commands }),
       });
       const cliResponse = await response.json();
       console.log('the server responded: ', cliResponse);
@@ -98,7 +114,7 @@ function Dashboard() {
     }
   };
 
-  const commands = [
+  const commandList = [
     { label: 'get', year: 1994 },
     { label: 'apply', year: 1972 },
     { label: 'create', year: 1974 },
@@ -120,7 +136,22 @@ function Dashboard() {
   ];
 
   return (
-    <div style={{ backgroundColor: '#5b5b5c', height: '100vh' }}>
+    
+    <div
+      style={{
+        background: '#5b5b5c',
+        color: 'white',
+        height: '100vh',
+        position: 'absolute',
+        top: 0,
+        right: 0,
+        bottom: 0,
+        left: 0,
+        margin: 0,
+        padding: 0,
+      }}
+    >
+      {/* <SideNav /> */}
       <Box display='flex' flexDirection='column'>
         <AppBar style={{ backgroundColor: '#1f1f1f' }} position='static'>
           <Container maxWidth='xl'>
@@ -247,39 +278,84 @@ function Dashboard() {
         </AppBar>
       </Box>
 
-      {/* COMMANDS, TYPES, NAMES, TAGS */}
+      {/* ------------------ COMMANDS, TYPES, NAMES, TAGS --------------------------------------- */}
 
       <Grid container spacing={2} sx={{ m: 2, color: 'white' }}>
-        <Grid item md={1}></Grid>
+        {/* --------SIDEBAR---------- */}
+        <Grid item md={1}>
+        <SideNav />
+
+          {/* ------------------------- OLD SIDEBAR BELOW--------------------- */}
+          {/* <div
+            style={{
+              position: 'absolute',
+              left: '0',
+              top: '69px',
+              backgroundColor: '#272727',
+              alignItems: 'center',
+              padding: '5px',
+              height: '100%',
+              width: '50px',
+              // borderRadius: '4px',
+            }}
+          >
+            <div style={{ marginTop: '10px', paddingLeft: '10px' }}>
+              <SettingsBackupRestoreOutlinedIcon />
+            </div>
+            <div style={{ marginTop: '10px', paddingLeft: '10px' }}>
+              <LocalLibraryOutlinedIcon />
+            </div>
+            <div style={{ marginTop: '10px', paddingLeft: '10px' }}>
+              <ManageAccountsOutlinedIcon />
+            </div>
+          </div> */}
+        </Grid>
+        {/* ------------- COMMANDS drop down text field -------------------- */}
         <Grid item md={3}>
           <Box
             sx={{
-              border: 1,
+              // border: 1,
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              backgroundColor: '#414141',
-              color: 'white',
+              bgcolor: '#2e2d2d',
+              color: '#edeaea',
+              padding: '15px',
+              width: '190px',
+              borderRadius: '5px',
             }}
           >
             <Autocomplete
               disablePortal
               id='combo-box-demo'
-              options={commands}
-              sx={{ width: 200, color: 'white' }}
+              options={commandList}
+              sx={{
+                width: 200,
+                background: '#767474',
+              }}
               onInputChange={(e, newInputValue) => {
                 setVerb(newInputValue);
                 setCommand(newInputValue);
               }}
               renderInput={(params) => (
-                <TextField {...params} label='Commands' />
+                <TextField
+                  {...params}
+                  label='Commands'
+                  style={{ color: 'pink' }}
+                />
               )}
             />
+            <br />
+            {/* ------------- TYPE drop down text field -------------------- */}
             <Autocomplete
               disablePortal
               id='combo-box-demo'
               options={types}
-              sx={{ width: 200 }}
+              sx={{
+                width: 200,
+                background: '#767474',
+                zIndex: 1000,
+              }}
               onInputChange={(e, newInputValue) => {
                 setType(newInputValue);
                 const newCommand = command + ' ' + newInputValue;
@@ -316,7 +392,9 @@ function Dashboard() {
               background: '#4c4747',
               height: '400px',
               width: 'auto',
-              color: 'white',
+              color: '#edeaea',
+              fontFamily: 'monospace',
+              padding: '5px',
             }}
           >
             <Terminal response={response} />
@@ -328,7 +406,9 @@ function Dashboard() {
               height: '100px',
               width: 'auto',
               marginTop: '5px',
-              color: 'white',
+              color: '#edeaea',
+              fontFamily: 'monospace',
+              padding: '5px',
             }}
           >
             <CommandLine
