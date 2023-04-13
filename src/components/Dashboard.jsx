@@ -279,11 +279,12 @@ function Dashboard() {
       </Box>
 
       {/* ------------------ COMMANDS, TYPES, NAMES, TAGS --------------------------------------- */}
-
+      
       <Grid container spacing={2} sx={{ m: 2, color: 'white' }}>
         {/* --------SIDEBAR---------- */}
-        <Grid item md={1}>
+        <Grid item md={3}>
         <SideNav />
+        
 
           {/* ------------------------- OLD SIDEBAR BELOW--------------------- */}
           {/* <div
@@ -311,7 +312,7 @@ function Dashboard() {
           </div> */}
         </Grid>
         {/* ------------- COMMANDS drop down text field -------------------- */}
-        <Grid item md={3}>
+        <Grid item md={4}>
           <Box
             sx={{
               // border: 1,
@@ -341,7 +342,6 @@ function Dashboard() {
                 <TextField
                   {...params}
                   label='Commands'
-                  style={{ color: 'pink' }}
                 />
               )}
             />
@@ -384,7 +384,7 @@ function Dashboard() {
             </form>
           </Box>
         </Grid>
-        <Grid item md={8}>
+        <Grid item md={5}>
           {/* olivia's world */}
           <div
             style={{
