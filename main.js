@@ -1,5 +1,5 @@
 const path = require('path');
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, ipcMain } = require('electron');
 // const process = require('process');
 
 function createMainWindow() {
@@ -21,3 +21,9 @@ function createMainWindow() {
 app.whenReady().then(() => {
   createMainWindow();
 });
+
+
+// ipcMain.on('login-success', e => {
+//   console.log('Entrou no main in English');
+//   mainWindow.loadURL('http://localhost:4444/')
+// })

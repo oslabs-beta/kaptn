@@ -4,40 +4,48 @@ import { Link } from 'react-router-dom';
 // import Cookies from 'js-cookie';
 
 function Login() {
-  const [inputPassword, setInputPassword] = useState('');
-  const [inputUsername, setInputUsername] = useState('');
-  const [loggedIn, setLoggedIn] = useState(false);
-  // const [response, setResponse] = useState("")
-  async function checkLogin(event) {
+    const [inputPassword, setInputPassword] = useState("");
+    const [inputUsername, setInputUsername] = useState("");
+    const [loggedIn, setLoggedIn] = useState(false)
+    // const [response, setResponse] = useState("")
+  //   async function checkLogin(event) {
+  //     event.preventDefault()
+  //     try {
+  //        const response = await fetch('http://localhost:3000/user/login', {
+  //           mode: 'no-cors',
+  //           method: "POST",
+  //           // headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+  //           headers: {'Content-Type': 'application/json'},
+  //           body: JSON.stringify({
+  //               username: inputUsername,
+  //               password: inputPassword
+  //           })
+  //       })
+  //       // window.location.href = "http://localhost:4444/dashboard"
+  //       console.log('FRONTEND MESSAGE')
+  //       // const res = await response;
+  //       console.log(response)
+
+  //       // console.log("THIS IS RESPONSE:", response)
+
+  //   } catch(err) {
+  //      console.error("Error: ", err);
+  //   }
+  // }
+  function checkLogin(event){
     event.preventDefault();
-    // try {
-    //    const response = await fetch('http://localhost:3000/user/login', {
-    //       mode: 'no-cors',
-    //       method: "POST",
-    //       headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-    //       // headers: {'Content-Type': 'application/json'},
-    //       body: JSON.stringify({
-    //           username: inputUsername,
-    //           password: inputPassword
-    //       })
-    //   })
-    // const res = await response.json();
-    // console.log(response)
-    // .then((res) => res.json())
-    // .then(res => console.log(res))
-    // .then((res) => {
-    // if (res.data.id) { //alter based on response from backend
-    // console.log("correct input")
-    window.location.href = 'http://localhost:4444/dashboard';
-    // } else {
-    //   console.log("incorrect")
-    // }
-    // })
-    // .catch(err => console.log(err))
-    // })
-    // } catch(err) {
-    //    console.error("Error: ", err);
-    // }
+    fetch('http://localhost:3000/user/login', {
+            mode: 'no-cors',
+            method: "POST",
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            // headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                username: inputUsername,
+                password: inputPassword
+            })
+        })
+        .then(data => console.log(data))
+        .catch(err => console.log(err))
   }
   return (
     <div>

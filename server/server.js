@@ -36,8 +36,11 @@ app.get('/', (req, res) => {
   res.send('weinhere')
 });
 
-// Send static files
-// app.use(express.static(path.join(__dirname, '../index')));
+//ADD DASHBOARD ROUTE TO SERVE DASHBOARD UPON LOGIN??
+app.get('/dashboard', (req, res) => {
+  res.status(200).sendFile(path.join(__dirname, '/Dashboard.jsx'));
+  // res.send('weinhere')
+});
 
 // Endpoint does not exist
 app.use((req, res) => {

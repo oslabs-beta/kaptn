@@ -43,6 +43,7 @@ function Dashboard() {
   const [command, setCommand] = useState('');
   const [response, setResponse] = useState([]);
   const [error, setError] = useState(false);
+  const [path, setPath] = useState([]);
 
   const MyTextField = styled(TextField)({
     // color: 'darkslategray',
@@ -68,7 +69,7 @@ function Dashboard() {
       const response = await fetch('/api', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ command }),
+        body: JSON.stringify({ command, path }),
       });
       const cliResponse = await response.json();
       console.log('the server responded: ', cliResponse);
@@ -97,6 +98,8 @@ function Dashboard() {
     // Invoke a fetch request to the server
     getCliResponse();
   };
+
+  const getCurrentPath = (e) => {};
 
   const pages = ['Easy Setup', 'Manage Pods', 'Tutorials'];
   const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
@@ -369,8 +372,6 @@ function Dashboard() {
               }}
               onInputChange={(e, newInputValue) => {
                 setType(newInputValue);
-                const newCommand = verb + ' ' + type + ' ' + name;
-                setCommand(newCommand);
               }}
               renderInput={(params) => <TextField {...params} label='Types' />}
             />
@@ -381,8 +382,6 @@ function Dashboard() {
               }}
               onSubmit={(e) => {
                 e.preventDefault();
-                const newCommand = verb + ' ' + type + ' ' + name;
-                setCommand(newCommand);
               }}
               value={name}
             >
@@ -426,6 +425,7 @@ function Dashboard() {
               handleSubmit={handleSubmit}
               postCommand={postCommand}
               setUserInput={setUserInput}
+              setPath={setPath}
               userInput={userInput}
               command={command}
             />
