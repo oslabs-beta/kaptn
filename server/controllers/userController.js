@@ -1,32 +1,18 @@
 const Users = require('../models/userModel');
-var qs = require('querystring')
+var qs = require('querystring');
+const bcrypt = require('bcryptjs');
 
 const userController = {};
 
 userController.createUser = async (req, res, next) => {
     console.log('in create user');
-//   const body = qs.parse(req.body)
-//   console.log(body)
-//destructuring usesr input from request body
     console.log(req.body)
-//   const reqBody = Object.keys(req.body)[0];
-//   const body = JSON.parse(reqBody)
-//   console.log(body)  
-  
-//   if (Object.values(req.body)[0] !== '') {
-//     const { username, email, password } = req.body;
-//     console.log('USERNAME', username);
-//     console.log('PASSWORD', password);
-//     console.log('email', email);     
-//   } else {
     //Because of the header type, our request is formatted as {"{}":''}, so we need
     //parse the first (and only) key into an object, which is body
     const reqBody = Object.keys(req.body)[0];
     const body = JSON.parse(reqBody)
-    //the username, email, and password variables are not persisting through the try block? which is
-    //why creating new user through postman (through if condition above) works
-    //while creating through app (through this else condition) doesn't work
     const { username, email, password } = body;
+    // const hashedPw = bcrypt.hash(password, 10)
     console.log('USERNAME', username);
     console.log('PASSWORD', password);
     console.log('email', email);
@@ -56,13 +42,7 @@ userController.verifyUser = async (req, res, next) => {
     const reqBody = Object.keys(req.body)[0];
     const body = JSON.parse(reqBody)
     console.log(body)
-  // const body = Object.keys(req.body);
-  // const request = req.json()
-  // console.log(request)
 //destructuring email and password from request body
-  // const values = Object.values(body[0]);
-  // const username = values[0];
-  // const password = values[1];
   const { username, password } = body;
   console.log('USERNAME', username);
   console.log('PASSWORD', password);
@@ -72,18 +52,38 @@ userController.verifyUser = async (req, res, next) => {
   if (!user) {
     console.log('WRONG!!')
     res.locals.error = 'Incorrect email';
-    return next();
-  }
-  //if user exists and entered password matches user's password in DB, 
-  if (password === user.password) {
-    console.log('id in verifyUser', user._id);
-    res.locals.id = user._id;
-    console.log(res.locals.id);
-    return next();
+    return next({
+      log: 'Express error handler caught unknown email error',
+      status: 500,
+      message: { err: 'An error occurred EMAIL' },
+    });
   } else {
-    res.locals.error = 'Incorrect password';
-    return next();
+  bcrypt.compare(password, user.password, (err, result) => {
+    if (err) {
+      console.log('ERROR');
+      return next({
+        log: 'Express error handler caught unknown bcrypt.compare error',
+        status: 500,
+        message: { err: 'An error occurred COMPARE' },
+      })
+    }
+    if (result === false) {
+      console.log('incorrect password');
+      return next({
+        log: 'Express error handler caught incorrect password error',
+        status: 500,
+        message: { err: 'An error occurred PW' },
+      })
+    } if (result === true) {
+      console.log('correct password')
+      // console.log(res)
+      // res.status = 200;
+      return next()
+    }
+  });
+  
   }
+
 };
 
 module.exports = userController;
