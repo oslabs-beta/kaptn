@@ -5,40 +5,46 @@ const apiRouter = require('./routes/apiRouter.js');
 const userRouter = require('./routes/userRouter.js');
 const mongoose = require('mongoose');
 
-//connect to mongo database
-mongoose.connect('mongodb+srv://osp5:9dm8OGGfECIJmZdQ@cluster.zboxzus.mongodb.net/test')
+const PORT = 3000;
 
-//console.log DATABASE CONNECTED once connection is successful
+// Connect to mongo database
+mongoose.connect(
+  'mongodb+srv://osp5:9dm8OGGfECIJmZdQ@cluster.zboxzus.mongodb.net/test'
+);
+
+// Upon successful connection, send update to console
 mongoose.connection.once('open', () => {
   console.log('WE IN DIS DB');
 });
 
-const PORT = 3000;
-// Body parser
+// Add body parser
 app.use(express.json());
 
-//??not sure what this does (LOL honestly me neither --natalie)--BUT CRUCIAL
-app.use(express.urlencoded({ extended: true }));
-
-
-//designating /api as endpoint of apiRouter????????
+// Handle routes to /api
 app.use('/api', apiRouter);
 
-//designating /user as endpoint leading to userRouter
+// Handle routes to /user
 app.use('/user', userRouter);
 
 app.use(express.static(path.join(__dirname, '../index')));
-app.get('/', (req, res) => {
-  // res.status(200).sendFile(path.join(__dirname, '/index.html'));
-  res.send('weinhere')
-});
 
-// Endpoint does not exist
+// app.get('/', (req, res) => {
+//  res.status(200).sendFile(path.join(__dirname, '/index.html'));
+//  res.send('weinhere');
+// });
+
+//ADD DASHBOARD ROUTE TO SERVE DASHBOARD UPON LOGIN??
+// app.get('/dashboard', (req, res) => {
+//   res.status(200).sendFile(path.join(__dirname, '/Dashboard.jsx'));
+//   // res.send('weinhere')
+// });
+
+// Handle invalid endpoint
 app.use((req, res) => {
   res.status(404).send('Not Found');
 });
 
-// Global error handler
+// Handle errors
 app.use((err, req, res, next) => {
   const defaultErr = {
     log: 'Express error handler caught unknown middleware error',

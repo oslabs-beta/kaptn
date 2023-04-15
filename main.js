@@ -1,5 +1,5 @@
 const path = require('path');
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, ipcMain } = require('electron');
 // const process = require('process');
 
 function createMainWindow() {
@@ -7,13 +7,23 @@ function createMainWindow() {
     title: 'Kaptn',
     width: 900,
     height: 600,
+    webPreferences: {
+      nodeIntegration: true,
+    },
   });
 
-  // mainWindow.loadFile(path.join(__dirname, '/index.html'));
+  // mainWindow.loadFile(process.cwd());
+  // mainWindow.loadFile('index.html');
   mainWindow.loadURL('http://localhost:4444/');
-  // mainWindow.webContents.openDevTools();
+  mainWindow.webContents.openDevTools();
 }
 
 app.whenReady().then(() => {
   createMainWindow();
 });
+
+
+// ipcMain.on('login-success', e => {
+//   console.log('Entrou no main in English');
+//   mainWindow.loadURL('http://localhost:4444/')
+// })

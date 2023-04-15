@@ -1,4 +1,4 @@
-import './App.css'
+import './App.css';
 import Signup from './components/Signup';
 import Login from './components/Login';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
@@ -6,11 +6,11 @@ import Dashboard from './components/Dashboard';
 
 const routes = createBrowserRouter([
   {
-    path: "/signup",
+    path: '/signup',
     element: <Signup />,
   },
   {
-    path: "/",
+    path: '/',
     element: <Login />,
   },
   {
@@ -21,7 +21,7 @@ const routes = createBrowserRouter([
 
 function App() {
   return (
-    <div className="App">
+    <div className='App'>
       <RouterProvider router={routes} />
     </div>
   );

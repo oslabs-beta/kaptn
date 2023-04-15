@@ -8,29 +8,45 @@ import { AppBar } from '@mui/material';
 import Container from '@mui/material/Container';
 
 function Signup() {
-    const [inputPassword, setInputPassword] = useState("");
-    const [inputUsername, setInputUsername] = useState("");
-    const [inputEmail, setInputEmail] = useState("");
-    // const [loggedIn, setLoggedIn] = useState(false);
-    async function createUser(event) {
-        event.preventDefault();
-        console.log('in create user front end');
-        try {
-            await fetch("http://localhost:3000/user/createuser", {
-                mode: 'no-cors',
-                method: "POST",
-                headers: {'Content-Type': "application/x-www-form-urlencoded"},
-                body: JSON.stringify({
-                    username: inputUsername,
-                    email: inputEmail,
-                    password: inputPassword
-                })
-            })
-            window.location.href = "http://localhost:4444/"; //edit as needed
-        } catch(err) {
-            console.error("Error in posting")
-        }
+  const [password, setInputPassword] = useState('');
+  const [username, setInputUsername] = useState('');
+  const [email, setInputEmail] = useState('');
+
+  // Send request to the server to create a new user
+  async function createUser(username, email, password) {
+    try {
+      const response = await fetch('/user/createuser', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username,
+          email,
+          password,
+        }),
+      });
+      // If the response comes back, parse it from JSON and return
+      const parsedResponse = await response.json();
+      return parsedResponse;
+    } catch (err) {
+      console.error(err);
     }
+  }
+
+  // When sign up button is clicked, invoke createUser function
+  function handleClick(event) {
+    event.preventDefault();
+
+    if (username === '' || password === '' || email === '')
+      alert('Missing username, email, or password. Please try again');
+
+    const callCreateUser = async () => {
+      const response = await createUser(username, email, password);
+      // If there are no errors, redirect to the login page
+      if (response) window.location.href = 'http://localhost:4444/';
+    };
+    callCreateUser();
+  }
+
   return (
     <Box sx={{ display: 'flex', 
               flexDirection: 'column', 
@@ -62,7 +78,7 @@ function Signup() {
             </Container>
         </AppBar>
         <Box component='form' 
-          onSubmit={createUser} 
+          onSubmit={handleClick} 
           sx={{ display: 'flex', 
                 width: '50%',
                 flexDirection: 'column', 
@@ -85,7 +101,7 @@ function Signup() {
               type="text"
               name="username"
               label = 'Username'
-              username={inputUsername}
+              username={username}
               fullWidth
               sx = {{ 
                     mb: 3,
@@ -97,7 +113,7 @@ function Signup() {
               type="text"
               name="email"
               label = 'Email'
-              email={inputEmail}
+              email={email}
               fullWidth
               sx = {{ 
                     mb: 3,
@@ -109,7 +125,7 @@ function Signup() {
               type="password"
               name="password"
               label = 'Password'
-              password={inputPassword}
+              password={password}
               fullWidth
               sx = {{ 
                     mb: 3,
@@ -130,4 +146,4 @@ function Signup() {
   )
 }
 
-export default Signup
+export default Signup;

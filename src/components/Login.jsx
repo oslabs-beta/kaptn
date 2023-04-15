@@ -8,36 +8,49 @@ import { AppBar } from '@mui/material';
 import Container from '@mui/material/Container';
 
 function Login() {
-    const [inputPassword, setInputPassword] = useState("");
-    const [inputUsername, setInputUsername] = useState("");
-    const [loggedIn, setLoggedIn] = useState(false)
-    // const [response, setResponse] = useState("")
-    async function checkLogin(event) {
-      event.preventDefault()
-      console.log('in command')
-      try {
-         const response = await fetch('http://localhost:3000/user/login', {
-            mode: 'no-cors',
-            method: "POST",
-            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-            // headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({
-                username: inputUsername,
-                password: inputPassword
-            })
-        })
-        // const res = await response.json();
-        // console.log(res)
-        // if (res.data.id) { //alter based on response from backend
-        // console.log("correct input")
-        window.location.href = "http://localhost:4444/dashboard"; 
-      // } else {
-      //   console.log("incorrect")
-      // }
-    } catch(err) {
-       console.error("Error: ", err);
+  const [password, setInputPassword] = useState('');
+  const [username, setInputUsername] = useState('');
+  const [loggedIn, setLoggedIn] = useState(false);
+
+  // Send a request to the server to confirm the username and password
+  async function checkLogin(username, password) {
+    try {
+      const response = await fetch('/user/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username,
+          password,
+        }),
+      });
+      // If there are no errors, convert response from JSON and return
+      const parsedResponse = await response.json();
+      return parsedResponse;
+    } catch (err) {
+      console.error(err);
     }
   }
+
+  // When log in button is clicked, invoke checkLogin function
+  function handleSubmit(event) {
+    event.preventDefault();
+
+    const callCheckLogin = async () => {
+      const response = await checkLogin(username, password);
+      // If the request was successful, set the login state to true and redirect to the dashboard
+      console.log('response', response);
+      if (!response.err) {
+        console.log('response', response);
+        setLoggedIn(true);
+        window.location.href = 'http://localhost:4444/dashboard';
+      } else {
+        alert('Wrong username or password');
+      }
+    };
+
+    callCheckLogin();
+  }
+
   return (
     <Box sx={{ display: 'flex', 
               flexDirection: 'column', 
@@ -73,7 +86,7 @@ function Login() {
             </Container>
         </AppBar>
         <Box component='form' 
-          onSubmit={checkLogin} 
+          onSubmit={handleSubmit} 
           sx={{ mt: 6 }}>
           <Box sx={{ display: 'flex', 
                       flexDirection: 'column', 
@@ -95,7 +108,7 @@ function Login() {
                       name="username"
                       label = 'Username'
                       fullWidth
-                      username={inputUsername}
+                      username={username}
                       sx = {{ 
                             mb: 3,
                             backgroundColor: 'white'
@@ -108,7 +121,7 @@ function Login() {
                       name="password"
                       label = 'Password'
                       fullWidth
-                      password={inputPassword}
+                      password={password}
                       sx = {{ 
                         mb: 3,
                         backgroundColor: 'white'
@@ -156,4 +169,4 @@ function Login() {
   )
 }
 
-export default Login
+export default Login;
