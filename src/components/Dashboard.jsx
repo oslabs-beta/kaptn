@@ -1,5 +1,5 @@
 import React from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import viteLogo from '/vite.svg';
 import '../App.css';
 import {
@@ -31,14 +31,21 @@ import SettingsBackupRestoreOutlinedIcon from '@mui/icons-material/SettingsBacku
 import LocalLibraryOutlinedIcon from '@mui/icons-material/LocalLibraryOutlined';
 import ManageAccountsOutlinedIcon from '@mui/icons-material/ManageAccountsOutlined';
 import SideNav from './Sidebar';
+import CommandLine from './CommandLine.jsx';
+import Terminal from './Terminal.jsx';
 import Topbar from './Topbar';
 // import { makeStyles } from "@mui/styles";
 
 function Dashboard() {
-  const [commands, setCommands] = React.useState('');
+  const [verb, setVerb] = React.useState('');
   const [type, setType] = React.useState('');
   const [name, setName] = React.useState('');
   const [currDir, setCurrDir] = React.useState('NO DIRECTORY SELECTED');
+  const [userInput, setUserInput] = React.useState('');
+  const [command, setCommand] = useState('');
+  const [response, setResponse] = useState([]);
+  const [error, setError] = useState(false);
+  const [path, setPath] = useState([]);
 
   const MyTextField = styled(TextField)({
     // color: 'darkslategray',
@@ -63,18 +70,98 @@ function Dashboard() {
     // let value = URL.createObjectURL(event.target.files[0]);
   };
 
-  const handleCommands = (event) => {
-    setCommands(event.target.value);
+  const handleUploadDirectory = (event) => {
+    let path = event.target.files[0].path.split('');
+    while (path[path.length - 1] !== '/') {
+      path.pop();
+    }
+    let absPath = path.join('');
+    // for(let i=0 ;
+    console.log('path is ', absPath);
+    // let FolderPath = event.target.value;
+    // let absFoldPath = FolderPath;
+    // console.log(absFoldPath);
+    setCurrDir(absPath);
+    // let value = URL.createObjectURL(event.target.files[0]);
   };
 
-  const handleType = (event) => {
-    setType(event.target.value);
+  const handleUploadDirectory = (event) => {
+    let path = event.target.files[0].path.split('');
+    while (path[path.length - 1] !== '/') {
+      path.pop();
+    }
+    let absPath = path.join('');
+    // for(let i=0 ;
+    console.log('path is ', absPath);
+    // let FolderPath = event.target.value;
+    // let absFoldPath = FolderPath;
+    // console.log(absFoldPath);
+    setCurrDir(absPath);
+    // let value = URL.createObjectURL(event.target.files[0]);
   };
 
-  const handleName = (event) => {
-    setName(event.target.value);
-    // console.log(name);
+  const handleUploadDirectory = (event) => {
+    let path = event.target.files[0].path.split('');
+    while (path[path.length - 1] !== '/') {
+      path.pop();
+    }
+    let absPath = path.join('');
+    // for(let i=0 ;
+    console.log('path is ', absPath);
+    // let FolderPath = event.target.value;
+    // let absFoldPath = FolderPath;
+    // console.log(absFoldPath);
+    setCurrDir(absPath);
+    // let value = URL.createObjectURL(event.target.files[0]);
   };
+
+  // Set the correct command based on current inputs
+  useEffect(() => {
+    let newCommand = '';
+    if (verb !== '') newCommand += verb;
+    if (type !== '') newCommand += ' ' + type;
+    if (name !== '') newCommand += ' ' + name;
+    if (userInput !== '') newCommand += ' ' + userInput;
+    setCommand(newCommand);
+  });
+
+  // Post the command to the server
+  const postCommand = async (command) => {
+    try {
+      const response = await fetch('/api', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ command, path }),
+      });
+      const cliResponse = await response.json();
+      console.log('the server responded: ', cliResponse);
+      return cliResponse;
+    } catch (e) {
+      console.log(e);
+      setError(true);
+    }
+  };
+
+  // Handle the CLI submit event
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log('enter button clicked');
+    console.log('command ', command);
+    const getCliResponse = async () => {
+      const cliResponse = await postCommand(command);
+      // Update response state with the returned CLI response
+      const newResponseState = [
+        ...response,
+        { command: command, response: cliResponse },
+      ];
+      setResponse(newResponseState);
+    };
+
+    // Invoke a fetch request to the server
+    getCliResponse();
+  };
+
+  const getCurrentPath = (e) => {};
 
   const pages = ['Easy Setup', 'Manage Pods', 'Tutorials'];
   const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
@@ -100,11 +187,11 @@ function Dashboard() {
   const handleKeyDown = (event) => {
     if (event.key === 'Enter') {
       setName(event.target.value);
-
+      const newCommand = command + ' ' + e.target.value;
+      setCommand(newCommand);
       console.log('enter pressed');
     }
   };
-  // console.log(name);
 
   const commandList = [
     { label: 'get', year: 1994 },
@@ -126,6 +213,7 @@ function Dashboard() {
     { label: 'service' },
     { label: 'services' },
   ];
+
   return (
     <div
       style={{
@@ -272,9 +360,12 @@ function Dashboard() {
 
       {/* ------------------ COMMANDS, TYPES, NAMES, TAGS --------------------------------------- */}
 
+
       <Grid container spacing={2} sx={{ m: 2, color: 'white' }}>
         {/* --------SIDEBAR---------- */}
         <Grid item md={3}>
+          <SideNav />
+
           <SideNav />
 
           {/* ------------------------- OLD SIDEBAR BELOW--------------------- */}
@@ -410,7 +501,32 @@ function Dashboard() {
                 width: 200,
                 // background: '#767474',
               }}
+              onInputChange={(e, newInputValue) => {
+                setVerb(newInputValue);
+                const newCommand = verb + ' ' + type + ' ' + name;
+                setCommand(newCommand);
+                // setCommand(newInputValue);
+              }}
+              onInputChange={(e, newInputValue) => {
+                setVerb(newInputValue);
+                const newCommand = verb + ' ' + type + ' ' + name;
+                setCommand(newCommand);
+                // setCommand(newInputValue);
+              }}
+              onInputChange={(e, newInputValue) => {
+                setVerb(newInputValue);
+                const newCommand = verb + ' ' + type + ' ' + name;
+                setCommand(newCommand);
+                // setCommand(newInputValue);
+              }}
+              onInputChange={(e, newInputValue) => {
+                setVerb(newInputValue);
+                const newCommand = verb + ' ' + type + ' ' + name;
+                setCommand(newCommand);
+                // setCommand(newInputValue);
+              }}
               renderInput={(params) => (
+                <TextField {...params} label='Commands' />
                 <TextField {...params} label='Commands' />
               )}
             />
@@ -426,34 +542,28 @@ function Dashboard() {
                 // background: '#767474',
                 zIndex: 1000,
               }}
+              onInputChange={(e, newInputValue) => {
+                setType(newInputValue);
+              }}
               renderInput={(params) => <TextField {...params} label='Types' />}
             />
-            <br />
-            {/* ------------- NAME text field -------------------- */}
-            <MyTextField
-              style={{ minWidth: 200 }}
-              id='outlined-basic'
-              label='Name'
-              variant='outlined'
-              onKeyDown={handleKeyDown}
-              // onInput={handleName}
-            />
-            <br />
-            {/* ------------- MORE INFO pane/field -------------------- */}
-            <Box
-              sx={{
-                height: '260px',
-                // border: 1,
-                minWidth: 200,
-                // background: '#767474',
-                border: '1px solid #483882',
-                borderRadius: '4px',
-                fontFamily: 'Monospace',
-                padding: '8px',
+            <form
+              onChange={(e) => {
+                setName(e.target.value);
+                console.log(name);
               }}
+              onSubmit={(e) => {
+                e.preventDefault();
+              }}
+              value={name}
             >
-              Click here for more info about your inputs
-            </Box>
+              <TextField
+                style={{ minWidth: 200 }}
+                id='outlined-basic'
+                label='Name'
+                variant='outlined'
+              />
+            </form>
           </Box>
         </Grid>
         <Grid item md={5}>
@@ -470,7 +580,7 @@ function Dashboard() {
               padding: '5px',
             }}
           >
-            Terminal Logs
+            <Terminal response={response} />
           </div>
           <div
             style={{
@@ -484,7 +594,14 @@ function Dashboard() {
               padding: '5px',
             }}
           >
-            Command Line
+            <CommandLine
+              handleSubmit={handleSubmit}
+              postCommand={postCommand}
+              setUserInput={setUserInput}
+              setPath={setPath}
+              userInput={userInput}
+              command={command}
+            />
           </div>
         </Grid>
       </Grid>

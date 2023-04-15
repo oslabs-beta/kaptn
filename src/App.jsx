@@ -1,4 +1,4 @@
-import './App.css'
+import './App.css';
 import Signup from './components/Signup';
 import Login from './components/Login';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
@@ -11,11 +11,11 @@ import Sidebar from './components/Sidebar'
 
 const routes = createBrowserRouter([
   {
-    path: "/signup",
+    path: '/signup',
     element: <Signup />,
   },
   {
-    path: "/",
+    path: '/',
     element: <Login />,
   },
   {
@@ -28,6 +28,7 @@ function App() {
   const [theme, colorMode] = useMode();
   // useMode hook is for applying dark and light mode easily
   return (
+<<<<<<< HEAD
     <ColorModeContext.Provider value={colorMode}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
@@ -40,6 +41,11 @@ function App() {
       </ThemeProvider>
     </ColorModeContext.Provider>
     
+=======
+    <div className='App'>
+      <RouterProvider router={routes} />
+    </div>
+>>>>>>> dev
   );
 }
 
