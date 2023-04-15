@@ -81,11 +81,12 @@ function Dashboard() {
 
   // Post the command to the server
   const postCommand = async (command, currDir) => {
+    console.log('currDir', currDir);
     try {
       const response = await fetch('/api', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ command, currDir }),
+        body: JSON.stringify({ command: command, currDir: currDir }),
       });
       const cliResponse = await response.json();
       console.log('the server responded: ', cliResponse);
@@ -102,7 +103,7 @@ function Dashboard() {
     console.log('enter button clicked');
     console.log('command ', command);
     const getCliResponse = async () => {
-      const cliResponse = await postCommand(command);
+      const cliResponse = await postCommand(command, currDir);
       // Update response state with the returned CLI response
       const newResponseState = [
         ...response,
