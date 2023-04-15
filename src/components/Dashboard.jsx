@@ -45,7 +45,6 @@ function Dashboard() {
   const [command, setCommand] = useState('');
   const [response, setResponse] = useState([]);
   const [error, setError] = useState(false);
-  const [path, setPath] = useState([]);
 
   const MyTextField = styled(TextField)({
     // color: 'darkslategray',
@@ -54,51 +53,6 @@ function Dashboard() {
     height: '56px',
     borderRadius: 4,
   });
-
-  const handleUploadDirectory = (event) => {
-    let path = event.target.files[0].path.split('');
-    while (path[path.length - 1] !== '/') {
-      path.pop();
-    }
-    let absPath = path.join('');
-    // for(let i=0 ;
-    console.log('path is ', absPath);
-    // let FolderPath = event.target.value;
-    // let absFoldPath = FolderPath;
-    // console.log(absFoldPath);
-    setCurrDir(absPath);
-    // let value = URL.createObjectURL(event.target.files[0]);
-  };
-
-  const handleUploadDirectory = (event) => {
-    let path = event.target.files[0].path.split('');
-    while (path[path.length - 1] !== '/') {
-      path.pop();
-    }
-    let absPath = path.join('');
-    // for(let i=0 ;
-    console.log('path is ', absPath);
-    // let FolderPath = event.target.value;
-    // let absFoldPath = FolderPath;
-    // console.log(absFoldPath);
-    setCurrDir(absPath);
-    // let value = URL.createObjectURL(event.target.files[0]);
-  };
-
-  const handleUploadDirectory = (event) => {
-    let path = event.target.files[0].path.split('');
-    while (path[path.length - 1] !== '/') {
-      path.pop();
-    }
-    let absPath = path.join('');
-    // for(let i=0 ;
-    console.log('path is ', absPath);
-    // let FolderPath = event.target.value;
-    // let absFoldPath = FolderPath;
-    // console.log(absFoldPath);
-    setCurrDir(absPath);
-    // let value = URL.createObjectURL(event.target.files[0]);
-  };
 
   const handleUploadDirectory = (event) => {
     let path = event.target.files[0].path.split('');
@@ -126,12 +80,12 @@ function Dashboard() {
   });
 
   // Post the command to the server
-  const postCommand = async (command) => {
+  const postCommand = async (command, currDir) => {
     try {
       const response = await fetch('/api', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ command, path }),
+        body: JSON.stringify({ command, currDir }),
       });
       const cliResponse = await response.json();
       console.log('the server responded: ', cliResponse);
@@ -360,12 +314,9 @@ function Dashboard() {
 
       {/* ------------------ COMMANDS, TYPES, NAMES, TAGS --------------------------------------- */}
 
-
       <Grid container spacing={2} sx={{ m: 2, color: 'white' }}>
         {/* --------SIDEBAR---------- */}
         <Grid item md={3}>
-          <SideNav />
-
           <SideNav />
 
           {/* ------------------------- OLD SIDEBAR BELOW--------------------- */}
@@ -507,26 +458,7 @@ function Dashboard() {
                 setCommand(newCommand);
                 // setCommand(newInputValue);
               }}
-              onInputChange={(e, newInputValue) => {
-                setVerb(newInputValue);
-                const newCommand = verb + ' ' + type + ' ' + name;
-                setCommand(newCommand);
-                // setCommand(newInputValue);
-              }}
-              onInputChange={(e, newInputValue) => {
-                setVerb(newInputValue);
-                const newCommand = verb + ' ' + type + ' ' + name;
-                setCommand(newCommand);
-                // setCommand(newInputValue);
-              }}
-              onInputChange={(e, newInputValue) => {
-                setVerb(newInputValue);
-                const newCommand = verb + ' ' + type + ' ' + name;
-                setCommand(newCommand);
-                // setCommand(newInputValue);
-              }}
               renderInput={(params) => (
-                <TextField {...params} label='Commands' />
                 <TextField {...params} label='Commands' />
               )}
             />
@@ -598,7 +530,6 @@ function Dashboard() {
               handleSubmit={handleSubmit}
               postCommand={postCommand}
               setUserInput={setUserInput}
-              setPath={setPath}
               userInput={userInput}
               command={command}
             />

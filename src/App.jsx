@@ -28,7 +28,6 @@ function App() {
   const [theme, colorMode] = useMode();
   // useMode hook is for applying dark and light mode easily
   return (
-<<<<<<< HEAD
     <ColorModeContext.Provider value={colorMode}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
@@ -41,11 +40,6 @@ function App() {
       </ThemeProvider>
     </ColorModeContext.Provider>
     
-=======
-    <div className='App'>
-      <RouterProvider router={routes} />
-    </div>
->>>>>>> dev
   );
 }
 
