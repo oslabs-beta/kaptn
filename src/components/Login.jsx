@@ -4,60 +4,55 @@ import { Link } from 'react-router-dom';
 // import Cookies from 'js-cookie';
 
 function Login() {
-    const [inputPassword, setInputPassword] = useState("");
-    const [inputUsername, setInputUsername] = useState("");
-    const [loggedIn, setLoggedIn] = useState(false)
-    // const [response, setResponse] = useState("")
-  //   async function checkLogin(event) {
-  //     event.preventDefault()
-  //     try {
-  //        const response = await fetch('http://localhost:3000/user/login', {
-  //           mode: 'no-cors',
-  //           method: "POST",
-  //           // headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-  //           headers: {'Content-Type': 'application/json'},
-  //           body: JSON.stringify({
-  //               username: inputUsername,
-  //               password: inputPassword
-  //           })
-  //       })
-  //       // window.location.href = "http://localhost:4444/dashboard"
-  //       console.log('FRONTEND MESSAGE')
-  //       // const res = await response;
-  //       console.log(response)
+  const [password, setInputPassword] = useState('');
+  const [username, setInputUsername] = useState('');
+  const [loggedIn, setLoggedIn] = useState(false);
 
-  //       // console.log("THIS IS RESPONSE:", response)
-
-  //   } catch(err) {
-  //      console.error("Error: ", err);
-  //   }
-  // }
-  function checkLogin(event){
-    event.preventDefault();
-    fetch('http://localhost:3000/user/login', {
-            mode: 'no-cors',
-            method: "POST",
-            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-            // headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({
-                username: inputUsername,
-                password: inputPassword
-            })
-        })
-        .then(data => console.log(data))
-        .catch(err => console.log(err))
+  // Send a request to the server to confirm the username and password
+  async function checkLogin(username, password) {
+    try {
+      const response = await fetch('/user/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username,
+          password,
+        }),
+      });
+      // If there are no errors, convert response from JSON and return
+      const parsedResponse = await response.json();
+      return parsedResponse;
+    } catch (err) {
+      console.error(err);
+    }
   }
+
+  // When log in button is clicked, invoke checkLogin function
+  function handleSubmit(event) {
+    event.preventDefault();
+
+    const callCheckLogin = async () => {
+      const response = await checkLogin(username, password);
+      // If the request was successful, set the login state to true and redirect to the dashboard
+      if (response) {
+        setLoggedIn(true);
+        window.location.href = 'http://localhost:4444/dashboard';
+      }
+    };
+    callCheckLogin();
+  }
+
   return (
     <div>
       <h1>Login</h1>
       <div className='loginPage'>
-        <form onSubmit={checkLogin}>
+        <form onSubmit={handleSubmit}>
           <div className='inputs'>
             <input
               type='text'
               name='username'
               placeholder='username'
-              email={inputUsername}
+              email={username}
               onChange={(e) => {
                 setInputUsername(e.target.value);
               }}
@@ -66,7 +61,7 @@ function Login() {
               type='password'
               name='password'
               placeholder='Password'
-              password={inputPassword}
+              password={password}
               onChange={(e) => {
                 setInputPassword(e.target.value);
               }}
