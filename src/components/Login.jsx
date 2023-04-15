@@ -27,7 +27,7 @@ function Login() {
     //   if (res.data.verified) { //alter based on response from backend
     //     setLoggedIn(true);
     //     console.log("correct input")
-    window.location.href = 'http://localhost:3334/dashboard'; //what is our local host?
+    window.location.href = 'http://localhost:3335/dashboard'; //what is our local host?
     //   } else {
     //     console.log("incorrect")
     //   }
