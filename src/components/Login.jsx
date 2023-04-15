@@ -34,11 +34,16 @@ function Login() {
     const callCheckLogin = async () => {
       const response = await checkLogin(username, password);
       // If the request was successful, set the login state to true and redirect to the dashboard
-      if (response) {
+      console.log('response', response);
+      if (!response.err) {
+        console.log('response', response);
         setLoggedIn(true);
         window.location.href = 'http://localhost:4444/dashboard';
+      } else {
+        alert('Wrong username or password');
       }
     };
+
     callCheckLogin();
   }
 
