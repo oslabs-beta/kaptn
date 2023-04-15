@@ -33,25 +33,41 @@ import ManageAccountsOutlinedIcon from '@mui/icons-material/ManageAccountsOutlin
 import SideNav from './Sidebar';
 import CommandLine from './CommandLine.jsx';
 import Terminal from './Terminal.jsx';
+import Topbar from './Topbar';
 // import { makeStyles } from "@mui/styles";
 
 function Dashboard() {
   const [verb, setVerb] = React.useState('');
   const [type, setType] = React.useState('');
   const [name, setName] = React.useState('');
+  const [currDir, setCurrDir] = React.useState('NO DIRECTORY SELECTED');
   const [userInput, setUserInput] = React.useState('');
   const [command, setCommand] = useState('');
   const [response, setResponse] = useState([]);
   const [error, setError] = useState(false);
-  const [path, setPath] = useState([]);
 
   const MyTextField = styled(TextField)({
     // color: 'darkslategray',
     color: '#edeaea',
-    background: '#767474',
+    // background: '#767474',
     height: '56px',
     borderRadius: 4,
   });
+
+  const handleUploadDirectory = (event) => {
+    let path = event.target.files[0].path.split('');
+    while (path[path.length - 1] !== '/') {
+      path.pop();
+    }
+    let absPath = path.join('');
+    // for(let i=0 ;
+    console.log('path is ', absPath);
+    // let FolderPath = event.target.value;
+    // let absFoldPath = FolderPath;
+    // console.log(absFoldPath);
+    setCurrDir(absPath);
+    // let value = URL.createObjectURL(event.target.files[0]);
+  };
 
   // Set the correct command based on current inputs
   useEffect(() => {
@@ -64,12 +80,12 @@ function Dashboard() {
   });
 
   // Post the command to the server
-  const postCommand = async (command) => {
+  const postCommand = async (command, currDir) => {
     try {
       const response = await fetch('/api', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ command, path }),
+        body: JSON.stringify({ command, currDir }),
       });
       const cliResponse = await response.json();
       console.log('the server responded: ', cliResponse);
@@ -155,7 +171,8 @@ function Dashboard() {
   return (
     <div
       style={{
-        background: '#5b5b5c',
+        // background color
+        // background: '#5b5b5c',
         color: 'white',
         height: '100vh',
         position: 'absolute',
@@ -167,9 +184,10 @@ function Dashboard() {
         padding: 0,
       }}
     >
+      <Topbar />
       {/* <SideNav /> */}
       <Box display='flex' flexDirection='column'>
-        <AppBar style={{ backgroundColor: '#1f1f1f' }} position='static'>
+        {/* <AppBar style={{ backgroundColor: '#1f1f1f' }} position='static'>
           <Container maxWidth='xl'>
             <Toolbar disableGutters>
               <AdbIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
@@ -291,7 +309,7 @@ function Dashboard() {
               </Box>
             </Toolbar>
           </Container>
-        </AppBar>
+        </AppBar> */}
       </Box>
 
       {/* ------------------ COMMANDS, TYPES, NAMES, TAGS --------------------------------------- */}
@@ -334,20 +352,105 @@ function Dashboard() {
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              bgcolor: '#2e2d2d',
-              color: '#edeaea',
+              // colored box behind buttons
+              // bgcolor: '#2e2d2d',
               padding: '15px',
               width: '190px',
               borderRadius: '5px',
             }}
           >
+            {/* <Box
+            sx={{
+              // border: 1,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              // bgcolor: '#2e2d2d',
+              // color: '#edeaea',
+              padding: '15px',
+              width: '190px',
+              borderRadius: '5px',
+              fontFamily: 'monospace',
+            }}
+          > */}
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                color: '#9e9d9d',
+                paddingBottom: '10px',
+              }}
+            >
+              WORKING DIRECTORY
+            </div>
+            <div
+              style={{
+                backgroundColor: '#727171',
+                width: '190px',
+                height: '1px',
+              }}
+            />
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                padding: '10px',
+                fontSize: '9px',
+              }}
+            >
+              {currDir}
+            </div>
+
+            <Button
+              variant='contained'
+              component='label'
+              style={{
+                // backgroundColor: '#767474',
+                // color: '#2a2a2a',
+                border: '1px solid white',
+                width: '170px',
+                marginBottom: '10px',
+                fontSize: '12px',
+              }}
+            >
+              CHOOSE DIRECTORY
+              <input
+                type='file'
+                directory=''
+                webkitdirectory=''
+                hidden
+                onChange={handleUploadDirectory}
+              />
+            </Button>
+            <div
+              style={{
+                backgroundColor: '#727171',
+                width: '190px',
+                height: '1px',
+                marginBottom: '10px',
+              }}
+            />
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                color: '#9e9d9d',
+                paddingBottom: '10px',
+              }}
+            >
+              INPUT COMMANDS:
+            </div>
+
             <Autocomplete
               disablePortal
               id='combo-box-demo'
               options={commandList}
               sx={{
                 width: 200,
-                background: '#767474',
+                // background: '#767474',
               }}
               onInputChange={(e, newInputValue) => {
                 setVerb(newInputValue);
@@ -367,7 +470,8 @@ function Dashboard() {
               options={types}
               sx={{
                 width: 200,
-                background: '#767474',
+                // second autocomplete
+                // background: '#767474',
                 zIndex: 1000,
               }}
               onInputChange={(e, newInputValue) => {
@@ -398,11 +502,12 @@ function Dashboard() {
           {/* olivia's world */}
           <div
             style={{
-              border: '2px solid #c6bebe',
+              border: '2px solid',
+              // border: '2px solid #c6bebe',
               background: '#4c4747',
               height: '400px',
               width: 'auto',
-              color: '#edeaea',
+              // color: '#edeaea',
               fontFamily: 'monospace',
               padding: '5px',
             }}
@@ -411,12 +516,12 @@ function Dashboard() {
           </div>
           <div
             style={{
-              border: '2px solid #c6bebe',
+              border: '2px solid',
               background: '#4c4747',
+              // border: '2px solid #c6bebe',
               height: '100px',
               width: 'auto',
               marginTop: '5px',
-              color: '#edeaea',
               fontFamily: 'monospace',
               padding: '5px',
             }}
@@ -425,7 +530,6 @@ function Dashboard() {
               handleSubmit={handleSubmit}
               postCommand={postCommand}
               setUserInput={setUserInput}
-              setPath={setPath}
               userInput={userInput}
               command={command}
             />

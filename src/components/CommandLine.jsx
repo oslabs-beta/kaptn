@@ -16,26 +16,26 @@ const CommandLine = (props) => {
     props.setUserInput(newUserInput);
   };
 
-  const changeDirectory = (e) => {
-    console.log(e.target.files[0]);
-    let directory = e.target.files[0];
-    for (let i = directory.length - 1; i > 0; i--) {
-      if (directory[i] === '/') directory = directory.slice(0, i);
-    }
-    console.log('directory', directory);
-    props.setPat(directory);
-  };
+  // const changeDirectory = (e) => {
+  //   console.log(e.target.files[0]);
+  //   let directory = e.target.files[0];
+  //   for (let i = directory.length - 1; i > 0; i--) {
+  //     if (directory[i] === '/') directory = directory.slice(0, i);
+  //   }
+  //   console.log('directory', directory);
+  //   props.setPat(directory);
+  // };
 
   return (
     <div>
-      <input
+      {/* <input
         directory=''
         webkitdirectory=''
         type='file'
         onChange={(e) => {
           changeDirectory(e);
         }}
-      />
+      /> */}
       <form
         onSubmit={props.handleSubmit}
         onChange={(e) => {
