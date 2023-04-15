@@ -40,7 +40,7 @@ function Dashboard() {
   const [verb, setVerb] = React.useState('');
   const [type, setType] = React.useState('');
   const [name, setName] = React.useState('');
-  const [currDir, setCurrDir] = React.useState('NO DIRECTORY SELECTED');
+  const [currDir, setCurrDir] = React.useState('');
   const [userInput, setUserInput] = React.useState('');
   const [command, setCommand] = useState('');
   const [response, setResponse] = useState([]);
@@ -101,6 +101,7 @@ function Dashboard() {
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log('enter button clicked');
+    if(currDir === '') return alert('Please choose working directory')
     console.log('command ', command);
     const getCliResponse = async () => {
       const cliResponse = await postCommand(command, currDir);
