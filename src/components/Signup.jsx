@@ -78,7 +78,7 @@ function Signup() {
             </Container>
         </AppBar>
         <Box component='form' 
-          onSubmit={createUser} 
+          onSubmit={handleClick} 
           sx={{ display: 'flex', 
                 width: '50%',
                 flexDirection: 'column', 
@@ -101,7 +101,7 @@ function Signup() {
               type="text"
               name="username"
               label = 'Username'
-              username={inputUsername}
+              username={username}
               fullWidth
               sx = {{ 
                     mb: 3,
@@ -113,7 +113,7 @@ function Signup() {
               type="text"
               name="email"
               label = 'Email'
-              email={inputEmail}
+              email={email}
               fullWidth
               sx = {{ 
                     mb: 3,
@@ -125,7 +125,7 @@ function Signup() {
               type="password"
               name="password"
               label = 'Password'
-              password={inputPassword}
+              password={password}
               fullWidth
               sx = {{ 
                     mb: 3,

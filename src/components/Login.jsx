@@ -86,7 +86,7 @@ function Login() {
             </Container>
         </AppBar>
         <Box component='form' 
-          onSubmit={checkLogin} 
+          onSubmit={handleSubmit} 
           sx={{ mt: 6 }}>
           <Box sx={{ display: 'flex', 
                       flexDirection: 'column', 
@@ -108,7 +108,7 @@ function Login() {
                       name="username"
                       label = 'Username'
                       fullWidth
-                      username={inputUsername}
+                      username={username}
                       sx = {{ 
                             mb: 3,
                             backgroundColor: 'white'
@@ -121,7 +121,7 @@ function Login() {
                       name="password"
                       label = 'Password'
                       fullWidth
-                      password={inputPassword}
+                      password={password}
                       sx = {{ 
                         mb: 3,
                         backgroundColor: 'white'

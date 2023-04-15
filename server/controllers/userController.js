@@ -7,7 +7,7 @@ const userController = {};
 // Create user in the database
 userController.createUser = async (req, res, next) => {
   const { username, email, password } = req.body;
-  
+
   try {
     const newUser = await Users.create({ username, email, password });
     // If the user is created, return next
@@ -25,8 +25,6 @@ userController.createUser = async (req, res, next) => {
 // Verify user on login attempt
 userController.verifyUser = async (req, res, next) => {
   const { username, password } = req.body;
-  console.log('username', username);
-  console.log('password', password);
   // Find if the user exists in the database
   const user = await Users.findOne({ username });
   // If user does not exist, return error
@@ -57,7 +55,7 @@ userController.verifyUser = async (req, res, next) => {
       }
       // Otherwise, if the password is correct, return next
       if (result === true) {
-        console.log('correct')
+        console.log('correct');
         return next();
       }
     });
