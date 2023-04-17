@@ -110,7 +110,7 @@ function Login() {
               fontWeight: 100,
               fontSize: 70,
               letterSpacing: '.1 rem',
-              color: 'black',
+              color: 'white',
               textDecoration: 'none',
             }}
           >
@@ -125,7 +125,6 @@ function Login() {
             sx={{
               mb: 3,
               backgroundColor: 'white',
-              input: { color: 'black' },
             }}
             onChange={(e) => {
               setInputUsername(e.target.value);
@@ -140,7 +139,6 @@ function Login() {
             sx={{
               mb: 3,
               backgroundColor: 'white',
-              input: { color: 'black' },
             }}
             onChange={(e) => {
               setInputPassword(e.target.value);

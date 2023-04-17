@@ -16,26 +16,8 @@ const CommandLine = (props) => {
     props.setUserInput(newUserInput);
   };
 
-  // const changeDirectory = (e) => {
-  //   console.log(e.target.files[0]);
-  //   let directory = e.target.files[0];
-  //   for (let i = directory.length - 1; i > 0; i--) {
-  //     if (directory[i] === '/') directory = directory.slice(0, i);
-  //   }
-  //   console.log('directory', directory);
-  //   props.setPat(directory);
-  // };
-
   return (
     <div>
-      {/* <input
-        directory=''
-        webkitdirectory=''
-        type='file'
-        onChange={(e) => {
-          changeDirectory(e);
-        }}
-      /> */}
       <form
         onSubmit={props.handleSubmit}
         onChange={(e) => {
@@ -45,7 +27,7 @@ const CommandLine = (props) => {
       >
         <TextField
           id='outlined-start-adornment'
-          sx={{ m: 1, width: '40ch' }}
+          sx={{ m: 0, width: '60ch' }}
           InputProps={{
             startAdornment: (
               <InputAdornment position='start'>$ kubectl</InputAdornment>
