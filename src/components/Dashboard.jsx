@@ -247,7 +247,7 @@ function Dashboard() {
               display: 'flex',
               flexStart: 'center',
               height: '35px',
-              width: '88%',
+              width: '100%',
               backgroundColor: '#22145a', //#06001b
               webkitAppRegion: 'drag',
               webkitUserSelect: 'none',
