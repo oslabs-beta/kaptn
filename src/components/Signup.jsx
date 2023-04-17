@@ -54,6 +54,7 @@ function Signup() {
               backgroundColor: '#5b5b5c',
               height: '100vh', 
               mt: 0,            
+              webkitAppRegion: 'drag',
               position: 'absolute',
                 top: 0,
                 right: 0,
