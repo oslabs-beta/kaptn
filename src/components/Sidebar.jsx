@@ -14,6 +14,7 @@ import { tokens } from '../theme';
 import LightModeIcon from '@mui/icons-material/LightMode';
 import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined';
 import ExitToAppOutlinedIcon from '@mui/icons-material/ExitToAppOutlined';
+import { Button } from '@mui/material';
 
 const Item = ({ title, to, icon, selected, setSlected }) => {
   const theme = useTheme();
@@ -69,20 +70,23 @@ function SideNav() {
         <Menu>
           {/* MENU ITEMS */}
           <Box paddingLeft={isCollapsed ? undefined : '10%'}>
-            
+
             <MenuItem
-              to='/'
+              container={Link}
+              href='/'
               icon={<HomeOutlinedIcon />}
-              selected={selected}
-              setSelect={setSelected}
+              // selected={selected}
+              // setSelect={setSelected}
+              onClick={(e) => console.log('hi')}
             >Dashboard</MenuItem>
 
             <MenuItem
-              to='/'
+              container={Link}
+              href='/'
               icon={<ExitToAppOutlinedIcon />}
-              selected={selected}
-              setSelect={setSelected}
-            >Log Out</MenuItem>
+              // selected={selected}
+              // setSelect={setSelected}
+            ><Link to='/'>Log Out</Link></MenuItem>
 
             
           </Box>
