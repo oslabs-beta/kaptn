@@ -140,6 +140,8 @@ function Dashboard() {
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log('enter button clicked');
+    if (currDir === 'NONE SELECTED')
+      return alert('Please choose working directory');
     console.log('command ', command);
     const getCliResponse = async () => {
       const cliResponse = await postCommand(command, currDir);
