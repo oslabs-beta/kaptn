@@ -232,6 +232,7 @@ function Dashboard() {
             padding: 0,
           }}
         >
+        <div style={{ background: '#22145a'}}>
           {/* ----------------newWindowBar---------------- */}
           <Topbar
             position='absolute'
@@ -247,7 +248,7 @@ function Dashboard() {
               display: 'flex',
               flexStart: 'center',
               height: '35px',
-              width: '100%',
+              width: '88%',
               backgroundColor: '#22145a', //#06001b
               webkitAppRegion: 'drag',
               webkitUserSelect: 'none',
@@ -272,6 +273,7 @@ function Dashboard() {
             >
               kaptn
             </div>
+          </div>
           </div>
           {/* <SideNav /> */}
           {/* old sidenav below */}
