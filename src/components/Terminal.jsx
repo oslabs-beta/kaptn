@@ -8,7 +8,7 @@ const Terminal = (props) => {
     commandLog.push(
       <div class='command-log'>
         <p>$ {el.command}</p>
-        <p>{el.response}</p>
+        <div>{el.response}</div>
       </div>
     );
   });
