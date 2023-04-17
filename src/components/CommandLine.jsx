@@ -45,7 +45,7 @@ const CommandLine = (props) => {
       >
         <TextField
           id='outlined-start-adornment'
-          sx={{ m: 1, width: '60ch' }}
+          sx={{ m: 0, width: '60ch' }}
           InputProps={{
             startAdornment: <InputAdornment position='start'>$</InputAdornment>,
           }}

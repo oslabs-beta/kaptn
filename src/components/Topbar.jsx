@@ -16,7 +16,15 @@ function Topbar() {
   // allow us to toggle different states for the color mode
   const colorMode = useContext(ColorModeContext);
   return (
-    <Box display='flex' justifyContent='flex-end' p={2}>
+    <Box
+      position='absolute'
+      top='0'
+      right='0'
+      backgroundColor='#22145a'
+      height='35px'
+      marginBottom='5px'
+      webkitAppRegion='no drag'
+    >
       {/* search bar */}
       {/* <Box
         display='flex'
