@@ -319,7 +319,7 @@ function Dashboard() {
       <Grid container spacing={2} sx={{ m: 2, color: 'white' }}>
         {/* --------SIDEBAR---------- */}
         <Grid item md={3}>
-          <SideNav />
+          {/* <SideNav /> */}
 
           {/* ------------------------- OLD SIDEBAR BELOW--------------------- */}
           {/* <div
