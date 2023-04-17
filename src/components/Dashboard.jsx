@@ -34,12 +34,13 @@ import SideNav from './Sidebar';
 import CommandLine from './CommandLine.jsx';
 import Terminal from './Terminal.jsx';
 import Topbar from './Topbar';
+import { ColorModeContext, useMode } from '../theme';
+import { CssBaseline, ThemeProvider } from '@mui/material';
 
 import OutlinedInput from '@mui/material/OutlinedInput';
 import ListItemText from '@mui/material/ListItemText';
 import Checkbox from '@mui/material/Checkbox';
-import { ColorModeContext, useMode } from '../theme';
-import { CssBaseline, ThemeProvider } from '@mui/material';
+
 // import { makeStyles } from "@mui/styles";
 
 function Dashboard() {
@@ -236,6 +237,7 @@ function Dashboard() {
             padding: 0,
           }}
         >
+        <div style={{ background: '#22145a'}}>
           {/* ----------------newWindowBar---------------- */}
           <Topbar
             position='absolute'
@@ -276,6 +278,7 @@ function Dashboard() {
             >
               kaptn
             </div>
+          </div>
           </div>
           {/* <SideNav /> */}
           {/* old sidenav below */}
@@ -422,31 +425,6 @@ function Dashboard() {
             {/* --------SIDEBAR---------- */}
             <Grid width='25%'>
               <SideNav />
-
-              {/* ------------------------- OLD SIDEBAR BELOW--------------------- */}
-              {/* <div
-            style={{
-              position: 'absolute',
-              left: '0',
-              top: '69px',
-              backgroundColor: '#272727',
-              alignItems: 'center',
-              padding: '5px',
-              height: '100%',
-              width: '50px',
-              // borderRadius: '4px',
-            }}
-          >
-            <div style={{ marginTop: '10px', paddingLeft: '10px' }}>
-              <SettingsBackupRestoreOutlinedIcon />
-            </div>
-            <div style={{ marginTop: '10px', paddingLeft: '10px' }}>
-              <LocalLibraryOutlinedIcon />
-            </div>
-            <div style={{ marginTop: '10px', paddingLeft: '10px' }}>
-              <ManageAccountsOutlinedIcon />
-            </div>
-          </div> */}
             </Grid>
 
             {/* ------------- COMMANDS drop down text field -------------------- */}
