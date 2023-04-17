@@ -40,8 +40,7 @@ import { CssBaseline, ThemeProvider } from '@mui/material';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import ListItemText from '@mui/material/ListItemText';
 import Checkbox from '@mui/material/Checkbox';
-import { ColorModeContext, useMode } from '../theme';
-import { CssBaseline, ThemeProvider } from '@mui/material';
+
 // import { makeStyles } from "@mui/styles";
 
 function Dashboard() {
