@@ -148,12 +148,16 @@ function Dashboard() {
     console.log('command ', command);
     const getCliResponse = async () => {
       const cliResponse = await postCommand(command, currDir);
+      // Filter for errors
+      if (cliResponse.err) alert('Invalid command. Please try again');
       // Update response state with the returned CLI response
-      const newResponseState = [
-        ...response,
-        { command: command, response: cliResponse },
-      ];
-      setResponse(newResponseState);
+      else {
+        const newResponseState = [
+          ...response,
+          { command: command, response: cliResponse },
+        ];
+        setResponse(newResponseState);
+      }
     };
 
     // Invoke a fetch request to the server

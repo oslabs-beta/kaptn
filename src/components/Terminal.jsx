@@ -7,13 +7,12 @@ const Terminal = (props) => {
   // Format the response for line breaks and spacing
   // The <pre> tag here ensures proper spacing
   props.response.forEach((el) => {
-    const paredResponse = el.response.split('\n').map(function (item, idx) {
-      console.log('item', item);
+    const paredResponse = el.response.split('\n').map(function (item) {
       return (
         <pre>
           <span>
             {item}
-            <br />
+            {/* <br /> */}
           </span>
         </pre>
       );
@@ -21,7 +20,7 @@ const Terminal = (props) => {
 
     commandLog.push(
       <div class='command-log'>
-        <strong>$ {el.command}</strong>
+        <strong style={{color: 'rgb(109, 233, 68)'}}>$ {el.command}</strong>
         <p>{paredResponse}</p>
       </div>
     );
@@ -33,11 +32,9 @@ const Terminal = (props) => {
       style={{
         border: '1px solid',
         borderRadius: '3px',
-        // border: '2px solid #c6bebe',
         background: '#0e0727',
         height: '400px',
         width: 'auto',
-        // color: '#edeaea',
         fontFamily: 'monospace',
         padding: '5px',
         overflow: 'scroll',

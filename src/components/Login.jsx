@@ -40,7 +40,6 @@ function Login() {
       // If the request was successful, set the login state to true and redirect to the dashboard
       console.log('response', response);
       if (!response.err) {
-        console.log('response', response);
         setLoggedIn(true);
         window.location.href = 'http://localhost:4444/dashboard';
       } else {
