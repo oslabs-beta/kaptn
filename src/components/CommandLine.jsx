@@ -47,7 +47,7 @@ const CommandLine = (props) => {
           id='outlined-start-adornment'
           sx={{ m: 1, width: '60ch' }}
           InputProps={{
-            startAdornment: <InputAdornment position='start'>$</InputAdornment>,
+            startAdornment: <InputAdornment position='start'>$kubectl</InputAdornment>,
           }}
           value={props.command}
         />
