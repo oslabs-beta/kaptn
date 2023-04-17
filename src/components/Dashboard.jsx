@@ -40,6 +40,8 @@ import { CssBaseline, ThemeProvider } from '@mui/material';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import ListItemText from '@mui/material/ListItemText';
 import Checkbox from '@mui/material/Checkbox';
+import { ColorModeContext, useMode } from '../theme';
+import { CssBaseline, ThemeProvider } from '@mui/material';
 // import { makeStyles } from "@mui/styles";
 
 function Dashboard() {
@@ -148,12 +150,16 @@ function Dashboard() {
     console.log('command ', command);
     const getCliResponse = async () => {
       const cliResponse = await postCommand(command, currDir);
+      // Filter for errors
+      if (cliResponse.err) alert('Invalid command. Please try again');
       // Update response state with the returned CLI response
-      const newResponseState = [
-        ...response,
-        { command: command, response: cliResponse },
-      ];
-      setResponse(newResponseState);
+      else {
+        const newResponseState = [
+          ...response,
+          { command: command, response: cliResponse },
+        ];
+        setResponse(newResponseState);
+      }
     };
 
     // Invoke a fetch request to the server
@@ -425,22 +431,7 @@ function Dashboard() {
             {/* ------------- COMMANDS drop down text field -------------------- */}
 
             <Grid width='75%' position='absolute' right='0' paddingRight='20px'>
-              {/* olivia's world */}
-              <div
-                style={{
-                  border: '1px solid',
-                  borderRadius: '3px',
-                  // border: '2px solid #c6bebe',
-                  background: '#0e0727',
-                  height: '400px',
-                  width: 'auto',
-                  // color: '#edeaea',
-                  fontFamily: 'monospace',
-                  padding: '5px',
-                }}
-              >
-                <Terminal response={response} />
-              </div>
+              <Terminal response={response} />
 
               <Grid>
                 <div
