@@ -5,8 +5,9 @@ const { app, BrowserWindow, ipcMain } = require('electron');
 function createMainWindow() {
   const mainWindow = new BrowserWindow({
     title: 'Kaptn',
-    width: 900,
-    height: 600,
+    titleBarStyle: 'hidden',
+    width: 1200,
+    height: 700,
     webPreferences: {
       nodeIntegration: true,
     },
@@ -21,7 +22,6 @@ function createMainWindow() {
 app.whenReady().then(() => {
   createMainWindow();
 });
-
 
 // ipcMain.on('login-success', e => {
 //   console.log('Entrou no main in English');
