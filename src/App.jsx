@@ -6,7 +6,7 @@ import Dashboard from './components/Dashboard';
 import { ColorModeContext, useMode } from './theme';
 import { CssBaseline, ThemeProvider } from '@mui/material';
 import Topbar from './components/Topbar';
-import Sidebar from './components/Sidebar'
+import SideNav from './components/Sidebar'
 
 
 const routes = createBrowserRouter([
@@ -32,6 +32,7 @@ function App() {
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <div className="App" id='root'>
+          <SideNav />
           <main className='content'>
             <RouterProvider router={routes} />
           </main>
