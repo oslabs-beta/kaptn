@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { InputAdornment } from '@mui/material';
+import { InputAdornment, Button } from '@mui/material';
 import { TextField } from '@mui/material';
 
 const CommandLine = (props) => {
@@ -45,12 +45,17 @@ const CommandLine = (props) => {
       >
         <TextField
           id='outlined-start-adornment'
-          sx={{ m: 1, width: '60ch' }}
+          sx={{ m: 1, width: '40ch' }}
           InputProps={{
-            startAdornment: <InputAdornment position='start'>$</InputAdornment>,
+            startAdornment: (
+              <InputAdornment position='start'>$ kubectl</InputAdornment>
+            ),
           }}
           value={props.command}
         />
+        <Button type='submit' variant='contained'>
+          Run
+        </Button>
       </form>
     </div>
   );

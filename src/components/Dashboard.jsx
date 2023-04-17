@@ -40,7 +40,7 @@ function Dashboard() {
   const [verb, setVerb] = React.useState('');
   const [type, setType] = React.useState('');
   const [name, setName] = React.useState('');
-  const [currDir, setCurrDir] = React.useState('NO DIRECTORY SELECTED');
+  const [currDir, setCurrDir] = React.useState('');
   const [userInput, setUserInput] = React.useState('');
   const [command, setCommand] = useState('');
   const [response, setResponse] = useState([]);
@@ -81,11 +81,12 @@ function Dashboard() {
 
   // Post the command to the server
   const postCommand = async (command, currDir) => {
+    console.log('currDir', currDir);
     try {
       const response = await fetch('/api', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ command, currDir }),
+        body: JSON.stringify({ command: command, currDir: currDir }),
       });
       const cliResponse = await response.json();
       console.log('the server responded: ', cliResponse);
@@ -100,9 +101,10 @@ function Dashboard() {
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log('enter button clicked');
+    if(currDir === '') return alert('Please choose working directory')
     console.log('command ', command);
     const getCliResponse = async () => {
-      const cliResponse = await postCommand(command);
+      const cliResponse = await postCommand(command, currDir);
       // Update response state with the returned CLI response
       const newResponseState = [
         ...response,
