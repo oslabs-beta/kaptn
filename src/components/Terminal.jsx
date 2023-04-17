@@ -21,7 +21,7 @@ const Terminal = (props) => {
 
     commandLog.push(
       <div class='command-log'>
-        <p>$ {el.command}</p>
+        <strong>$ {el.command}</strong>
         <p>{paredResponse}</p>
       </div>
     );
