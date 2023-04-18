@@ -15,6 +15,10 @@ import LightModeIcon from '@mui/icons-material/LightMode';
 import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined';
 import ExitToAppOutlinedIcon from '@mui/icons-material/ExitToAppOutlined';
 import { Button } from '@mui/material';
+import { AutoFixHigh, MenuBook } from '@mui/icons-material';
+import { Create } from '@mui/icons-material';
+import { Hub } from '@mui/icons-material';
+// import { MenuBook } from '@mui/icons-material';
 
 const Item = ({ title, to, icon, selected, setSlected }) => {
   const theme = useTheme();
@@ -79,6 +83,30 @@ function SideNav() {
               // setSelect={setSelected}
               onClick={(e) => console.log('hi')}
             >Dashboard</MenuItem>
+
+            <MenuItem
+              container={Link}
+              href='/'
+              icon={<AutoFixHigh />}
+              // selected={selected}
+              // setSelect={setSelected}
+            ><Link to='/'>Quick SettingsBackupRestoreOutlined</Link></MenuItem>
+
+            <MenuItem
+              container={Link}
+              href='/'
+              icon={<Hub />}
+              // selected={selected}
+              // setSelect={setSelected}
+            ><Link to='/'>Kluster Visualizer</Link></MenuItem>
+
+            <MenuItem
+              container={Link}
+              href='/'
+              icon={<MenuBook />}
+              // selected={selected}
+              // setSelect={setSelected}
+            ><Link to='/'>Kluster Visualizer</Link></MenuItem>
 
             <MenuItem
               container={Link}
