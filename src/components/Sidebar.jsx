@@ -77,7 +77,7 @@ function SideNav() {
 
             <MenuItem
               container={Link}
-              href='/'
+              href='/dashboard'
               icon={<HomeOutlinedIcon />}
               // selected={selected}
               // setSelect={setSelected}
@@ -86,27 +86,27 @@ function SideNav() {
 
             <MenuItem
               container={Link}
-              href='/'
+              href='/setup'
               icon={<AutoFixHigh />}
               // selected={selected}
               // setSelect={setSelected}
-            ><Link to='/'>Quick SettingsBackupRestoreOutlined</Link></MenuItem>
+            ><Link to='/setup'>Quick Setup</Link></MenuItem>
 
             <MenuItem
               container={Link}
-              href='/'
+              href='/visualizer'
               icon={<Hub />}
               // selected={selected}
               // setSelect={setSelected}
-            ><Link to='/'>Kluster Visualizer</Link></MenuItem>
+            ><Link to='/visualizer'>Kluster Visualizer</Link></MenuItem>
 
             <MenuItem
               container={Link}
-              href='/'
+              href='/glossary'
               icon={<MenuBook />}
               // selected={selected}
               // setSelect={setSelected}
-            ><Link to='/'>Kluster Visualizer</Link></MenuItem>
+            ><Link to='/glossary'>Glossary</Link></MenuItem>
 
             <MenuItem
               container={Link}
