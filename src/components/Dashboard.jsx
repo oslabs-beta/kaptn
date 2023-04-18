@@ -50,6 +50,7 @@ function Dashboard() {
   const [currDir, setCurrDir] = React.useState('NONE SELECTED');
   const [userInput, setUserInput] = React.useState('');
   const [command, setCommand] = useState('');
+  const [tool, setTool] = useState('');
   const [response, setResponse] = useState([]);
   const [error, setError] = useState(false);
   const [flags, setFlags] = React.useState([]);
@@ -103,19 +104,15 @@ function Dashboard() {
       path.pop();
     }
     let absPath = path.join('');
-    // for(let i=0 ;
     console.log('path is ', absPath);
-    // let FolderPath = event.target.value;
-    // let absFoldPath = FolderPath;
-    // console.log(absFoldPath);
     setCurrDir(absPath);
-    // let value = URL.createObjectURL(event.target.files[0]);
   };
 
   // Set the correct command based on current inputs
   useEffect(() => {
     let newCommand = '';
-    if (verb !== '') newCommand += verb;
+    if (tool !== '') newCommand += tool;
+    if (verb !== '') newCommand += ' ' + verb;
     if (type !== '') newCommand += ' ' + type;
     if (name !== '') newCommand += ' ' + name;
     if (userInput !== '') newCommand += ' ' + userInput;
@@ -237,48 +234,48 @@ function Dashboard() {
             padding: 0,
           }}
         >
-        <div style={{ background: '#22145a'}}>
-          {/* ----------------newWindowBar---------------- */}
-          <Topbar
-            position='absolute'
-            top='0'
-            right='0'
-            backgroundColor='#22145a'
-            height='35px'
-            width='100%'
-            marginBottom='5px'
-          />
-          <div
-            style={{
-              display: 'flex',
-              flexStart: 'center',
-              height: '35px',
-              width: '88%',
-              backgroundColor: '#22145a', //#06001b
-              webkitAppRegion: 'drag',
-              webkitUserSelect: 'none',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
+          <div style={{ background: '#22145a' }}>
+            {/* ----------------newWindowBar---------------- */}
+            <Topbar
+              position='absolute'
+              top='0'
+              right='0'
+              backgroundColor='#22145a'
+              height='35px'
+              width='100%'
+              marginBottom='5px'
+            />
             <div
               style={{
-                position: 'absolute',
+                display: 'flex',
+                flexStart: 'center',
+                height: '35px',
+                width: '88%',
                 backgroundColor: '#22145a', //#06001b
                 webkitAppRegion: 'drag',
                 webkitUserSelect: 'none',
                 alignItems: 'center',
                 justifyContent: 'center',
-                fontFamily: 'Roboto',
-                fontSize: '13pt',
-                fontWeight: '500',
-                letterSpacing: '0.5px',
-                paddingLeft: '150px',
               }}
             >
-              kaptn
+              <div
+                style={{
+                  position: 'absolute',
+                  backgroundColor: '#22145a', //#06001b
+                  webkitAppRegion: 'drag',
+                  webkitUserSelect: 'none',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontFamily: 'Roboto',
+                  fontSize: '13pt',
+                  fontWeight: '500',
+                  letterSpacing: '0.5px',
+                  paddingLeft: '150px',
+                }}
+              >
+                kaptn
+              </div>
             </div>
-          </div>
           </div>
           {/* <SideNav /> */}
           {/* old sidenav below */}
@@ -533,6 +530,30 @@ function Dashboard() {
                     INPUTS:
                   </div>
                   <Autocomplete
+                    defaultValue={'kubectl'}
+                    disablePortal
+                    options={['kubectl']}
+                    style={{
+                      width: 200,
+                      marginRight: '10px',
+                      minWidth: '200',
+                      // background: '#767474',
+                    }}
+                    onInputChange={(e, newInputValue) => {
+                      console.log('newInputValue', newInputValue);
+                      setTool(newInputValue);
+                      console.log(tool);
+                    }}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        style={{ minWidth: 200 }}
+                        label='kubectl'
+                      />
+                    )}
+                  />
+                  <br />
+                  <Autocomplete
                     disablePortal
                     id='combo-box-demo'
                     options={commandList}
@@ -544,9 +565,6 @@ function Dashboard() {
                     }}
                     onInputChange={(e, newInputValue) => {
                       setVerb(newInputValue);
-                      const newCommand = verb + ' ' + type + ' ' + name;
-                      setCommand(newCommand);
-                      // setCommand(newInputValue);
                     }}
                     renderInput={(params) => (
                       <TextField

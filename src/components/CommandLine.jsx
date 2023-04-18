@@ -30,7 +30,7 @@ const CommandLine = (props) => {
           sx={{ m: 0, width: '60ch' }}
           InputProps={{
             startAdornment: (
-              <InputAdornment position='start'>$ kubectl</InputAdornment>
+              <InputAdornment position='start'>$ </InputAdornment>
             ),
           }}
           value={props.command}
