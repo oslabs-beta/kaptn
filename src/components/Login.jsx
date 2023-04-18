@@ -55,158 +55,149 @@ function Login() {
   }
 
   return (
-    <div id='login-page'>
-      <ColorModeContext.Provider value={colorMode}>
-        <ThemeProvider theme={theme}>
-          <CssBaseline />
-          <Topbar />
-
-          <Box
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        backgroundColor: '#5b5b5c',
+        height: '100vh',
+        mt: 0,
+        webkitAppRegion: 'drag',
+        position: 'absolute',
+            top: 0,
+            right: 0,
+            bottom: 0,
+            left: 0,
+            margin: 0,
+            padding: 0,
+      }}
+    >
+      <AppBar
+        sx={{
+          display: 'flex',
+          flexDirection: 'row',
+          alignContent: 'center',
+          backgroundColor: '#1f1f1f',
+        }}
+        position='static'
+      >
+        <Container sx={{ width: '100%' }}>
+          <Typography
+            variant='h6'
+            noWrap
+            component='a'
+            href='/'
+            fullWidth
             sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              backgroundColor: '#5b5b5c',
-              // height: '100%',
-              mt: 0,
-              webkitAppRegion: 'drag',
-              position: 'absolute',
-              // top: 0,
-              right: 0,
-              bottom: 0,
-              left: 0,
-              margin: 0,
-              padding: 0,
+              justifyContent: 'center',
+              display: { xs: 'none', md: 'flex' },
+              fontFamily: 'monospace',
+              fontWeight: 700,
+              fontSize: 50,
+              letterSpacing: '.1 rem',
+              color: 'white',
+              textDecoration: 'none',
             }}
           >
-            <AppBar
-              sx={{
-                display: 'flex',
-                flexDirection: 'row',
-                alignContent: 'center',
-                backgroundColor: '#1f1f1f',
-              }}
-              position='static'
-            >
-              <Container sx={{ width: '100%' }}>
-                <Typography
-                  variant='h6'
-                  noWrap
-                  component='a'
-                  href='/'
-                  fullWidth
-                  sx={{
-                    justifyContent: 'center',
-                    display: { xs: 'none', md: 'flex' },
-                    fontFamily: 'monospace',
-                    fontWeight: 700,
-                    fontSize: 50,
-                    letterSpacing: '.1 rem',
-                    color: 'white',
-                    textDecoration: 'none',
-                  }}
-                >
-                  kaptn
-                </Typography>
-              </Container>
-            </AppBar>
-            <Box component='form' onSubmit={handleSubmit} sx={{ mt: 6 }}>
-              <Box
-                sx={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                }}
-              >
-                <Typography
-                  component='h1'
-                  variant='h3'
-                  sx={{
-                    mb: 6,
-                    fontFamily: 'monospace',
-                    fontWeight: 100,
-                    fontSize: 70,
-                    letterSpacing: '.1 rem',
-                    color: 'white',
-                    textDecoration: 'none',
-                  }}
-                >
-                  Login
-                </Typography>
-                <TextField
-                  type='text'
-                  name='username'
-                  label='Username'
-                  fullWidth
-                  username={username}
-                  sx={{
-                    mb: 3,
-                    backgroundColor: 'white',
-                  }}
-                  onChange={(e) => {
-                    setInputUsername(e.target.value);
-                  }}
-                />
-                <TextField
-                  type='password'
-                  name='password'
-                  label='Password'
-                  fullWidth
-                  password={password}
-                  sx={{
-                    mb: 3,
-                    backgroundColor: 'white',
-                  }}
-                  onChange={(e) => {
-                    setInputPassword(e.target.value);
-                  }}
-                />
-              </Box>
-              <Button
-                variant='contained'
-                type='submit'
-                fullWidth
-                sx={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  mt: 2,
-                  mb: 2,
-                }}
-              >
-                Login
-              </Button>
-              <Typography
-                variant='h6'
-                sx={{
-                  fontFamily: 'monospace',
-                  fontSize: 25,
-                  letterSpacing: '.1 rem',
-                  color: 'white',
-                  textDecoration: 'none',
-                }}
-              >
-                Don't have an account? Sign up now
-              </Typography>
-              <Button
-                variant='contained'
-                fullWidth
-                sx={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  textDecoration: 'none',
-                  mt: 2,
-                  mb: 2,
-                }}
-              >
-                <Link to='/signup' underline="none" color='white'>Sign Up</Link>
-              </Button>
-            </Box>
-          </Box>
-        </ThemeProvider>
-      </ColorModeContext.Provider>
-    </div>
+            kaptn
+          </Typography>
+        </Container>
+      </AppBar>
+      <Box component='form' onSubmit={handleSubmit} sx={{ mt: 6 }}>
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+          }}
+        >
+          <Typography
+            component='h1'
+            variant='h3'
+            sx={{
+              mb: 6,
+              fontFamily: 'monospace',
+              fontWeight: 100,
+              fontSize: 70,
+              letterSpacing: '.1 rem',
+              color: 'white',
+              textDecoration: 'none',
+            }}
+          >
+            Login
+          </Typography>
+          <TextField
+            type='text'
+            name='username'
+            label='Username'
+            fullWidth
+            username={username}
+            sx={{
+              mb: 3,
+              backgroundColor: 'white',
+            }}
+            onChange={(e) => {
+              setInputUsername(e.target.value);
+            }}
+          />
+          <TextField
+            type='password'
+            name='password'
+            label='Password'
+            fullWidth
+            password={password}
+            sx={{
+              mb: 3,
+              backgroundColor: 'white',
+            }}
+            onChange={(e) => {
+              setInputPassword(e.target.value);
+            }}
+          />
+        </Box>
+        <Button
+          variant='contained'
+          type='submit'
+          fullWidth
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            mt: 2,
+            mb: 2,
+          }}
+        >
+          Login
+        </Button>
+        <Typography
+          variant='h6'
+          sx={{
+            fontFamily: 'monospace',
+            fontSize: 25,
+            letterSpacing: '.1 rem',
+            color: 'white',
+            textDecoration: 'none',
+          }}
+        >
+          Don't have an account? Sign up now
+        </Typography>
+        <Button
+          variant='contained'
+          fullWidth
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            textDecoration: 'none',
+            mt: 2,
+            mb: 2,
+          }}
+        >
+          <Link to='/signup'>Sign Up</Link>
+        </Button>
+      </Box>
+    </Box>
   );
 }
 
