@@ -183,6 +183,9 @@ function Login() {
             backgroundColor: '#22145a',
             mt: 2,
             mb: 2,
+            ':hover': {
+              backgroundColor: 'rgb(16,10,54)'
+            }
           }}
         >
           Login
@@ -213,6 +216,9 @@ function Login() {
             backgroundColor: '#22145a',
             mt: 2,
             mb: 2,
+            ':hover': {
+              backgroundColor: 'rgb(16,10,54)'
+            }
           }}
         >
           <Link to='/signup'>Sign Up</Link>
