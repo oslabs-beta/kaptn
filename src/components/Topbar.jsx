@@ -16,50 +16,64 @@ function Topbar() {
   // allow us to toggle different states for the color mode
   const colorMode = useContext(ColorModeContext);
   return (
-    <Box
-      position='absolute'
-      top='0'
-      right='0'
-      backgroundColor='#22145a'
-      height='35px'
-      marginBottom='5px'
-      webkitAppRegion='no drag'
+    <div
+      id='top-bar'
+      style={{
+        display: 'flex',
+        flexStart: 'center',
+        height: '35px',
+        backgroundColor: '#22145a',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
     >
-      {/* search bar */}
-      {/* <Box
-        display='flex'
-        backgroundColor={colors.primary[400]}
-        borderRadius='3px'
+      <Box
+        position='absolute'
+        top='0'
+        right='0'
+        backgroundColor='#22145a'
+        height='35px'
+        marginBottom='5px'
+        webkitAppRegion='no drag'
       >
-        <InputBase sx={{ ml: 2, flex: 1 }} placeholder='Search' />
-        <IconButton type='button' sx={{ p: 1 }}>
-          <SearchIcon />
-        </IconButton>
-      </Box> */}
+        {/* icons */}
+        <Box display='flex'>
+          <IconButton onClick={colorMode.toggleColorMode}>
+            {theme.palette.mode === 'dark' ? (
+              <DarkModeOutlinedIcon />
+            ) : (
+              <LightModeIcon />
+            )}
+          </IconButton>
 
-      {/* icons */}
-      <Box display='flex'>
-        <IconButton onClick={colorMode.toggleColorMode}>
-          {theme.palette.mode === 'dark' ? (
-            <DarkModeOutlinedIcon />
-          ) : (
-            <LightModeIcon />
-          )}
-        </IconButton>
+          <IconButton>
+            <NotificationsOutlinedIcon />
+          </IconButton>
 
-        <IconButton>
-          <NotificationsOutlinedIcon />
-        </IconButton>
+          <IconButton>
+            <SettingsOutlinedIcon />
+          </IconButton>
 
-        <IconButton>
-          <SettingsOutlinedIcon />
-        </IconButton>
-
-        <IconButton>
-          <PersonOutlinedIcon />
-        </IconButton>
+          <IconButton>
+            <PersonOutlinedIcon />
+          </IconButton>
+        </Box>
       </Box>
-    </Box>
+
+      {/* Drag feature and title */}
+      <div
+        style={{
+          webkitAppRegion: 'drag',
+          webkitUserSelect: 'none',
+          fontFamily: 'Roboto',
+          fontSize: '13pt',
+          fontWeight: '500',
+          letterSpacing: '0.5px',
+        }}
+      >
+        kaptn
+      </div>
+    </div>
   );
 }
 

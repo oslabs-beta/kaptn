@@ -1,16 +1,12 @@
 @import url("https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&display=swap");
-html,
-body,
-#root,
-.app,
-.content {
-  height: 100%;
-  width: 100%
-}
 
-.app {
-  display: flex;
-  position: relative;
+body {
+  top: 0px;
+  right: 0px;
+  bottom: 0px;
+  left: 0px;
+  margin: 0px;
+  padding: 0px;
 }
 
 /* Scrollbar */

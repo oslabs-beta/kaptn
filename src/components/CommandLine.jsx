@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { InputAdornment, Button } from '@mui/material';
-import { TextField } from '@mui/material';
+import { TextField, Box } from '@mui/material';
 
 const CommandLine = (props) => {
   // Add/remove functionality in text box
@@ -17,13 +17,38 @@ const CommandLine = (props) => {
   };
 
   return (
-    <div>
+    // <div style={{
+    //   border: '1px solid',
+    //   borderRadius: '3px',
+    //   background: '#0e0727',
+    //   // border: '2px solid #c6bebe',
+    //   height: '100px',
+    //   width: 'auto',
+    //   marginTop: '5px',
+    //   fontFamily: 'monospace',
+    //   padding: '5px',
+    // }}>
+      // <Box
+      //             sx={{
+      //               // border: 1,
+      //               display: 'inline-flex',
+      //               flexDirection: 'row',
+      //               alignItems: 'center',
+      //               // colored box behind buttons
+      //               // bgcolor: '#2e2d2d',
+      //               padding: '15px',
+      //               width: '190px',
+      //               height: '100px',
+      //               borderRadius: '5px',
+      //             }}
+      //           >
       <form
         onSubmit={props.handleSubmit}
         onChange={(e) => {
           handleChange(e);
         }}
         value={props.command}
+        style={{display: 'flex', justifyContent: 'space-around', width: 'auto'}}
       >
         <TextField
           id='outlined-start-adornment'
@@ -39,7 +64,8 @@ const CommandLine = (props) => {
           Run
         </Button>
       </form>
-    </div>
+      // </Box>
+    // </div>
   );
 };
 

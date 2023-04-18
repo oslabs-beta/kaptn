@@ -1,4 +1,3 @@
-import './App.css';
 import Signup from './components/Signup';
 import Login from './components/Login';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
@@ -24,9 +23,7 @@ const routes = createBrowserRouter([
 function App() {
   return (
         <div className='App' id='root'>
-          <main className='content'>
             <RouterProvider router={routes} />
-          </main>
         </div>
       
   );

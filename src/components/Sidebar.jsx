@@ -42,18 +42,6 @@ function SideNav() {
   const [selected, setSelected] = useState('Dashboard');
 
   return (
-    // <div style={{ display: 'flex', height: '100%'}}>
-    //   <Sidebar>
-    //     <Menu>
-    //       <SubMenu label="Charts">
-    //         <MenuItem> Pie charts </MenuItem>
-    //         <MenuItem> Line charts </MenuItem>
-    //       </SubMenu>
-    //       <MenuItem> Documentation </MenuItem>
-    //       <MenuItem> Calendar </MenuItem>
-    //     </Menu>
-    //   </Sidebar>
-    // </div>
     <div
       style={{
         display:'flex',
