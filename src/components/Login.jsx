@@ -207,6 +207,7 @@ function Login() {
           variant='contained'
           type='submit'
           fullWidth
+          href='/signup'
           sx={{
             display: 'flex',
             flexDirection: 'column',
@@ -221,7 +222,7 @@ function Login() {
             }
           }}
         >
-          <Link to='/signup'>Sign Up</Link>
+        Sign Up
         </Button>
       </Box>
     </Box>

@@ -123,7 +123,7 @@ function Signup() {
             sx={{
               fontFamily: 'Roboto',
               fontWeight: 75,
-              fontSize: 65,
+              fontSize: 40,
               letterSpacing: '.1 rem',
               color: 'white',
               textDecoration: 'none',
@@ -170,6 +170,7 @@ function Signup() {
               variant='contained'
               type='submit'
               fullWidth
+              href='/'
               sx={{
                 display: 'flex',
                 // backgroundColor: 'transparent',
@@ -186,9 +187,7 @@ function Signup() {
                 }
               }}
             >
-            <Link to = '/'>
             Create Account
-            </Link>
             </Button>
         </Box>
     </Box>
