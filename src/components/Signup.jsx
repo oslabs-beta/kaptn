@@ -90,11 +90,11 @@ function Signup() {
               display: { xs: 'none', md: 'flex' },
               fontFamily: 'Roboto',
               fontWeight: 500,
-              fontSize: 13,
-              letterSpacing: '.1 rem',
+              fontSize: '13pt',
+              letterSpacing: '.5px',
               color: 'white',
               textDecoration: 'none',
-              mt: '7px'
+              mt: '5px'
             }}
           >
             kaptn
