@@ -76,12 +76,12 @@ function SideNav() {
 
             <MenuItem
               container={Link}
-              href='/visualizer'
+              href='/cluster'
               icon={<BarChart />}
               // selected={selected}
               // setSelect={setSelected}
             >
-              <Link to='/visualizer'>Kluster Visualizer</Link>
+              <Link to='/cluster'>Kluster Visualizer</Link>
             </MenuItem>
 
             <MenuItem
