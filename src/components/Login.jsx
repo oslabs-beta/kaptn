@@ -89,7 +89,6 @@ function Login() {
             variant='h6'
             noWrap
             component='a'
-            href='/'
             fullWidth
             sx={{
               alignItems: 'center',
@@ -97,11 +96,11 @@ function Login() {
               display: { xs: 'none', md: 'flex' },
               fontFamily: 'Roboto',
               fontWeight: 500,
-              fontSize: 13,
-              letterSpacing: '.1 rem',
+              fontSize: '13pt',
+              letterSpacing: '.5px',
               color: 'white',
               textDecoration: 'none',
-              mt: '7px'
+              mt: '5px'
             }}
           >
             kaptn
@@ -111,8 +110,10 @@ function Login() {
       <Box
         src='../src/assets/kaptn.ico'
         sx={{
-          height: '250px',
-          width: '250px'
+          height: '150px',
+          width: '150px',
+          mb: 4,
+          mt: 4
         }}
         component='img'
         >
@@ -148,7 +149,7 @@ function Login() {
             username={username}
             sx={{
               mb: 3,
-              backgroundColor: 'white',
+              // backgroundColor: 'white',
             }}
             onChange={(e) => {
               setInputUsername(e.target.value);
@@ -162,7 +163,7 @@ function Login() {
             password={password}
             sx={{
               mb: 3,
-              backgroundColor: 'white',
+              // backgroundColor: 'white',
             }}
             onChange={(e) => {
               setInputPassword(e.target.value);
@@ -195,6 +196,7 @@ function Login() {
           sx={{
             fontFamily: 'Roboto',
             fontSize: 25,
+            fontWeight: 50,
             letterSpacing: '.1 rem',
             color: 'white',
             textDecoration: 'none',

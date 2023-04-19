@@ -17,6 +17,7 @@ import ExitToAppOutlinedIcon from '@mui/icons-material/ExitToAppOutlined';
 import { Button } from '@mui/material';
 import { AutoFixHigh, MenuBook } from '@mui/icons-material';
 import { Create } from '@mui/icons-material';
+import { BarChart } from '@mui/icons-material';
 import { Hub } from '@mui/icons-material';
 import Grid from '@mui/system/Unstable_Grid';
 // import { MenuBook } from '@mui/icons-material';
@@ -75,12 +76,12 @@ function SideNav() {
 
             <MenuItem
               container={Link}
-              href='/visualizer'
-              icon={<Hub />}
+              href='/cluster'
+              icon={<BarChart />}
               // selected={selected}
               // setSelect={setSelected}
             >
-              <Link to='/visualizer'>Kluster Visualizer</Link>
+              <Link to='/cluster'>Kluster Visualizer</Link>
             </MenuItem>
 
             <MenuItem

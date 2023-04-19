@@ -63,6 +63,9 @@ const CommandLine = (props) => {
         <Button type='submit' variant='contained'>
           Run
         </Button>
+        <Button variant='contained' onClick = {props.handleClear}>
+          Clear
+        </Button>
       </form>
       // </Box>
     // </div>

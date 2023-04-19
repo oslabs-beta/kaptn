@@ -94,11 +94,11 @@ function Signup() {
               display: { xs: 'none', md: 'flex' },
               fontFamily: 'Roboto',
               fontWeight: 500,
-              fontSize: 13,
-              letterSpacing: '.1 rem',
+              fontSize: '13pt',
+              letterSpacing: '.5px',
               color: 'white',
               textDecoration: 'none',
-              mt: '7px'
+              mt: '5px'
             }}
           >
             kaptn
@@ -108,8 +108,8 @@ function Signup() {
       <Box
         src='../src/assets/kaptn.ico'
         sx={{
-          height: '250px',
-          width: '250px'
+          height: '150px',
+          width: '150px'
         }}
         component='img'
         >
@@ -117,7 +117,7 @@ function Signup() {
         <Box component='form' 
           onSubmit={handleClick} 
           sx={{ display: 'flex', 
-                width: '50%',
+                width: '40%',
                 flexDirection: 'column', 
                 alignItems: 'center', 
                 mt: 0}}>
@@ -127,7 +127,7 @@ function Signup() {
             sx={{
               fontFamily: 'Roboto',
               fontWeight: 75,
-              fontSize: 40,
+              fontSize: 30,
               letterSpacing: '.1 rem',
               color: 'white',
               textDecoration: 'none',
@@ -142,7 +142,8 @@ function Signup() {
               fullWidth
               sx = {{ 
                     mb: 3,
-                    backgroundColor: 'white' }}
+                    // backgroundColor: 'white' 
+                    }}
               onChange={(e) => {
                 setInputUsername(e.target.value);
               }} />
@@ -154,7 +155,8 @@ function Signup() {
               fullWidth
               sx = {{ 
                     mb: 3,
-                    backgroundColor: 'white' }}
+                    // backgroundColor: 'white' 
+                    }}
               onChange={(e) => {
                 setInputEmail(e.target.value);
               }} />
@@ -166,7 +168,8 @@ function Signup() {
               fullWidth
               sx = {{ 
                     mb: 3,
-                    backgroundColor: 'white' }}
+                    // backgroundColor: 'white' 
+                    }}
               onChange={(e) => {
                 setInputPassword(e.target.value);
               }} />
