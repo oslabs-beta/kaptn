@@ -34,6 +34,8 @@ import Terminal from './Terminal.jsx';
 import Topbar from './Topbar';
 import { ColorModeContext, useMode } from '../theme';
 import { CssBaseline, ThemeProvider } from '@mui/material';
+import LightModeIcon from '@mui/icons-material/LightMode';
+import DarkModeOutlinedIcon from '@mui/icons-material/DarkModeOutlined';
 
 import OutlinedInput from '@mui/material/OutlinedInput';
 import ListItemText from '@mui/material/ListItemText';
@@ -210,10 +212,19 @@ function Dashboard() {
         height={'95vh'}
         sx={{ pt: 3, pb: 3 }}
       >
-        <ColorModeContext.Provider value={colorMode}>
+            {/* <ColorModeContext.Provider value={colorMode}>
           <ThemeProvider theme={theme}>
             <CssBaseline />
 
+            <IconButton onClick={colorMode.toggleColorMode}>
+              {theme.palette.mode === 'dark' ? (
+                <DarkModeOutlinedIcon />
+              ) : (
+                <LightModeIcon />
+              )}
+            </IconButton>
+          </ThemeProvider>
+        </ColorModeContext.Provider> */}
             {/* Wrap the entire dashboard in a grid */}
             {/* ----------------SIDE BAR---------------- */}
             <SideNav />
@@ -385,8 +396,6 @@ function Dashboard() {
                 />
               </Grid>
             </Grid>
-          </ThemeProvider>
-        </ColorModeContext.Provider>
       </Grid>
     </>
   );

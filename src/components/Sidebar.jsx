@@ -47,11 +47,11 @@ function SideNav() {
   const [selected, setSelected] = useState('Dashboard');
 
   return (
-    <Grid xs={2} container sx={{ pl: 1 }}>
+    <Grid xs={2} container>
       <Sidebar defaultCollapsed backgroundColor=''>
         <Menu>
           {/* MENU ITEMS */}
-          <Box paddingLeft={isCollapsed ? undefined : '10%'}>
+          <Box paddingLeft={isCollapsed ? undefined : '0%'}>
             <MenuItem
               container={Link}
               href='/dashboard'

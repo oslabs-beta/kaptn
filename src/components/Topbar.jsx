@@ -1,7 +1,6 @@
 import React from 'react';
 import { Box, IconButton, useTheme } from '@mui/material';
 import { useContext } from 'react';
-import { ColorModeContext, tokens } from '../theme';
 import InputBase from '@mui/material/InputBase';
 import LightModeIcon from '@mui/icons-material/LightMode';
 import DarkModeOutlinedIcon from '@mui/icons-material/DarkModeOutlined';
@@ -10,13 +9,14 @@ import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
 import PersonOutlinedIcon from '@mui/icons-material/PersonOutlined';
 import SearchIcon from '@mui/icons-material/Search';
 import Grid from '@mui/system/Unstable_Grid';
+import { ColorModeContext, useMode } from '../theme';
+import { CssBaseline, ThemeProvider } from '@mui/material';
 
 function Topbar() {
   const theme = useTheme();
-  const colors = tokens(theme.palette.mode);
-  // allow us to toggle different states for the color mode
+  // const colors = tokens(theme.palette.mode);
+  // // allow us to toggle different states for the color mode
   const colorMode = useContext(ColorModeContext);
-  console.log('theme', theme);
 
   return (
     <Grid
@@ -33,8 +33,8 @@ function Topbar() {
         alignItems='center'
         xs={2}
         style={{
-          webkitAppRegion: 'drag',
-          // webkitUserSelect: 'none',
+          WebkitAppRegion: 'drag',
+          webkitUserSelect: 'none',
         }}
       ></Grid>
 
@@ -44,7 +44,7 @@ function Topbar() {
         container
         justifyContent='center'
         style={{
-          webkitAppRegion: 'drag',
+          WebkitAppRegion: 'drag',
           webkitUserSelect: 'none',
           fontFamily: 'Roboto',
           fontSize: '13pt',
@@ -54,7 +54,7 @@ function Topbar() {
       >
         kaptn
       </Grid>
-          
+
       <Grid
         id='top-bar-icons'
         top='0'
@@ -64,15 +64,14 @@ function Topbar() {
         marginBottom='5px'
         xs={2}
       >
-        {/*     SHIFTING LIGHT/DARK MODE TOGGLE BELOW
-        <IconButton onClick={colorMode.toggleColorMode}>
+        {/* <IconButton onClick={colorMode.toggleColorMode}>
           {theme.palette.mode === 'dark' ? (
             <DarkModeOutlinedIcon />
           ) : (
             <LightModeIcon />
           )}
-        </IconButton>
-
+        </IconButton> */}
+        {/*
         <IconButton onClick={() => console.log(theme)}>
           <NotificationsOutlinedIcon />
         </IconButton>
@@ -84,7 +83,7 @@ function Topbar() {
         <IconButton>
           <PersonOutlinedIcon />
         </IconButton> */}
-      </Grid> 
+      </Grid>
     </Grid>
   );
 }
