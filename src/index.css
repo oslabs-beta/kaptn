@@ -1,17 +1,30 @@
-@import url("https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&display=swap");
-html,
-body,
-#root,
-.app,
-.content {
-  height: 100%;
-  width: 100%
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&display=swap');
+
+body {
+  top: 0px;
+  right: 0px;
+  bottom: 0px;
+  left: 0px;
+  margin: 0px;
+  padding: 0px;
+  overflow-x: hidden;
 }
 
-.app {
-  display: flex;
-  position: relative;
+/* .top-bar {
+  -webkit-app-region: drag;
+} */
+
+/* .top-bar button {
+  -webkit-app-region: no-drag;
 }
+
+.top-bar button {
+  -webkit-app-region: no-drag;
+} */
+
+/* input {
+  -webkit-app-region: no-drag;
+} */
 
 /* Scrollbar */
 ::-webkit-scrollbar {

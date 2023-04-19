@@ -1,7 +1,5 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
-import viteLogo from '/vite.svg';
-import '../App.css';
 import {
   Button,
   Paper,
@@ -36,11 +34,13 @@ import Terminal from './Terminal.jsx';
 import Topbar from './Topbar';
 import { ColorModeContext, useMode } from '../theme';
 import { CssBaseline, ThemeProvider } from '@mui/material';
+import LightModeIcon from '@mui/icons-material/LightMode';
+import DarkModeOutlinedIcon from '@mui/icons-material/DarkModeOutlined';
 
 import OutlinedInput from '@mui/material/OutlinedInput';
 import ListItemText from '@mui/material/ListItemText';
 import Checkbox from '@mui/material/Checkbox';
-// import { makeStyles } from "@mui/styles";
+import { Grid3x3 } from '@mui/icons-material';
 
 function Dashboard() {
   const [verb, setVerb] = React.useState('');
@@ -49,6 +49,7 @@ function Dashboard() {
   const [currDir, setCurrDir] = React.useState('NONE SELECTED');
   const [userInput, setUserInput] = React.useState('');
   const [command, setCommand] = useState('');
+  const [tool, setTool] = useState('');
   const [response, setResponse] = useState([]);
   const [error, setError] = useState(false);
   const [flags, setFlags] = React.useState([]);
@@ -65,18 +66,7 @@ function Dashboard() {
     },
   };
 
-  const flagList = [
-    '-o wide',
-    '--force',
-    'April Tucker',
-    'Ralph Hubbard',
-    'Omar Alexander',
-    'Carlos Abbott',
-    'Miriam Wagner',
-    'Bradley Wilkerson',
-    'Virginia Andrews',
-    'Kelly Snyder',
-  ];
+  const flagList = ['-o wide', '--force'];
 
   const handleFlags = (event) => {
     const {
@@ -89,9 +79,7 @@ function Dashboard() {
   };
 
   const MyTextField = styled(TextField)({
-    // color: 'darkslategray',
     color: '#edeaea',
-    // background: '#767474',
     height: '56px',
     borderRadius: 4,
   });
@@ -102,19 +90,15 @@ function Dashboard() {
       path.pop();
     }
     let absPath = path.join('');
-    // for(let i=0 ;
     console.log('path is ', absPath);
-    // let FolderPath = event.target.value;
-    // let absFoldPath = FolderPath;
-    // console.log(absFoldPath);
     setCurrDir(absPath);
-    // let value = URL.createObjectURL(event.target.files[0]);
   };
 
   // Set the correct command based on current inputs
   useEffect(() => {
     let newCommand = '';
-    if (verb !== '') newCommand += verb;
+    if (tool !== '') newCommand += tool;
+    if (verb !== '') newCommand += ' ' + verb;
     if (type !== '') newCommand += ' ' + type;
     if (name !== '') newCommand += ' ' + name;
     if (userInput !== '') newCommand += ' ' + userInput;
@@ -148,12 +132,16 @@ function Dashboard() {
     console.log('command ', command);
     const getCliResponse = async () => {
       const cliResponse = await postCommand(command, currDir);
+      // Filter for errors
+      if (cliResponse.err) alert('Invalid command. Please try again');
       // Update response state with the returned CLI response
-      const newResponseState = [
-        ...response,
-        { command: command, response: cliResponse },
-      ];
-      setResponse(newResponseState);
+      else {
+        const newResponseState = [
+          ...response,
+          { command: command, response: cliResponse },
+        ];
+        setResponse(newResponseState);
+      }
     };
 
     // Invoke a fetch request to the server
@@ -214,397 +202,167 @@ function Dashboard() {
   ];
 
   return (
-    <ColorModeContext.Provider value={colorMode}>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <div
-          style={{
-            // background color
-            // background: '#5b5b5c',
-            color: 'white',
-            height: '100vh',
-            position: 'absolute',
-            top: 0,
-            right: 0,
-            bottom: 0,
-            left: 0,
-            margin: 0,
-            padding: 0,
-          }}
-        >
-          {/* ----------------newWindowBar---------------- */}
-          <Topbar
-            position='absolute'
-            top='0'
-            right='0'
-            backgroundColor='#22145a'
-            height='35px'
-            width='100%'
-            marginBottom='5px'
-          />
-          <div
-            style={{
-              display: 'flex',
-              flexStart: 'center',
-              height: '35px',
-              width: '88%',
-              backgroundColor: '#22145a', //#06001b
-              webkitAppRegion: 'drag',
-              webkitUserSelect: 'none',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <div
-              style={{
-                position: 'absolute',
-                backgroundColor: '#22145a', //#06001b
-                webkitAppRegion: 'drag',
-                webkitUserSelect: 'none',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontFamily: 'Roboto',
-                fontSize: '13pt',
-                fontWeight: '500',
-                letterSpacing: '0.5px',
-                paddingLeft: '150px',
-              }}
+    <>
+      <Topbar />
+      <Grid
+        id='dashboard'
+        container
+        disableEqualOverflow='true'
+        width={'100vw'}
+        height={'95vh'}
+        sx={{ pt: 3, pb: 3 }}
+      >
+            {/* <ColorModeContext.Provider value={colorMode}>
+          <ThemeProvider theme={theme}>
+            <CssBaseline />
+
+            <IconButton onClick={colorMode.toggleColorMode}>
+              {theme.palette.mode === 'dark' ? (
+                <DarkModeOutlinedIcon />
+              ) : (
+                <LightModeIcon />
+              )}
+            </IconButton>
+          </ThemeProvider>
+        </ColorModeContext.Provider> */}
+            {/* Wrap the entire dashboard in a grid */}
+            {/* ----------------SIDE BAR---------------- */}
+            <SideNav />
+            {/* ----------------TERMINAL---------------- */}
+
+            <Grid
+              id='main-content'
+              width='75%'
+              height='95%'
+              xs={10}
+              // spacing={1}
+              disableEqualOverflow='true'
+              container
+              direction='column'
+              wrap='nowrap'
+              justifyContent='space-around'
+              alignItems='center'
             >
-              kaptn
-            </div>
-          </div>
-          {/* <SideNav /> */}
-          {/* old sidenav below */}
-          <Box display='flex' id='oldsidenav' flexDirection='column'>
-            {/* <AppBar style={{ backgroundColor: '#1f1f1f' }} position='static'>
-          <Container maxWidth='xl'>
-            <Toolbar disableGutters>
-              <AdbIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
-              <Typography
-                variant='h6'
-                noWrap
-                component='a'
-                href='/'
-                sx={{
-                  mr: 2,
-                  display: { xs: 'none', md: 'flex' },
-                  fontFamily: 'monospace',
-                  fontWeight: 700,
-                  letterSpacing: '.1 rem',
-                  color: 'white',
-                  textDecoration: 'none',
-                }}
+              <Terminal response={response} />
+
+              <Grid
+                id='below-terminal'
+                container
+                xs={4}
+                height={'35%'}
+                sx={{ pt: 1 }}
+                justifyContent='center'
+                alignItems='center'
+                alignContent='space-between'
+                width='100%'
               >
-                kaptn
-              </Typography>
-              <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
-                <IconButton
-                  size='large'
-                  aria-label='account of current user'
-                  aria-controls='menu-appbar'
-                  aria-haspopup='true'
-                  onClick={handleOpenNavMenu}
-                  color='white'
+                <Grid
+                  id='directory'
+                  container
+                  width='100%'
+                  alignItems='flex-end'
+                  justifyContent='center'
+                  sx={{ borderBottom: 1 }}
                 >
-                  <MenuIcon />
-                </IconButton>
-                <Menu
-                  id='menu-appbar'
-                  anchorEl={anchorElNav}
-                  anchorOrigin={{
-                    vertical: 'bottom',
-                    horizontal: 'left',
-                  }}
-                  keepMounted
-                  transformOrigin={{
-                    vertical: 'top',
-                    horizontal: 'left',
-                  }}
-                  open={Boolean(anchorElNav)}
-                  onClose={handleCloseNavMenu}
-                  sx={{
-                    display: { xs: 'block', md: 'none' },
-                  }}
-                >
-                  {pages.map((page) => (
-                    <MenuItem key={page} onClick={handleCloseNavMenu}>
-                      <Typography textAlign='center'>{page}</Typography>
-                    </MenuItem>
-                  ))}
-                </Menu>
-              </Box>
-              <AdbIcon sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }} />
-              <Typography
-                variant='h5'
-                noWrap
-                component='a'
-                href=''
-                sx={{
-                  mr: 2,
-                  display: { xs: 'flex', md: 'none' },
-                  flexGrow: 1,
-                  fontFamily: 'monospace',
-                  fontWeight: 700,
-                  letterSpacing: '.1rem',
-                  color: 'inherit',
-                  textDecoration: 'none',
-                }}
-              >
-                kaptn
-              </Typography>
-              <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-                {pages.map((page) => (
-                  <Button
-                    key={page}
-                    onClick={handleCloseNavMenu}
-                    sx={{ my: 2, color: 'white', display: 'block' }}
-                  >
-                    {page}
-                  </Button>
-                ))}
-              </Box>
-
-              <Box sx={{ flexGrow: 0 }}>
-                <Tooltip title='Open settings'>
-                  <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                    <Avatar
-                      alt='Remy Sharp'
-                      src='/static/images/avatar/2.jpg'
-                    />
-                  </IconButton>
-                </Tooltip>
-                <Menu
-                  sx={{ mt: '45px' }}
-                  id='menu-appbar'
-                  anchorEl={anchorElUser}
-                  anchorOrigin={{
-                    vertical: 'top',
-                    horizontal: 'right',
-                  }}
-                  keepMounted
-                  transformOrigin={{
-                    vertical: 'top',
-                    horizontal: 'right',
-                  }}
-                  open={Boolean(anchorElUser)}
-                  onClose={handleCloseUserMenu}
-                >
-                  {settings.map((setting) => (
-                    <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                      <Typography textAlign='center'>{setting}</Typography>
-                    </MenuItem>
-                  ))}
-                </Menu>
-              </Box>
-            </Toolbar>
-          </Container>
-        </AppBar> */}
-          </Box>
-
-          {/* --
-      ---
-      ----
-      ----
-      ----
-      ----
-      --------- COMMANDS, TYPES, NAMES, TAGS -------------
-      ----
-      -----
-      -----
-      -------
-      ----- */}
-
-          <Grid container spacing={1} sx={{ m: 2, color: 'white' }}>
-            {/* --------SIDEBAR---------- */}
-            <Grid width='25%'>
-              <SideNav />
-            </Grid>
-
-            {/* ------------- COMMANDS drop down text field -------------------- */}
-
-            <Grid width='75%' position='absolute' right='0' paddingRight='20px'>
-              {/* olivia's world */}
-              <div
-                style={{
-                  border: '1px solid',
-                  borderRadius: '3px',
-                  // border: '2px solid #c6bebe',
-                  background: '#0e0727',
-                  height: '400px',
-                  width: 'auto',
-                  // color: '#edeaea',
-                  fontFamily: 'monospace',
-                  padding: '5px',
-                }}
-              >
-                <Terminal response={response} />
-              </div>
-
-              <Grid>
-                <div
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    marginTop: '10px',
-                  }}
-                >
-                  {' '}
-                  <div
-                    style={{
-                      display: 'flex',
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      color: '#9e9d9d',
-                      paddingBottom: '10px',
-                      letterSpacing: '2px',
-                      fontSize: '11px',
-                    }}
-                  >
-                    WORKING DIRECTORY:
-                  </div>
-                  <div
-                    style={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      padding: '8px',
-                      fontSize: '9px',
-                      color: '#7a709b',
-                    }}
-                  >
-                    {currDir}
-                  </div>
-                  <Button
-                    variant='contained'
-                    component='label'
-                    style={{
-                      backgroundColor: 'transparent',
-                      // color: '#2a2a2a',
-                      border: '1px solid #68617f',
-                      width: '170px',
-                      marginBottom: '10px',
-                      fontSize: '9px',
-                      letterSpacing: '1.5px',
-                    }}
-                  >
-                    CHOOSE DIRECTORY
-                    <input
-                      type='file'
-                      directory=''
-                      webkitdirectory=''
-                      hidden
-                      onChange={handleUploadDirectory}
-                    />
-                  </Button>
-                </div>
-                <div
-                  style={{
-                    backgroundColor: '#7a709b',
-                    width: '100%',
-                    height: '1px',
-                  }}
-                />
-                <Box
-                  sx={{
-                    // border: 1,
-                    display: 'flex',
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    // colored box behind buttons
-                    // bgcolor: '#2e2d2d',
-                    padding: '15px',
-                    width: '190px',
-                    borderRadius: '5px',
-                  }}
-                >
-                  <div
-                    style={{
-                      backgroundColor: '#727171',
-                      width: '300px',
-                      height: '1px',
-                      marginBottom: '10px',
-                    }}
-                  />
-                  <div
-                    style={{
-                      display: 'flex',
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      color: '#9e9d9d',
-                      letterSpacing: '2px',
-                      paddingRight: '20px',
-                      fontSize: '11px',
-                      width: '75px',
-                    }}
-                  >
-                    INPUTS:
-                  </div>
-                  <Autocomplete
-                    disablePortal
-                    id='combo-box-demo'
-                    options={commandList}
-                    style={{
-                      width: 200,
-                      marginRight: '10px',
-                      minWidth: '200',
-                      // background: '#767474',
-                    }}
-                    onInputChange={(e, newInputValue) => {
-                      setVerb(newInputValue);
-                      const newCommand = verb + ' ' + type + ' ' + name;
-                      setCommand(newCommand);
-                      // setCommand(newInputValue);
-                    }}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        style={{ minWidth: 200 }}
-                        label='Commands'
+                  <Grid id='directory-item' sx={{ pr: 2 }}>
+                    <p>WORKING DIRECTORY:</p>
+                  </Grid>
+                  <Grid id='directory-item' sx={{ pr: 2 }}>
+                    <p>{currDir}</p>
+                  </Grid>
+                  <Grid id='directory-item'>
+                    <Button
+                      variant='contained'
+                      component='label'
+                      style={{
+                        backgroundColor: 'transparent',
+                        border: '1px solid #68617f',
+                        width: '170px',
+                        marginBottom: '10px',
+                        fontSize: '9px',
+                        letterSpacing: '1.5px',
+                      }}
+                    >
+                      CHOOSE DIRECTORY
+                      <input
+                        type='file'
+                        directory=''
+                        webkitdirectory=''
+                        hidden
+                        onChange={handleUploadDirectory}
                       />
-                    )}
-                  />
-                  <br />
-                  {/* ------------- TYPE drop down text field -------------------- */}
-                  <Autocomplete
-                    disablePortal
-                    id='combo-box-demo'
-                    options={types}
-                    style={{ minWidth: 200 }}
-                    sx={{
-                      width: 200,
-                      // second autocomplete
-                      // background: '#767474',
-                      // zIndex: 1000,
-                    }}
-                    onInputChange={(e, newInputValue) => {
-                      setType(newInputValue);
-                    }}
-                    renderInput={(params) => (
-                      <TextField {...params} label='Types' />
-                    )}
-                  />
-                  <br />
-                  <form
-                    onChange={(e) => {
-                      setName(e.target.value);
-                      console.log(name);
-                    }}
-                    onSubmit={(e) => {
-                      e.preventDefault();
-                    }}
-                    value={name}
-                  >
-                    <TextField
-                      style={{ minWidth: 200, marginLeft: '10px' }}
-                      id='outlined-basic'
-                      label='Name'
-                      variant='outlined'
+                    </Button>
+                  </Grid>
+                </Grid>
+                <Grid
+                  id='inputs'
+                  container
+                  width='100%'
+                  justifyContent='space-around'
+                  alignItems='center'
+                >
+                  <p>INPUTS:</p>
+                  <Grid id='kubectl' xs={2}>
+                    <Autocomplete
+                      defaultValue={'kubectl'}
+                      disablePortal
+                      options={['kubectl']}
+                      onInputChange={(e, newInputValue) => {
+                        setTool(newInputValue);
+                      }}
+                      renderInput={(params) => (
+                        <TextField {...params} label='kubectl' />
+                      )}
                     />
-                  </form>
+                  </Grid>
+                  <Grid id='command' xs={2}>
+                    <Autocomplete
+                      disablePortal
+                      id='combo-box-demo'
+                      options={commandList}
+                      onInputChange={(e, newInputValue) => {
+                        setVerb(newInputValue);
+                      }}
+                      renderInput={(params) => (
+                        <TextField {...params} label='Commands' />
+                      )}
+                    />
+                  </Grid>
+                  {/* ------------- TYPE drop down text field -------------------- */}
+                  <Grid id='type' xs={2}>
+                    <Autocomplete
+                      disablePortal
+                      id='combo-box-demo'
+                      options={types}
+                      onInputChange={(e, newInputValue) => {
+                        setType(newInputValue);
+                      }}
+                      renderInput={(params) => (
+                        <TextField {...params} label='Types' />
+                      )}
+                    />
+                  </Grid>
+                  <Grid id='name' xs={2}>
+                    <form
+                      onChange={(e) => {
+                        setName(e.target.value);
+                        console.log(name);
+                      }}
+                      onSubmit={(e) => {
+                        e.preventDefault();
+                      }}
+                      value={name}
+                    >
+                      <TextField
+                        id='outlined-basic'
+                        label='Name'
+                        variant='outlined'
+                      />
+                    </form>
+                  </Grid>
                   {/* ---------------------------- FLAGS -------------------------------- */}
-                  <div>
-                    <FormControl style={{ width: '150px', marginLeft: '10px' }}>
+                  <Grid id='flag' xs={2}>
+                    <FormControl>
                       <InputLabel id='demo-multiple-checkbox-label'>
                         Flags (optional)
                       </InputLabel>
@@ -626,23 +384,8 @@ function Dashboard() {
                         ))}
                       </Select>
                     </FormControl>
-                  </div>
-                </Box>
-              </Grid>
-
-              <div
-                style={{
-                  border: '1px solid',
-                  borderRadius: '3px',
-                  background: '#0e0727',
-                  // border: '2px solid #c6bebe',
-                  height: '100px',
-                  width: 'auto',
-                  marginTop: '5px',
-                  fontFamily: 'monospace',
-                  padding: '5px',
-                }}
-              >
+                  </Grid>
+                </Grid>
                 <CommandLine
                   width='100%'
                   handleSubmit={handleSubmit}
@@ -651,12 +394,10 @@ function Dashboard() {
                   userInput={userInput}
                   command={command}
                 />
-              </div>
+              </Grid>
             </Grid>
-          </Grid>
-        </div>
-      </ThemeProvider>
-    </ColorModeContext.Provider>
+      </Grid>
+    </>
   );
 }
 
