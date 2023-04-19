@@ -15,6 +15,7 @@ function createMainWindow() {
     webPreferences: {
       nodeIntegration: true,
     },
+    icon: './src/assets/kaptn_Logo_v2.png',
   });
 
   // mainWindow.loadFile(process.cwd());
