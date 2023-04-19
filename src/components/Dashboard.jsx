@@ -165,6 +165,13 @@ function Dashboard() {
     getCliResponse();
   };
 
+  const handleClear = (e) => {
+    e.preventDefault();
+    console.log('clear button clicked');
+    console.log('command ', command);
+    setUserInput('')
+  }
+
   const getCurrentPath = (e) => {};
 
   const pages = ['Easy Setup', 'Manage Pods', 'Tutorials'];
@@ -642,6 +649,7 @@ function Dashboard() {
                   setUserInput={setUserInput}
                   userInput={userInput}
                   command={command}
+                  handleClear = {handleClear}
                 />
               </div>
             </Grid>
