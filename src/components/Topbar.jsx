@@ -9,59 +9,40 @@ import NotificationsOutlinedIcon from '@mui/icons-material/NotificationsOutlined
 import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
 import PersonOutlinedIcon from '@mui/icons-material/PersonOutlined';
 import SearchIcon from '@mui/icons-material/Search';
+import Grid from '@mui/system/Unstable_Grid';
 
 function Topbar() {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   // allow us to toggle different states for the color mode
   const colorMode = useContext(ColorModeContext);
+  console.log('theme', theme);
+
   return (
-    <div
+    <Grid
       id='top-bar'
-      style={{
-        display: 'flex',
-        flexStart: 'center',
-        height: '35px',
-        backgroundColor: '#22145a',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
+      container
+      justifyContent='space-between'
+      alignItems='center'
+      backgroundColor='#22145a'
     >
-      <Box
-        position='absolute'
-        top='0'
-        right='0'
-        backgroundColor='#22145a'
-        height='35px'
-        marginBottom='5px'
-        webkitAppRegion='drag'
-      >
-        {/* icons */}
-        <Box display='flex'>
-          <IconButton onClick={colorMode.toggleColorMode}>
-            {theme.palette.mode === 'dark' ? (
-              <DarkModeOutlinedIcon />
-            ) : (
-              <LightModeIcon />
-            )}
-          </IconButton>
+      <Grid
+        id='top-bar-left'
+        container
+        justifyContent='space-between'
+        alignItems='center'
+        xs={2}
+        style={{
+          webkitAppRegion: 'drag',
+          webkitUserSelect: 'none',
+        }}
+      ></Grid>
 
-          <IconButton>
-            <NotificationsOutlinedIcon />
-          </IconButton>
-
-          <IconButton>
-            <SettingsOutlinedIcon />
-          </IconButton>
-
-          <IconButton>
-            <PersonOutlinedIcon />
-          </IconButton>
-        </Box>
-      </Box>
-
-      {/* Drag feature and title */}
-      <div
+      <Grid
+        id='top-bar-title'
+        xs={8}
+        container
+        justifyContent='center'
         style={{
           webkitAppRegion: 'drag',
           webkitUserSelect: 'none',
@@ -72,8 +53,38 @@ function Topbar() {
         }}
       >
         kaptn
-      </div>
-    </div>
+      </Grid>
+
+      <Grid
+        id='top-bar-icons'
+        top='0'
+        right='0'
+        backgroundColor='#22145a'
+        height='35px'
+        marginBottom='5px'
+        xs={2}
+      >
+        <IconButton onClick={colorMode.toggleColorMode}>
+          {theme.palette.mode === 'dark' ? (
+            <DarkModeOutlinedIcon />
+          ) : (
+            <LightModeIcon />
+          )}
+        </IconButton>
+
+        <IconButton onClick={console.log('clicked')}>
+          <NotificationsOutlinedIcon />
+        </IconButton>
+
+        <IconButton>
+          <SettingsOutlinedIcon />
+        </IconButton>
+
+        <IconButton>
+          <PersonOutlinedIcon />
+        </IconButton>
+      </Grid>
+    </Grid>
   );
 }
 

@@ -40,8 +40,6 @@ import ListItemText from '@mui/material/ListItemText';
 import Checkbox from '@mui/material/Checkbox';
 import { Grid3x3 } from '@mui/icons-material';
 
-// import { makeStyles } from "@mui/styles";
-
 function Dashboard() {
   const [verb, setVerb] = React.useState('');
   const [type, setType] = React.useState('');
@@ -66,18 +64,7 @@ function Dashboard() {
     },
   };
 
-  const flagList = [
-    '-o wide',
-    '--force',
-    'April Tucker',
-    'Ralph Hubbard',
-    'Omar Alexander',
-    'Carlos Abbott',
-    'Miriam Wagner',
-    'Bradley Wilkerson',
-    'Virginia Andrews',
-    'Kelly Snyder',
-  ];
+  const flagList = ['-o wide', '--force'];
 
   const handleFlags = (event) => {
     const {
@@ -90,9 +77,7 @@ function Dashboard() {
   };
 
   const MyTextField = styled(TextField)({
-    // color: 'darkslategray',
     color: '#edeaea',
-    // background: '#767474',
     height: '56px',
     borderRadius: 4,
   });
@@ -221,102 +206,101 @@ function Dashboard() {
         id='dashboard'
         container
         disableEqualOverflow='true'
-        spacing={3}
         width={'100vw'}
-        height={'100vh'}
-        sx={{ pt: 7, pb: 7 }}
+        height={'95vh'}
+        sx={{ pt: 3, pb: 3 }}
       >
         <ColorModeContext.Provider value={colorMode}>
           <ThemeProvider theme={theme}>
             <CssBaseline />
 
             {/* Wrap the entire dashboard in a grid */}
-            {/* <Grid container spacing={1} sx={{ m: 2, color: 'white' }}> */}
             {/* ----------------SIDE BAR---------------- */}
-
             <SideNav />
             {/* ----------------TERMINAL---------------- */}
 
-            <Grid id='main-content' width='75%' xs={10} spacing={3}>
+            <Grid
+              id='main-content'
+              width='75%'
+              height='95%'
+              xs={10}
+              // spacing={1}
+              disableEqualOverflow='true'
+              container
+              direction='column'
+              wrap='nowrap'
+              justifyContent='space-around'
+              alignItems='center'
+            >
               <Terminal response={response} />
 
               <Grid
                 id='below-terminal'
                 container
-                sx={{ pt: 5 }}
+                xs={4}
+                height={'35%'}
+                sx={{ pt: 1 }}
                 justifyContent='center'
+                alignItems='center'
+                alignContent='space-between'
+                width='100%'
               >
-                <Grid id='directory' container alignItems='baseline'>
-                  {/* <div
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    marginTop: '10px',
-                  }}
-                > */}
-
-                  <p>WORKING DIRECTORY:</p>
-                  <p>{currDir}</p>
-                  <Button
-                    variant='contained'
-                    component='label'
-                    style={{
-                      backgroundColor: 'transparent',
-                      // color: '#2a2a2a',
-                      border: '1px solid #68617f',
-                      width: '170px',
-                      marginBottom: '10px',
-                      fontSize: '9px',
-                      letterSpacing: '1.5px',
-                    }}
-                  >
-                    CHOOSE DIRECTORY
-                    <input
-                      type='file'
-                      directory=''
-                      webkitdirectory=''
-                      hidden
-                      onChange={handleUploadDirectory}
-                    />
-                  </Button>
+                <Grid
+                  id='directory'
+                  container
+                  width='100%'
+                  alignItems='flex-end'
+                  justifyContent='center'
+                  sx={{ borderBottom: 1 }}
+                >
+                  <Grid id='directory-item' sx={{ pr: 2 }}>
+                    <p>WORKING DIRECTORY:</p>
+                  </Grid>
+                  <Grid id='directory-item' sx={{ pr: 2 }}>
+                    <p>{currDir}</p>
+                  </Grid>
+                  <Grid id='directory-item'>
+                    <Button
+                      variant='contained'
+                      component='label'
+                      style={{
+                        backgroundColor: 'transparent',
+                        border: '1px solid #68617f',
+                        width: '170px',
+                        marginBottom: '10px',
+                        fontSize: '9px',
+                        letterSpacing: '1.5px',
+                      }}
+                    >
+                      CHOOSE DIRECTORY
+                      <input
+                        type='file'
+                        directory=''
+                        webkitdirectory=''
+                        hidden
+                        onChange={handleUploadDirectory}
+                      />
+                    </Button>
+                  </Grid>
                 </Grid>
-                <Grid id='inputs' container justifyContent='space-around'>
-                  {/* <div
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: '#9e9d9d',
-                    padding: '15px',
-                    // letterSpacing: '2px',
-                    // paddingRight: '20px',
-                    fontSize: '11px',
-                    // width: '75px',
-                  }}
-                > */}
+                <Grid
+                  id='inputs'
+                  container
+                  width='100%'
+                  justifyContent='space-around'
+                  alignItems='center'
+                >
                   <p>INPUTS:</p>
-                  {/* </div> */}
                   <Grid id='kubectl' xs={2}>
                     <Autocomplete
                       defaultValue={'kubectl'}
                       disablePortal
                       options={['kubectl']}
-                      // style={{
-                      //   width: 200,
-                      //   marginRight: '10px',
-                      //   minWidth: '200',
-                      //   // background: '#767474',
-                      // }}
                       onInputChange={(e, newInputValue) => {
                         setTool(newInputValue);
                       }}
                       renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          style={{ minWidth: 200 }}
-                          label='kubectl'
-                        />
+                        <TextField {...params} label='kubectl' />
                       )}
                     />
                   </Grid>
@@ -325,21 +309,11 @@ function Dashboard() {
                       disablePortal
                       id='combo-box-demo'
                       options={commandList}
-                      // style={{
-                      //   width: 200,
-                      //   marginRight: '10px',
-                      //   minWidth: '200',
-                      //   // background: '#767474',
-                      // }}
                       onInputChange={(e, newInputValue) => {
                         setVerb(newInputValue);
                       }}
                       renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          style={{ minWidth: 200 }}
-                          label='Commands'
-                        />
+                        <TextField {...params} label='Commands' />
                       )}
                     />
                   </Grid>
@@ -349,13 +323,6 @@ function Dashboard() {
                       disablePortal
                       id='combo-box-demo'
                       options={types}
-                      // style={{ minWidth: 200 }}
-                      sx={{
-                        width: 200,
-                        // second autocomplete
-                        // background: '#767474',
-                        // zIndex: 1000,
-                      }}
                       onInputChange={(e, newInputValue) => {
                         setType(newInputValue);
                       }}
@@ -376,7 +343,6 @@ function Dashboard() {
                       value={name}
                     >
                       <TextField
-                        style={{ minWidth: 200, marginLeft: '10px' }}
                         id='outlined-basic'
                         label='Name'
                         variant='outlined'
@@ -385,7 +351,7 @@ function Dashboard() {
                   </Grid>
                   {/* ---------------------------- FLAGS -------------------------------- */}
                   <Grid id='flag' xs={2}>
-                    <FormControl style={{ width: '150px', marginLeft: '10px' }}>
+                    <FormControl>
                       <InputLabel id='demo-multiple-checkbox-label'>
                         Flags (optional)
                       </InputLabel>
@@ -409,18 +375,16 @@ function Dashboard() {
                     </FormControl>
                   </Grid>
                 </Grid>
-                {/* </Box> */}
+                <CommandLine
+                  width='100%'
+                  handleSubmit={handleSubmit}
+                  postCommand={postCommand}
+                  setUserInput={setUserInput}
+                  userInput={userInput}
+                  command={command}
+                />
               </Grid>
-              <CommandLine
-                width='100%'
-                handleSubmit={handleSubmit}
-                postCommand={postCommand}
-                setUserInput={setUserInput}
-                userInput={userInput}
-                command={command}
-              />
             </Grid>
-            {/* </Grid> */}
           </ThemeProvider>
         </ColorModeContext.Provider>
       </Grid>

@@ -7,16 +7,24 @@ body {
   left: 0px;
   margin: 0px;
   padding: 0px;
+  overflow-x: hidden;
+}
+
+/* .top-bar {
   -webkit-app-region: drag;
-}
+} */
 
-button {
+/* .top-bar button {
   -webkit-app-region: no-drag;
 }
 
-a {
+.top-bar button {
   -webkit-app-region: no-drag;
-}
+} */
+
+/* input {
+  -webkit-app-region: no-drag;
+} */
 
 /* Scrollbar */
 ::-webkit-scrollbar {

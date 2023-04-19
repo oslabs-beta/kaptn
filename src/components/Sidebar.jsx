@@ -47,14 +47,7 @@ function SideNav() {
   const [selected, setSelected] = useState('Dashboard');
 
   return (
-    // <div
-    //   style={{
-    //     display:'flex',
-    //     height:'100%',
-    //     minHeight:'100%'
-    //   }}
-    // >
-    <Grid xs={2} container sx={{ pl: 5 }}>
+    <Grid xs={2} container sx={{ pl: 1 }}>
       <Sidebar defaultCollapsed backgroundColor=''>
         <Menu>
           {/* MENU ITEMS */}
