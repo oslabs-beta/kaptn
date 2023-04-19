@@ -89,7 +89,6 @@ function Login() {
             variant='h6'
             noWrap
             component='a'
-            href='/'
             fullWidth
             sx={{
               alignItems: 'center',
@@ -111,8 +110,10 @@ function Login() {
       <Box
         src='../src/assets/kaptn.ico'
         sx={{
-          height: '250px',
-          width: '250px'
+          height: '150px',
+          width: '150px',
+          mb: 4,
+          mt: 4
         }}
         component='img'
         >
@@ -195,6 +196,7 @@ function Login() {
           sx={{
             fontFamily: 'Roboto',
             fontSize: 25,
+            fontWeight: 50,
             letterSpacing: '.1 rem',
             color: 'white',
             textDecoration: 'none',

@@ -104,8 +104,8 @@ function Signup() {
       <Box
         src='../src/assets/kaptn.ico'
         sx={{
-          height: '250px',
-          width: '250px'
+          height: '150px',
+          width: '150px'
         }}
         component='img'
         >
@@ -113,7 +113,7 @@ function Signup() {
         <Box component='form' 
           onSubmit={handleClick} 
           sx={{ display: 'flex', 
-                width: '50%',
+                width: '40%',
                 flexDirection: 'column', 
                 alignItems: 'center', 
                 mt: 0}}>
@@ -123,7 +123,7 @@ function Signup() {
             sx={{
               fontFamily: 'Roboto',
               fontWeight: 75,
-              fontSize: 40,
+              fontSize: 30,
               letterSpacing: '.1 rem',
               color: 'white',
               textDecoration: 'none',
