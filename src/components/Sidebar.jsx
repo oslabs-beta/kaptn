@@ -17,7 +17,7 @@ import ExitToAppOutlinedIcon from '@mui/icons-material/ExitToAppOutlined';
 import { Button } from '@mui/material';
 import { AutoFixHigh, MenuBook } from '@mui/icons-material';
 import { Create } from '@mui/icons-material';
-import { Hub } from '@mui/icons-material';
+import { BarChart } from '@mui/icons-material';
 // import { MenuBook } from '@mui/icons-material';
 
 const Item = ({ title, to, icon, selected, setSlected }) => {
@@ -95,7 +95,7 @@ function SideNav() {
             <MenuItem
               container={Link}
               href='/visualizer'
-              icon={<Hub />}
+              icon={<BarChart />}
               // selected={selected}
               // setSelect={setSelected}
             ><Link to='/visualizer'>Kluster Visualizer</Link></MenuItem>
