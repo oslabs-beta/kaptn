@@ -34,7 +34,7 @@ function Topbar() {
         backgroundColor='#22145a'
         height='35px'
         marginBottom='5px'
-        webkitAppRegion='no drag'
+        webkitAppRegion='drag'
       >
         {/* icons */}
         <Box display='flex'>

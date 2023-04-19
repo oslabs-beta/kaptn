@@ -38,6 +38,7 @@ import { CssBaseline, ThemeProvider } from '@mui/material';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import ListItemText from '@mui/material/ListItemText';
 import Checkbox from '@mui/material/Checkbox';
+import { Grid3x3 } from '@mui/icons-material';
 
 // import { makeStyles } from "@mui/styles";
 
@@ -214,229 +215,216 @@ function Dashboard() {
   ];
 
   return (
-    <div id='dashboard'>
-      <ColorModeContext.Provider value={colorMode}>
-        <ThemeProvider theme={theme}>
-          <CssBaseline />
-          <Topbar />
-          {/* Wrap the entire dashboard in a grid */}
-          {/* <Grid container spacing={1} sx={{ m: 2, color: 'white' }}> */}
-          {/* ----------------SIDE BAR---------------- */}
-          <SideNav />
-          {/* ----------------TERMINAL---------------- */}
+    <>
+      <Topbar />
+      <Grid
+        id='dashboard'
+        container
+        disableEqualOverflow='true'
+        spacing={3}
+        width={'100vw'}
+        height={'100vh'}
+        sx={{ pt: 7, pb: 7 }}
+      >
+        <ColorModeContext.Provider value={colorMode}>
+          <ThemeProvider theme={theme}>
+            <CssBaseline />
 
-          <Grid
-            id='dashboard'
-            width='75%'
-            position='absolute'
-            right='0'
-            paddingRight='20px'
-            spacing={0}
-          >
-            <Terminal response={response} />
+            {/* Wrap the entire dashboard in a grid */}
+            {/* <Grid container spacing={1} sx={{ m: 2, color: 'white' }}> */}
+            {/* ----------------SIDE BAR---------------- */}
 
-            <Grid>
-              <div
-                style={{
-                  display: 'flex',
-                  justifyContent: 'center',
-                  marginTop: '10px',
-                }}
+            <SideNav />
+            {/* ----------------TERMINAL---------------- */}
+
+            <Grid id='main-content' width='75%' xs={10} spacing={3}>
+              <Terminal response={response} />
+
+              <Grid
+                id='below-terminal'
+                container
+                sx={{ pt: 5 }}
+                justifyContent='center'
               >
-                {' '}
-                <div
+                <Grid id='directory' container alignItems='baseline'>
+                  {/* <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    marginTop: '10px',
+                  }}
+                > */}
+
+                  <p>WORKING DIRECTORY:</p>
+                  <p>{currDir}</p>
+                  <Button
+                    variant='contained'
+                    component='label'
+                    style={{
+                      backgroundColor: 'transparent',
+                      // color: '#2a2a2a',
+                      border: '1px solid #68617f',
+                      width: '170px',
+                      marginBottom: '10px',
+                      fontSize: '9px',
+                      letterSpacing: '1.5px',
+                    }}
+                  >
+                    CHOOSE DIRECTORY
+                    <input
+                      type='file'
+                      directory=''
+                      webkitdirectory=''
+                      hidden
+                      onChange={handleUploadDirectory}
+                    />
+                  </Button>
+                </Grid>
+                <Grid id='inputs' container justifyContent='space-around'>
+                  {/* <div
                   style={{
                     display: 'flex',
                     flexDirection: 'row',
                     alignItems: 'center',
+                    justifyContent: 'center',
                     color: '#9e9d9d',
-                    paddingBottom: '10px',
-                    letterSpacing: '2px',
+                    padding: '15px',
+                    // letterSpacing: '2px',
+                    // paddingRight: '20px',
                     fontSize: '11px',
+                    // width: '75px',
                   }}
-                >
-                  WORKING DIRECTORY:
-                </div>
-                <div
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    padding: '8px',
-                    fontSize: '9px',
-                    color: '#7a709b',
-                  }}
-                >
-                  {currDir}
-                </div>
-                <Button
-                  variant='contained'
-                  component='label'
-                  style={{
-                    backgroundColor: 'transparent',
-                    // color: '#2a2a2a',
-                    border: '1px solid #68617f',
-                    width: '170px',
-                    marginBottom: '10px',
-                    fontSize: '9px',
-                    letterSpacing: '1.5px',
-                  }}
-                >
-                  CHOOSE DIRECTORY
-                  <input
-                    type='file'
-                    directory=''
-                    webkitdirectory=''
-                    hidden
-                    onChange={handleUploadDirectory}
-                  />
-                </Button>
-              </div>
-              <div
-                style={{
-                  backgroundColor: '#7a709b',
-                  width: 'auto',
-                  height: '1px',
-                }}
-              />
-              <div
-                style={{
-                  display: 'flex',
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: '#9e9d9d',
-                  padding: '15px',
-                  // letterSpacing: '2px',
-                  // paddingRight: '20px',
-                  fontSize: '11px',
-                  // width: '75px',
-                }}
-              >
-                <div style={{ paddingRight: '20px' }}>INPUTS:</div>
-                {/* </div> */}
-                <Autocomplete
-                  defaultValue={'kubectl'}
-                  disablePortal
-                  options={['kubectl']}
-                  style={{
-                    width: 200,
-                    marginRight: '10px',
-                    minWidth: '200',
-                    // background: '#767474',
-                  }}
-                  onInputChange={(e, newInputValue) => {
-                    setTool(newInputValue);
-                  }}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      style={{ minWidth: 200 }}
-                      label='kubectl'
+                > */}
+                  <p>INPUTS:</p>
+                  {/* </div> */}
+                  <Grid id='kubectl' xs={2}>
+                    <Autocomplete
+                      defaultValue={'kubectl'}
+                      disablePortal
+                      options={['kubectl']}
+                      // style={{
+                      //   width: 200,
+                      //   marginRight: '10px',
+                      //   minWidth: '200',
+                      //   // background: '#767474',
+                      // }}
+                      onInputChange={(e, newInputValue) => {
+                        setTool(newInputValue);
+                      }}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          style={{ minWidth: 200 }}
+                          label='kubectl'
+                        />
+                      )}
                     />
-                  )}
-                />
-                <br />
-                <Autocomplete
-                  disablePortal
-                  id='combo-box-demo'
-                  options={commandList}
-                  style={{
-                    width: 200,
-                    marginRight: '10px',
-                    minWidth: '200',
-                    // background: '#767474',
-                  }}
-                  onInputChange={(e, newInputValue) => {
-                    setVerb(newInputValue);
-                  }}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      style={{ minWidth: 200 }}
-                      label='Commands'
+                  </Grid>
+                  <Grid id='command' xs={2}>
+                    <Autocomplete
+                      disablePortal
+                      id='combo-box-demo'
+                      options={commandList}
+                      // style={{
+                      //   width: 200,
+                      //   marginRight: '10px',
+                      //   minWidth: '200',
+                      //   // background: '#767474',
+                      // }}
+                      onInputChange={(e, newInputValue) => {
+                        setVerb(newInputValue);
+                      }}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          style={{ minWidth: 200 }}
+                          label='Commands'
+                        />
+                      )}
                     />
-                  )}
-                />
-                <br />
-                {/* ------------- TYPE drop down text field -------------------- */}
-                <Autocomplete
-                  disablePortal
-                  id='combo-box-demo'
-                  options={types}
-                  style={{ minWidth: 200 }}
-                  sx={{
-                    width: 200,
-                    // second autocomplete
-                    // background: '#767474',
-                    // zIndex: 1000,
-                  }}
-                  onInputChange={(e, newInputValue) => {
-                    setType(newInputValue);
-                  }}
-                  renderInput={(params) => (
-                    <TextField {...params} label='Types' />
-                  )}
-                />
-                <br />
-                <form
-                  onChange={(e) => {
-                    setName(e.target.value);
-                    console.log(name);
-                  }}
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                  }}
-                  value={name}
-                >
-                  <TextField
-                    style={{ minWidth: 200, marginLeft: '10px' }}
-                    id='outlined-basic'
-                    label='Name'
-                    variant='outlined'
-                  />
-                </form>
-                {/* ---------------------------- FLAGS -------------------------------- */}
-                <div>
-                  <FormControl style={{ width: '150px', marginLeft: '10px' }}>
-                    <InputLabel id='demo-multiple-checkbox-label'>
-                      Flags (optional)
-                    </InputLabel>
-                    <Select
-                      labelId='demo-multiple-checkbox-label'
-                      id='demo-multiple-checkbox'
-                      multiple
-                      value={flagList}
-                      onChange={handleFlags}
-                      input={<OutlinedInput label='Flags (optional)' />}
-                      renderValue={(selected) => selected.join(', ')}
-                      MenuProps={MenuProps}
+                  </Grid>
+                  {/* ------------- TYPE drop down text field -------------------- */}
+                  <Grid id='type' xs={2}>
+                    <Autocomplete
+                      disablePortal
+                      id='combo-box-demo'
+                      options={types}
+                      // style={{ minWidth: 200 }}
+                      sx={{
+                        width: 200,
+                        // second autocomplete
+                        // background: '#767474',
+                        // zIndex: 1000,
+                      }}
+                      onInputChange={(e, newInputValue) => {
+                        setType(newInputValue);
+                      }}
+                      renderInput={(params) => (
+                        <TextField {...params} label='Types' />
+                      )}
+                    />
+                  </Grid>
+                  <Grid id='name' xs={2}>
+                    <form
+                      onChange={(e) => {
+                        setName(e.target.value);
+                        console.log(name);
+                      }}
+                      onSubmit={(e) => {
+                        e.preventDefault();
+                      }}
+                      value={name}
                     >
-                      {flagList.map((name) => (
-                        <MenuItem key={name} value={name}>
-                          <Checkbox checked={flagList.indexOf(name) > -1} />
-                          <ListItemText primary={name} />
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </div>
-              </div>
-              {/* </Box> */}
+                      <TextField
+                        style={{ minWidth: 200, marginLeft: '10px' }}
+                        id='outlined-basic'
+                        label='Name'
+                        variant='outlined'
+                      />
+                    </form>
+                  </Grid>
+                  {/* ---------------------------- FLAGS -------------------------------- */}
+                  <Grid id='flag' xs={2}>
+                    <FormControl style={{ width: '150px', marginLeft: '10px' }}>
+                      <InputLabel id='demo-multiple-checkbox-label'>
+                        Flags (optional)
+                      </InputLabel>
+                      <Select
+                        labelId='demo-multiple-checkbox-label'
+                        id='demo-multiple-checkbox'
+                        multiple
+                        value={flagList}
+                        onChange={handleFlags}
+                        input={<OutlinedInput label='Flags (optional)' />}
+                        renderValue={(selected) => selected.join(', ')}
+                        MenuProps={MenuProps}
+                      >
+                        {flagList.map((name) => (
+                          <MenuItem key={name} value={name}>
+                            <Checkbox checked={flagList.indexOf(name) > -1} />
+                            <ListItemText primary={name} />
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </Grid>
+                </Grid>
+                {/* </Box> */}
+              </Grid>
+              <CommandLine
+                width='100%'
+                handleSubmit={handleSubmit}
+                postCommand={postCommand}
+                setUserInput={setUserInput}
+                userInput={userInput}
+                command={command}
+              />
             </Grid>
-            <CommandLine
-              width='100%'
-              handleSubmit={handleSubmit}
-              postCommand={postCommand}
-              setUserInput={setUserInput}
-              userInput={userInput}
-              command={command}
-            />
-          </Grid>
-          {/* </Grid> */}
-        </ThemeProvider>
-      </ColorModeContext.Provider>
-    </div>
+            {/* </Grid> */}
+          </ThemeProvider>
+        </ColorModeContext.Provider>
+      </Grid>
+    </>
   );
 }
 
