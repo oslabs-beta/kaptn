@@ -34,7 +34,7 @@ function Topbar() {
         xs={2}
         style={{
           webkitAppRegion: 'drag',
-          webkitUserSelect: 'none',
+          // webkitUserSelect: 'none',
         }}
       ></Grid>
 
@@ -54,7 +54,7 @@ function Topbar() {
       >
         kaptn
       </Grid>
-
+          
       <Grid
         id='top-bar-icons'
         top='0'
@@ -64,6 +64,7 @@ function Topbar() {
         marginBottom='5px'
         xs={2}
       >
+        {/*     SHIFTING LIGHT/DARK MODE TOGGLE BELOW
         <IconButton onClick={colorMode.toggleColorMode}>
           {theme.palette.mode === 'dark' ? (
             <DarkModeOutlinedIcon />
@@ -72,7 +73,7 @@ function Topbar() {
           )}
         </IconButton>
 
-        <IconButton onClick={console.log('clicked')}>
+        <IconButton onClick={() => console.log(theme)}>
           <NotificationsOutlinedIcon />
         </IconButton>
 
@@ -82,8 +83,8 @@ function Topbar() {
 
         <IconButton>
           <PersonOutlinedIcon />
-        </IconButton>
-      </Grid>
+        </IconButton> */}
+      </Grid> 
     </Grid>
   );
 }
