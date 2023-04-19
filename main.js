@@ -7,7 +7,7 @@ function createMainWindow() {
     title: 'Kaptn',
     titleBarStyle: 'hidden',
     width: 1200,
-    height: 700,
+    height: 680,
     webPreferences: {
       nodeIntegration: true,
     },

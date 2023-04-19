@@ -38,9 +38,12 @@ import Topbar from './Topbar';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import ListItemText from '@mui/material/ListItemText';
 import Checkbox from '@mui/material/Checkbox';
+import Sidebar2 from './Sidebar2';
+import CommandField from './CommandField';
+import { Backdrop } from '@mui/material';
 // import { makeStyles } from "@mui/styles";
 
-function Dashboard() {
+function Setup() {
   const [verb, setVerb] = React.useState('');
   const [type, setType] = React.useState('');
   const [name, setName] = React.useState('');
@@ -50,6 +53,14 @@ function Dashboard() {
   const [response, setResponse] = useState([]);
   const [error, setError] = useState(false);
   const [flags, setFlags] = React.useState([]);
+  const [editOpen, setEditOpen] = React.useState(false);
+
+  const handleEditClose = () => {
+    setEditOpen(false);
+  };
+  const handleEditOpen = () => {
+    setEditOpen(true);
+  };
 
   const ITEM_HEIGHT = 48;
   const ITEM_PADDING_TOP = 8;
@@ -65,9 +76,9 @@ function Dashboard() {
   const flagList = [
     '-o wide',
     '--force',
-    'April Tucker',
-    'Ralph Hubbard',
-    'Omar Alexander',
+    '-f',
+    '-o default',
+    '-v',
     'Carlos Abbott',
     'Miriam Wagner',
     'Bradley Wilkerson',
@@ -94,6 +105,21 @@ function Dashboard() {
   });
 
   const handleUploadDirectory = (event) => {
+    let path = event.target.files[0].path.split('');
+    while (path[path.length - 1] !== '/') {
+      path.pop();
+    }
+    let absPath = path.join('');
+    // for(let i=0 ;
+    console.log('path is ', absPath);
+    // let FolderPath = event.target.value;
+    // let absFoldPath = FolderPath;
+    // console.log(absFoldPath);
+    setCurrDir(absPath);
+    // let value = URL.createObjectURL(event.target.files[0]);
+  };
+
+  const handleCreateYaml = (event) => {
     let path = event.target.files[0].path.split('');
     while (path[path.length - 1] !== '/') {
       path.pop();
@@ -267,9 +293,16 @@ function Dashboard() {
           kaptn
         </div>
       </div>
-      {/* <SideNav /> */}
-      {/* old sidenav below */}
-      <Box display='flex' id='oldsidenav' flexDirection='column'></Box>
+      {/* 
+      <iframe
+        src='https://k8syaml.com/'
+        position='absolute'
+        top='50px'
+        left='50px'
+        width='100%'
+        height='900px'
+        marginRight='60px'
+      ></iframe> */}
 
       {/* --
       ---
@@ -286,119 +319,387 @@ function Dashboard() {
 
       <Grid container spacing={1} sx={{ m: 2, color: 'white' }}>
         {/* --------SIDEBAR---------- */}
-        <Grid width='25%'>
-          <SideNav />
+        <Grid width='05%'>
+          <Sidebar2 />
+        </Grid>
 
-          {/* ------------------------- OLD SIDEBAR BELOW--------------------- */}
-          {/* <div
-            style={{
-              position: 'absolute',
-              left: '0',
-              top: '69px',
-              backgroundColor: '#272727',
+        <Grid width='25%'>
+          <Box
+            sx={{
+              // border: 1,
+              display: 'flex',
+              flexDirection: 'column',
               alignItems: 'center',
-              padding: '5px',
-              height: '100%',
-              width: '50px',
-              // borderRadius: '4px',
+              // colored box behind buttons
+              // bgcolor: '#2e2d2d',
+              padding: '10px',
+              width: '190px',
+              borderRadius: '5px',
+              bgcolor: '#2a2152',
+              marginBottom: '20px',
+              marginTop: '10px',
             }}
           >
-            <div style={{ marginTop: '10px', paddingLeft: '10px' }}>
-              <SettingsBackupRestoreOutlinedIcon />
+            <div style={{ alignItems: 'center', justifyContent: 'center' }}>
+              EASY SETUP
             </div>
-            <div style={{ marginTop: '10px', paddingLeft: '10px' }}>
-              <LocalLibraryOutlinedIcon />
+          </Box>
+          <Box
+            sx={{
+              // border: 1,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              // colored box behind buttons
+              // bgcolor: '#2e2d2d',
+              padding: '15px',
+              width: '190px',
+              borderRadius: '5px',
+              bgcolor: '#2a2152',
+              marginBottom: '25px',
+            }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                color: '#9e9d9d',
+                paddingBottom: '10px',
+                fontSize: '11.5px',
+              }}
+            >
+              1. CREATE/CHOOSE IMAGE (?)
             </div>
-            <div style={{ marginTop: '10px', paddingLeft: '10px' }}>
-              <ManageAccountsOutlinedIcon />
+            <div
+              style={{
+                backgroundColor: '#716a8e',
+                width: '170px',
+                height: '1px',
+              }}
+            />
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                paddingTop: '5px',
+                fontSize: '9px',
+              }}
+            ></div>
+
+            <Box
+              component='form'
+              sx={{
+                '& > :not(style)': { m: 1, width: '160px' },
+              }}
+              noValidate
+              autoComplete='off'
+            >
+              <TextField
+                id='outlined-basic'
+                label='Enter .IMG Path'
+                variant='outlined'
+              />
+            </Box>
+          </Box>
+
+          <Box
+            sx={{
+              // border: 1,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              // colored box behind buttons
+              // bgcolor: '#2e2d2d',
+              padding: '5px',
+              width: '190px',
+              borderRadius: '5px',
+              backgroundColor: '#2a2152',
+              marginBottom: '25px',
+            }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                color: '#9e9d9d',
+                paddingBottom: '10px',
+                fontSize: '10.5px',
+                marginTop: '10px',
+              }}
+            >
+              2. CHOOSE WORKING DIRECTORY
             </div>
-          </div> */}
+            <div
+              style={{
+                backgroundColor: '#716a8e',
+                width: '190px',
+                height: '1px',
+              }}
+            />
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                padding: '10px',
+                fontSize: '9px',
+              }}
+            >
+              {currDir}
+            </div>
+
+            <Button
+              variant='contained'
+              component='label'
+              style={{
+                // backgroundColor: '#767474',
+                // color: '#2a2a2a',
+                border: '1px solid white',
+                width: '170px',
+                marginBottom: '15px',
+                fontSize: '12px',
+              }}
+            >
+              CHOOSE DIRECTORY
+              <input
+                type='file'
+                directory=''
+                webkitdirectory=''
+                hidden
+                onChange={handleUploadDirectory}
+              />
+            </Button>
+          </Box>
+
+          <Box
+            sx={{
+              // border: 1,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              // colored box behind buttons
+              bgcolor: '#2a2152',
+              padding: '15px',
+              width: '190px',
+              borderRadius: '5px',
+            }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                color: '#9e9d9d',
+                paddingBottom: '10px',
+                fontSize: '10.5px',
+              }}
+            >
+              3. CHOOSE/CREATE YAML FILE
+            </div>
+            <div
+              style={{
+                backgroundColor: '#716a8e',
+                width: '170px',
+                height: '1px',
+              }}
+            />
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                padding: '10px',
+                fontSize: '9px',
+              }}
+            >
+              {currDir}
+            </div>
+            {/* 
+            <Button
+              variant='contained'
+              component='label'
+              style={{
+                // backgroundColor: '#767474',
+                // color: '#2a2a2a',
+                border: '1px solid white',
+                width: '170px',
+                marginBottom: '10px',
+                fontSize: '12px',
+              }}
+            >
+              //CREATE .YAML FILE
+              <input
+                type='file'
+                directory=''
+                webkitdirectory=''
+                hidden
+                onChange={handleCreateYaml}
+              />
+            </Button> */}
+
+            <Button
+              onClick={handleEditOpen}
+              style={{
+                backgroundColor: '#0d0527',
+                color: 'white',
+                justifyContent: 'center',
+                alignItems: 'center',
+                marginTop: '20px',
+                border: '1px solid white',
+                width: '170px',
+                marginBottom: '15px',
+                fontSize: '12px',
+              }}
+            >
+              CREATE .YAML FILE
+            </Button>
+            <Backdrop
+              style={{
+                color: '#white',
+                justifyContent: 'center',
+                alignItems: 'center',
+                position: 'relative',
+              }}
+              open={editOpen}
+              onClick={handleEditClose}
+            >
+              <Paper
+                onClick={handleEditClose}
+                style={{
+                  height: '80%',
+                  width: '90%',
+                  backgroundColor: 'white',
+                  overflow: 'scroll',
+                  color: 'black',
+                  paddingLeft: '10px',
+                  zIndex: '1350',
+                  position: 'fixed',
+                  top: '80px',
+                  left: '70px',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+                color='black'
+              >
+                <div
+                  style={{
+                    width: '900px',
+                    alignItems: 'center',
+                    marginLeft: '80px',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}
+                >
+                  <div
+                    style={{
+                      font: 'Roboto',
+                      fontSize: '14px',
+                      fontWeight: '900',
+                      width: '100%',
+                      paddingTop: '20px',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      textAlign: 'center',
+                    }}
+                  >
+                    PLEASE USE THE TOOL BELOW TO CREATE YOUR .YAML FILE
+                  </div>
+                  <div
+                    style={{
+                      font: 'Roboto',
+                      fontSize: '14px',
+                      fontWeight: '500',
+                      width: '100%',
+                      paddingBottom: '20px',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      textAlign: 'center',
+                    }}
+                  >
+                    Once you've finished, use the copy clipboard button in the
+                    top right corner. <br />
+                    Then click in the white space on either side to close the
+                    popup, and continue following the instructions in the help
+                    center.
+                  </div>
+
+                  <iframe
+                    src='https://k8syaml.com'
+                    width='900px'
+                    height='900px'
+                    style={{ alignItems: 'center' }}
+                  ></iframe>
+                </div>
+              </Paper>
+            </Backdrop>
+          </Box>
+          <Box
+            style={{
+              paddingTop: '24px',
+              paddingLeft: '15px',
+              fontSize: '16px',
+            }}
+          >
+            4. INPUT COMMANDS --- >
+          </Box>
         </Grid>
 
         {/* ------------- COMMANDS drop down text field -------------------- */}
 
-        <Grid width='75%' position='absolute' right='0' paddingRight='20px'>
+        <Grid
+          width='75.5%'
+          position='absolute'
+          right='0'
+          paddingRight='20px'
+          zIndex='99'
+        >
           {/* olivia's world */}
+
           <div
             style={{
               border: '1px solid',
               borderRadius: '3px',
               // border: '2px solid #c6bebe',
               background: '#0e0727',
-              height: '400px',
+              height: '440px',
               width: 'auto',
               // color: '#edeaea',
               fontFamily: 'monospace',
               padding: '5px',
+              zIndex: '100',
             }}
           >
             <Terminal response={response} />
           </div>
 
-          <Grid>
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'center',
-                marginTop: '10px',
-              }}
-            >
-              {' '}
-              <div
-                style={{
-                  display: 'flex',
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  color: '#9e9d9d',
-                  paddingBottom: '10px',
-                  letterSpacing: '2px',
-                  fontSize: '11px',
-                }}
-              >
-                WORKING DIRECTORY:
-              </div>
-              <div
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  padding: '8px',
-                  fontSize: '9px',
-                  color: '#7a709b',
-                }}
-              >
-                {currDir}
-              </div>
-              <Button
-                variant='contained'
-                component='label'
-                style={{
-                  backgroundColor: 'transparent',
-                  // color: '#2a2a2a',
-                  border: '1px solid #68617f',
-                  width: '170px',
-                  marginBottom: '10px',
-                  fontSize: '9px',
-                  letterSpacing: '1.5px',
-                }}
-              >
-                CHOOSE DIRECTORY
-                <input
-                  type='file'
-                  directory=''
-                  webkitdirectory=''
-                  hidden
-                  onChange={handleUploadDirectory}
-                />
-              </Button>
-            </div>
-            <div
-              style={{
-                backgroundColor: '#7a709b',
-                width: '100%',
-                height: '1px',
-              }}
+          <div
+            style={{
+              border: '1px solid',
+              borderRadius: '3px',
+              background: '#0e0727',
+              // border: '2px solid #c6bebe',
+              height: '60px',
+              width: 'auto',
+              marginTop: '5px',
+              fontFamily: 'monospace',
+              padding: '5px',
+              zIndex: '100',
+            }}
+          >
+            <CommandLine
+              width='100%'
+              handleSubmit={handleSubmit}
+              postCommand={postCommand}
+              setUserInput={setUserInput}
+              userInput={userInput}
+              command={command}
             />
+          </div>
+
+          <Grid>
             <Box
               sx={{
                 // border: 1,
@@ -407,7 +708,7 @@ function Dashboard() {
                 alignItems: 'center',
                 // colored box behind buttons
                 // bgcolor: '#2e2d2d',
-                padding: '15px',
+                paddingTop: '15px',
                 width: '190px',
                 borderRadius: '5px',
               }}
@@ -420,25 +721,10 @@ function Dashboard() {
                   marginBottom: '10px',
                 }}
               />
-              <div
-                style={{
-                  display: 'flex',
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: '#9e9d9d',
-                  letterSpacing: '2px',
-                  paddingRight: '20px',
-                  fontSize: '11px',
-                  width: '75px',
-                }}
-              >
-                INPUTS:
-              </div>
-              <Autocomplete
+
+              <CommandField
                 disablePortal
                 id='combo-box-demo'
-                options={commandList}
                 style={{
                   width: 200,
                   marginRight: '10px',
@@ -499,7 +785,7 @@ function Dashboard() {
               </form>
               {/* ---------------------------- FLAGS -------------------------------- */}
               <div>
-                <FormControl style={{ width: '150px', marginLeft: '10px' }}>
+                <FormControl style={{ width: '193px', marginLeft: '10px' }}>
                   <InputLabel id='demo-multiple-checkbox-label'>
                     Flags (optional)
                   </InputLabel>
@@ -524,33 +810,10 @@ function Dashboard() {
               </div>
             </Box>
           </Grid>
-
-          <div
-            style={{
-              border: '1px solid',
-              borderRadius: '3px',
-              background: '#0e0727',
-              // border: '2px solid #c6bebe',
-              height: '100px',
-              width: 'auto',
-              marginTop: '5px',
-              fontFamily: 'monospace',
-              padding: '5px',
-            }}
-          >
-            <CommandLine
-              width='100%'
-              handleSubmit={handleSubmit}
-              postCommand={postCommand}
-              setUserInput={setUserInput}
-              userInput={userInput}
-              command={command}
-            />
-          </div>
         </Grid>
       </Grid>
     </div>
   );
 }
 
-export default Dashboard;
+export default Setup;

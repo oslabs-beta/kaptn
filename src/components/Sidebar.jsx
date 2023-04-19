@@ -26,7 +26,7 @@ const Item = ({ title, to, icon, selected, setSlected }) => {
       icon={icon}
     >
       <Typography>{title}</Typography>
-      <Link to={to}/>
+      <Link to={to} />
     </MenuItem>
   );
 };
@@ -55,44 +55,40 @@ function SideNav() {
     // </div>
     <div
       style={{
-        display:'flex',
-        height:'100%',
-        minHeight:'100%'
+        display: 'flex',
+        height: '100%',
+        minHeight: '100%',
       }}
     >
       <Sidebar
-      defaultCollapsed
-      backgroundColor=''
+        defaultCollapsed
+        backgroundColor=''
+        style={{ paddingBottom: '700px' }}
       >
-   
-      
         <Menu>
           {/* MENU ITEMS */}
           <Box paddingLeft={isCollapsed ? undefined : '10%'}>
-            
             <MenuItem
               to='/'
               icon={<HomeOutlinedIcon />}
               selected={selected}
               setSelect={setSelected}
-            >Dashboard</MenuItem>
+            >
+              Dashboard
+            </MenuItem>
 
             <MenuItem
               to='/'
               icon={<ExitToAppOutlinedIcon />}
               selected={selected}
               setSelect={setSelected}
-            >Log Out</MenuItem>
-
-            
+            >
+              Log Out
+            </MenuItem>
           </Box>
         </Menu>
-      
-
-    </Sidebar>
-
+      </Sidebar>
     </div>
-    
   );
 }
 

@@ -38,6 +38,14 @@ const CommandLine = (props) => {
         <Button type='submit' variant='contained'>
           Run
         </Button>
+        <Button
+          variant='contained'
+          onSubmit={(e) => {
+            props.command = '';
+          }}
+        >
+          Clear
+        </Button>
       </form>
     </div>
   );
