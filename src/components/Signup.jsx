@@ -1,16 +1,20 @@
-import React, {useState, useEffect} from 'react'
-import {Link} from "react-router-dom";
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import Button from '@mui/material/Button';
 import { Box } from '@mui/system';
 import { TextField } from '@mui/material';
 import { Typography } from '@mui/material';
 import { AppBar } from '@mui/material';
 import Container from '@mui/material/Container';
+import { ColorModeContext, useMode } from '../theme';
+import { CssBaseline, ThemeProvider } from '@mui/material';
+import Topbar from './Topbar';
 
 function Signup() {
   const [password, setInputPassword] = useState('');
   const [username, setInputUsername] = useState('');
   const [email, setInputEmail] = useState('');
+  const [theme, colorMode] = useMode();
 
   // Send request to the server to create a new user
   async function createUser(username, email, password) {

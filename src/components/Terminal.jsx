@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import Grid from '@mui/system/Unstable_Grid';
 
 const Terminal = (props) => {
   // Create a div for each command/response in the current session
@@ -20,28 +21,23 @@ const Terminal = (props) => {
 
     commandLog.push(
       <div class='command-log'>
-        <strong style={{color: 'rgb(109, 233, 68)'}}>$ {el.command}</strong>
+        <strong style={{ color: 'rgb(109, 233, 68)' }}>$ {el.command}</strong>
         <p>{paredResponse}</p>
       </div>
     );
   });
 
   return (
-    <div
-      id='terminal'
-      style={{
-        border: '1px solid',
-        borderRadius: '3px',
-        background: '#0e0727',
-        height: '400px',
-        width: 'auto',
-        fontFamily: 'monospace',
-        padding: '5px',
-        overflow: 'scroll',
-      }}
-    >
+    <Grid xs={8} width='100%' height='60%' style={{
+      border: '1px solid',
+      borderRadius: '3px',
+      background: '#0e0727',
+      fontFamily: 'monospace',
+      padding: '5px',
+      overflow: 'scroll',
+    }}>
       {commandLog}
-    </div>
+    </Grid>
   );
 };
 

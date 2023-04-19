@@ -1,4 +1,3 @@
-import './App.css';
 import Signup from './components/Signup';
 import Login from './components/Login';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
@@ -7,8 +6,9 @@ import Topbar from './components/Topbar';
 import SideNav from './components/Sidebar';
 import Setup from './components/Setup';
 import Glossary from './components/Glossary';
-import Visualizer from './components/Visualizer';
-
+import Cluster from './components/Cluster';
+import { ColorModeContext, useMode } from './theme';
+import { CssBaseline, ThemeProvider } from '@mui/material';
 
 const routes = createBrowserRouter([
   {
@@ -32,19 +32,22 @@ const routes = createBrowserRouter([
     element: <Glossary />,
   },
   {
-    path: '/visualizer',
-    element: <Visualizer />,
-  }
+    path: '/cluster',
+    element: <Cluster />,
+  },
 ]);
 
 function App() {
+  const [theme, colorMode] = useMode();
   return (
+    <ColorModeContext.Provider value={colorMode}>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
         <div className='App' id='root'>
-          <main className='content'>
-            <RouterProvider router={routes} />
-          </main>
+          <RouterProvider router={routes} />
         </div>
-      
+      </ThemeProvider>
+    </ColorModeContext.Provider>
   );
 }
 

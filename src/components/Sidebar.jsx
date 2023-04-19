@@ -18,6 +18,8 @@ import { Button } from '@mui/material';
 import { AutoFixHigh, MenuBook } from '@mui/icons-material';
 import { Create } from '@mui/icons-material';
 import { BarChart } from '@mui/icons-material';
+import { Hub } from '@mui/icons-material';
+import Grid from '@mui/system/Unstable_Grid';
 // import { MenuBook } from '@mui/icons-material';
 
 const Item = ({ title, to, icon, selected, setSlected }) => {
@@ -31,7 +33,7 @@ const Item = ({ title, to, icon, selected, setSlected }) => {
       icon={icon}
     >
       <Typography>{title}</Typography>
-      <Link to={to}/>
+      <Link to={to} />
     </MenuItem>
   );
 };
@@ -46,35 +48,11 @@ function SideNav() {
   const [selected, setSelected] = useState('Dashboard');
 
   return (
-    // <div style={{ display: 'flex', height: '100%'}}>
-    //   <Sidebar>
-    //     <Menu>
-    //       <SubMenu label="Charts">
-    //         <MenuItem> Pie charts </MenuItem>
-    //         <MenuItem> Line charts </MenuItem>
-    //       </SubMenu>
-    //       <MenuItem> Documentation </MenuItem>
-    //       <MenuItem> Calendar </MenuItem>
-    //     </Menu>
-    //   </Sidebar>
-    // </div>
-    <div
-      style={{
-        display:'flex',
-        height:'100%',
-        minHeight:'100%'
-      }}
-    >
-      <Sidebar
-      defaultCollapsed
-      backgroundColor=''
-      >
-   
-      
+    <Grid xs={2} container>
+      <Sidebar defaultCollapsed backgroundColor=''>
         <Menu>
           {/* MENU ITEMS */}
-          <Box paddingLeft={isCollapsed ? undefined : '10%'}>
-
+          <Box paddingLeft={isCollapsed ? undefined : '0%'}>
             <MenuItem
               container={Link}
               href='/dashboard'
@@ -82,7 +60,9 @@ function SideNav() {
               // selected={selected}
               // setSelect={setSelected}
               onClick={(e) => console.log('hi')}
-            >Dashboard</MenuItem>
+            >
+              Dashboard
+            </MenuItem>
 
             <MenuItem
               container={Link}
@@ -90,7 +70,9 @@ function SideNav() {
               icon={<AutoFixHigh />}
               // selected={selected}
               // setSelect={setSelected}
-            ><Link to='/setup'>Quick Setup</Link></MenuItem>
+            >
+              <Link to='/setup'>Quick Setup</Link>
+            </MenuItem>
 
             <MenuItem
               container={Link}
@@ -98,7 +80,9 @@ function SideNav() {
               icon={<BarChart />}
               // selected={selected}
               // setSelect={setSelected}
-            ><Link to='/visualizer'>Kluster Visualizer</Link></MenuItem>
+            >
+              <Link to='/visualizer'>Kluster Visualizer</Link>
+            </MenuItem>
 
             <MenuItem
               container={Link}
@@ -106,7 +90,9 @@ function SideNav() {
               icon={<MenuBook />}
               // selected={selected}
               // setSelect={setSelected}
-            ><Link to='/glossary'>Glossary</Link></MenuItem>
+            >
+              <Link to='/glossary'>Glossary</Link>
+            </MenuItem>
 
             <MenuItem
               container={Link}
@@ -114,18 +100,17 @@ function SideNav() {
               icon={<ExitToAppOutlinedIcon />}
               // selected={selected}
               // setSelect={setSelected}
-            ><Link to='/'>Log Out</Link></MenuItem>
-
-            
+            >
+              <Link to='/'>Log Out</Link>
+            </MenuItem>
           </Box>
         </Menu>
-      
-
-    </Sidebar>
-
-    </div>
-    
+      </Sidebar>
+    </Grid>
   );
+}
+{
+  /* </div> */
 }
 
 export default SideNav;
