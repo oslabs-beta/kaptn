@@ -1,5 +1,6 @@
 const path = require('path');
 const { app, BrowserWindow, ipcMain } = require('electron');
+const iconURL = './src/assets/kaptn.ico';
 // const process = require('process');
 
 function createMainWindow() {
@@ -7,10 +8,14 @@ function createMainWindow() {
     title: 'Kaptn',
     titleBarStyle: 'hidden',
     width: 1200,
-    height: 680,
+    height: 700,
+    minWidth: 900,
+    minHeight: 600,
+    // icon: path.join(__dirname, '/kaptn.ico'),
     webPreferences: {
       nodeIntegration: true,
     },
+    icon: './src/assets/kaptn_Logo_v2.png',
   });
 
   // mainWindow.loadFile(process.cwd());

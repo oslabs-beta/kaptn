@@ -567,3 +567,5 @@ Usage:
     </div>
   );
 }
+
+export default Glossary
