@@ -142,7 +142,8 @@ function Signup() {
               fullWidth
               sx = {{ 
                     mb: 3,
-                    backgroundColor: 'white' }}
+                    // backgroundColor: 'white' 
+                    }}
               onChange={(e) => {
                 setInputUsername(e.target.value);
               }} />
@@ -154,7 +155,8 @@ function Signup() {
               fullWidth
               sx = {{ 
                     mb: 3,
-                    backgroundColor: 'white' }}
+                    // backgroundColor: 'white' 
+                    }}
               onChange={(e) => {
                 setInputEmail(e.target.value);
               }} />
@@ -166,7 +168,8 @@ function Signup() {
               fullWidth
               sx = {{ 
                     mb: 3,
-                    backgroundColor: 'white' }}
+                    // backgroundColor: 'white' 
+                    }}
               onChange={(e) => {
                 setInputPassword(e.target.value);
               }} />

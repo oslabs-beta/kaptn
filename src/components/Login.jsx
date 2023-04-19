@@ -149,7 +149,7 @@ function Login() {
             username={username}
             sx={{
               mb: 3,
-              backgroundColor: 'white',
+              // backgroundColor: 'white',
             }}
             onChange={(e) => {
               setInputUsername(e.target.value);
@@ -163,7 +163,7 @@ function Login() {
             password={password}
             sx={{
               mb: 3,
-              backgroundColor: 'white',
+              // backgroundColor: 'white',
             }}
             onChange={(e) => {
               setInputPassword(e.target.value);
