@@ -1,7 +1,7 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
 import viteLogo from '/vite.svg';
-import '../App.css';
+// import '../App.css';
 import {
   Button,
   Paper,
