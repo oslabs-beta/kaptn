@@ -7,7 +7,6 @@ import Topbar from './components/Topbar';
 import SideNav from './components/Sidebar';
 import Setup from './components/Setup';
 import Glossary from './components/Glossary';
-import Cluster from './components/Cluster';
 import { ColorModeContext, useMode } from './theme';
 import { CssBaseline, ThemeProvider } from '@mui/material';
 
@@ -23,6 +22,7 @@ const routes = createBrowserRouter([
   {
     path: '/dashboard',
     element: <Dashboard />,
+  },
   {
     path: '/setup',
     element: <Setup />,

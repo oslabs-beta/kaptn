@@ -83,16 +83,12 @@ function Login() {
           display: 'flex',
           flexDirection: 'row',
           alignContent: 'center',
-          backgroundColor: '#22145A',
-          webkitAppRegion: 'drag',
-          height: '35px'
           backgroundColor: '#22145a',
           webkitAppRegion: 'drag',
-          height: '35px'
+          height: '35px',
         }}
         position='static'
       >
-        <Container sx={{ width: '100%', webkitAppRegion: 'drag' }}>
         <Container sx={{ width: '100%', webkitAppRegion: 'drag' }}>
           <Typography
             variant='h6'
@@ -100,7 +96,6 @@ function Login() {
             component='a'
             fullWidth
             sx={{
-              alignItems: 'center',
               alignItems: 'center',
               justifyContent: 'center',
               display: { xs: 'none', md: 'flex' },
@@ -151,7 +146,6 @@ function Login() {
           >
             Login
           </Typography> */}
-          </Typography> */}
           <TextField
             type='text'
             name='username'
@@ -195,9 +189,6 @@ function Login() {
             backgroundColor: '#22145a',
             mt: 2,
             mb: 2,
-            ':hover': {
-              backgroundColor: 'rgb(16,10,54)'
-            }
             ':hover': {
               backgroundColor: 'rgb(16,10,54)'
             }

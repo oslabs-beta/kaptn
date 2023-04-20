@@ -568,4 +568,3 @@ Usage:
   );
 }
 
-export default Glossary
