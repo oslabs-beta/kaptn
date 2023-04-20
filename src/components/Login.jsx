@@ -6,12 +6,13 @@ import { TextField } from '@mui/material';
 import { Typography } from '@mui/material';
 import { AppBar } from '@mui/material';
 import Container from '@mui/material/Container';
-
+import { ColorModeContext, useMode } from '../theme';
+import { CssBaseline, ThemeProvider } from '@mui/material';
 function Login() {
   const [password, setInputPassword] = useState('');
   const [username, setInputUsername] = useState('');
   const [loggedIn, setLoggedIn] = useState(false);
-
+  const [theme, colorMode] = useMode();
   // Send a request to the server to confirm the username and password
   async function checkLogin(username, password) {
     try {
@@ -27,39 +28,42 @@ function Login() {
       const parsedResponse = await response.json();
       return parsedResponse;
     } catch (err) {
-      console.error(err);
+      // console.error(err);
     }
   }
-
   // When log in button is clicked, invoke checkLogin function
   function handleSubmit(event) {
     event.preventDefault();
-
     const callCheckLogin = async () => {
       const response = await checkLogin(username, password);
       // If the request was successful, set the login state to true and redirect to the dashboard
       console.log('response', response);
       if (!response.err) {
-        console.log('response', response);
         setLoggedIn(true);
         window.location.href = 'http://localhost:4444/dashboard';
       } else {
         alert('Wrong username or password');
       }
     };
-
     callCheckLogin();
   }
-
   return (
     <Box
       sx={{
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        backgroundColor: '#5b5b5c',
+        backgroundColor: 'rgb(16,10,54)',
         height: '100vh',
         mt: 0,
+        webkitAppRegion: 'drag',
+        position: 'absolute',
+            top: 0,
+            right: 0,
+            bottom: 0,
+            left: 0,
+            margin: 0,
+            padding: 0,
       }}
     >
       <AppBar
@@ -67,11 +71,13 @@ function Login() {
           display: 'flex',
           flexDirection: 'row',
           alignContent: 'center',
-          backgroundColor: '#1f1f1f',
+          backgroundColor: '#22145A',
+          webkitAppRegion: 'drag',
+          height: '35px'
         }}
         position='static'
       >
-        <Container sx={{ width: '100%' }}>
+        <Container sx={{ width: '100%', webkitAppRegion: 'drag' }}>
           <Typography
             variant='h6'
             noWrap
@@ -79,21 +85,32 @@ function Login() {
             href='/'
             fullWidth
             sx={{
+              alignItems: 'center',
               justifyContent: 'center',
               display: { xs: 'none', md: 'flex' },
-              fontFamily: 'monospace',
-              fontWeight: 700,
-              fontSize: 50,
+              fontFamily: 'Roboto',
+              fontWeight: 500,
+              fontSize: 13,
               letterSpacing: '.1 rem',
               color: 'white',
               textDecoration: 'none',
+              mt: '7px'
             }}
           >
             kaptn
           </Typography>
         </Container>
       </AppBar>
-      <Box component='form' onSubmit={handleSubmit} sx={{ mt: 6 }}>
+      <Box
+        // src='../src/assets/kaptn.ico'
+        sx={{
+          height: '250px',
+          width: '250px'
+        }}
+        component='img'
+        >
+      </Box>
+      <Box component='form' onSubmit={handleSubmit}>
         <Box
           sx={{
             display: 'flex',
@@ -101,12 +118,12 @@ function Login() {
             alignItems: 'center',
           }}
         >
-          <Typography
+          {/* <Typography
             component='h1'
             variant='h3'
             sx={{
               mb: 6,
-              fontFamily: 'monospace',
+              fontFamily: 'Roboto',
               fontWeight: 100,
               fontSize: 70,
               letterSpacing: '.1 rem',
@@ -115,7 +132,7 @@ function Login() {
             }}
           >
             Login
-          </Typography>
+          </Typography> */}
           <TextField
             type='text'
             name='username'
@@ -151,10 +168,17 @@ function Login() {
           fullWidth
           sx={{
             display: 'flex',
+            // backgroundColor: 'transparent',
+            border: '1px solid #68617F',
             flexDirection: 'column',
             alignItems: 'center',
+            letterSpacing: '1.5px',
+            backgroundColor: '#22145A',
             mt: 2,
             mb: 2,
+            ':hover': {
+              backgroundColor: 'rgb(16,10,54)'
+            }
           }}
         >
           Login
@@ -162,7 +186,7 @@ function Login() {
         <Typography
           variant='h6'
           sx={{
-            fontFamily: 'monospace',
+            fontFamily: 'Roboto',
             fontSize: 25,
             letterSpacing: '.1 rem',
             color: 'white',
@@ -173,21 +197,27 @@ function Login() {
         </Typography>
         <Button
           variant='contained'
+          type='submit'
           fullWidth
+          href='/signup'
           sx={{
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            textDecoration: 'none',
+            border: '1px solid #68617F',
+            letterSpacing: '1.5px',
+            backgroundColor: '#22145A',
             mt: 2,
             mb: 2,
+            ':hover': {
+              backgroundColor: 'rgb(16,10,54)'
+            }
           }}
         >
-          <Link to='/signup'>Sign Up</Link>
+        Sign Up
         </Button>
       </Box>
     </Box>
   );
 }
-
 export default Login;

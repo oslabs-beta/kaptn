@@ -1,6 +1,7 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
 import viteLogo from '/vite.svg';
+import Cluster from '../Pages/Grafana/Cluster';
 import '../App.css';
 import {
   Button,
@@ -269,7 +270,7 @@ function Dashboard() {
       </div>
       {/* <SideNav /> */}
       {/* old sidenav below */}
-      <Box display='flex' id='oldsidenav' flexDirection='column'>
+      {/* <Box display='flex' id='oldsidenav' flexDirection='column'> */}
         {/* <AppBar style={{ backgroundColor: '#1f1f1f' }} position='static'>
           <Container maxWidth='xl'>
             <Toolbar disableGutters>
@@ -393,7 +394,7 @@ function Dashboard() {
             </Toolbar>
           </Container>
         </AppBar> */}
-      </Box>
+      {/* </Box> */}
 
       {/* --
       ---
@@ -673,6 +674,7 @@ function Dashboard() {
           </div>
         </Grid>
       </Grid>
+      {/* <Cluster /> */}
     </div>
   );
 }

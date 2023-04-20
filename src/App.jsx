@@ -1,6 +1,7 @@
 import './App.css';
 import Signup from './components/Signup';
 import Login from './components/Login';
+import Cluster from './Pages/Grafana/Cluster';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import Dashboard from './components/Dashboard';
 import { ColorModeContext, useMode } from './theme';
@@ -21,6 +22,10 @@ const routes = createBrowserRouter([
   {
     path: "/dashboard",
     element: <Dashboard />,
+  },
+  {
+    path:'/cluster',
+    element: <Cluster />
   }
 ]);
 
@@ -32,7 +37,7 @@ function App() {
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <div className="App" id='root'>
-          <SideNav />
+          {/* <SideNav /> */}
           <main className='content'>
             <RouterProvider router={routes} />
           </main>
