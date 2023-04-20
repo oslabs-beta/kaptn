@@ -5,6 +5,7 @@ import Button from '@mui/material/Button';
 import { Paper } from '@mui/material';
 import Topbar from './Topbar';
 import SideNav from './Sidebar';
+import Grid from '@mui/system/Unstable_Grid';
 
 export default function Glossary() {
   const [createOpen, setCreateOpen] = React.useState(false);
@@ -375,39 +376,41 @@ Usage:
 [--command] -- [COMMAND] [args...] [options]`;
 
   return (
-    <div>
+    <>
       <Topbar />
-      {/* -----------------END OF TOP WINDOW BAR --------------------- */}
-      <div style={{ display: 'flex', flexDirection: 'row' }}>
-        {/* --------SIDEBAR---------- */}
-        <div style={{ display: 'flex' }}>
-          <SideNav />
-        </div>
-
+      <Grid
+        id='glossery'
+        container
+        disableEqualOverflow='true'
+        width={'100vw'}
+        height={'95vh'}
+        sx={{ pt: 3, pb: 3 }}
+      >
+        <SideNav />
         {/* -----------------GLOSSARY --------------------- */}
-
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            padding: '15px',
-            justifyContent: 'center',
-            alignItems: 'center',
-            width: '100%',
-          }}
-        >
-          <div
-            style={{
-              fontSize: '14px',
-              justifyContent: 'center',
-              alignItems: 'center',
-              textAlign: 'center',
-              fontWeight: '900',
-            }}
+          <Grid
+          id='main-content'
+          width='75%'
+          height='95%'
+          xs={10}
+          disableEqualOverflow='true'
+          container
+          direction='column'
+          wrap='nowrap'
+          justifyContent='flex-start'
+          alignItems='center'
+            // style={{
+            //   fontSize: '14px',
+            //   justifyContent: 'center',
+            //   alignItems: 'center',
+            //   textAlign: 'center',
+            //   fontWeight: '900',
+            // }}
           >
+            <Grid id='title' container textAlign='center'>
             GLOSSARY <br />
             (click on any command for more info)
-          </div>
+            </Grid>
           <Button
             onClick={handleCreateOpen}
             style={{
@@ -521,9 +524,8 @@ Usage:
               </div>
             </Paper>
           </Backdrop>
-        </div>
-      </div>
-    </div>
+          </Grid>
+      </Grid>
+    </>
   );
 }
-
