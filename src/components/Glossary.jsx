@@ -376,48 +376,7 @@ Usage:
 
   return (
     <div>
-      {/* -----------------TOP WINDOW BAR --------------------- */}
-
-      <Topbar
-        position='absolute'
-        top='0'
-        right='0'
-        backgroundColor='#22145a'
-        height='35px'
-        width='100%'
-        marginBottom='5px'
-      />
-      <div
-        style={{
-          display: 'flex',
-          flexStart: 'center',
-          height: '35px',
-          width: '88%',
-          backgroundColor: '#22145a', //#06001b
-          webkitAppRegion: 'drag',
-          webkitUserSelect: 'none',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
-        <div
-          style={{
-            position: 'absolute',
-            backgroundColor: '#22145a', //#06001b
-            webkitAppRegion: 'drag',
-            webkitUserSelect: 'none',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontFamily: 'Roboto',
-            fontSize: '13pt',
-            fontWeight: '500',
-            letterSpacing: '0.5px',
-            paddingLeft: '150px',
-          }}
-        >
-          kaptn
-        </div>
-      </div>
+      <Topbar />
       {/* -----------------END OF TOP WINDOW BAR --------------------- */}
       <div style={{ display: 'flex', flexDirection: 'row' }}>
         {/* --------SIDEBAR---------- */}

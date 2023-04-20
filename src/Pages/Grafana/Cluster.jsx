@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import SideNav from '../../components/Sidebar';
+import Topbar from '../../components/Topbar';
 
 function Cluster() {
   return (
     <div>
+      <Topbar />
       <SideNav />
       <iframe
         src='http://localhost:3000/d/09ec8aa1e996d6ffcd6817bbaff4db1b/kubernetes-api-server?orgId=1&refresh=10s&kiosk'

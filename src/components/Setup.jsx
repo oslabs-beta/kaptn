@@ -38,7 +38,7 @@ import Topbar from './Topbar';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import ListItemText from '@mui/material/ListItemText';
 import Checkbox from '@mui/material/Checkbox';
-import Sidebar2 from './Sidebar2';
+import Sidebar from './Sidebar';
 import CommandField from './CommandField';
 import { Backdrop } from '@mui/material';
 // import { makeStyles } from "@mui/styles";
@@ -73,18 +73,7 @@ function Setup() {
     },
   };
 
-  const flagList = [
-    '-o wide',
-    '--force',
-    '-f',
-    '-o default',
-    '-v',
-    'Carlos Abbott',
-    'Miriam Wagner',
-    'Bradley Wilkerson',
-    'Virginia Andrews',
-    'Kelly Snyder',
-  ];
+  const flagList = ['-o wide', '--force', '-f', '-o default', '-v'];
 
   const handleFlags = (event) => {
     const {
@@ -237,93 +226,26 @@ function Setup() {
   ];
 
   return (
-    <div
-      style={{
-        // background color
-        // background: '#5b5b5c',
-        color: 'white',
-        height: '100vh',
-        position: 'absolute',
-        top: 0,
-        right: 0,
-        bottom: 0,
-        left: 0,
-        margin: 0,
-        padding: 0,
-      }}
-    >
-      {/* ----------------newWindowBar---------------- */}
-      <Topbar
-        position='absolute'
-        top='0'
-        right='0'
-        backgroundColor='#22145a'
-        height='35px'
-        width='100%'
-        marginBottom='5px'
-      />
-      <div
-        style={{
-          display: 'flex',
-          flexStart: 'center',
-          height: '35px',
-          width: '88%',
-          backgroundColor: '#22145a', //#06001b
-          webkitAppRegion: 'drag',
-          webkitUserSelect: 'none',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
+    <>
+      <Topbar />
+      <Grid
+        id='setup-page'
+        container
+        disableEqualOverflow='true'
+        width={'100vw'}
+        height={'95vh'}
+        sx={{ pt: 3, pb: 3 }}
       >
+        {/* --------SIDEBAR---------- */}
+        <Sidebar />
+
         <div
           style={{
             position: 'absolute',
-            backgroundColor: '#22145a', //#06001b
-            webkitAppRegion: 'drag',
-            webkitUserSelect: 'none',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontFamily: 'Roboto',
-            fontSize: '13pt',
-            fontWeight: '500',
-            letterSpacing: '0.5px',
-            paddingLeft: '150px',
+            top: '60px',
+            left: '100px',
           }}
         >
-          kaptn
-        </div>
-      </div>
-      {/* 
-      <iframe
-        src='https://k8syaml.com/'
-        position='absolute'
-        top='50px'
-        left='50px'
-        width='100%'
-        height='900px'
-        marginRight='60px'
-      ></iframe> */}
-
-      {/* --
-      ---
-      ----
-      ----
-      ----
-      ----
-      --------- COMMANDS, TYPES, NAMES, TAGS -------------
-      ----
-      -----
-      -----
-      -------
-      ----- */}
-
-      <Grid container spacing={1} sx={{ m: 2, color: 'white' }}>
-        {/* --------SIDEBAR---------- */}
-        <Grid width='05%'>
-          <Sidebar2 />
-        </Grid>
-
-        <Grid width='25%'>
           <Box
             sx={{
               // border: 1,
@@ -337,7 +259,6 @@ function Setup() {
               borderRadius: '5px',
               bgcolor: '#2a2152',
               marginBottom: '20px',
-              marginTop: '10px',
             }}
           >
             <div style={{ alignItems: 'center', justifyContent: 'center' }}>
@@ -435,7 +356,7 @@ function Setup() {
             <div
               style={{
                 backgroundColor: '#716a8e',
-                width: '190px',
+                width: '170px',
                 height: '1px',
               }}
             />
@@ -645,7 +566,7 @@ function Setup() {
           >
             4. INPUT COMMANDS --- >
           </Box>
-        </Grid>
+        </div>
 
         {/* ------------- COMMANDS drop down text field -------------------- */}
 
@@ -656,15 +577,13 @@ function Setup() {
           paddingRight='20px'
           zIndex='99'
         >
-          {/* olivia's world */}
-
           <div
             style={{
               border: '1px solid',
               borderRadius: '3px',
               // border: '2px solid #c6bebe',
               background: '#0e0727',
-              height: '440px',
+              height: '460px',
               width: 'auto',
               // color: '#edeaea',
               fontFamily: 'monospace',
@@ -812,7 +731,7 @@ function Setup() {
           </Grid>
         </Grid>
       </Grid>
-    </div>
+    </>
   );
 }
 
