@@ -234,7 +234,7 @@ function Dashboard() {
         </ColorModeContext.Provider> */}
         {/* Wrap the entire dashboard in a grid */}
         {/* ----------------SIDE BAR---------------- */}
-        <SideNav />
+        <SideNav spacing={2}/>
         {/* ----------------TERMINAL---------------- */}
 
         <Grid

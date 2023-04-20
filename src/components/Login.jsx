@@ -31,14 +31,12 @@ function Login() {
       const parsedResponse = await response.json();
       return parsedResponse;
     } catch (err) {
-      console.error(err);
+      // console.error(err);
     }
   }
-
   // When log in button is clicked, invoke checkLogin function
   function handleSubmit(event) {
     event.preventDefault();
-
     const callCheckLogin = async () => {
       const response = await checkLogin(username, password);
       // If the request was successful, set the login state to true and redirect to the dashboard
@@ -50,10 +48,8 @@ function Login() {
         alert('Wrong username or password');
       }
     };
-
     callCheckLogin();
   }
-
   return (
     <Box
       sx={{
@@ -61,8 +57,17 @@ function Login() {
         flexDirection: 'column',
         alignItems: 'center',
         backgroundColor: 'rgb(16,10,54)',
+        backgroundColor: 'rgb(16,10,54)',
         height: '100vh',
         mt: 0,
+        webkitAppRegion: 'drag',
+        position: 'absolute',
+            top: 0,
+            right: 0,
+            bottom: 0,
+            left: 0,
+            margin: 0,
+            padding: 0,
         webkitAppRegion: 'drag',
         position: 'absolute',
             top: 0,
@@ -80,7 +85,7 @@ function Login() {
           alignContent: 'center',
           backgroundColor: '#22145a',
           webkitAppRegion: 'drag',
-          height: '35px'
+          height: '35px',
         }}
         position='static'
       >
@@ -195,6 +200,7 @@ function Login() {
           variant='h6'
           sx={{
             fontFamily: 'Roboto',
+            fontFamily: 'Roboto',
             fontSize: 25,
             fontWeight: 50,
             letterSpacing: '.1 rem',
@@ -230,5 +236,4 @@ function Login() {
     </Box>
   );
 }
-
 export default Login;

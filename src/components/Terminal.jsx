@@ -28,7 +28,7 @@ const Terminal = (props) => {
   });
 
   return (
-    <Grid xs={8} width='100%' height='60%' style={{
+    <Grid xs={8} width='95%' height='60%' style={{
       border: '1px solid',
       borderRadius: '3px',
       background: '#0e0727',

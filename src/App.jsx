@@ -1,12 +1,12 @@
 import Signup from './components/Signup';
 import Login from './components/Login';
+import Cluster from './Pages/Grafana/Cluster';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import Dashboard from './components/Dashboard';
 import Topbar from './components/Topbar';
 import SideNav from './components/Sidebar';
 import Setup from './components/Setup';
 import Glossary from './components/Glossary';
-import Cluster from './components/Cluster';
 import { ColorModeContext, useMode } from './theme';
 import { CssBaseline, ThemeProvider } from '@mui/material';
 

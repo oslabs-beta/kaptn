@@ -3,9 +3,11 @@ const app = express();
 const path = require('path');
 const apiRouter = require('./routes/apiRouter.js');
 const userRouter = require('./routes/userRouter.js');
+const clusterRouter = require('./routes/clusterRouter.js')
 const mongoose = require('mongoose');
 
-const PORT = 3000;
+// changing port here for grafana
+const PORT = 6666;
 
 // Connect to mongo database
 mongoose.connect(
@@ -27,6 +29,9 @@ app.use('/api', apiRouter);
 app.use('/user', userRouter);
 
 app.use(express.static(path.join(__dirname, '../index')));
+
+// Yining addition: Handle routes to /clusterinfo
+app.use('/clusterinfo', clusterRouter);
 
 // app.get('/', (req, res) => {
 //  res.status(200).sendFile(path.join(__dirname, '/index.html'));
