@@ -1,16 +1,20 @@
-import React, {useState, useEffect} from 'react'
-import {Link} from "react-router-dom";
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import Button from '@mui/material/Button';
 import { Box } from '@mui/system';
 import { TextField } from '@mui/material';
 import { Typography } from '@mui/material';
 import { AppBar } from '@mui/material';
 import Container from '@mui/material/Container';
+import { ColorModeContext, useMode } from '../theme';
+import { CssBaseline, ThemeProvider } from '@mui/material';
+import Topbar from './Topbar';
 
 function Signup() {
   const [password, setInputPassword] = useState('');
   const [username, setInputUsername] = useState('');
   const [email, setInputEmail] = useState('');
+  const [theme, colorMode] = useMode();
 
   // Send request to the server to create a new user
   async function createUser(username, email, password) {
@@ -48,53 +52,86 @@ function Signup() {
   }
 
   return (
-    <Box sx={{ display: 'flex', 
-              flexDirection: 'column', 
-              alignItems: 'center', 
-              backgroundColor: '#5b5b5c',
-              height: '100vh', 
-              mt: 0}}>
-      <AppBar style={{ display: 'flex', flexDirection: 'row', alignContent: 'center', backgroundColor: '#1f1f1f' }} position='static'>
-        <Container sx={{width: '100%'}}>
-              <Typography
-                variant='h6'
-                noWrap
-                component='a'
-                href='/'
-                fullWidth
-                sx={{
-                  justifyContent: 'center',
-                  display: { xs: 'none', md: 'flex' },
-                  fontFamily: 'monospace',
-                  fontWeight: 700,
-                  fontSize: 50,
-                  letterSpacing: '.1 rem',
-                  color: 'white',
-                  textDecoration: 'none',
-                }}
-              >
-                kaptn
-              </Typography>
-            </Container>
-        </AppBar>
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        backgroundColor: 'rgb(16,10,54)',
+        height: '100vh',
+        mt: 0,
+        webkitAppRegion: 'drag',
+        position: 'absolute',
+            top: 0,
+            right: 0,
+            bottom: 0,
+            left: 0,
+            margin: 0,
+            padding: 0,
+      }}
+    >
+        <AppBar
+        sx={{
+          display: 'flex',
+          flexDirection: 'row',
+          alignContent: 'center',
+          backgroundColor: '#22145a',
+          webkitAppRegion: 'drag',
+          height: '35px'
+        }}
+        position='static'
+      >
+        <Container sx={{ width: '100%', webkitAppRegion: 'drag' }}>
+          <Typography
+            variant='h6'
+            noWrap
+            component='a'
+            href='/'
+            fullWidth
+            sx={{
+              alignItems: 'center',
+              justifyContent: 'center',
+              display: { xs: 'none', md: 'flex' },
+              fontFamily: 'Roboto',
+              fontWeight: 500,
+              fontSize: '13pt',
+              letterSpacing: '.5px',
+              color: 'white',
+              textDecoration: 'none',
+              mt: '5px'
+            }}
+          >
+            kaptn
+          </Typography>
+        </Container>
+      </AppBar>
+      <Box
+        src='../src/assets/kaptn.ico'
+        sx={{
+          height: '150px',
+          width: '150px'
+        }}
+        component='img'
+        >
+      </Box>
         <Box component='form' 
           onSubmit={handleClick} 
           sx={{ display: 'flex', 
-                width: '50%',
+                width: '40%',
                 flexDirection: 'column', 
                 alignItems: 'center', 
-                mt: 6}}>
+                mt: 0}}>
         <Typography 
             component='h1' 
             variant='h3'
             sx={{
-              fontFamily: 'monospace',
+              fontFamily: 'Roboto',
               fontWeight: 75,
-              fontSize: 65,
+              fontSize: 30,
               letterSpacing: '.1 rem',
               color: 'white',
               textDecoration: 'none',
-              mb: 6
+              mb: 4
             }}
             >Create Account</Typography>
             <TextField               
@@ -105,7 +142,8 @@ function Signup() {
               fullWidth
               sx = {{ 
                     mb: 3,
-                    backgroundColor: 'white' }}
+                    // backgroundColor: 'white' 
+                    }}
               onChange={(e) => {
                 setInputUsername(e.target.value);
               }} />
@@ -117,7 +155,8 @@ function Signup() {
               fullWidth
               sx = {{ 
                     mb: 3,
-                    backgroundColor: 'white' }}
+                    // backgroundColor: 'white' 
+                    }}
               onChange={(e) => {
                 setInputEmail(e.target.value);
               }} />
@@ -129,17 +168,33 @@ function Signup() {
               fullWidth
               sx = {{ 
                     mb: 3,
-                    backgroundColor: 'white' }}
+                    // backgroundColor: 'white' 
+                    }}
               onChange={(e) => {
                 setInputPassword(e.target.value);
               }} />
             <Button 
-            type='submit' 
-            variant='contained' 
-            fullWidth>
-            <Link to = '/'>
+              variant='contained'
+              type='submit'
+              fullWidth
+              href='/'
+              sx={{
+                display: 'flex',
+                // backgroundColor: 'transparent',
+                color: 'white',
+                border: '1px solid #68617f',
+                flexDirection: 'column',
+                alignItems: 'center',
+                letterSpacing: '1.5px',
+                backgroundColor: '#22145a',
+                mt: 2,
+                mb: 2,
+                ':hover': {
+                    backgroundColor: 'rgb(16,10,54)'
+                }
+              }}
+            >
             Create Account
-            </Link>
             </Button>
         </Box>
     </Box>
