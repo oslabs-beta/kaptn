@@ -39,7 +39,7 @@ const Item = ({ title, to, icon, selected, setSlected }) => {
   );
 };
 
-function SideNav() {
+function SideNav(props) {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   // const { collapseSidebar } = useProSidebar();
@@ -49,7 +49,7 @@ function SideNav() {
   const [selected, setSelected] = useState('Dashboard');
 
   return (
-    <Grid xs={2} container>
+    <Grid xs={props.spacing} container>
       <Sidebar defaultCollapsed backgroundColor=''>
         <Menu>
           {/* MENU ITEMS */}
