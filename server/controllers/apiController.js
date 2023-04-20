@@ -6,7 +6,7 @@ apiController.postCommand = (req, res, next) => {
   console.log(currDir);
   // Exec is a child process in node that asynchronously creates a shell and executes the provided command
   // More info: https://nodejs.org/api/child_process.html#child_process_child_process_exec_command_options_callback
-  exec(`kubectl ${command}`, { cwd: currDir }, (err, stdout, stderr) => {
+  exec(` ${command}`, { cwd: currDir }, (err, stdout, stderr) => {
     // Handle failed command execution
     if (err) {
       return next({

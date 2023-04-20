@@ -14,6 +14,13 @@ import { tokens } from '../theme';
 import LightModeIcon from '@mui/icons-material/LightMode';
 import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined';
 import ExitToAppOutlinedIcon from '@mui/icons-material/ExitToAppOutlined';
+import { Button } from '@mui/material';
+import { AutoFixHigh, MenuBook } from '@mui/icons-material';
+import { Create } from '@mui/icons-material';
+import { BarChart } from '@mui/icons-material';
+import { Hub } from '@mui/icons-material';
+import Grid from '@mui/system/Unstable_Grid';
+// import { MenuBook } from '@mui/icons-material';
 
 const Item = ({ title, to, icon, selected, setSlected }) => {
   const theme = useTheme();
@@ -26,7 +33,8 @@ const Item = ({ title, to, icon, selected, setSlected }) => {
       icon={icon}
     >
       <Typography>{title}</Typography>
-      <Link to={to}/>
+      <Link to={to} />
+      <Link to={to} />
     </MenuItem>
   );
 };
@@ -41,59 +49,69 @@ function SideNav() {
   const [selected, setSelected] = useState('Dashboard');
 
   return (
-    // <div style={{ display: 'flex', height: '100%'}}>
-    //   <Sidebar>
-    //     <Menu>
-    //       <SubMenu label="Charts">
-    //         <MenuItem> Pie charts </MenuItem>
-    //         <MenuItem> Line charts </MenuItem>
-    //       </SubMenu>
-    //       <MenuItem> Documentation </MenuItem>
-    //       <MenuItem> Calendar </MenuItem>
-    //     </Menu>
-    //   </Sidebar>
-    // </div>
-    <div
-      style={{
-        display:'flex',
-        height:'100%',
-        minHeight:'100%'
-      }}
-    >
-      <Sidebar
-      defaultCollapsed
-      backgroundColor=''
-      >
-   
-      
+    <Grid xs={2} container>
+      <Sidebar defaultCollapsed backgroundColor=''>
         <Menu>
           {/* MENU ITEMS */}
-          <Box paddingLeft={isCollapsed ? undefined : '10%'}>
-            
+          <Box paddingLeft={isCollapsed ? undefined : '0%'}>
             <MenuItem
-              to='/'
+              container={Link}
+              href='/dashboard'
               icon={<HomeOutlinedIcon />}
-              selected={selected}
-              setSelect={setSelected}
-            >Dashboard</MenuItem>
+              // selected={selected}
+              // setSelect={setSelected}
+              onClick={(e) => console.log('hi')}
+            >
+              Dashboard
+            </MenuItem>
 
             <MenuItem
-              to='/'
-              icon={<ExitToAppOutlinedIcon />}
-              selected={selected}
-              setSelect={setSelected}
-            >Log Out</MenuItem>
+              container={Link}
+              href='/setup'
+              icon={<AutoFixHigh />}
+              // selected={selected}
+              // setSelect={setSelected}
+            >
+              <Link to='/setup'>Quick Setup</Link>
+            </MenuItem>
 
-            
+            <MenuItem
+              container={Link}
+              href='/cluster'
+              icon={<BarChart />}
+              // selected={selected}
+              // setSelect={setSelected}
+            >
+              <Link to='/cluster'>Kluster Visualizer</Link>
+            </MenuItem>
+
+            <MenuItem
+              container={Link}
+              href='/glossary'
+              icon={<MenuBook />}
+              // selected={selected}
+              // setSelect={setSelected}
+            >
+              <Link to='/glossary'>Glossary</Link>
+            </MenuItem>
+
+            <MenuItem
+              container={Link}
+              href='/'
+              icon={<ExitToAppOutlinedIcon />}
+              // selected={selected}
+              // setSelect={setSelected}
+            >
+              <Link to='/'>Log Out</Link>
+            </MenuItem>
           </Box>
         </Menu>
-      
-
-    </Sidebar>
-
-    </div>
-    
+      </Sidebar>
+    </Grid>
   );
+}
+{
+  /* </div> */
 }
 
 export default SideNav;
