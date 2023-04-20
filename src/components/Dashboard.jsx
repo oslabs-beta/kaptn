@@ -29,7 +29,7 @@ import SettingsBackupRestoreOutlinedIcon from '@mui/icons-material/SettingsBacku
 import LocalLibraryOutlinedIcon from '@mui/icons-material/LocalLibraryOutlined';
 import ManageAccountsOutlinedIcon from '@mui/icons-material/ManageAccountsOutlined';
 import SideNav from './Sidebar';
-import CommandLine from './CommandLine.jsx';
+import CommandLine from './CommandInput.jsx';
 import Terminal from './Terminal.jsx';
 import Topbar from './Topbar';
 import { ColorModeContext, useMode } from '../theme';
@@ -152,8 +152,8 @@ function Dashboard() {
     e.preventDefault();
     console.log('clear button clicked');
     console.log('command ', command);
-    setUserInput('')
-  }
+    setUserInput('');
+  };
 
   const getCurrentPath = (e) => {};
 
@@ -219,7 +219,7 @@ function Dashboard() {
         height={'95vh'}
         sx={{ pt: 3, pb: 3 }}
       >
-            {/* <ColorModeContext.Provider value={colorMode}>
+        {/* <ColorModeContext.Provider value={colorMode}>
           <ThemeProvider theme={theme}>
             <CssBaseline />
 
@@ -232,178 +232,178 @@ function Dashboard() {
             </IconButton>
           </ThemeProvider>
         </ColorModeContext.Provider> */}
-            {/* Wrap the entire dashboard in a grid */}
-            {/* ----------------SIDE BAR---------------- */}
-            <SideNav />
-            {/* ----------------TERMINAL---------------- */}
+        {/* Wrap the entire dashboard in a grid */}
+        {/* ----------------SIDE BAR---------------- */}
+        <SideNav />
+        {/* ----------------TERMINAL---------------- */}
 
+        <Grid
+          id='main-content'
+          width='75%'
+          height='95%'
+          xs={10}
+          // spacing={1}
+          disableEqualOverflow='true'
+          container
+          direction='column'
+          wrap='nowrap'
+          justifyContent='space-around'
+          alignItems='center'
+        >
+          <Terminal response={response} />
+
+          <Grid
+            id='below-terminal'
+            container
+            xs={4}
+            height={'35%'}
+            sx={{ pt: 1 }}
+            justifyContent='center'
+            alignItems='center'
+            alignContent='space-between'
+            width='100%'
+          >
             <Grid
-              id='main-content'
-              width='75%'
-              height='95%'
-              xs={10}
-              // spacing={1}
-              disableEqualOverflow='true'
+              id='directory'
               container
-              direction='column'
-              wrap='nowrap'
+              width='100%'
+              alignItems='flex-end'
+              justifyContent='center'
+              sx={{ borderBottom: 1 }}
+            >
+              <Grid id='directory-item' sx={{ pr: 2 }}>
+                <p>WORKING DIRECTORY:</p>
+              </Grid>
+              <Grid id='directory-item' sx={{ pr: 2 }}>
+                <p>{currDir}</p>
+              </Grid>
+              <Grid id='directory-item'>
+                <Button
+                  variant='contained'
+                  component='label'
+                  style={{
+                    backgroundColor: 'transparent',
+                    border: '1px solid #68617f',
+                    width: '170px',
+                    marginBottom: '10px',
+                    fontSize: '9px',
+                    letterSpacing: '1.5px',
+                  }}
+                >
+                  CHOOSE DIRECTORY
+                  <input
+                    type='file'
+                    directory=''
+                    webkitdirectory=''
+                    hidden
+                    onChange={handleUploadDirectory}
+                  />
+                </Button>
+              </Grid>
+            </Grid>
+            <Grid
+              id='inputs'
+              container
+              width='100%'
               justifyContent='space-around'
               alignItems='center'
             >
-              <Terminal response={response} />
-
-              <Grid
-                id='below-terminal'
-                container
-                xs={4}
-                height={'35%'}
-                sx={{ pt: 1 }}
-                justifyContent='center'
-                alignItems='center'
-                alignContent='space-between'
-                width='100%'
-              >
-                <Grid
-                  id='directory'
-                  container
-                  width='100%'
-                  alignItems='flex-end'
-                  justifyContent='center'
-                  sx={{ borderBottom: 1 }}
-                >
-                  <Grid id='directory-item' sx={{ pr: 2 }}>
-                    <p>WORKING DIRECTORY:</p>
-                  </Grid>
-                  <Grid id='directory-item' sx={{ pr: 2 }}>
-                    <p>{currDir}</p>
-                  </Grid>
-                  <Grid id='directory-item'>
-                    <Button
-                      variant='contained'
-                      component='label'
-                      style={{
-                        backgroundColor: 'transparent',
-                        border: '1px solid #68617f',
-                        width: '170px',
-                        marginBottom: '10px',
-                        fontSize: '9px',
-                        letterSpacing: '1.5px',
-                      }}
-                    >
-                      CHOOSE DIRECTORY
-                      <input
-                        type='file'
-                        directory=''
-                        webkitdirectory=''
-                        hidden
-                        onChange={handleUploadDirectory}
-                      />
-                    </Button>
-                  </Grid>
-                </Grid>
-                <Grid
-                  id='inputs'
-                  container
-                  width='100%'
-                  justifyContent='space-around'
-                  alignItems='center'
-                >
-                  <p>INPUTS:</p>
-                  <Grid id='kubectl' xs={2}>
-                    <Autocomplete
-                      defaultValue={'kubectl'}
-                      disablePortal
-                      options={['kubectl']}
-                      onInputChange={(e, newInputValue) => {
-                        setTool(newInputValue);
-                      }}
-                      renderInput={(params) => (
-                        <TextField {...params} label='kubectl' />
-                      )}
-                    />
-                  </Grid>
-                  <Grid id='command' xs={2}>
-                    <Autocomplete
-                      disablePortal
-                      id='combo-box-demo'
-                      options={commandList}
-                      onInputChange={(e, newInputValue) => {
-                        setVerb(newInputValue);
-                      }}
-                      renderInput={(params) => (
-                        <TextField {...params} label='Commands' />
-                      )}
-                    />
-                  </Grid>
-                  {/* ------------- TYPE drop down text field -------------------- */}
-                  <Grid id='type' xs={2}>
-                    <Autocomplete
-                      disablePortal
-                      id='combo-box-demo'
-                      options={types}
-                      onInputChange={(e, newInputValue) => {
-                        setType(newInputValue);
-                      }}
-                      renderInput={(params) => (
-                        <TextField {...params} label='Types' />
-                      )}
-                    />
-                  </Grid>
-                  <Grid id='name' xs={2}>
-                    <form
-                      onChange={(e) => {
-                        setName(e.target.value);
-                        console.log(name);
-                      }}
-                      onSubmit={(e) => {
-                        e.preventDefault();
-                      }}
-                      value={name}
-                    >
-                      <TextField
-                        id='outlined-basic'
-                        label='Name'
-                        variant='outlined'
-                      />
-                    </form>
-                  </Grid>
-                  {/* ---------------------------- FLAGS -------------------------------- */}
-                  <Grid id='flag' xs={2}>
-                    <FormControl>
-                      <InputLabel id='demo-multiple-checkbox-label'>
-                        Flags (optional)
-                      </InputLabel>
-                      <Select
-                        labelId='demo-multiple-checkbox-label'
-                        id='demo-multiple-checkbox'
-                        multiple
-                        value={flagList}
-                        onChange={handleFlags}
-                        input={<OutlinedInput label='Flags (optional)' />}
-                        renderValue={(selected) => selected.join(', ')}
-                        MenuProps={MenuProps}
-                      >
-                        {flagList.map((name) => (
-                          <MenuItem key={name} value={name}>
-                            <Checkbox checked={flagList.indexOf(name) > -1} />
-                            <ListItemText primary={name} />
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-                  </Grid>
-                </Grid>
-                <CommandLine
-                  width='100%'
-                  handleSubmit={handleSubmit}
-                  postCommand={postCommand}
-                  setUserInput={setUserInput}
-                  userInput={userInput}
-                  command={command}
-                  handleClear = {handleClear}
+              <p>INPUTS:</p>
+              <Grid id='kubectl' xs={2}>
+                <Autocomplete
+                  defaultValue={'kubectl'}
+                  disablePortal
+                  options={['kubectl']}
+                  onInputChange={(e, newInputValue) => {
+                    setTool(newInputValue);
+                  }}
+                  renderInput={(params) => (
+                    <TextField {...params} label='kubectl' />
+                  )}
                 />
               </Grid>
+              <Grid id='command' xs={2}>
+                <Autocomplete
+                  disablePortal
+                  id='combo-box-demo'
+                  options={commandList}
+                  onInputChange={(e, newInputValue) => {
+                    setVerb(newInputValue);
+                  }}
+                  renderInput={(params) => (
+                    <TextField {...params} label='Commands' />
+                  )}
+                />
+              </Grid>
+              {/* ------------- TYPE drop down text field -------------------- */}
+              <Grid id='type' xs={2}>
+                <Autocomplete
+                  disablePortal
+                  id='combo-box-demo'
+                  options={types}
+                  onInputChange={(e, newInputValue) => {
+                    setType(newInputValue);
+                  }}
+                  renderInput={(params) => (
+                    <TextField {...params} label='Types' />
+                  )}
+                />
+              </Grid>
+              <Grid id='name' xs={2}>
+                <form
+                  onChange={(e) => {
+                    setName(e.target.value);
+                    console.log(name);
+                  }}
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                  }}
+                  value={name}
+                >
+                  <TextField
+                    id='outlined-basic'
+                    label='Name'
+                    variant='outlined'
+                  />
+                </form>
+              </Grid>
+              {/* ---------------------------- FLAGS -------------------------------- */}
+              <Grid id='flag' xs={2}>
+                <FormControl>
+                  <InputLabel id='demo-multiple-checkbox-label'>
+                    Flags (optional)
+                  </InputLabel>
+                  <Select
+                    labelId='demo-multiple-checkbox-label'
+                    id='demo-multiple-checkbox'
+                    multiple
+                    value={flagList}
+                    onChange={handleFlags}
+                    input={<OutlinedInput label='Flags (optional)' />}
+                    renderValue={(selected) => selected.join(', ')}
+                    MenuProps={MenuProps}
+                  >
+                    {flagList.map((name) => (
+                      <MenuItem key={name} value={name}>
+                        <Checkbox checked={flagList.indexOf(name) > -1} />
+                        <ListItemText primary={name} />
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
             </Grid>
+            <CommandLine
+              width='100%'
+              handleSubmit={handleSubmit}
+              postCommand={postCommand}
+              setUserInput={setUserInput}
+              userInput={userInput}
+              command={command}
+              handleClear={handleClear}
+            />
+          </Grid>
+        </Grid>
       </Grid>
     </>
   );
