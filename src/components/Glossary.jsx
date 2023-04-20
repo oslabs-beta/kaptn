@@ -852,7 +852,7 @@ export default function Glossary() {
           justifyContent='flex-start'
           alignItems='center'
           style={{
-            paddingRight: '125px',
+            paddingLeft: '125px',
           }} // style={{
           //   fontSize: '14px',
           //   justifyContent: 'center',
