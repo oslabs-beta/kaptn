@@ -829,7 +829,7 @@ export default function Glossary() {
 
   return (
     <>
-      <Topbar />
+      {/* <Topbar /> */}
       <Grid
         id='glossery'
         container

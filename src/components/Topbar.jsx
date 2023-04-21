@@ -34,7 +34,6 @@ function Topbar() {
         xs={2}
         style={{
           WebkitAppRegion: 'drag',
-          webkitUserSelect: 'none',
         }}
       ></Grid>
 
@@ -45,7 +44,6 @@ function Topbar() {
         justifyContent='center'
         style={{
           WebkitAppRegion: 'drag',
-          webkitUserSelect: 'none',
           fontFamily: 'Roboto',
           fontSize: '13pt',
           fontWeight: '500',

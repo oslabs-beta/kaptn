@@ -2,30 +2,22 @@ import {
   Sidebar,
   Menu,
   MenuItem,
-  SubMenu,
-  useProSidebar,
 } from 'react-pro-sidebar';
 import React from 'react';
-import { useState } from 'react';
-// import 'react-pro-sidebar/dist/styles';
+import { useState, useContext } from 'react';
 import { Box, IconButton, Typography, useTheme } from '@mui/material';
 import { Link } from 'react-router-dom';
 import { tokens } from '../theme';
 import LightModeIcon from '@mui/icons-material/LightMode';
 import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined';
 import ExitToAppOutlinedIcon from '@mui/icons-material/ExitToAppOutlined';
-import { Button } from '@mui/material';
 import { AutoFixHigh, MenuBook } from '@mui/icons-material';
-import { Create } from '@mui/icons-material';
 import { BarChart } from '@mui/icons-material';
-import { Hub } from '@mui/icons-material';
 import Grid from '@mui/system/Unstable_Grid';
-// import { MenuBook } from '@mui/icons-material';
-import { ColorModeContext, useMode } from '../theme';
+import { ColorModeContext } from '../theme';
 import DarkModeOutlinedIcon from '@mui/icons-material/DarkModeOutlined';
 
 const Item = ({ title, to, icon, selected, setSlected }) => {
-  const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   return (
     <MenuItem
@@ -42,15 +34,14 @@ const Item = ({ title, to, icon, selected, setSlected }) => {
 };
 
 function SideNav(props) {
-  // const theme = useTheme();
-  const [theme, colorMode] = useMode();
+  const theme = useTheme();
+  const colorMode = useContext(ColorModeContext)
   const colors = tokens(theme.palette.mode);
-  // const { collapseSidebar } = useProSidebar();
+
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   // state for which page we are on
   const [selected, setSelected] = useState('Dashboard');
-
   return (
     <Grid xs={props.spacing} container>
       <Sidebar defaultCollapsed backgroundColor=''>
@@ -121,9 +112,6 @@ function SideNav(props) {
       </Sidebar>
     </Grid>
   );
-}
-{
-  /* </div> */
 }
 
 export default SideNav;

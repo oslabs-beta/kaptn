@@ -227,7 +227,7 @@ function Setup() {
 
   return (
     <>
-      <Topbar />
+      {/* <Topbar /> */}
       <Grid
         id='setup-page'
         container
@@ -511,7 +511,6 @@ function Setup() {
                       alignItems: 'center',
                       marginLeft: '80px',
                       justifyContent: 'center',
-                      alignItems: 'center',
                     }}
                   >
                     <div
@@ -567,7 +566,7 @@ function Setup() {
               }}
               width='100%'
             >
-              4. INPUT COMMANDS --->
+              4. INPUT COMMANDS ---
             </Box>
           </Grid>
 

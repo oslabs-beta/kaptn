@@ -8,6 +8,7 @@ import {
   FormControl,
   TextField,
   Autocomplete,
+  IconButton
 } from '@mui/material';
 import { styled } from '@mui/system';
 import Grid from '@mui/system/Unstable_Grid';
@@ -21,6 +22,10 @@ import { ColorModeContext, useMode } from '../theme';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import ListItemText from '@mui/material/ListItemText';
 import Checkbox from '@mui/material/Checkbox';
+import { CssBaseline, ThemeProvider } from '@mui/material';
+import LightModeIcon from '@mui/icons-material/LightMode';
+import DarkModeOutlinedIcon from '@mui/icons-material/DarkModeOutlined';
+
 
 function Dashboard() {
   const [verb, setVerb] = React.useState('');
@@ -31,6 +36,8 @@ function Dashboard() {
   const [command, setCommand] = useState('');
   const [tool, setTool] = useState('');
   const [response, setResponse] = useState([]);
+  const [theme, colorMode] = useMode();
+
 
   const ITEM_HEIGHT = 48;
   const ITEM_PADDING_TOP = 8;
@@ -132,38 +139,6 @@ function Dashboard() {
     setUserInput('');
   };
 
-  const getCurrentPath = (e) => {};
-
-  const pages = ['Easy Setup', 'Manage Pods', 'Tutorials'];
-  const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
-
-  const [anchorElNav, setAnchorElNav] = React.useState(null);
-  const [anchorElUser, setAnchorElUser] = React.useState(null);
-
-  const handleOpenNavMenu = (event) => {
-    setAnchorElNav(event.currentTarget);
-  };
-  const handleOpenUserMenu = (event) => {
-    setAnchorElUser(event.currentTarget);
-  };
-
-  const handleCloseNavMenu = () => {
-    setAnchorElNav(null);
-  };
-
-  const handleCloseUserMenu = () => {
-    setAnchorElUser(null);
-  };
-
-  const handleKeyDown = (event) => {
-    if (event.key === 'Enter') {
-      setName(event.target.value);
-      const newCommand = command + ' ' + e.target.value;
-      setCommand(newCommand);
-      console.log('enter pressed');
-    }
-  };
-
   const commandList = [
     { label: 'get', year: 1994 },
     { label: 'apply', year: 1972 },
@@ -187,7 +162,6 @@ function Dashboard() {
 
   return (
     <>
-      <Topbar />
       <Grid
         id='dashboard'
         container
@@ -196,20 +170,6 @@ function Dashboard() {
         height={'95vh'}
         sx={{ pt: 3, pb: 3 }}
       >
-        {/* <ColorModeContext.Provider value={colorMode}>
-          <ThemeProvider theme={theme}>
-            <CssBaseline />
-
-            <IconButton onClick={colorMode.toggleColorMode}>
-              {theme.palette.mode === 'dark' ? (
-                <DarkModeOutlinedIcon />
-              ) : (
-                <LightModeIcon />
-              )}
-            </IconButton>
-          </ThemeProvider>
-        </ColorModeContext.Provider> */}
-        {/* Wrap the entire dashboard in a grid */}
         {/* ----------------SIDE BAR---------------- */}
         <SideNav spacing={2} />
         {/* ----------------TERMINAL---------------- */}

@@ -10,6 +10,7 @@ import Glossary from './components/Glossary';
 import { ColorModeContext, useMode } from './theme';
 import { CssBaseline, ThemeProvider } from '@mui/material';
 
+
 const routes = createBrowserRouter([
   {
     path: '/signup',
@@ -39,12 +40,18 @@ const routes = createBrowserRouter([
 
 function App() {
   const [theme, colorMode] = useMode();
+  
   return (
     <ColorModeContext.Provider value={colorMode}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        <div className='App' id='root'>
-          <RouterProvider router={routes} />
+        <div className="App" id='root'>
+          <Topbar />
+          {/* <SideNav /> */}
+          <main className='content'>
+            <RouterProvider router={routes} />
+          </main>
+          
         </div>
       </ThemeProvider>
     </ColorModeContext.Provider>
