@@ -8,7 +8,7 @@ import {
   FormControl,
   TextField,
   Autocomplete,
-  IconButton
+  IconButton,
 } from '@mui/material';
 import { styled } from '@mui/system';
 import Grid from '@mui/system/Unstable_Grid';
@@ -16,16 +16,11 @@ import Grid from '@mui/system/Unstable_Grid';
 import SideNav from './Sidebar';
 import CommandLine from './CommandInput.jsx';
 import Terminal from './Terminal.jsx';
-import Topbar from './Topbar';
-import { ColorModeContext, useMode } from '../theme';
+import { useMode } from '../theme';
 
 import OutlinedInput from '@mui/material/OutlinedInput';
 import ListItemText from '@mui/material/ListItemText';
 import Checkbox from '@mui/material/Checkbox';
-import { CssBaseline, ThemeProvider } from '@mui/material';
-import LightModeIcon from '@mui/icons-material/LightMode';
-import DarkModeOutlinedIcon from '@mui/icons-material/DarkModeOutlined';
-
 
 function Dashboard() {
   const [verb, setVerb] = React.useState('');
@@ -37,7 +32,6 @@ function Dashboard() {
   const [tool, setTool] = useState('');
   const [response, setResponse] = useState([]);
   const [theme, colorMode] = useMode();
-
 
   const ITEM_HEIGHT = 48;
   const ITEM_PADDING_TOP = 8;

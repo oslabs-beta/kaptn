@@ -1,39 +1,20 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
-import viteLogo from '/vite.svg';
-// // import '../App.css';
 import {
   Button,
   Paper,
   InputLabel,
   Select,
-  NativeSelect,
   MenuItem,
   FormControl,
   TextField,
-  AppBar,
-  Toolbar,
-  IconButton,
-  Typography,
-  Menu,
-  Container,
-  Avatar,
-  Tooltip,
   Autocomplete,
-  createFilterOptions,
 } from '@mui/material';
 import { Box, styled } from '@mui/system';
 import Grid from '@mui/system/Unstable_Grid';
-import MenuIcon from '@mui/icons-material/Menu';
-import AdbIcon from '@mui/icons-material/Adb';
-import zIndex from '@mui/material/styles/zIndex';
-import SettingsBackupRestoreOutlinedIcon from '@mui/icons-material/SettingsBackupRestoreOutlined';
-import LocalLibraryOutlinedIcon from '@mui/icons-material/LocalLibraryOutlined';
-import ManageAccountsOutlinedIcon from '@mui/icons-material/ManageAccountsOutlined';
-import SideNav from './Sidebar';
+
 import CommandLine from './CommandInput.jsx';
 import Terminal from './Terminal.jsx';
-import Topbar from './Topbar';
 
 import OutlinedInput from '@mui/material/OutlinedInput';
 import ListItemText from '@mui/material/ListItemText';
@@ -41,7 +22,6 @@ import Checkbox from '@mui/material/Checkbox';
 import Sidebar from './Sidebar';
 import CommandField from './CommandField';
 import { Backdrop } from '@mui/material';
-// import { makeStyles } from "@mui/styles";
 
 function Setup() {
   const [verb, setVerb] = React.useState('');
@@ -227,7 +207,6 @@ function Setup() {
 
   return (
     <>
-      {/* <Topbar /> */}
       <Grid
         id='setup-page'
         container

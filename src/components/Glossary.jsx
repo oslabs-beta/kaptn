@@ -1,7 +1,5 @@
 import * as React from 'react';
-import Backdrop from '@mui/material/Backdrop';
 import Button from '@mui/material/Button';
-import Topbar from './Topbar';
 import SideNav from './Sidebar';
 import Grid from '@mui/system/Unstable_Grid';
 import Box from '@mui/material/Box';
@@ -829,7 +827,6 @@ export default function Glossary() {
 
   return (
     <>
-      {/* <Topbar /> */}
       <Grid
         id='glossery'
         container
@@ -853,13 +850,7 @@ export default function Glossary() {
           alignItems='center'
           style={{
             paddingLeft: '125px',
-          }} // style={{
-          //   fontSize: '14px',
-          //   justifyContent: 'center',
-          //   alignItems: 'center',
-          //   textAlign: 'center',
-          //   fontWeight: '900',
-          // }}
+          }}
         >
           <Grid id='title' container textAlign='center'>
             <div style={{ fontSize: '28px', fontStyle: 'bold' }}>

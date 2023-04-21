@@ -1,11 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import Button from '@mui/material/Button';
 import { Box } from '@mui/system';
 import { TextField } from '@mui/material';
 import { Typography } from '@mui/material';
-import { AppBar } from '@mui/material';
-import Container from '@mui/material/Container';
 import { ColorModeContext, useMode } from '../theme';
 import { CssBaseline, ThemeProvider } from '@mui/material';
 
@@ -52,25 +49,6 @@ function Login() {
   }
   return (
     <>
-    {/* <Box
-
-      sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        backgroundColor: 'rgb(16,10,54)',
-        height: '100vh',
-        mt: 0,
-        position: 'absolute',
-            top: 0,
-            right: 0,
-            bottom: 0,
-            left: 0,
-            margin: 0,
-            padding: 0,
-        webkitAppRegion: 'drag',
-      }}
-    > */}
       <Box
         src='../src/assets/kaptn.ico'
         sx={{
@@ -98,7 +76,6 @@ function Login() {
             username={username}
             sx={{
               mb: 3,
-              // backgroundColor: 'white',
             }}
             onChange={(e) => {
               setInputUsername(e.target.value);
@@ -112,7 +89,6 @@ function Login() {
             password={password}
             sx={{
               mb: 3,
-              // backgroundColor: 'white',
             }}
             onChange={(e) => {
               setInputPassword(e.target.value);
@@ -125,7 +101,6 @@ function Login() {
           fullWidth
           sx={{
             display: 'flex',
-            // backgroundColor: 'transparent',
             border: '1px solid #68617f',
             flexDirection: 'column',
             alignItems: 'center',
@@ -176,7 +151,6 @@ function Login() {
         Sign Up
         </Button>
       </Box>
-    {/* </Box> */}
     </>
   );
 }

@@ -13,11 +13,6 @@ import { ColorModeContext, useMode } from '../theme';
 import { CssBaseline, ThemeProvider } from '@mui/material';
 
 function Topbar() {
-  const theme = useTheme();
-  // const colors = tokens(theme.palette.mode);
-  // // allow us to toggle different states for the color mode
-  const colorMode = useContext(ColorModeContext);
-
   return (
     <Grid
       id='top-bar'
@@ -62,25 +57,6 @@ function Topbar() {
         marginBottom='5px'
         xs={2}
       >
-        {/* <IconButton onClick={colorMode.toggleColorMode}>
-          {theme.palette.mode === 'dark' ? (
-            <DarkModeOutlinedIcon />
-          ) : (
-            <LightModeIcon />
-          )}
-        </IconButton> */}
-        {/*
-        <IconButton onClick={() => console.log(theme)}>
-          <NotificationsOutlinedIcon />
-        </IconButton>
-
-        <IconButton>
-          <SettingsOutlinedIcon />
-        </IconButton>
-
-        <IconButton>
-          <PersonOutlinedIcon />
-        </IconButton> */}
       </Grid>
     </Grid>
   );
