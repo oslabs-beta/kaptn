@@ -21,6 +21,8 @@ import { BarChart } from '@mui/icons-material';
 import { Hub } from '@mui/icons-material';
 import Grid from '@mui/system/Unstable_Grid';
 // import { MenuBook } from '@mui/icons-material';
+import { ColorModeContext, useMode } from '../theme';
+import DarkModeOutlinedIcon from '@mui/icons-material/DarkModeOutlined';
 
 const Item = ({ title, to, icon, selected, setSlected }) => {
   const theme = useTheme();
@@ -40,7 +42,8 @@ const Item = ({ title, to, icon, selected, setSlected }) => {
 };
 
 function SideNav(props) {
-  const theme = useTheme();
+  // const theme = useTheme();
+  const [theme, colorMode] = useMode();
   const colors = tokens(theme.palette.mode);
   // const { collapseSidebar } = useProSidebar();
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -103,6 +106,15 @@ function SideNav(props) {
               // setSelect={setSelected}
             >
               <Link to='/'>Log Out</Link>
+            </MenuItem>
+            <MenuItem>
+              <IconButton onClick={colorMode.toggleColorMode}>
+                {theme.palette.mode === 'dark' ? (
+                  <DarkModeOutlinedIcon />
+                ) : (
+                  <LightModeIcon />
+                )}
+              </IconButton>
             </MenuItem>
           </Box>
         </Menu>

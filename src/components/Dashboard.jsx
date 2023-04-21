@@ -2,45 +2,25 @@ import React from 'react';
 import { useState, useEffect } from 'react';
 import {
   Button,
-  Paper,
   InputLabel,
   Select,
-  NativeSelect,
   MenuItem,
   FormControl,
   TextField,
-  AppBar,
-  Toolbar,
-  IconButton,
-  Typography,
-  Menu,
-  Container,
-  Avatar,
-  Tooltip,
   Autocomplete,
-  createFilterOptions,
 } from '@mui/material';
-import { Box, styled } from '@mui/system';
+import { styled } from '@mui/system';
 import Grid from '@mui/system/Unstable_Grid';
-import MenuIcon from '@mui/icons-material/Menu';
-import AdbIcon from '@mui/icons-material/Adb';
-import zIndex from '@mui/material/styles/zIndex';
-import SettingsBackupRestoreOutlinedIcon from '@mui/icons-material/SettingsBackupRestoreOutlined';
-import LocalLibraryOutlinedIcon from '@mui/icons-material/LocalLibraryOutlined';
-import ManageAccountsOutlinedIcon from '@mui/icons-material/ManageAccountsOutlined';
+
 import SideNav from './Sidebar';
 import CommandLine from './CommandInput.jsx';
 import Terminal from './Terminal.jsx';
 import Topbar from './Topbar';
 import { ColorModeContext, useMode } from '../theme';
-import { CssBaseline, ThemeProvider } from '@mui/material';
-import LightModeIcon from '@mui/icons-material/LightMode';
-import DarkModeOutlinedIcon from '@mui/icons-material/DarkModeOutlined';
 
 import OutlinedInput from '@mui/material/OutlinedInput';
 import ListItemText from '@mui/material/ListItemText';
 import Checkbox from '@mui/material/Checkbox';
-import { Grid3x3 } from '@mui/icons-material';
 
 function Dashboard() {
   const [verb, setVerb] = React.useState('');
@@ -51,9 +31,6 @@ function Dashboard() {
   const [command, setCommand] = useState('');
   const [tool, setTool] = useState('');
   const [response, setResponse] = useState([]);
-  const [error, setError] = useState(false);
-  const [flags, setFlags] = React.useState([]);
-  const [theme, colorMode] = useMode();
 
   const ITEM_HEIGHT = 48;
   const ITEM_PADDING_TOP = 8;
@@ -234,7 +211,7 @@ function Dashboard() {
         </ColorModeContext.Provider> */}
         {/* Wrap the entire dashboard in a grid */}
         {/* ----------------SIDE BAR---------------- */}
-        <SideNav spacing={2}/>
+        <SideNav spacing={2} />
         {/* ----------------TERMINAL---------------- */}
 
         <Grid
