@@ -1,47 +1,25 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
-import viteLogo from '/vite.svg';
-// // import '../App.css';
 import {
   Button,
   Paper,
   InputLabel,
   Select,
-  NativeSelect,
   MenuItem,
   FormControl,
   TextField,
-  AppBar,
-  Toolbar,
-  IconButton,
-  Typography,
-  Menu,
-  Container,
-  Avatar,
-  Tooltip,
   Autocomplete,
-  createFilterOptions,
 } from '@mui/material';
-import { Box, styled } from '@mui/system';
-import Grid from '@mui/system/Unstable_Grid';
-import MenuIcon from '@mui/icons-material/Menu';
-import AdbIcon from '@mui/icons-material/Adb';
-import zIndex from '@mui/material/styles/zIndex';
-import SettingsBackupRestoreOutlinedIcon from '@mui/icons-material/SettingsBackupRestoreOutlined';
-import LocalLibraryOutlinedIcon from '@mui/icons-material/LocalLibraryOutlined';
-import ManageAccountsOutlinedIcon from '@mui/icons-material/ManageAccountsOutlined';
-import SideNav from './Sidebar';
-import CommandLine from './CommandInput.jsx';
-import Terminal from './Terminal.jsx';
-import Topbar from './Topbar';
-
 import OutlinedInput from '@mui/material/OutlinedInput';
 import ListItemText from '@mui/material/ListItemText';
 import Checkbox from '@mui/material/Checkbox';
-import Sidebar from './Sidebar';
-import CommandField from './CommandField';
 import { Backdrop } from '@mui/material';
-// import { makeStyles } from "@mui/styles";
+import { Box, styled } from '@mui/system';
+import Grid from '@mui/system/Unstable_Grid';
+import CommandLine from '../components/CommandLine.jsx';
+import Terminal from '../components/Terminal.jsx';
+import Sidebar from '../components/Sidebar';
+import CommandField from '../components/CommandField';
 
 function Setup() {
   const [verb, setVerb] = React.useState('');
@@ -51,10 +29,9 @@ function Setup() {
   const [userInput, setUserInput] = React.useState('');
   const [command, setCommand] = useState('');
   const [response, setResponse] = useState([]);
-  const [error, setError] = useState(false);
-  const [flags, setFlags] = React.useState([]);
   const [editOpen, setEditOpen] = React.useState(false);
 
+  // Set YAML edit box state
   const handleEditClose = () => {
     setEditOpen(false);
   };
@@ -62,19 +39,10 @@ function Setup() {
     setEditOpen(true);
   };
 
-  const ITEM_HEIGHT = 48;
-  const ITEM_PADDING_TOP = 8;
-  const MenuProps = {
-    PaperProps: {
-      style: {
-        maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-        width: 250,
-      },
-    },
-  };
-
+  // Flag list options
   const flagList = ['-o wide', '--force', '-f', '-o default', '-v'];
 
+  // Set flag list state
   const handleFlags = (event) => {
     const {
       target: { value },
@@ -85,45 +53,18 @@ function Setup() {
     );
   };
 
-  const MyTextField = styled(TextField)({
-    // color: 'darkslategray',
-    color: '#edeaea',
-    // background: '#767474',
-    height: '56px',
-    borderRadius: 4,
-  });
-
+  // Set current directory state
   const handleUploadDirectory = (event) => {
     let path = event.target.files[0].path.split('');
     while (path[path.length - 1] !== '/') {
       path.pop();
     }
     let absPath = path.join('');
-    // for(let i=0 ;
     console.log('path is ', absPath);
-    // let FolderPath = event.target.value;
-    // let absFoldPath = FolderPath;
-    // console.log(absFoldPath);
     setCurrDir(absPath);
-    // let value = URL.createObjectURL(event.target.files[0]);
   };
 
-  const handleCreateYaml = (event) => {
-    let path = event.target.files[0].path.split('');
-    while (path[path.length - 1] !== '/') {
-      path.pop();
-    }
-    let absPath = path.join('');
-    // for(let i=0 ;
-    console.log('path is ', absPath);
-    // let FolderPath = event.target.value;
-    // let absFoldPath = FolderPath;
-    // console.log(absFoldPath);
-    setCurrDir(absPath);
-    // let value = URL.createObjectURL(event.target.files[0]);
-  };
-
-  // Set the correct command based on current inputs
+  // Set the command state based on current inputs
   useEffect(() => {
     let newCommand = '';
     if (verb !== '') newCommand += verb;
@@ -151,67 +92,33 @@ function Setup() {
     }
   };
 
-  // Handle the CLI submit event
+  // Handle the command input submit event
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log('enter button clicked');
     if (currDir === 'NONE SELECTED')
       return alert('Please choose working directory');
     console.log('command ', command);
+
     const getCliResponse = async () => {
       const cliResponse = await postCommand(command, currDir);
+      // Filter for errors
+      if (cliResponse.err) alert('Invalid command. Please try again');
       // Update response state with the returned CLI response
-      const newResponseState = [
-        ...response,
-        { command: command, response: cliResponse },
-      ];
-      setResponse(newResponseState);
+      else {
+        const newResponseState = [
+          ...response,
+          { command: command, response: cliResponse },
+        ];
+        setResponse(newResponseState);
+      }
     };
 
     // Invoke a fetch request to the server
     getCliResponse();
   };
 
-  const getCurrentPath = (e) => {};
-
-  const pages = ['Easy Setup', 'Manage Pods', 'Tutorials'];
-  const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
-
-  const [anchorElNav, setAnchorElNav] = React.useState(null);
-  const [anchorElUser, setAnchorElUser] = React.useState(null);
-
-  const handleOpenNavMenu = (event) => {
-    setAnchorElNav(event.currentTarget);
-  };
-  const handleOpenUserMenu = (event) => {
-    setAnchorElUser(event.currentTarget);
-  };
-
-  const handleCloseNavMenu = () => {
-    setAnchorElNav(null);
-  };
-
-  const handleCloseUserMenu = () => {
-    setAnchorElUser(null);
-  };
-
-  const handleKeyDown = (event) => {
-    if (event.key === 'Enter') {
-      setName(event.target.value);
-      const newCommand = command + ' ' + e.target.value;
-      setCommand(newCommand);
-      console.log('enter pressed');
-    }
-  };
-
-  const commandList = [
-    { label: 'get', year: 1994 },
-    { label: 'apply', year: 1972 },
-    { label: 'create', year: 1974 },
-    { label: 'patch', year: 1974 },
-    { label: 'logs', year: 1974 },
-  ];
-
+  // Type options
   const types = [
     { label: 'node' },
     { label: 'nodes' },
@@ -227,7 +134,6 @@ function Setup() {
 
   return (
     <>
-      <Topbar />
       <Grid
         id='setup-page'
         container
@@ -236,9 +142,13 @@ function Setup() {
         height={'95vh'}
         sx={{ pt: 3, pb: 3 }}
       >
-        {/* --------SIDEBAR---------- */}
+        {/* ----------------SIDE BAR---------------- */}
         <Sidebar spacing={1} />
+
+        {/* ----------------MAIN CONTENT---------------- */}
         <Grid id='main-content' container xs={11} height='85%'>
+          
+          {/* ----------------SELECTION BOXES---------------- */}
           <Grid
             id='selections'
             xs={3}
@@ -248,12 +158,9 @@ function Setup() {
           >
             <Box
               sx={{
-                // border: 1,
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
-                // colored box behind buttons
-                // bgcolor: '#2e2d2d',
                 padding: '10px',
                 width: '100%',
                 borderRadius: '5px',
@@ -267,12 +174,9 @@ function Setup() {
             </Box>
             <Box
               sx={{
-                // border: 1,
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
-                // colored box behind buttons
-                // bgcolor: '#2e2d2d',
                 padding: '15px',
                 width: '100%',
                 borderRadius: '5px',
@@ -327,12 +231,9 @@ function Setup() {
 
             <Box
               sx={{
-                // border: 1,
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
-                // colored box behind buttons
-                // bgcolor: '#2e2d2d',
                 padding: '5px',
                 width: '100%',
                 borderRadius: '5px',
@@ -376,8 +277,6 @@ function Setup() {
                 variant='contained'
                 component='label'
                 style={{
-                  // backgroundColor: '#767474',
-                  // color: '#2a2a2a',
                   border: '1px solid white',
                   width: '170px',
                   marginBottom: '15px',
@@ -397,7 +296,6 @@ function Setup() {
 
             <Box
               sx={{
-                // border: 1,
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
@@ -438,28 +336,6 @@ function Setup() {
               >
                 {currDir}
               </div>
-              {/* 
-            <Button
-              variant='contained'
-              component='label'
-              style={{
-                // backgroundColor: '#767474',
-                // color: '#2a2a2a',
-                border: '1px solid white',
-                width: '170px',
-                marginBottom: '10px',
-                fontSize: '12px',
-              }}
-            >
-              //CREATE .YAML FILE
-              <input
-                type='file'
-                directory=''
-                webkitdirectory=''
-                hidden
-                onChange={handleCreateYaml}
-              />
-            </Button> */}
 
               <Button
                 onClick={handleEditOpen}
@@ -511,7 +387,6 @@ function Setup() {
                       alignItems: 'center',
                       marginLeft: '80px',
                       justifyContent: 'center',
-                      alignItems: 'center',
                     }}
                   >
                     <div
@@ -567,11 +442,11 @@ function Setup() {
               }}
               width='100%'
             >
-              4. INPUT COMMANDS --->
+              4. INPUT COMMANDS ---
             </Box>
           </Grid>
 
-          {/* ------------- Terminal Cli below -------------------- */}
+          {/* ----------------TERMINAL CLI---------------- */}
 
           <Grid
             id='terminal-cli'
@@ -580,6 +455,7 @@ function Setup() {
             justifyContent='center'
             alignContent='space-between'
           >
+            {/* ----------------TERMINAL---------------- */}
             <Terminal response={response} />
 
             <div
@@ -596,6 +472,7 @@ function Setup() {
                 zIndex: '100',
               }}
             >
+              {/* ----------------COMMAND LINE---------------- */}
               <CommandLine
                 width='100%'
                 handleSubmit={handleSubmit}
@@ -606,6 +483,7 @@ function Setup() {
               />
             </div>
 
+            {/* ----------------INPUT SECTION---------------- */}
             <Grid
               id='inputs'
               container
@@ -628,7 +506,6 @@ function Setup() {
                   )}
                 />
               </Grid>
-              {/* ------------- TYPE drop down text field -------------------- */}
               <Grid id='types' xs={3}>
                 <Autocomplete
                   disablePortal
@@ -661,7 +538,6 @@ function Setup() {
                   />
                 </form>
               </Grid>
-              {/* ---------------------------- FLAGS -------------------------------- */}
               <Grid id='flag' xs={3}>
                 <FormControl>
                   <InputLabel id='demo-multiple-checkbox-label'>
@@ -675,7 +551,6 @@ function Setup() {
                     onChange={handleFlags}
                     input={<OutlinedInput label='Flags (optional)' />}
                     renderValue={(selected) => selected.join(', ')}
-                    MenuProps={MenuProps}
                   >
                     {flagList.map((name) => (
                       <MenuItem key={name} value={name}>

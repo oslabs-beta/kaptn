@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import SideNav from '../../components/Sidebar';
-import Topbar from '../../components/Topbar';
+import SideNav from '../components/Sidebar';
 import Grid from '@mui/system/Unstable_Grid';
 
 function Cluster() {
   return (
     <>
-      <Topbar />
       <Grid
         id='dashboard'
         container
