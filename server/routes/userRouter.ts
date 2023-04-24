@@ -1,5 +1,5 @@
 import * as express from 'express'
-import userController from '../controller/userController.js'
+import userController from '../controllers/userController'
 
 const userRouter = express.Router();
 // Handle POST request to create new user
