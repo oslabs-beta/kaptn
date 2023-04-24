@@ -20,11 +20,11 @@ import CommandLine from '../components/CommandLine.jsx';
 import Terminal from '../components/Terminal.jsx';
 
 function Dashboard() {
-  const [verb, setVerb] = React.useState('');
-  const [type, setType] = React.useState('');
-  const [name, setName] = React.useState('');
-  const [currDir, setCurrDir] = React.useState('NONE SELECTED');
-  const [userInput, setUserInput] = React.useState('');
+  const [verb, setVerb] = useState('');
+  const [type, setType] = useState('');
+  const [name, setName] = useState('');
+  const [currDir, setCurrDir] = useState('NONE SELECTED');
+  const [userInput, setUserInput] = useState('');
   const [command, setCommand] = useState('');
   const [tool, setTool] = useState('');
   const [response, setResponse] = useState([]);

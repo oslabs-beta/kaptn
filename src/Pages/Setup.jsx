@@ -118,13 +118,6 @@ function Setup() {
     getCliResponse();
   };
 
-  // IS THIS NEEDED??
-  const pages = ['Easy Setup', 'Manage Pods', 'Tutorials'];
-  const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
-
-  const [anchorElNav, setAnchorElNav] = React.useState(null);
-  const [anchorElUser, setAnchorElUser] = React.useState(null);
-
   // Type options
   const types = [
     { label: 'node' },
@@ -154,6 +147,7 @@ function Setup() {
 
         {/* ----------------MAIN CONTENT---------------- */}
         <Grid id='main-content' container xs={11} height='85%'>
+          
           {/* ----------------SELECTION BOXES---------------- */}
           <Grid
             id='selections'
