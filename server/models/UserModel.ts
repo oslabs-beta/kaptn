@@ -1,18 +1,16 @@
 // // v-- REPLACE THE EMPTY STRING WITH YOUR LOCAL/MLAB/ELEPHANTSQL URI
-const mongoose = require('mongoose');
-const myURI = 'mongodb+srv://osp5:9dm8OGGfECIJmZdQ@cluster.zboxzus.mongodb.net/test';
-const bcrypt = require('bcryptjs')
-// UNCOMMENT THE LINE BELOW IF USING MONGO
-const URI = process.env.MONGO_URI || myURI;
+import mongoose from 'mongoose';
+import bcrypt from 'bcryptjs';
+
+const myURI: string = 'mongodb+srv://osp5:9dm8OGGfECIJmZdQ@cluster.zboxzus.mongodb.net/test';
+
+const URI: string = process.env.MONGO_URI || myURI;
 
 // mongoose.connect(URI, {
 //     useNewUrlParser: true,
 //     useUnifiedTopology: true,
 //     dbName: 'Task'
 //   });
-
-// UNCOMMENT THE LINE BELOW IF USING POSTGRESQL
-// const URI = process.env.PG_URI || myURI;
 
 
 const Schema = mongoose.Schema;
@@ -29,11 +27,11 @@ userSchema.pre('save', function (next) {
     if (!user.isModified('password')) {
       return next();
     }
-    bcrypt.genSalt(10, function (err, salt) {
+    bcrypt.genSalt(10, function (err: Error, salt: string) {
       if (err) {
         return next(err);
       }
-      bcrypt.hash(user.password, salt, function (err, hash) {
+      bcrypt.hash(user.password, salt, function (err, hash: string) {
         if (err) {
           return next(err);
         }
@@ -44,7 +42,5 @@ userSchema.pre('save', function (next) {
   });
 
 const Users = mongoose.model('users', userSchema);
-
-// module.exports = Users; // <-- export your model
 
 export default Users;
