@@ -1,6 +1,6 @@
 import * as React from 'react';
 import Button from '@mui/material/Button';
-import SideNav from './Sidebar';
+import SideNav from '../components/Sidebar';
 import Grid from '@mui/system/Unstable_Grid';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';

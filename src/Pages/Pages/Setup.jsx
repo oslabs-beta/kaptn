@@ -13,14 +13,14 @@ import {
 import { Box, styled } from '@mui/system';
 import Grid from '@mui/system/Unstable_Grid';
 
-import CommandLine from './CommandInput.jsx';
-import Terminal from './Terminal.jsx';
+import CommandLine from '../../components/CommandLine.jsx';
+import Terminal from '../../components/Terminal.jsx';
 
 import OutlinedInput from '@mui/material/OutlinedInput';
 import ListItemText from '@mui/material/ListItemText';
 import Checkbox from '@mui/material/Checkbox';
-import Sidebar from './Sidebar';
-import CommandField from './CommandField';
+import Sidebar from '../../components/Sidebar';
+import CommandField from '../../components/CommandField';
 import { Backdrop } from '@mui/material';
 
 function Setup() {

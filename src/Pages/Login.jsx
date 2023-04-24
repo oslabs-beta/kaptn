@@ -12,7 +12,6 @@ function Login() {
   const [loggedIn, setLoggedIn] = useState(false);
   const [theme, colorMode] = useMode();
 
-
   // Send a request to the server to confirm the username and password
   async function checkLogin(username, password) {
     try {
@@ -55,11 +54,10 @@ function Login() {
           height: '150px',
           width: '150px',
           mb: 4,
-          mt: 4
+          mt: 4,
         }}
         component='img'
-        >
-      </Box>
+      ></Box>
       <Box component='form' onSubmit={handleSubmit}>
         <Box
           sx={{
@@ -109,8 +107,8 @@ function Login() {
             mt: 2,
             mb: 2,
             ':hover': {
-              backgroundColor: 'rgb(16,10,54)'
-            }
+              backgroundColor: 'rgb(16,10,54)',
+            },
           }}
         >
           Login
@@ -124,7 +122,6 @@ function Login() {
             letterSpacing: '.1 rem',
             color: 'white',
             textDecoration: 'none',
-
           }}
         >
           Don't have an account? Sign up now
@@ -144,11 +141,11 @@ function Login() {
             mt: 2,
             mb: 2,
             ':hover': {
-              backgroundColor: 'rgb(16,10,54)'
-            }
+              backgroundColor: 'rgb(16,10,54)',
+            },
           }}
         >
-        Sign Up
+          Sign Up
         </Button>
       </Box>
     </>
