@@ -2,72 +2,37 @@ import React from 'react';
 import { useState, useEffect } from 'react';
 import {
   Button,
-  Paper,
   InputLabel,
   Select,
-  NativeSelect,
   MenuItem,
   FormControl,
   TextField,
-  AppBar,
-  Toolbar,
-  IconButton,
-  Typography,
-  Menu,
-  Container,
-  Avatar,
-  Tooltip,
   Autocomplete,
-  createFilterOptions,
+  IconButton,
 } from '@mui/material';
-import { Box, styled } from '@mui/system';
+import { styled } from '@mui/system';
 import Grid from '@mui/system/Unstable_Grid';
-import MenuIcon from '@mui/icons-material/Menu';
-import AdbIcon from '@mui/icons-material/Adb';
-import zIndex from '@mui/material/styles/zIndex';
-import SettingsBackupRestoreOutlinedIcon from '@mui/icons-material/SettingsBackupRestoreOutlined';
-import LocalLibraryOutlinedIcon from '@mui/icons-material/LocalLibraryOutlined';
-import ManageAccountsOutlinedIcon from '@mui/icons-material/ManageAccountsOutlined';
-import SideNav from './Sidebar';
-import CommandLine from './CommandInput.jsx';
-import Terminal from './Terminal.jsx';
-import Topbar from './Topbar';
-import { ColorModeContext, useMode } from '../theme';
-import { CssBaseline, ThemeProvider } from '@mui/material';
-import LightModeIcon from '@mui/icons-material/LightMode';
-import DarkModeOutlinedIcon from '@mui/icons-material/DarkModeOutlined';
-
 import OutlinedInput from '@mui/material/OutlinedInput';
 import ListItemText from '@mui/material/ListItemText';
 import Checkbox from '@mui/material/Checkbox';
-import { Grid3x3 } from '@mui/icons-material';
+import SideNav from '../components/Sidebar';
+import CommandLine from '../components/CommandLine.jsx';
+import Terminal from '../components/Terminal.jsx';
 
 function Dashboard() {
-  const [verb, setVerb] = React.useState('');
-  const [type, setType] = React.useState('');
-  const [name, setName] = React.useState('');
-  const [currDir, setCurrDir] = React.useState('NONE SELECTED');
-  const [userInput, setUserInput] = React.useState('');
+  const [verb, setVerb] = useState('');
+  const [type, setType] = useState('');
+  const [name, setName] = useState('');
+  const [currDir, setCurrDir] = useState('NONE SELECTED');
+  const [userInput, setUserInput] = useState('');
   const [command, setCommand] = useState('');
   const [tool, setTool] = useState('');
   const [response, setResponse] = useState([]);
-  const [error, setError] = useState(false);
-  const [flags, setFlags] = React.useState([]);
-  const [theme, colorMode] = useMode();
 
-  const ITEM_HEIGHT = 48;
-  const ITEM_PADDING_TOP = 8;
-  const MenuProps = {
-    PaperProps: {
-      style: {
-        maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-        width: 250,
-      },
-    },
-  };
-
+  // Flag list options
   const flagList = ['-o wide', '--force'];
 
+  // Set flag list state
   const handleFlags = (event) => {
     const {
       target: { value },
@@ -78,12 +43,7 @@ function Dashboard() {
     );
   };
 
-  const MyTextField = styled(TextField)({
-    color: '#edeaea',
-    height: '56px',
-    borderRadius: 4,
-  });
-
+  // Set current directory state
   const handleUploadDirectory = (event) => {
     let path = event.target.files[0].path.split('');
     while (path[path.length - 1] !== '/') {
@@ -94,7 +54,7 @@ function Dashboard() {
     setCurrDir(absPath);
   };
 
-  // Set the correct command based on current inputs
+  // Set the command state based on current inputs
   useEffect(() => {
     let newCommand = '';
     if (tool !== '') newCommand += tool;
@@ -123,13 +83,14 @@ function Dashboard() {
     }
   };
 
-  // Handle the CLI submit event
+  // Handle the command input submit event
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log('enter button clicked');
     if (currDir === 'NONE SELECTED')
       return alert('Please choose working directory');
     console.log('command ', command);
+
     const getCliResponse = async () => {
       const cliResponse = await postCommand(command, currDir);
       // Filter for errors
@@ -148,45 +109,14 @@ function Dashboard() {
     getCliResponse();
   };
 
+  // Clear the input box
   const handleClear = (e) => {
     e.preventDefault();
     console.log('clear button clicked');
-    console.log('command ', command);
     setUserInput('');
   };
 
-  const getCurrentPath = (e) => {};
-
-  const pages = ['Easy Setup', 'Manage Pods', 'Tutorials'];
-  const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
-
-  const [anchorElNav, setAnchorElNav] = React.useState(null);
-  const [anchorElUser, setAnchorElUser] = React.useState(null);
-
-  const handleOpenNavMenu = (event) => {
-    setAnchorElNav(event.currentTarget);
-  };
-  const handleOpenUserMenu = (event) => {
-    setAnchorElUser(event.currentTarget);
-  };
-
-  const handleCloseNavMenu = () => {
-    setAnchorElNav(null);
-  };
-
-  const handleCloseUserMenu = () => {
-    setAnchorElUser(null);
-  };
-
-  const handleKeyDown = (event) => {
-    if (event.key === 'Enter') {
-      setName(event.target.value);
-      const newCommand = command + ' ' + e.target.value;
-      setCommand(newCommand);
-      console.log('enter pressed');
-    }
-  };
-
+  // Command list options
   const commandList = [
     { label: 'get', year: 1994 },
     { label: 'apply', year: 1972 },
@@ -195,6 +125,7 @@ function Dashboard() {
     { label: 'logs', year: 1974 },
   ];
 
+  // Type options
   const types = [
     { label: 'node' },
     { label: 'nodes' },
@@ -210,7 +141,6 @@ function Dashboard() {
 
   return (
     <>
-      <Topbar />
       <Grid
         id='dashboard'
         container
@@ -219,24 +149,10 @@ function Dashboard() {
         height={'95vh'}
         sx={{ pt: 3, pb: 3 }}
       >
-        {/* <ColorModeContext.Provider value={colorMode}>
-          <ThemeProvider theme={theme}>
-            <CssBaseline />
-
-            <IconButton onClick={colorMode.toggleColorMode}>
-              {theme.palette.mode === 'dark' ? (
-                <DarkModeOutlinedIcon />
-              ) : (
-                <LightModeIcon />
-              )}
-            </IconButton>
-          </ThemeProvider>
-        </ColorModeContext.Provider> */}
-        {/* Wrap the entire dashboard in a grid */}
         {/* ----------------SIDE BAR---------------- */}
-        <SideNav />
-        {/* ----------------TERMINAL---------------- */}
+        <SideNav spacing={2} />
 
+        {/* ----------------MAIN CONTENT---------------- */}
         <Grid
           id='main-content'
           width='75%'
@@ -250,8 +166,10 @@ function Dashboard() {
           justifyContent='space-around'
           alignItems='center'
         >
+          {/* ----------------TERMINAL---------------- */}
           <Terminal response={response} />
 
+          {/* ----------------BELOW TERMINAL---------------- */}
           <Grid
             id='below-terminal'
             container
@@ -263,6 +181,7 @@ function Dashboard() {
             alignContent='space-between'
             width='100%'
           >
+            {/* ----------------CHOOSE DIRECTORY---------------- */}
             <Grid
               id='directory'
               container
@@ -301,6 +220,8 @@ function Dashboard() {
                 </Button>
               </Grid>
             </Grid>
+
+            {/* ----------------INPUT BOXES---------------- */}
             <Grid
               id='inputs'
               container
@@ -335,7 +256,6 @@ function Dashboard() {
                   )}
                 />
               </Grid>
-              {/* ------------- TYPE drop down text field -------------------- */}
               <Grid id='type' xs={2}>
                 <Autocomplete
                   disablePortal
@@ -367,7 +287,6 @@ function Dashboard() {
                   />
                 </form>
               </Grid>
-              {/* ---------------------------- FLAGS -------------------------------- */}
               <Grid id='flag' xs={2}>
                 <FormControl>
                   <InputLabel id='demo-multiple-checkbox-label'>
@@ -381,7 +300,6 @@ function Dashboard() {
                     onChange={handleFlags}
                     input={<OutlinedInput label='Flags (optional)' />}
                     renderValue={(selected) => selected.join(', ')}
-                    MenuProps={MenuProps}
                   >
                     {flagList.map((name) => (
                       <MenuItem key={name} value={name}>
@@ -393,6 +311,8 @@ function Dashboard() {
                 </FormControl>
               </Grid>
             </Grid>
+
+            {/* ----------------COMMAND LINE---------------- */}
             <CommandLine
               width='100%'
               handleSubmit={handleSubmit}

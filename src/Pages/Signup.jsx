@@ -8,7 +8,7 @@ import { AppBar } from '@mui/material';
 import Container from '@mui/material/Container';
 import { ColorModeContext, useMode } from '../theme';
 import { CssBaseline, ThemeProvider } from '@mui/material';
-import Topbar from './Topbar';
+import Topbar from '../components/Topbar';
 
 function Signup() {
   const [password, setInputPassword] = useState('');
@@ -62,22 +62,22 @@ function Signup() {
         mt: 0,
         webkitAppRegion: 'drag',
         position: 'absolute',
-            top: 0,
-            right: 0,
-            bottom: 0,
-            left: 0,
-            margin: 0,
-            padding: 0,
+        top: 0,
+        right: 0,
+        bottom: 0,
+        left: 0,
+        margin: 0,
+        padding: 0,
       }}
     >
-        <AppBar
+      <AppBar
         sx={{
           display: 'flex',
           flexDirection: 'row',
           alignContent: 'center',
           backgroundColor: '#22145a',
           webkitAppRegion: 'drag',
-          height: '35px'
+          height: '35px',
         }}
         position='static'
       >
@@ -98,7 +98,7 @@ function Signup() {
               letterSpacing: '.5px',
               color: 'white',
               textDecoration: 'none',
-              mt: '5px'
+              mt: '5px',
             }}
           >
             kaptn
@@ -109,96 +109,104 @@ function Signup() {
         src='../src/assets/kaptn.ico'
         sx={{
           height: '150px',
-          width: '150px'
+          width: '150px',
         }}
         component='img'
+      ></Box>
+      <Box
+        component='form'
+        onSubmit={handleClick}
+        sx={{
+          display: 'flex',
+          width: '40%',
+          flexDirection: 'column',
+          alignItems: 'center',
+          mt: 0,
+        }}
+      >
+        <Typography
+          component='h1'
+          variant='h3'
+          sx={{
+            fontFamily: 'Roboto',
+            fontWeight: 75,
+            fontSize: 30,
+            letterSpacing: '.1 rem',
+            color: 'white',
+            textDecoration: 'none',
+            mb: 4,
+          }}
         >
+          Create Account
+        </Typography>
+        <TextField
+          type='text'
+          name='username'
+          label='Username'
+          username={username}
+          fullWidth
+          sx={{
+            mb: 3,
+            // backgroundColor: 'white'
+          }}
+          onChange={(e) => {
+            setInputUsername(e.target.value);
+          }}
+        />
+        <TextField
+          type='text'
+          name='email'
+          label='Email'
+          email={email}
+          fullWidth
+          sx={{
+            mb: 3,
+            // backgroundColor: 'white'
+          }}
+          onChange={(e) => {
+            setInputEmail(e.target.value);
+          }}
+        />
+        <TextField
+          type='password'
+          name='password'
+          label='Password'
+          password={password}
+          fullWidth
+          sx={{
+            mb: 3,
+            // backgroundColor: 'white'
+          }}
+          onChange={(e) => {
+            setInputPassword(e.target.value);
+          }}
+        />
+        <Button
+          variant='contained'
+          type='submit'
+          fullWidth
+          href='/'
+          sx={{
+            display: 'flex',
+            // backgroundColor: 'transparent',
+            color: 'white',
+            border: '1px solid #68617f',
+            flexDirection: 'column',
+            alignItems: 'center',
+            letterSpacing: '1.5px',
+            backgroundColor: '#22145a',
+            mt: 2,
+            mb: 2,
+            ':hover': {
+              backgroundColor: 'rgb(16,10,54)',
+            },
+          }}
+        >
+          Create Account
+        </Button>
       </Box>
-        <Box component='form' 
-          onSubmit={handleClick} 
-          sx={{ display: 'flex', 
-                width: '40%',
-                flexDirection: 'column', 
-                alignItems: 'center', 
-                mt: 0}}>
-        <Typography 
-            component='h1' 
-            variant='h3'
-            sx={{
-              fontFamily: 'Roboto',
-              fontWeight: 75,
-              fontSize: 30,
-              letterSpacing: '.1 rem',
-              color: 'white',
-              textDecoration: 'none',
-              mb: 4
-            }}
-            >Create Account</Typography>
-            <TextField               
-              type="text"
-              name="username"
-              label = 'Username'
-              username={username}
-              fullWidth
-              sx = {{ 
-                    mb: 3,
-                    // backgroundColor: 'white' 
-                    }}
-              onChange={(e) => {
-                setInputUsername(e.target.value);
-              }} />
-              <TextField               
-              type="text"
-              name="email"
-              label = 'Email'
-              email={email}
-              fullWidth
-              sx = {{ 
-                    mb: 3,
-                    // backgroundColor: 'white' 
-                    }}
-              onChange={(e) => {
-                setInputEmail(e.target.value);
-              }} />
-            <TextField               
-              type="password"
-              name="password"
-              label = 'Password'
-              password={password}
-              fullWidth
-              sx = {{ 
-                    mb: 3,
-                    // backgroundColor: 'white' 
-                    }}
-              onChange={(e) => {
-                setInputPassword(e.target.value);
-              }} />
-            <Button 
-              variant='contained'
-              type='submit'
-              fullWidth
-              href='/'
-              sx={{
-                display: 'flex',
-                // backgroundColor: 'transparent',
-                color: 'white',
-                border: '1px solid #68617f',
-                flexDirection: 'column',
-                alignItems: 'center',
-                letterSpacing: '1.5px',
-                backgroundColor: '#22145a',
-                mt: 2,
-                mb: 2,
-                ':hover': {
-                    backgroundColor: 'rgb(16,10,54)'
-                }
-              }}
-            >
-            Create Account
-            </Button>
-        </Box>
     </Box>
-  )
+  );
 }
 
 export default Signup;

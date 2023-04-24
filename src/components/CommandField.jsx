@@ -37,7 +37,6 @@ export default function CommandField() {
         padding: '0',
         color: '#ffffff',
         webkitScrollbarColor: 'red yellow',
-        marginRight: '10px',
       }}
     >
       <Autocomplete
@@ -48,7 +47,6 @@ export default function CommandField() {
         groupBy={(option) => option.category}
         getOptionLabel={(option) => option.title}
         style={{
-          width: '250px',
           webkitScrollbarColor: 'red yellow',
           backgroundColor: 'transparent',
         }}
