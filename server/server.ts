@@ -1,4 +1,5 @@
-import * as express from 'express';
+// import * as express from 'express';
+import express, { Express, Request, Response } from 'express';
 import apiRouter from './routes/apiRouter.ts';
 import userRouter from './routes/userRouter.ts';
 import clusterRouter from './routes/clusterRouter.ts'
@@ -32,7 +33,7 @@ app.use('/user', userRouter);
 app.use(express.static(path.join(__dirname, '../index')));
 
 // Yining addition: Handle routes to /clusterinfo
-app.use('/clusterinfo', clusterRouter);
+// app.use('/clusterinfo', clusterRouter);
 
 // Handle invalid endpoint
 app.use((req: express.Request, res: express.Response) => {
@@ -59,6 +60,8 @@ app.use((err: string, req: express.Request, res: express.Response) => {
   return res.status(errorObj.status).json(errorObj.message);
 });
 
-app.listen(PORT, (): void=> console.log(`Listening on port ${PORT}`));
+console.log(PORT)
+
+app.listen(PORT, () => console.log(`Listening on port ${PORT}`));
 
 module.exports = app;

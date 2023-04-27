@@ -4,6 +4,7 @@ import * as express from 'express';
 const clusterController: { [key: string]: any} = {}
 
 const kc = new k8s.KubeConfig();
+
 kc.loadFromDefault();
 
 const k8sApi = kc.makeApiClient(k8s.CoreV1Api);

@@ -3,16 +3,16 @@
   "productName": "Kaptn",
   "private": true,
   "version": "0.0.0",
-  "type": "commonjs",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "dev": "concurrently \"nodemon server/server.js\" \"vite dev\" --host 0.0.0.0",
+    "dev-f": "nodemon server/server.ts",
+    "dev-b": "vite dev --host 0.0.0.0",
     "watch": "npx tsc -w",
-    "build": "vite build && npm run pack && node server/server.js",
+    "build": "vite build && npm run pack",
     "postinstall": "electron-builder install-app-deps",
     "pack": "electron-builder -mwl",
-    "preview": "vite preview", 
+    "preview": "vite preview",
     "vite": "vite"
   },
   "dependencies": {
@@ -31,7 +31,8 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-pro-sidebar": "^1.0.0",
-    "react-router-dom": "^6.10.0"
+    "react-router-dom": "^6.10.0",
+    "ts-node": "^10.9.1"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.2",

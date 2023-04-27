@@ -27,7 +27,9 @@ userController.createUser = async (req: express.Request, res: express.Response, 
 
 // Verify user on login attempt
 userController.verifyUser = async (req: express.Request, res: express.Response, next: express.NextFunction): Promise<void>  => {
+  console.log('in verify user')
   const { username, password } = req.body as VerifyUserRequestBody;
+  console.log(req.body);
   // Find if the user exists in the database
   const user = await Users.findOne({ username });
   // If user does not exist, return error
