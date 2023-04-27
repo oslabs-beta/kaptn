@@ -136,7 +136,7 @@ function Dashboard(): JSX.Element {
   };
 
   // Command list options
-  const commandList = [
+  const commandList: {label: string, year: number}[] = [
     { label: 'get', year: 1994 },
     { label: 'apply', year: 1972 },
     { label: 'create', year: 1974 },
@@ -145,7 +145,7 @@ function Dashboard(): JSX.Element {
   ];
 
   // Type options
-  const types = [
+  const types: {label: string}[] = [
     { label: 'node' },
     { label: 'nodes' },
     { label: 'pod' },
@@ -159,7 +159,7 @@ function Dashboard(): JSX.Element {
   ];
 
   // Flag list options
-  const flagList = ['-o wide', '--force'];
+  const flagList: string[] = ['-o wide', '--force'];
 
   return (
     <>
