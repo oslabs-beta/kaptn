@@ -6,8 +6,7 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "dev-f": "nodemon server/server.ts",
-    "dev-b": "vite dev --host 0.0.0.0",
+    "dev": "concurrently \"nodemon server/server.ts\" \"vite dev\" --host 0.0.0.0",
     "watch": "npx tsc -w",
     "build": "vite build && npm run pack",
     "postinstall": "electron-builder install-app-deps",
