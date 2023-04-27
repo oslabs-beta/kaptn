@@ -13,9 +13,9 @@ function SetupButtons() {
     fetch('/prom-graf-setup/grafana').then((res) => console.log(res));
   };
 
-  // const handleForwardPort = () => {
-  //   fetch('/setup/forwardports').then((res) => console.log(res));
-  // }
+  const handleForwardPort = () => {
+    fetch('/prom-graf-setup/forwardports').then((res) => console.log(res));
+  }
 
   return (
     <>
@@ -26,12 +26,12 @@ function SetupButtons() {
         <Typography> Need to set up Grafana in your cluster? </Typography>
         <Button onClick={handleGrafClick}>Set up Grafana</Button>
 
-        {/* <Typography> Need to forward ports to see metrics? </Typography>
+        <Typography> Need to forward ports to see metrics? </Typography>
         <Button
           onClick={handleForwardPort}
         >
           Start port forwarding...
-        </Button> */}
+        </Button>
       </Box>
     </>
   );

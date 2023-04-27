@@ -15,9 +15,9 @@ router.get('/grafana', setupController.grafInit, (req, res) => {
   return res.sendStatus(200);
 });
 
-// router.get('/forwardports', setupController.forwardPorts, (req, res) => {
-//   console.log('Port forward finished');
-//   return res.sendStatus(200);
-// });
+router.get('/forwardports', setupController.forwardPorts, (req, res) => {
+  console.log('Port forward finished');
+  return res.sendStatus(200);
+});
 
 module.exports = router;
