@@ -6,7 +6,7 @@ import { TextField } from '@mui/material';
 import { Typography } from '@mui/material';
 import { AppBar } from '@mui/material';
 import Container from '@mui/material/Container';
-import { ColorModeContext, useMode } from '../theme';
+import { ColorModeContext, useMode } from '../theme.ts';
 import { CssBaseline, ThemeProvider } from '@mui/material';
 import Topbar from '../components/Topbar';
 

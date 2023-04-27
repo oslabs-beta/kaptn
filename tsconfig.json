@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "ES6",
     "module": "commonjs",
-    "jsx": "react",
+    "jsx": "react-jsx",
     "esModuleInterop": true,
     "lib": ["dom", "es2021"],
     "allowJs": true,
@@ -15,7 +15,7 @@
     "allowSyntheticDefaultImports": true,
     "noImplicitAny": false,
     "strictNullChecks": false,
-    "allowImportingTsExtensions": true,
+    "allowImportingTsExtensions": true
   },
   "include": ["src/**/*", "server/**/*", "global.d.ts"]
 }

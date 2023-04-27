@@ -3,7 +3,7 @@ import Button from '@mui/material/Button';
 import { Box } from '@mui/system';
 import { TextField } from '@mui/material';
 import { Typography } from '@mui/material';
-import { ColorModeContext, useMode } from '../theme';
+import { ColorModeContext, useMode } from '../theme.ts';
 import { CssBaseline, ThemeProvider } from '@mui/material';
 
 function Login() {

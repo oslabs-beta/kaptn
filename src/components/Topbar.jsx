@@ -9,7 +9,7 @@ import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
 import PersonOutlinedIcon from '@mui/icons-material/PersonOutlined';
 import SearchIcon from '@mui/icons-material/Search';
 import Grid from '@mui/system/Unstable_Grid';
-import { ColorModeContext, useMode } from '../theme';
+import { ColorModeContext, useMode } from '../theme.ts';
 import { CssBaseline, ThemeProvider } from '@mui/material';
 
 function Topbar() {
@@ -56,8 +56,7 @@ function Topbar() {
         height='35px'
         marginBottom='5px'
         xs={2}
-      >
-      </Grid>
+      ></Grid>
     </Grid>
   );
 }
