@@ -49,7 +49,7 @@ function Login() {
   return (
     <>
       <Box
-        src='../src/assets/kaptn.ico'
+        src='../../build/icon.ico'
         sx={{
           height: '150px',
           width: '150px',

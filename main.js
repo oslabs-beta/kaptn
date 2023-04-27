@@ -1,5 +1,5 @@
 const path = require('path');
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain, ipcRenderer } = require('electron');
 const iconURL = './src/assets/kaptn.ico';
 // const process = require('process');
 
@@ -14,21 +14,20 @@ function createMainWindow() {
     // icon: path.join(__dirname, '/kaptn.ico'),
     webPreferences: {
       nodeIntegration: true,
-    },
-    icon: './src/assets/kaptn_Logo_v2.png',
+    }
   });
 
-  // mainWindow.loadFile(process.cwd());
-  // mainWindow.loadFile('index.html');
+  // if (isDev) {
+  //   mainWindow.loadURL('http://localhost:4444/');
+  // } else {
+  //   mainWindow.loadFile(path.join(__dirname, '/build/index.html'))
+  // }
+  // mainWindow.loadFile(path.join(app.getAppPath(), 'dist/index.html'));
   mainWindow.loadURL('http://localhost:4444/');
-  mainWindow.webContents.openDevTools();
+  // mainWindow.webContents.openDevTools();
 }
 
 app.whenReady().then(() => {
   createMainWindow();
 });
 
-// ipcMain.on('login-success', e => {
-//   console.log('Entrou no main in English');
-//   mainWindow.loadURL('http://localhost:4444/')
-// })

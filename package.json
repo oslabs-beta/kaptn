@@ -8,9 +8,12 @@
   "scripts": {
     "start": "electron .",
     "dev": "concurrently \"nodemon server/server.js\" \"vite dev\" --host 0.0.0.0",
-    "build": "vite build",
-    "preview": "vite preview",
-    "watch": "npx tsc -w"
+    "watch": "npx tsc -w",
+    "build": "vite build && npm run pack && node server/server.js",
+    "postinstall": "electron-builder install-app-deps",
+    "pack": "electron-builder -mwl",
+    "preview": "vite preview", 
+    "vite": "vite"
   },
   "dependencies": {
     "@emotion/react": "^11.10.6",
@@ -38,6 +41,7 @@
     "@types/react-dom": "^18.0.11",
     "@vitejs/plugin-react": "^3.1.0",
     "electron": "^24.0.0",
+    "electron-builder": "^23.6.0",
     "https": "^1.0.0",
     "typescript": "^5.0.4",
     "vite": "^4.2.0"
