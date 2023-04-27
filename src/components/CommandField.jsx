@@ -50,6 +50,13 @@ export default function CommandField() {
           webkitScrollbarColor: 'red yellow',
           backgroundColor: 'transparent',
         }}
+        onInputChange={(e, newInputValue) => {
+          console.log('newInputValue is', newInputValue);
+          setVerb(newInputValue);
+          // const newCommand = verb + ' ' + type + ' ' + name;
+          // setCommand(newCommand);
+          // setCommand(newInputValue);
+        }}
         renderInput={(params) => <TextField {...params} label='Commands' />}
         renderGroup={(params) => (
           <li
