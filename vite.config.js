@@ -15,6 +15,10 @@ export default defineConfig({
         target: 'http://localhost:6666',
         changeOrigin: true,
       },
+      '/prom-graf-setup': {
+        target: 'http://localhost:6666',
+        changeOrigin: true,
+      },
     },
   },
 });

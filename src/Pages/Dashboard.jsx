@@ -18,6 +18,7 @@ import Checkbox from '@mui/material/Checkbox';
 import SideNav from '../components/Sidebar';
 import CommandLine from '../components/CommandLine.jsx';
 import Terminal from '../components/Terminal.jsx';
+import SetupButtons from '../components/SetupButtons';
 
 function Dashboard() {
   const [verb, setVerb] = useState('');
@@ -181,6 +182,7 @@ function Dashboard() {
             alignContent='space-between'
             width='100%'
           >
+
             {/* ----------------CHOOSE DIRECTORY---------------- */}
             <Grid
               id='directory'
@@ -322,6 +324,7 @@ function Dashboard() {
               command={command}
               handleClear={handleClear}
             />
+            
           </Grid>
         </Grid>
       </Grid>
