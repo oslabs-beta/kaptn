@@ -57,40 +57,41 @@ setupController.grafInit = (req, res, next) => {
   });
 };
 
-// setupController.forwardPorts = (req, res, next) => {
-//   console.log('Forwarding ports');
-//   let grafPod;
-//   let promPod;
-//   let alertPod;
-//   let podStatus;
-
-//   while (podStatus !== 'Running') {
-//     const podsList = execSync('kubectl get pods');
-//     podsList
-//       .toString()
-//       .split('\n')
-//       .forEach((pod) => {
-//         if (!promPod && line.includes('prometheus-0'))
-//           [promPod] = pod.split('');
-//         if (!alertPod && pod.includes('alertmanager-0'))
-//           [alertPod] = pod.split('');
-//         if (pod.includes('prometheus666-grafana')) {
-//           if (pod.includes('Running')) podStatus = 'Running';
-//           [grafPod] = line.split('');
-//         }
-//         console.log('grafana pod:', grafPod);
-//       });
-//   }
-//   const ports = spawn(`kubectl port-forward ${grafPod} 3001:3000`, {
-//     shell: true,
-//   });
-//   ports.stdout.on('result', (result) => {
-//     console.log(`stdout: ${result}`);
-//   });
-//   ports.stderr.on('result', (result) => {
-//     console.error(`grafana port forwarding error: ${result}`)
-//   });
-//   return next();
-// };
+setupController.forwardPorts = (req, res, next) => {
+  console.log('Forwarding ports');
+  // let grafPod;
+  // let promPod;
+  // let alertPod;
+  // let podStatus;
+  // console.log('what')
+  // while (podStatus !== 'Running') {
+  //   const podsList = execSync('kubectl get pods');
+  //   console.log(podList.toString());
+  //   podsList
+  //     .toString()
+  //     .split('\n')
+  //     .forEach((pod) => {
+  //       if (!promPod && line.includes('prometheus-0'))
+  //         [promPod] = pod.split('');
+  //       if (!alertPod && pod.includes('alertmanager-0'))
+  //         [alertPod] = pod.split('');
+  //       if (pod.includes('prometheus666-grafana')) {
+  //         if (pod.includes('Running')) podStatus = 'Running';
+  //         [grafPod] = line.split('');
+  //       }
+  //       console.log('grafana pod:', grafPod);
+  //     });
+  // }
+  const ports = spawn(`kubectl port-forward deployment/prometheus-grafana 3000`, {
+    shell: true,
+  });
+  ports.stdout.on('result', (result) => {
+    console.log(`stdout: ${result}`);
+  });
+  ports.stderr.on('result', (result) => {
+    console.error(`grafana port forwarding error: ${result}`)
+  });
+  return next();
+};
 
 module.exports = setupController;
