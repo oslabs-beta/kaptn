@@ -48,109 +48,169 @@ function Login() {
     callCheckLogin();
   }
   return (
-    <Grid>
-      <h1> hi from olivia i had a rough day </h1>
-      <Box
-        src='../../build/icon.ico'
+    <Grid
+      id='main-content'
+      container
+      alignContent='center'
+      alignItems='center'
+      height={'95vh'}
+    >
+      <Grid id='main-content-left' xs={4}></Grid>
+      <Grid
+        id='main-content-center'
+        container
+        xs={4}
+        flexDirection='column'
+        alignItems='center'
+        justifyContent='space-evenly'
         sx={{
-          height: '150px',
-          width: '150px',
-          mb: 4,
-          mt: 4,
+          textAlign: 'center',
         }}
-        component='img'
-      ></Box>
-      <Box component='form' onSubmit={handleSubmit}>
+        height={'95vh'}
+      >
         <Box
+          src='../../build/icon.ico'
           sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
+            height: '200px',
+            width: '200px',
           }}
-        >
-          <TextField
-            type='text'
-            name='username'
-            label='Username'
-            fullWidth
-            username={username}
-            sx={{
-              mb: 3,
-            }}
-            onChange={(e) => {
-              setInputUsername(e.target.value);
-            }}
-          />
-          <TextField
-            type='password'
-            name='password'
-            label='Password'
-            fullWidth
-            password={password}
-            sx={{
-              mb: 3,
-            }}
-            onChange={(e) => {
-              setInputPassword(e.target.value);
-            }}
-          />
+          component='img'
+          width='100%'
+        ></Box>
+        <Box id='subtitle'>
+          <Typography
+            variant='h2'
+            alignText='center'
+            sx={{ fontWeight: 'bold' }}
+          >
+            Take command of Kubernetes.
+          </Typography>
         </Box>
-        <Button
-          variant='contained'
-          type='submit'
-          fullWidth
-          sx={{
-            display: 'flex',
-            border: '1px solid #68617f',
-            flexDirection: 'column',
-            alignItems: 'center',
-            letterSpacing: '1.5px',
-            backgroundColor: '#22145a',
-            mt: 2,
-            mb: 2,
-            ':hover': {
-              backgroundColor: 'rgb(16,10,54)',
-            },
-          }}
-        >
-          Login
-        </Button>
-        <Typography
-          variant='h6'
-          sx={{
-            fontFamily: 'Roboto',
-            fontSize: 25,
-            fontWeight: 50,
-            letterSpacing: '.1 rem',
-            color: 'white',
-            textDecoration: 'none',
-          }}
-        >
-          Don't have an account? Sign up now
-        </Typography>
-        <Button
-          variant='contained'
-          type='submit'
-          fullWidth
-          href='/signup'
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            border: '1px solid #68617f',
-            letterSpacing: '1.5px',
-            backgroundColor: '#22145a',
-            mt: 2,
-            mb: 2,
-            ':hover': {
-              backgroundColor: 'rgb(16,10,54)',
-            },
-          }}
-        >
-          Sign Up
-        </Button>
-      </Box>
+        <Grid id='below-subtitle' container width={'85%'}>
+          <Box
+            id='input-boxes'
+            component='form'
+            onSubmit={handleSubmit}
+            width='100%'
+            sx={{ display: 'flex', flexDirection: 'column' }}
+            xs={4}
+          >
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+              }}
+            >
+              <TextField
+                type='text'
+                name='username'
+                label='Username'
+                fullWidth
+                username={username}
+                sx={
+                  {
+                    mb: 3,
+                  }
+                }
+                onChange={(e) => {
+                  setInputUsername(e.target.value);
+                }}
+              />
+              <TextField
+                type='password'
+                name='password'
+                label='Password'
+                fullWidth
+                password={password}
+                sx={
+                  {
+                    // mb: 3,
+                  }
+                }
+                onChange={(e) => {
+                  setInputPassword(e.target.value);
+                }}
+              />
+            </Box>
+            <Button
+              variant='contained'
+              type='submit'
+              fullWidth
+              sx={{
+                display: 'flex',
+                border: '1px solid #68617f',
+                flexDirection: 'column',
+                alignItems: 'center',
+                letterSpacing: '1.5px',
+                backgroundColor: '#22145a',
+                mt: 2,
+                mb: 5,
+                ':hover': {
+                  backgroundColor: 'rgb(16,10,54)',
+                },
+              }}
+            >
+              Login
+            </Button>
+            <Typography variant='body1'>Don't have an account?</Typography>
+            <Grid id='sign-up' container justifyContent='center' alignItems='center'>
+            <Button
+              variant='contained'
+              xs={6}
+              type='submit'
+              // fullWidth
+              href='/signup'
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                border: '1px solid #68617f',
+                letterSpacing: '1.5px',
+                backgroundColor: '#22145a',
+                mt: 2,
+                mb: 2,
+                width: '120px',
+                height: '60px',
+                ':hover': {
+                  backgroundColor: 'rgb(16,10,54)',
+                },
+              }}
+            >
+              Sign Up
+            </Button>
+            <Typography variant='h5' mr={2} ml={2}>Or</Typography>
+            <Button
+              variant='contained'
+              type='submit'
+              // fullWidth
+              xs={6}
+              href='/dashboard'
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                border: '1px solid #68617f',
+                letterSpacing: '1.5px',
+                backgroundColor: '#22145a',
+                mt: 2,
+                mb: 2,
+                width: '120px',
+                height: '60px',
+                ':hover': {
+                  backgroundColor: 'rgb(16,10,54)',
+                },
+              }}
+            >
+              Continue as guest
+            </Button>
+            </Grid>
+            <Typography variant='caption'>Copyright © Kaptn 2023. </Typography>
+          </Box>
+        </Grid>
       </Grid>
+      <Grid id='main-content-right' xs={4}></Grid>
+    </Grid>
   );
 }
 export default Login;

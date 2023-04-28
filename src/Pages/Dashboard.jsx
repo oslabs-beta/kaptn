@@ -152,7 +152,6 @@ function Dashboard() {
       >
         {/* ----------------SIDE BAR---------------- */}
         <SideNav spacing={2} />
-        <h1>hi is this working</h1>
         {/* ----------------MAIN CONTENT---------------- */}
         <Grid
           id='main-content'
