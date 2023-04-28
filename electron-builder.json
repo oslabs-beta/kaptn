@@ -1,0 +1,28 @@
+{
+  "appId": "kaptn",
+  "productName": "Kaptn",
+  "directories": {
+    "app": ".",
+    "buildResources": "assets"
+  },
+  "files": [
+    "package.json",
+    "dist/**/*",
+    "node_modules",
+    "main.js",
+    "src/assets/**/*"
+  ],
+  "mac": {
+    "target": "dmg",
+    "icon": "build/icon.icns",
+    "category": "public.app-category.developer-tools"
+  },
+  "win": {
+    "target": "nsis",
+    "icon": "build/icon.ico",
+    "requestedExecutionLevel": "asInvoker"
+  },
+  "linux": {
+    "target": "AppImage"
+  }
+}
