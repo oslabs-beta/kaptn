@@ -137,6 +137,7 @@ function Login() {
               variant='contained'
               type='submit'
               fullWidth
+              size="large"
               sx={{
                 display: 'flex',
                 border: '1px solid #68617f',
@@ -154,13 +155,12 @@ function Login() {
               Login
             </Button>
             <Typography variant='body1'>Don't have an account?</Typography>
-            <Grid id='sign-up' container justifyContent='center' alignItems='center'>
+            <Grid id='sign-up' container justifyContent='center' alignItems='center' flexDirection='column'>
             <Button
               variant='contained'
-              xs={6}
               type='submit'
-              // fullWidth
               href='/signup'
+              size="small"
               sx={{
                 display: 'flex',
                 flexDirection: 'column',
@@ -169,9 +169,6 @@ function Login() {
                 letterSpacing: '1.5px',
                 backgroundColor: '#22145a',
                 mt: 2,
-                mb: 2,
-                width: '120px',
-                height: '60px',
                 ':hover': {
                   backgroundColor: 'rgb(16,10,54)',
                 },
@@ -179,13 +176,11 @@ function Login() {
             >
               Sign Up
             </Button>
-            <Typography variant='h5' mr={2} ml={2}>Or</Typography>
             <Button
               variant='contained'
               type='submit'
-              // fullWidth
-              xs={6}
               href='/dashboard'
+              size="small"
               sx={{
                 display: 'flex',
                 flexDirection: 'column',
@@ -194,9 +189,7 @@ function Login() {
                 letterSpacing: '1.5px',
                 backgroundColor: '#22145a',
                 mt: 2,
-                mb: 2,
-                width: '120px',
-                height: '60px',
+                mb: 3,
                 ':hover': {
                   backgroundColor: 'rgb(16,10,54)',
                 },
