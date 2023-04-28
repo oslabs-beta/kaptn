@@ -3,7 +3,9 @@ const app = express();
 const path = require('path');
 const apiRouter = require('./routes/apiRouter.js');
 const userRouter = require('./routes/userRouter.js');
-const clusterRouter = require('./routes/clusterRouter.js')
+const clusterRouter = require('./routes/clusterRouter.js');
+const setupRouter = require('./routes/setupRouter.js');
+
 const mongoose = require('mongoose');
 
 // changing port here for grafana
@@ -31,18 +33,8 @@ app.use('/user', userRouter);
 app.use(express.static(path.join(__dirname, '../index')));
 
 // Yining addition: Handle routes to /clusterinfo
-app.use('/clusterinfo', clusterRouter);
-
-// app.get('/', (req, res) => {
-//  res.status(200).sendFile(path.join(__dirname, '/index.html'));
-//  res.send('weinhere');
-// });
-
-//ADD DASHBOARD ROUTE TO SERVE DASHBOARD UPON LOGIN??
-// app.get('/dashboard', (req, res) => {
-//   res.status(200).sendFile(path.join(__dirname, '/Dashboard.jsx'));
-//   // res.send('weinhere')
-// });
+// app.use('/clusterinfo', clusterRouter);
+app.use('/prom-graf-setup', setupRouter);
 
 // Handle invalid endpoint
 app.use((req, res) => {
