@@ -1,16 +1,5 @@
 import React from 'react';
-import { Box, IconButton, useTheme } from '@mui/material';
-import { useContext } from 'react';
-import InputBase from '@mui/material/InputBase';
-import LightModeIcon from '@mui/icons-material/LightMode';
-import DarkModeOutlinedIcon from '@mui/icons-material/DarkModeOutlined';
-import NotificationsOutlinedIcon from '@mui/icons-material/NotificationsOutlined';
-import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
-import PersonOutlinedIcon from '@mui/icons-material/PersonOutlined';
-import SearchIcon from '@mui/icons-material/Search';
 import Grid from '@mui/system/Unstable_Grid';
-import { ColorModeContext, useMode } from '../theme';
-import { CssBaseline, ThemeProvider } from '@mui/material';
 
 function Topbar() {
   return (

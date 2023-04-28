@@ -1,17 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Button from '@mui/material/Button';
 import { Box } from '@mui/system';
 import { TextField } from '@mui/material';
 import { Typography } from '@mui/material';
-import { ColorModeContext, useMode } from '../theme';
-import { CssBaseline, ThemeProvider } from '@mui/material';
+import { useMode } from '../theme';
 import Grid from '@mui/system/Unstable_Grid';
 
 function Login() {
   const [password, setInputPassword] = useState('');
   const [username, setInputUsername] = useState('');
   const [loggedIn, setLoggedIn] = useState(false);
-  const [theme, colorMode] = useMode();
 
   // Send a request to the server to confirm the username and password
   async function checkLogin(username, password) {

@@ -1,21 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
 import Button from '@mui/material/Button';
 import { Box } from '@mui/system';
 import { TextField } from '@mui/material';
 import { Typography } from '@mui/material';
-import { AppBar } from '@mui/material';
-import Container from '@mui/material/Container';
-import { ColorModeContext, useMode } from '../theme';
-import { CssBaseline, ThemeProvider } from '@mui/material';
-import Topbar from '../components/Topbar';
+import { useMode } from '../theme';
 import Grid from '@mui/system/Unstable_Grid';
 
 function Signup() {
   const [password, setInputPassword] = useState('');
   const [username, setInputUsername] = useState('');
   const [email, setInputEmail] = useState('');
-  const [theme, colorMode] = useMode();
 
   // Send request to the server to create a new user
   async function createUser(username, email, password) {
@@ -143,7 +137,7 @@ function Signup() {
               variant='contained'
               type='submit'
               fullWidth
-              size="large"
+              size='large'
               href='/'
               sx={{
                 display: 'flex',
@@ -163,28 +157,33 @@ function Signup() {
               Create Account
             </Button>
             <Typography variant='body1'>Already have an account?</Typography>
-            <Grid id='sign-up' container justifyContent='center' alignItems='center'>
-            <Button
-              variant='contained'
-              type='submit'
-              size="small"
-              href='/'
-              sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                border: '1px solid #68617f',
-                letterSpacing: '1.5px',
-                backgroundColor: '#22145a',
-                mt: 2,
-                mb: 3,
-                ':hover': {
-                  backgroundColor: 'rgb(16,10,54)',
-                },
-              }}
+            <Grid
+              id='sign-up'
+              container
+              justifyContent='center'
+              alignItems='center'
             >
-              Sign In
-            </Button>
+              <Button
+                variant='contained'
+                type='submit'
+                size='small'
+                href='/'
+                sx={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  border: '1px solid #68617f',
+                  letterSpacing: '1.5px',
+                  backgroundColor: '#22145a',
+                  mt: 2,
+                  mb: 3,
+                  ':hover': {
+                    backgroundColor: 'rgb(16,10,54)',
+                  },
+                }}
+              >
+                Sign In
+              </Button>
             </Grid>
             <Typography variant='caption'>Copyright © Kaptn 2023. </Typography>
           </Box>
