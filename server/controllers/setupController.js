@@ -85,13 +85,21 @@ setupController.forwardPorts = (req, res, next) => {
   const ports = spawn(`kubectl port-forward deployment/prometheus-grafana 3000`, {
     shell: true,
   });
-  ports.stdout.on('result', (result) => {
-    console.log(`stdout: ${result}`);
+  ports.stdout.on('data', (data) => {
+    console.log(`stdout: ${data}`);
+    return next();
   });
-  ports.stderr.on('result', (result) => {
-    console.error(`grafana port forwarding error: ${result}`)
+  ports.stderr.on('data', (data) => {
+    console.error(`grafana port forwarding error: ${data}`)
+    return next(
+      {
+        log: 'Express error handler caught unknown middleware error',
+        status: 500,
+        message: { err: 'An error occurred' },
+      }
+    );
   });
-  return next();
+  
 };
 
 module.exports = setupController;
