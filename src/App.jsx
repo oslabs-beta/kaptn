@@ -1,13 +1,13 @@
-import Signup from './pages/Signup';
-import Login from './pages/Login';
-import Cluster from './pages/Cluster';
+import Signup from './pages/Signup.jsx';
+import Login from './pages/Login.jsx';
+import Cluster from './pages/Cluster.jsx';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import Dashboard from './pages/Dashboard';
-import Topbar from './components/Topbar';
-import SideNav from './components/Sidebar';
-import Setup from './pages/Setup';
-import Glossary from './pages/Glossary';
-import { ColorModeContext, useMode } from './theme';
+import Dashboard from './pages/Dashboard.jsx';
+import Topbar from './components/Topbar.jsx';
+import SideNav from './components/Sidebar.jsx';
+import Setup from './pages/Setup.jsx';
+import Glossary from './pages/Glossary.jsx';
+import { ColorModeContext, useMode } from './theme.js';
 import { CssBaseline, ThemeProvider } from '@mui/material';
 
 const routes = createBrowserRouter([

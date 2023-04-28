@@ -15,10 +15,10 @@ import Grid from '@mui/system/Unstable_Grid';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import ListItemText from '@mui/material/ListItemText';
 import Checkbox from '@mui/material/Checkbox';
-import SideNav from '../components/Sidebar';
+import SideNav from '../components/Sidebar.jsx';
 import CommandLine from '../components/CommandLine.jsx';
 import Terminal from '../components/Terminal.jsx';
-import SetupButtons from '../components/SetupButtons';
+import SetupButtons from '../components/SetupButtons.jsx';
 
 function Dashboard() {
   const [verb, setVerb] = useState('');
@@ -152,7 +152,7 @@ function Dashboard() {
       >
         {/* ----------------SIDE BAR---------------- */}
         <SideNav spacing={2} />
-
+        <h1>hi is this working</h1>
         {/* ----------------MAIN CONTENT---------------- */}
         <Grid
           id='main-content'
@@ -182,7 +182,6 @@ function Dashboard() {
             alignContent='space-between'
             width='100%'
           >
-
             {/* ----------------CHOOSE DIRECTORY---------------- */}
             <Grid
               id='directory'
@@ -324,7 +323,6 @@ function Dashboard() {
               command={command}
               handleClear={handleClear}
             />
-            
           </Grid>
         </Grid>
       </Grid>

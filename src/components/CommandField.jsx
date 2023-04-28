@@ -20,7 +20,7 @@ const GroupItems = styled('ul')({
   webkitScrollbarColor: 'red yellow',
 });
 
-export default function CommandField() {
+function CommandField() {
   const options = commands.map((option) => {
     const firstLetter = commands[0].category;
     return {
@@ -136,3 +136,5 @@ const commands = [
   { title: 'plugin', category: 'Other Commands' },
   { title: 'version', category: 'Other Commands' },
 ];
+
+export default CommandField;

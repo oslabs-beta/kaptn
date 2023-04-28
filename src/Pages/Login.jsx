@@ -5,6 +5,7 @@ import { TextField } from '@mui/material';
 import { Typography } from '@mui/material';
 import { ColorModeContext, useMode } from '../theme';
 import { CssBaseline, ThemeProvider } from '@mui/material';
+import Grid from '@mui/system/Unstable_Grid';
 
 function Login() {
   const [password, setInputPassword] = useState('');
@@ -47,7 +48,8 @@ function Login() {
     callCheckLogin();
   }
   return (
-    <>
+    <Grid>
+      <h1> hi from olivia i had a rough day </h1>
       <Box
         src='../../build/icon.ico'
         sx={{
@@ -148,7 +150,7 @@ function Login() {
           Sign Up
         </Button>
       </Box>
-    </>
+      </Grid>
   );
 }
 export default Login;
