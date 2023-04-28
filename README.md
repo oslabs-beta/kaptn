@@ -32,7 +32,7 @@ Our application defaults to our dashboard page, where you will be able to select
 ### Easy Setup
 1. Choose image
     - Before you begin to configure your docker and kubernetes, you will need a docker image. You may create your own docker image by defining that image       in a dockerfile. For the purposes of this tutorial, however, select an existing image from an online registry, such as dockerhub
-        -Navigate to hub.docker.com on your browser and create an account / sign in
+        -Navigate to (https://hub.docker.com) on your browser and create an account / sign in
         -Upon entering the dockerhub dashboard, use the search bar or the explore page to look up an image 
         -After selecting an image, click on 'Tags' to view all tag labels attached
     -Type out the full image name with the tag into the Image Input Field and press the Enter key
