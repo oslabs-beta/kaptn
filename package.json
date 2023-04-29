@@ -1,11 +1,44 @@
 {
-  "name": "kaptn",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "name": "react",
+  "productName": "Kaptn",
+  "private": true,
+  "version": "0.0.0",
+  "type": "commonjs",
+  "main": "main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "electron .",
+    "dev": "concurrently \"nodemon server/server.js\" \"vite dev\" --host 0.0.0.0",
+    "build": "vite build && npm run pack && node server/server.js",
+    "postinstall": "electron-builder install-app-deps",
+    "pack": "electron-builder -mwl",
+    "preview": "vite preview", 
+    "vite": "vite"
   },
-  "author": "",
-  "license": "ISC"
+  "dependencies": {
+    "@emotion/react": "^11.10.6",
+    "@emotion/styled": "^11.10.6",
+    "@fontsource/roboto": "^4.5.8",
+    "@kubernetes/client-node": "^0.18.1",
+    "@mui/icons-material": "^5.11.16",
+    "@mui/material": "^5.12.0",
+    "axios": "^1.3.5",
+    "bcryptjs": "^2.4.3",
+    "concurrently": "^8.0.1",
+    "express": "^4.18.2",
+    "mongoose": "^7.0.3",
+    "nodemon": "^2.0.22",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-pro-sidebar": "^1.0.0",
+    "react-router-dom": "^6.10.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.28",
+    "@types/react-dom": "^18.0.11",
+    "@vitejs/plugin-react": "^3.1.0",
+    "electron": "^24.0.0",
+    "electron-builder": "^23.6.0",
+    "https": "^1.0.0",
+    "vite": "^4.2.0"
+  }
 }
