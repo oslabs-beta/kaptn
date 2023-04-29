@@ -1,4 +1,4 @@
-const Users = require('../models/userModel');
+const Users = require('../models/UserModel');
 var qs = require('querystring');
 const bcrypt = require('bcryptjs');
 
