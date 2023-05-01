@@ -1,8 +1,7 @@
-// import * as express from 'express';
 import express, { Express, Request, Response } from 'express';
-import apiRouter from './routes/apiRouter.ts';
-import userRouter from './routes/userRouter.ts';
-import clusterRouter from './routes/clusterRouter.ts'
+import apiRouter from './routes/apiRouter';
+import userRouter from './routes/userRouter';
+import clusterRouter from './routes/clusterRouter'
 import mongoose from 'mongoose';
 import path from 'path';
 

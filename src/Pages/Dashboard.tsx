@@ -15,9 +15,10 @@ import Grid from '@mui/system/Unstable_Grid';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import ListItemText from '@mui/material/ListItemText';
 import Checkbox from '@mui/material/Checkbox';
-import SideNav from '../components/Sidebar';
+import SideNav from '../components/Sidebar.jsx';
 import CommandLine from '../components/CommandLine.jsx';
 import Terminal from '../components/Terminal.jsx';
+import SetupButtons from '../components/SetupButtons.jsx';
 
 // type DashboardState = {
 //   theme = {},
@@ -173,7 +174,6 @@ function Dashboard(): JSX.Element {
       >
         {/* ----------------SIDE BAR---------------- */}
         <SideNav spacing={2} />
-
         {/* ----------------MAIN CONTENT---------------- */}
         <Grid
           id='main-content'

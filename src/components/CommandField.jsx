@@ -20,7 +20,7 @@ const GroupItems = styled('ul')({
   webkitScrollbarColor: 'red yellow',
 });
 
-export default function CommandField() {
+function CommandField() {
   const options = commands.map((option) => {
     const firstLetter = commands[0].category;
     return {
@@ -49,6 +49,13 @@ export default function CommandField() {
         style={{
           webkitScrollbarColor: 'red yellow',
           backgroundColor: 'transparent',
+        }}
+        onInputChange={(e, newInputValue) => {
+          console.log('newInputValue is', newInputValue);
+          setVerb(newInputValue);
+          // const newCommand = verb + ' ' + type + ' ' + name;
+          // setCommand(newCommand);
+          // setCommand(newInputValue);
         }}
         renderInput={(params) => <TextField {...params} label='Commands' />}
         renderGroup={(params) => (
@@ -129,3 +136,5 @@ const commands = [
   { title: 'plugin', category: 'Other Commands' },
   { title: 'version', category: 'Other Commands' },
 ];
+
+export default CommandField;

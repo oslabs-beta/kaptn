@@ -3,7 +3,7 @@ import { createTheme } from '@mui/material/styles';
 
 
 // set up color scheme using tailwind shades extension
-export const tokens = (mode) => ({
+const tokens = (mode) => ({
   ...(mode === 'dark'
     ? {
         gray: {
@@ -139,7 +139,7 @@ export const tokens = (mode) => ({
 });
 
 // mui theme settings
-export const themeSettings = (mode) => {
+const themeSettings = (mode) => {
   const colors = tokens(mode);
 
   return {
@@ -212,11 +212,11 @@ export const themeSettings = (mode) => {
 
 // create a context so that we can have easy access to the condition of whether it's dark or light,
 // and allow us to provide the function that changes it
-export const ColorModeContext = createContext({
+const ColorModeContext = createContext({
   toggleColorMode: () => {},
 });
 
-export const useMode = () => {
+const useMode = () => {
   const [mode, setMode] = useState<'light' | 'dark'>('dark');
 
   const colorMode = useMemo(
@@ -231,3 +231,5 @@ export const useMode = () => {
 
   return [theme, colorMode] as const;
 };
+
+export { useMode, ColorModeContext, tokens }
