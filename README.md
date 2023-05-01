@@ -11,7 +11,7 @@ Kaptn is an educational open-source tool that unlocks the full power of kubernet
   - Ability to choose or create new image
 - Cluster metrics visualization
   - Kubernetes API server metrics
-  - More coming soon
+  - Connect with Grafana and Prometheus to monitor cluster health
 - Troubleshoot any confusion with our extensive kubectl glossary
 
 ## Getting Started
@@ -64,7 +64,7 @@ If you need additional information on kubectl commands, navigate to the glossary
 - John Choi [GitHub](https://github.com/jhwiwonc) | [LinkedIn](https://www.linkedin.com/in/hwi-won-choi-057081191/)
 - Natalie Cordoves [GitHub](https://github.com/ncordoves) | [LinkedIn](https://www.linkedin.com/in/natalie-cordoves)
 - Olivia Hodel [GitHub](https://github.com/ohodel) | [LinkedIn](https://www.linkedin.com/in/olivia-hodel/)
-- Yining Wang [GitHub](https://github.com/yiningcw) | [GitHub](https://www.linkedin.com/in/yining-wang-83b896108/)
+- Yining Wang [GitHub](https://github.com/yiningcw) | [LinkedIn](https://www.linkedin.com/in/yining-wang-83b896108/)
 
 
 
