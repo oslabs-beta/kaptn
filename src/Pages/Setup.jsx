@@ -93,6 +93,8 @@ function Setup() {
   const [response, setResponse] = useState([]);
   const [flags, setFlags] = useState('');
   const [editOpen, setEditOpen] = React.useState(false);
+  const [imgPath, setImgPath] = useState('NONE ENTERED');
+  const [imgField, setImgField] = useState('Enter .IMG');
 
   const options = commands.map((option) => {
     const firstLetter = commands[0].category;
@@ -104,6 +106,14 @@ function Setup() {
     };
   });
 
+  function keyPress(e) {
+    e.preventDefault();
+    console.log('value', e.target.value);
+    if (e.key === 'Enter') {
+      console.log('value', e.target.value);
+      setImgPath(e.target.value);
+    }
+  }
   // Set YAML edit box state
   const handleEditClose = () => {
     setEditOpen(false);
@@ -138,6 +148,17 @@ function Setup() {
     let absPath = path.join('');
     console.log('path is ', absPath);
     setCurrDir(absPath);
+  };
+
+  const handleImgUpload = (event) => {
+    console.log('handleImgUpload event is', event);
+    setImgPath(event.target.value);
+    setImgField('Image Entered');
+  };
+
+  const handleImgField = (e) => {
+    console.log('handleimgFIELD event is', e);
+    setImgField(e.target.value);
   };
 
   // Set the command state based on current inputs
@@ -269,7 +290,7 @@ function Setup() {
                   fontSize: '11.5px',
                 }}
               >
-                1. CREATE/CHOOSE IMAGE (?)
+                1. Import Image
               </div>
               <div
                 style={{
@@ -288,6 +309,17 @@ function Setup() {
                 }}
               ></div>
 
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  padding: '10px',
+                  fontSize: '9px',
+                }}
+              >
+                {imgPath}
+              </div>
               <Box
                 component='form'
                 sx={{
@@ -298,8 +330,51 @@ function Setup() {
               >
                 <TextField
                   id='outlined-basic'
-                  label='Enter .IMG Path'
+                  label='Enter .IMG'
+                  value={imgField}
                   variant='outlined'
+                  // onChange={handleImgField}
+                  onKeyDown={(ev) => {
+                    ev.preventDefault();
+                    console.log('ev key is', ev.key);
+                    if (imgField === 'Enter .IMG') {
+                      setImgField(ev.key);
+                    }
+                    // else if (ev.key === 'Enter') {
+                    //   // Do code here
+                    //   handleImgUpload(ev);
+                    // } else {
+                    //   console.log('imgFIeld is', imgField);
+
+                    //   console.log('imgPath is', imgPath);
+                    //   setImgField(imgField + ev.key);
+                    // }
+                    else {
+                      if (ev.key === 'Enter') {
+                        handleImgUpload(ev);
+                        setImgField(imgField);
+                      } else if (
+                        ev.key === 'Meta' ||
+                        ev.key === 'Alt' ||
+                        ev.key === 'Dead' ||
+                        ev.key === 'ArrowLeft' ||
+                        ev.key === 'ArrowUp' ||
+                        ev.key === 'ArrowDown' ||
+                        ev.key === 'ArrowRight' ||
+                        ev.key === ' ' ||
+                        ev.key === 'Shift'
+                      ) {
+                        console.log('ev key is:', ev.key);
+                        console.log('in meta alt dead if');
+                      } else if (ev.key === 'Backspace') {
+                        setImgField(imgField.slice(0, imgField.length - 1));
+                      } else {
+                        console.log('imgFIeld is', imgField);
+                        console.log('imgPath is', imgPath);
+                        setImgField(imgField + ev.key);
+                      }
+                    }
+                  }}
                 />
               </Box>
             </Box>
@@ -510,14 +585,29 @@ function Setup() {
             <Box
               style={{
                 paddingTop: '24px',
-                // paddingLeft: '15px',
+                paddingLeft: '15px',
                 fontSize: '16px',
                 display: 'flex',
                 alignItems: 'center',
+                justifyContent: 'center',
               }}
               width='100%'
             >
-              4. INPUT COMMANDS ---
+              <div
+                style={{
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}
+              >
+                <div
+                  style={{
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}
+                >
+                  4. INPUT COMMANDS ---
+                </div>
+              </div>
             </Box>
           </Grid>
 
@@ -529,6 +619,7 @@ function Setup() {
             container
             justifyContent='center'
             alignContent='space-between'
+            style={{ height: '615px', margin: '10px' }}
           >
             {/* ----------------TERMINAL---------------- */}
             <Terminal response={response} />

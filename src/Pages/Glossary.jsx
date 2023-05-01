@@ -21,7 +21,7 @@ const style = {
   borderRadius: '5px',
 };
 
-export default function Glossary() {
+function Glossary() {
   const [openCreate, setCreateOpen] = React.useState(false);
   const handleCreateOpen = () => setCreateOpen(true);
   const handleCreateClose = () => setCreateOpen(false);
@@ -1159,3 +1159,5 @@ export default function Glossary() {
     </>
   );
 }
+
+export default Glossary;

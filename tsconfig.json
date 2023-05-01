@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "target": "ES6",
+    "module": "commonjs",
+    "jsx": "react-jsx",
+    "esModuleInterop": true,
+    "lib": ["dom", "es2021"],
+    "allowJs": true,
+    "sourceMap": true,
+    "outDir": "./dist",
+    "strict": true,
+    "moduleResolution": "node",
+    "removeComments": true,
+    "noEmit": true,
+    "allowSyntheticDefaultImports": true,
+    "noImplicitAny": false,
+    "strictNullChecks": false,
+    "allowImportingTsExtensions": true
+  },
+  "include": ["src/**/*", "server/**/*", "global.d.ts"]
+}
