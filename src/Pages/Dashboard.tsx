@@ -55,7 +55,7 @@ function Dashboard(): JSX.Element {
       target: { value },
     } = event;
     setName(value);
-  }
+  };
 
   // Set current directory state
   const handleUploadDirectory = (event) => {
@@ -137,7 +137,7 @@ function Dashboard(): JSX.Element {
   };
 
   // Command list options
-  const commandList: {label: string, year: number}[] = [
+  const commandList: { label: string; year: number }[] = [
     { label: 'get', year: 1994 },
     { label: 'apply', year: 1972 },
     { label: 'create', year: 1974 },
@@ -146,7 +146,7 @@ function Dashboard(): JSX.Element {
   ];
 
   // Type options
-  const types: {label: string}[] = [
+  const types: { label: string }[] = [
     { label: 'node' },
     { label: 'nodes' },
     { label: 'pod' },
