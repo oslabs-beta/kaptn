@@ -18,7 +18,7 @@ import { Box, styled, lighten, darken } from '@mui/system';
 import Grid from '@mui/system/Unstable_Grid';
 import CommandLine from '../components/CommandLine.jsx';
 import Terminal from '../components/Terminal.jsx';
-import Sidebar from '../components/Sidebar';
+import Sidebar from '../components/Sidebar.jsx';
 // import CommandField from '../components/CommandField';
 
 const BeginnerHeader = styled('div')(({ theme }) => ({
@@ -84,17 +84,19 @@ const commands = [
 ];
 
 function Setup() {
-  const [verb, setVerb] = React.useState('');
-  const [type, setType] = React.useState('');
-  const [name, setName] = React.useState('');
-  const [currDir, setCurrDir] = React.useState('NONE SELECTED');
-  const [userInput, setUserInput] = React.useState('');
-  const [command, setCommand] = useState('');
-  const [response, setResponse] = useState([]);
-  const [flags, setFlags] = useState('');
-  const [editOpen, setEditOpen] = React.useState(false);
-  const [imgPath, setImgPath] = useState('NONE ENTERED');
-  const [imgField, setImgField] = useState('Enter .IMG');
+  const [verb, setVerb] = React.useState<string>('');
+  const [type, setType] = React.useState<string>('');
+  const [name, setName] = React.useState<string>('');
+  const [currDir, setCurrDir] = React.useState<string>('NONE SELECTED');
+  const [userInput, setUserInput] = React.useState<string>('');
+  const [command, setCommand] = useState<string>('');
+  const [response, setResponse] = useState<
+    Array<{ command: string; response: { [key: string]: string } }>
+  >([]);
+  const [editOpen, setEditOpen] = React.useState<boolean>(false);
+  const [imgPath, setImgPath] = useState<string>('NONE ENTERED');
+  const [imgField, setImgField] = useState<string>('Enter .IMG');
+  const [flags, setFlags] = useState<Array<string>>([]);
 
   const options = commands.map((option) => {
     const firstLetter = commands[0].category;
@@ -127,16 +129,20 @@ function Setup() {
 
   // Set flag list state
   const handleFlags = (event) => {
-    console.log('event is', event);
     const {
       target: { value },
     } = event;
-
-    console.log('handleflag target value is', value);
     setFlags(
       // On autofill we get a stringified value.
       typeof value === 'string' ? value.split(',') : value
     );
+  };
+
+  const handleNameChange = (event) => {
+    const {
+      target: { value },
+    } = event;
+    setName(value);
   };
 
   // Set current directory state
@@ -164,9 +170,13 @@ function Setup() {
   // Set the command state based on current inputs
   useEffect(() => {
     let newCommand = '';
-    if (verb !== '') newCommand += verb;
+    if (verb !== '') newCommand += ' ' + verb;
     if (type !== '') newCommand += ' ' + type;
     if (name !== '') newCommand += ' ' + name;
+    if (flags.length)
+      flags.forEach((flag) => {
+        newCommand += ' ' + flag;
+      });
     if (userInput !== '') newCommand += ' ' + userInput;
     setCommand(newCommand);
   });
@@ -185,7 +195,6 @@ function Setup() {
       return cliResponse;
     } catch (e) {
       console.log(e);
-      setError(true);
     }
   };
 
@@ -234,7 +243,7 @@ function Setup() {
       <Grid
         id='setup-page'
         container
-        disableEqualOverflow='true'
+        disableEqualOverflow
         width={'100vw'}
         height={'95vh'}
         sx={{ pt: 3, pb: 3 }}
@@ -436,6 +445,7 @@ function Setup() {
                 CHOOSE DIRECTORY
                 <input
                   type='file'
+                  // @ts-expect-error
                   directory=''
                   webkitdirectory=''
                   hidden
@@ -475,17 +485,6 @@ function Setup() {
                   height: '1px',
                 }}
               />
-              <div
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  padding: '10px',
-                  fontSize: '9px',
-                }}
-              >
-                {currDir}
-              </div>
 
               <Button
                 onClick={handleEditOpen}
@@ -501,7 +500,7 @@ function Setup() {
                   fontSize: '12px',
                 }}
               >
-                CREATE .YAML FILE
+                Configure .YAML FILE
               </Button>
               <Backdrop
                 style={{
@@ -679,7 +678,6 @@ function Setup() {
                   renderGroup={(params) => (
                     <li
                       style={{
-                        WebkitScrollbarColor: 'red yellow',
                         color: '#ffffff',
                         fontSize: '13px',
                       }}
@@ -687,7 +685,6 @@ function Setup() {
                     >
                       <BeginnerHeader
                         style={{
-                          webkitScrollbarColor: 'red yellow',
                           color: '#ffffff',
                           fontSize: '14px',
                         }}
@@ -696,7 +693,6 @@ function Setup() {
                       </BeginnerHeader>
                       <GroupItems
                         style={{
-                          webkitScrollbarColor: 'red yellow',
                           color: '#ffffff',
                           fontSize: '14px',
                         }}
@@ -720,42 +716,35 @@ function Setup() {
                   )}
                 />
               </Grid>
-              <Grid id='name' xs={3}>
+              <Grid id='name' xs={2}>
                 <form
-                  onChange={(e) => {
-                    setName(e.target.value);
-                    console.log(name);
-                  }}
+                  onChange={handleNameChange}
                   onSubmit={(e) => {
                     e.preventDefault();
                   }}
-                  value={name}
                 >
                   <TextField
                     id='outlined-basic'
                     label='Name'
                     variant='outlined'
-                    fullWidth='true'
                   />
                 </form>
               </Grid>
               <Grid id='flag' xs={3}>
-                <FormControl>
-                  <InputLabel id='demo-multiple-checkbox-label'>
-                    Flags (optional)
-                  </InputLabel>
+                <FormControl fullWidth>
+                  <InputLabel id='flag-label'>Flags</InputLabel>
                   <Select
-                    labelId='demo-multiple-checkbox-label'
-                    id='demo-multiple-checkbox'
+                    labelId='flag-label'
+                    id='flag-label'
                     multiple
-                    value={flagList}
+                    value={flags}
                     onChange={handleFlags}
-                    input={<OutlinedInput label='Flags (optional)' />}
+                    input={<OutlinedInput label='Flags' />}
                     renderValue={(selected) => selected.join(', ')}
                   >
                     {flagList.map((name) => (
                       <MenuItem key={name} value={name}>
-                        <Checkbox unchecked={flagList} />
+                        <Checkbox checked={flags.indexOf(name) > -1} />
                         <ListItemText primary={name} />
                       </MenuItem>
                     ))}

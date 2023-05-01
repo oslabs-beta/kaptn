@@ -1,7 +1,7 @@
 import express, { Express, Request, Response } from 'express';
 import apiRouter from './routes/apiRouter';
 import userRouter from './routes/userRouter';
-import clusterRouter from './routes/clusterRouter'
+import clusterRouter from './routes/clusterRouter';
 import mongoose from 'mongoose';
 import path from 'path';
 
@@ -41,15 +41,15 @@ app.use((req: express.Request, res: express.Response) => {
 
 //creates type for error handler
 type ErrHndl = {
-  log: string,
-  status: number,
+  log: string;
+  status: number;
   message: {
-    err: string,
-  }
+    err: string;
+  };
 };
 
 // Handle errors
-app.use((err: string, req: express.Request, res: express.Response) => {
+app.use((err: ErrHndl, req: express.Request, res: express.Response) => {
   const defaultErr: ErrHndl = {
     log: 'Express error handler caught unknown middleware error',
     status: 500,
@@ -59,7 +59,7 @@ app.use((err: string, req: express.Request, res: express.Response) => {
   return res.status(errorObj.status).json(errorObj.message);
 });
 
-console.log(PORT)
+console.log(PORT);
 
 app.listen(PORT, () => console.log(`Listening on port ${PORT}`));
 
