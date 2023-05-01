@@ -217,7 +217,7 @@ const ColorModeContext = createContext({
 });
 
 const useMode = () => {
-  const [mode, setMode] = useState('dark');
+  const [mode, setMode] = useState<'light' | 'dark'>('dark');
 
   const colorMode = useMemo(
     () => ({
@@ -229,7 +229,7 @@ const useMode = () => {
   // create the theme from material UI and passing mode into our theme setting
   const theme = useMemo(() => createTheme(themeSettings(mode)), [mode]);
 
-  return [theme, colorMode];
+  return [theme, colorMode] as const;
 };
 
 export { useMode, ColorModeContext, tokens }

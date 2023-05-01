@@ -3,7 +3,8 @@ import Button from '@mui/material/Button';
 import { Box } from '@mui/system';
 import { TextField } from '@mui/material';
 import { Typography } from '@mui/material';
-import { useMode } from '../theme';
+import { ColorModeContext, useMode } from '../theme.ts';
+import { CssBaseline, ThemeProvider } from '@mui/material';
 import Grid from '@mui/system/Unstable_Grid';
 
 function Login() {
@@ -106,11 +107,9 @@ function Login() {
                 label='Username'
                 fullWidth
                 username={username}
-                sx={
-                  {
-                    mb: 3,
-                  }
-                }
+                sx={{
+                  mb: 3,
+                }}
                 onChange={(e) => {
                   setInputUsername(e.target.value);
                 }}
@@ -135,7 +134,7 @@ function Login() {
               variant='contained'
               type='submit'
               fullWidth
-              size="large"
+              size='large'
               sx={{
                 display: 'flex',
                 border: '1px solid #68617f',
@@ -153,48 +152,54 @@ function Login() {
               Login
             </Button>
             <Typography variant='body1'>Don't have an account?</Typography>
-            <Grid id='sign-up' container justifyContent='center' alignItems='center' flexDirection='column'>
-            <Button
-              variant='contained'
-              type='submit'
-              href='/signup'
-              size="small"
-              sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                border: '1px solid #68617f',
-                letterSpacing: '1.5px',
-                backgroundColor: '#22145a',
-                mt: 2,
-                ':hover': {
-                  backgroundColor: 'rgb(16,10,54)',
-                },
-              }}
+            <Grid
+              id='sign-up'
+              container
+              justifyContent='center'
+              alignItems='center'
+              flexDirection='column'
             >
-              Sign Up
-            </Button>
-            <Button
-              variant='contained'
-              type='submit'
-              href='/dashboard'
-              size="small"
-              sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                border: '1px solid #68617f',
-                letterSpacing: '1.5px',
-                backgroundColor: '#22145a',
-                mt: 2,
-                mb: 3,
-                ':hover': {
-                  backgroundColor: 'rgb(16,10,54)',
-                },
-              }}
-            >
-              Continue as guest
-            </Button>
+              <Button
+                variant='contained'
+                type='submit'
+                href='/signup'
+                size='small'
+                sx={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  border: '1px solid #68617f',
+                  letterSpacing: '1.5px',
+                  backgroundColor: '#22145a',
+                  mt: 2,
+                  ':hover': {
+                    backgroundColor: 'rgb(16,10,54)',
+                  },
+                }}
+              >
+                Sign Up
+              </Button>
+              <Button
+                variant='contained'
+                type='submit'
+                href='/dashboard'
+                size='small'
+                sx={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  border: '1px solid #68617f',
+                  letterSpacing: '1.5px',
+                  backgroundColor: '#22145a',
+                  mt: 2,
+                  mb: 3,
+                  ':hover': {
+                    backgroundColor: 'rgb(16,10,54)',
+                  },
+                }}
+              >
+                Continue as guest
+              </Button>
             </Grid>
             <Typography variant='caption'>Copyright © Kaptn 2023. </Typography>
           </Box>

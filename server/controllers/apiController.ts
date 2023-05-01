@@ -1,12 +1,14 @@
-const apiController = {};
-const { exec } = require('child_process');
+import { exec } from 'child_process';
+import * as express from 'express';
 
-apiController.postCommand = (req, res, next) => {
+const apiController: { [key: string]: any } = {};
+
+apiController.postCommand = (req: express.Request, res: express.Response, next: express.NextFunction) => {
   const { command, currDir } = req.body;
   console.log(currDir);
   // Exec is a child process in node that asynchronously creates a shell and executes the provided command
   // More info: https://nodejs.org/api/child_process.html#child_process_child_process_exec_command_options_callback
-  exec(` ${command}`, { cwd: currDir }, (err, stdout, stderr) => {
+  exec(` ${command}`, { cwd: currDir }, (err: Error | null, stdout: string, stderr: string) => {
     // Handle failed command execution
     if (err) {
       return next({
@@ -30,4 +32,4 @@ apiController.postCommand = (req, res, next) => {
   });
 };
 
-module.exports = apiController;
+export default apiController;

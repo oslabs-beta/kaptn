@@ -1,20 +1,16 @@
-import {
-  Sidebar,
-  Menu,
-  MenuItem,
-} from 'react-pro-sidebar';
+import { Sidebar, Menu, MenuItem } from 'react-pro-sidebar';
 import React from 'react';
 import { useState, useContext } from 'react';
 import { Box, IconButton, Typography, useTheme } from '@mui/material';
 import { Link } from 'react-router-dom';
-import { tokens } from '../theme';
+import { tokens } from '../theme.ts';
 import LightModeIcon from '@mui/icons-material/LightMode';
 import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined';
 import ExitToAppOutlinedIcon from '@mui/icons-material/ExitToAppOutlined';
 import { AutoFixHigh, MenuBook } from '@mui/icons-material';
 import { BarChart } from '@mui/icons-material';
 import Grid from '@mui/system/Unstable_Grid';
-import { ColorModeContext } from '../theme';
+import { ColorModeContext } from '../theme.ts';
 import DarkModeOutlinedIcon from '@mui/icons-material/DarkModeOutlined';
 
 const Item = ({ title, to, icon, selected, setSlected }) => {
@@ -35,7 +31,7 @@ const Item = ({ title, to, icon, selected, setSlected }) => {
 
 function SideNav(props) {
   const theme = useTheme();
-  const colorMode = useContext(ColorModeContext)
+  const colorMode = useContext(ColorModeContext);
   const colors = tokens(theme.palette.mode);
 
   const [isCollapsed, setIsCollapsed] = useState(false);

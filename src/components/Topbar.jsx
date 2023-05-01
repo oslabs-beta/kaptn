@@ -45,8 +45,7 @@ function Topbar() {
         height='35px'
         marginBottom='5px'
         xs={2}
-      >
-      </Grid>
+      ></Grid>
     </Grid>
   );
 }
