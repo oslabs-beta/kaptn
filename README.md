@@ -1,3 +1,5 @@
+![Untitled (1000 × 300 px)](https://user-images.githubusercontent.com/106838422/235515939-0ba0157d-9c34-4fd4-ab7d-23dddbc082b3.png)
+
 # kaptn
 
 Kaptn is an educational open-source tool that unlocks the full power of kubernetes command line kubectl, and helps ease the learning curve of setting up and monitoring Kubernetes clusters. Kaptn consists of a terminal equipped with useful command line pointers, an easy set-up component for YAML set up, and grafana dashboards that monitors various aspects of your Kubernetes cluster. 
