@@ -10,7 +10,7 @@
     "dev": "concurrently \"nodemon server/server.js\" \"vite dev\" --host 0.0.0.0",
     "build": "vite build && npm run pack && node server/server.js",
     "postinstall": "electron-builder install-app-deps",
-    "pack": "electron-builder -mwl",
+    "pack": "electron-builder -mw",
     "preview": "vite preview", 
     "vite": "vite"
   },

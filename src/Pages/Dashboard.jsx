@@ -19,6 +19,7 @@ import SideNav from '../components/Sidebar.jsx';
 import CommandLine from '../components/CommandLine.jsx';
 import Terminal from '../components/Terminal.jsx';
 import SetupButtons from '../components/SetupButtons.jsx';
+const { ipcRenderer } = require('electron');
 
 function Dashboard() {
   const [verb, setVerb] = useState('');
@@ -57,6 +58,15 @@ function Dashboard() {
 
   // Set the command state based on current inputs
   useEffect(() => {
+    ipcRenderer.on('post_command', (event, arg) => {
+      console.log('response: ', arg);
+      const newResponseState = [
+        ...response,
+        { command: command, response: arg },
+      ];
+      setResponse(newResponseState);
+    });
+
     let newCommand = '';
     if (tool !== '') newCommand += tool;
     if (verb !== '') newCommand += ' ' + verb;
@@ -65,6 +75,11 @@ function Dashboard() {
     if (userInput !== '') newCommand += ' ' + userInput;
     setCommand(newCommand);
   });
+
+  const postCommandIPC = (command) => {
+    console.log('in postCommandIPC');
+    ipcRenderer.send('post_command', { command: command });
+  };
 
   // Post the command to the server
   const postCommand = async (command, currDir) => {
@@ -87,27 +102,29 @@ function Dashboard() {
   // Handle the command input submit event
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('enter button clicked');
-    if (currDir === 'NONE SELECTED')
-      return alert('Please choose working directory');
+    // console.log('enter button clicked');
+    // if (currDir === 'NONE SELECTED')
+    //   return alert('Please choose working directory');
     console.log('command ', command);
 
-    const getCliResponse = async () => {
-      const cliResponse = await postCommand(command, currDir);
-      // Filter for errors
-      if (cliResponse.err) alert('Invalid command. Please try again');
-      // Update response state with the returned CLI response
-      else {
-        const newResponseState = [
-          ...response,
-          { command: command, response: cliResponse },
-        ];
-        setResponse(newResponseState);
-      }
-    };
+    postCommandIPC(command);
 
-    // Invoke a fetch request to the server
-    getCliResponse();
+    // const getCliResponse = async () => {
+    //   const cliResponse = await postCommand(command, currDir);
+    //   // Filter for errors
+    //   if (cliResponse.err) alert('Invalid command. Please try again');
+    //   // Update response state with the returned CLI response
+    //   else {
+    //     const newResponseState = [
+    //       ...response,
+    //       { command: command, response: cliResponse },
+    //     ];
+    //     setResponse(newResponseState);
+    //   }
+    // };
+
+    // // Invoke a fetch request to the server
+    // getCliResponse();
   };
 
   // Clear the input box
