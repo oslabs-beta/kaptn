@@ -1,6 +1,5 @@
 const path = require('path');
 const { app, BrowserWindow, ipcMain, ipcRenderer } = require('electron');
-const iconURL = './src/assets/kaptn.ico';
 const electronBrowserWindow = require('electron').BrowserWindow;
 const electronIpcMain = require('electron').ipcMain;
 const nodePath = require('path');
@@ -23,49 +22,38 @@ function createMainWindow() {
   });
 
   if (isDev) {
-    mainWindow.loadURL('http://localhost:4444#/');
+    mainWindow.loadURL('http://localhost:4444/');
+    mainWindow.webContents.openDevTools();
   } else {
-    mainWindow.loadURL(`file://${path.join(__dirname, '/dist/index.html#/')}`)
+    // In production, render the html build file
+    mainWindow.loadURL(`file://${path.join(__dirname, '/dist/index.html#/')}`);
   }
-  // mainWindow.loadFile(path.join(app.getAppPath(), 'dist/index.html'));
-  // mainWindow.loadURL('http://localhost:4444/');
-  // mainWindow.webContents.openDevTools();
 }
 
-electronIpcMain.on('runScript', () => {
-  exec(`ls`, (err, stdout, stderr) => {
-    // Handle failed command execution
-    if (err) {
-      return err;
-    }
-    // Handle successful command execution but returned error (stderr)
-    if (stderr) {
-      return err;
-    }
-    // Handle successful command execution with no errors
-    console.log(`Response: `, stdout);
-    return stdout;
-  });
-});
+/******** EVENT LISTENERS ********/
 
-app.whenReady().then(() => {
-  createMainWindow();
-});
-
+// Listen to post_command event
 ipcMain.on('post_command', (event, arg) => {
-  const { command } = arg;
-  console.log(command);
-  exec(` ${command}`, (err, stdout, stderr) => {
+  const { command, currDir } = arg;
+
+  exec(` ${command}`, { cwd: currDir }, (err, stdout, stderr) => {
     // Handle failed command execution
     if (err) {
       console.log('err', err);
+      return err;
     }
     // Handle successful command execution but returned error (stderr)
     if (stderr) {
       console.log('stderr', stderr);
+      return event.sender.send('post_command', stderr);
     }
     // Handle successful command execution with no errors
     console.log(`Response: `, stdout);
-    event.sender.send('post_command', stdout);
+    return event.sender.send('post_command', stdout);
   });
+});
+
+// Load the main window
+app.whenReady().then(() => {
+  createMainWindow();
 });

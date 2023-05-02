@@ -24,7 +24,7 @@ mongoose.connection.once('open', (): void => {
 app.use(express.json());
 
 // Handle routes to /api
-app.use('/api', apiRouter);
+// app.use('/api', apiRouter);
 
 // Handle routes to /user
 app.use('/user', userRouter);
