@@ -6,6 +6,8 @@ const electronIpcMain = require('electron').ipcMain;
 const nodePath = require('path');
 const { exec } = require('child_process');
 
+const isDev = process.env.NODE_ENV === 'development';
+
 function createMainWindow() {
   const mainWindow = new BrowserWindow({
     title: 'Kaptn',
@@ -14,20 +16,19 @@ function createMainWindow() {
     height: 700,
     minWidth: 900,
     minHeight: 600,
-    // icon: path.join(__dirname, '/kaptn.ico'),
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
     },
   });
 
-  // if (isDev) {
-  //   mainWindow.loadURL('http://localhost:4444/');
-  // } else {
-  //   mainWindow.loadFile(path.join(__dirname, '/build/index.html'))
-  // }
+  if (isDev) {
+    mainWindow.loadURL('http://localhost:4444#/');
+  } else {
+    mainWindow.loadURL(`file://${path.join(__dirname, '/dist/index.html#/')}`)
+  }
   // mainWindow.loadFile(path.join(app.getAppPath(), 'dist/index.html'));
-  mainWindow.loadURL('http://localhost:4444/');
+  // mainWindow.loadURL('http://localhost:4444/');
   // mainWindow.webContents.openDevTools();
 }
 

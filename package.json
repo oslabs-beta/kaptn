@@ -6,11 +6,11 @@
   "type": "commonjs",
   "main": "main.js",
   "scripts": {
-    "start": "electron .",
-    "dev": "concurrently \"nodemon server/server.js\" \"vite dev\" --host 0.0.0.0",
+    "start": "NODE_ENV='development' electron .",
+    "dev": "concurrently \"NODE_ENV='development' nodemon server/server.js\" \"NODE_ENV='development' vite dev\" --host 0.0.0.0",
     "build": "vite build && npm run pack && node server/server.js",
     "postinstall": "electron-builder install-app-deps",
-    "pack": "electron-builder -mw",
+    "pack": "electron-builder -m",
     "preview": "vite preview", 
     "vite": "vite"
   },
