@@ -21,25 +21,20 @@ import Terminal from '../components/Terminal.jsx';
 import SetupButtons from '../components/SetupButtons.jsx';
 const { ipcRenderer } = require('electron');
 
-// type DashboardState = {
-//   theme = {},
-//   value = {},
-// };
+function Dashboard() {
+  const [verb, setVerb] = useState('');
+  const [type, setType] = useState('');
+  const [name, setName] = useState('');
+  const [currDir, setCurrDir] = useState('NONE SELECTED');
+  const [userInput, setUserInput] = useState('');
+  const [command, setCommand] = useState('');
+  const [tool, setTool] = useState('');
+  const [response, setResponse] = useState([]);
 
-function Dashboard(): JSX.Element {
-  const [verb, setVerb] = useState<string>('');
-  const [type, setType] = useState<string>('');
-  const [name, setName] = useState<string>('');
-  const [currDir, setCurrDir] = useState<string>('NONE SELECTED');
-  const [userInput, setUserInput] = useState<string>('');
-  const [command, setCommand] = useState<string>('');
-  const [tool, setTool] = useState<string>('');
-  const [response, setResponse] = useState<
-    Array<{ command: string; response: { [key: string]: string } }>
-  >([]);
-  const [flags, setFlags] = useState<Array<string>>([]);
+  // Flag list options
+  const flagList = ['-o wide', '--force'];
 
-  // Set flag list state on change
+  // Set flag list state
   const handleFlags = (event) => {
     const {
       target: { value },
@@ -48,14 +43,6 @@ function Dashboard(): JSX.Element {
       // On autofill we get a stringified value.
       typeof value === 'string' ? value.split(',') : value
     );
-  };
-
-  // Set name state on change
-  const handleNameChange = (event) => {
-    const {
-      target: { value },
-    } = event;
-    setName(value);
   };
 
   // Set current directory state
@@ -85,10 +72,6 @@ function Dashboard(): JSX.Element {
     if (verb !== '') newCommand += ' ' + verb;
     if (type !== '') newCommand += ' ' + type;
     if (name !== '') newCommand += ' ' + name;
-    if (flags.length)
-      flags.forEach((flag) => {
-        newCommand += ' ' + flag;
-      });
     if (userInput !== '') newCommand += ' ' + userInput;
     setCommand(newCommand);
   });
@@ -112,6 +95,7 @@ function Dashboard(): JSX.Element {
       return cliResponse;
     } catch (e) {
       console.log(e);
+      setError(true);
     }
   };
 
@@ -151,7 +135,7 @@ function Dashboard(): JSX.Element {
   };
 
   // Command list options
-  const commandList: { label: string; year: number }[] = [
+  const commandList = [
     { label: 'get', year: 1994 },
     { label: 'apply', year: 1972 },
     { label: 'create', year: 1974 },
@@ -160,7 +144,7 @@ function Dashboard(): JSX.Element {
   ];
 
   // Type options
-  const types: { label: string }[] = [
+  const types = [
     { label: 'node' },
     { label: 'nodes' },
     { label: 'pod' },
@@ -173,15 +157,12 @@ function Dashboard(): JSX.Element {
     { label: 'services' },
   ];
 
-  // Flag list options
-  const flagList: string[] = ['-o wide', '--force'];
-
   return (
     <>
       <Grid
         id='dashboard'
         container
-        disableEqualOverflow
+        disableEqualOverflow='true'
         width={'100vw'}
         height={'95vh'}
         sx={{ pt: 3, pb: 3 }}
@@ -195,7 +176,7 @@ function Dashboard(): JSX.Element {
           height='95%'
           xs={10}
           // spacing={1}
-          disableEqualOverflow
+          disableEqualOverflow='true'
           container
           direction='column'
           wrap='nowrap'
@@ -248,7 +229,7 @@ function Dashboard(): JSX.Element {
                   CHOOSE DIRECTORY
                   <input
                     type='file'
-                    // @ts-expect-error
+                    directory=''
                     webkitdirectory=''
                     hidden
                     onChange={handleUploadDirectory}
@@ -307,10 +288,14 @@ function Dashboard(): JSX.Element {
               </Grid>
               <Grid id='name' xs={2}>
                 <form
-                  onChange={handleNameChange}
+                  onChange={(e) => {
+                    setName(e.target.value);
+                    console.log(name);
+                  }}
                   onSubmit={(e) => {
                     e.preventDefault();
                   }}
+                  value={name}
                 >
                   <TextField
                     id='outlined-basic'
@@ -320,20 +305,22 @@ function Dashboard(): JSX.Element {
                 </form>
               </Grid>
               <Grid id='flag' xs={2}>
-                <FormControl fullWidth>
-                  <InputLabel id='flag-label'>Flags</InputLabel>
+                <FormControl>
+                  <InputLabel id='demo-multiple-checkbox-label'>
+                    Flags (optional)
+                  </InputLabel>
                   <Select
-                    labelId='flag-label'
-                    id='flag-label'
+                    labelId='demo-multiple-checkbox-label'
+                    id='demo-multiple-checkbox'
                     multiple
-                    value={flags}
+                    value={flagList}
                     onChange={handleFlags}
-                    input={<OutlinedInput label='Flags' />}
+                    input={<OutlinedInput label='Flags (optional)' />}
                     renderValue={(selected) => selected.join(', ')}
                   >
                     {flagList.map((name) => (
                       <MenuItem key={name} value={name}>
-                        <Checkbox checked={flags.indexOf(name) > -1} />
+                        <Checkbox checked={flagList.indexOf(name) > -1} />
                         <ListItemText primary={name} />
                       </MenuItem>
                     ))}

@@ -1,8 +1,15 @@
 import Signup from './pages/Signup.jsx';
 import Login from './pages/Login.jsx';
 import Cluster from './pages/Cluster.jsx';
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import Dashboard from './pages/Dashboard.tsx';
+import {
+  createHashRouter,
+  RouterProvider,
+  BrowserRouter,
+  HashRouter,
+  Route,
+  Routes,
+} from 'react-router-dom';
+import Dashboard from './pages/Dashboard.jsx';
 import Topbar from './components/Topbar.jsx';
 import SideNav from './components/Sidebar.jsx';
 import Setup from './pages/Setup.tsx';
@@ -10,32 +17,30 @@ import Glossary from './pages/Glossary.jsx';
 import { ColorModeContext, useMode } from './theme.js';
 import { CssBaseline, ThemeProvider } from '@mui/material';
 
-const routes = createBrowserRouter([
-  {
-    path: '/signup',
-    element: <Signup />,
-  },
-  {
-    path: '/',
-    element: <Login />,
-  },
-  {
-    path: '/dashboard',
-    element: <Dashboard />,
-  },
-  {
-    path: '/setup',
-    element: <Setup />,
-  },
-  {
-    path: '/glossary',
-    element: <Glossary />,
-  },
-  {
-    path: '/cluster',
-    element: <Cluster />,
-  },
-]);
+// const routes = createHashRouter([
+//   {
+//     path: '/',
+//     element: <Login />,
+//     children: [
+//       {
+//         path: 'signup',
+//         element: <Signup />,
+//       },
+//       {
+//         path: 'dashboard',
+//         element: <Dashboard />,
+//       },
+//       {
+//         path: 'glossary',
+//         element: <Glossary />,
+//       },
+//       {
+//         path: 'cluster',
+//         element: <Cluster />,
+//       },
+//     ],
+//   },
+// ]);
 
 function App() {
   const [theme, colorMode] = useMode();
@@ -48,7 +53,15 @@ function App() {
           <Topbar />
           {/* <SideNav /> */}
           <main className='content'>
-            <RouterProvider router={routes} />
+            <HashRouter>
+              <Routes>
+                <Route path='/' exact element={<Login />} />
+                <Route path='/signup' element={<Signup />} />
+                <Route path='/dashboard' element={<Dashboard />} />
+                <Route path='/glossary' element={<Glossary />} />
+                <Route path='/cluster' element={<Cluster />} />
+              </Routes>
+            </HashRouter>
           </main>
         </div>
       </ThemeProvider>

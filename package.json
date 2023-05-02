@@ -5,13 +5,12 @@
   "version": "0.0.0",
   "main": "main.js",
   "scripts": {
-    "start": "electron .",
-    "dev": "concurrently \"nodemon server/server.ts\" \"vite dev\" --host 0.0.0.0",
-    "watch": "npx tsc -w",
-    "build": "vite build && npm run pack",
+    "start": "NODE_ENV='development' electron .",
+    "dev": "concurrently \"NODE_ENV='development' nodemon server/server.js\" \"NODE_ENV='development' vite dev\" --host 0.0.0.0",
+    "build": "vite build && npm run pack && node server/server.js",
     "postinstall": "electron-builder install-app-deps",
-    "pack": "electron-builder -mwl",
-    "preview": "vite preview",
+    "pack": "electron-builder -m",
+    "preview": "vite preview", 
     "vite": "vite"
   },
   "dependencies": {
