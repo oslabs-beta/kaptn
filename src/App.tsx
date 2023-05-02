@@ -21,7 +21,7 @@ function App() {
             <Topbar />
             <main className='content'>
               <Routes>
-                <Route path='/' exact element={<Login />} />
+                <Route path='/' element={<Login />} />
                 <Route path='/signup' element={<Signup />} />
                 <Route path='/dashboard' element={<Dashboard />} />
                 <Route path='/setup' element={<Setup />} />

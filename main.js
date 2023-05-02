@@ -39,16 +39,13 @@ ipcMain.on('post_command', (event, arg) => {
   exec(` ${command}`, { cwd: currDir }, (err, stdout, stderr) => {
     // Handle failed command execution
     if (err) {
-      console.log('err', err);
       return err;
     }
     // Handle successful command execution but returned error (stderr)
     if (stderr) {
-      console.log('stderr', stderr);
       return event.sender.send('post_command', stderr);
     }
     // Handle successful command execution with no errors
-    console.log(`Response: `, stdout);
     return event.sender.send('post_command', stdout);
   });
 });
