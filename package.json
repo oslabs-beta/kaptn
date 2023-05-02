@@ -2,15 +2,15 @@
   "name": "react",
   "productName": "Kaptn",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "main": "main.js",
   "scripts": {
     "start": "NODE_ENV='development' electron .",
     "dev": "concurrently \"NODE_ENV='development' nodemon server/server.js\" \"NODE_ENV='development' vite dev\" --host 0.0.0.0",
-    "build": "vite build && npm run pack && node server/server.js",
+    "build": "vite build && npm run pack",
     "postinstall": "electron-builder install-app-deps",
-    "pack": "electron-builder -m",
-    "preview": "vite preview", 
+    "pack": "electron-builder -mwl",
+    "preview": "vite preview",
     "vite": "vite"
   },
   "dependencies": {

@@ -20,6 +20,9 @@ import CommandLine from '../components/CommandLine.jsx';
 import Terminal from '../components/Terminal.jsx';
 import Sidebar from '../components/Sidebar.jsx';
 // import CommandField from '../components/CommandField';
+const { ipcRenderer } = require('electron');
+
+const step4 = `4. INPUT COMMANDS --->`;
 
 const BeginnerHeader = styled('div')(({ theme }) => ({
   position: 'sticky',
@@ -35,7 +38,6 @@ const GroupItems = styled('ul')({
   padding: 0,
   color: '#ffffff',
   backgroundColor: '#5c4d9a',
-  webkitScrollbarColor: 'red yellow',
 });
 
 const commands = [
@@ -169,6 +171,14 @@ function Setup() {
 
   // Set the command state based on current inputs
   useEffect(() => {
+    ipcRenderer.on('post_command', (event, arg) => {
+      const newResponseState = [
+        ...response,
+        { command: command, response: arg },
+      ];
+      setResponse(newResponseState);
+    });
+
     let newCommand = '';
     if (verb !== '') newCommand += ' ' + verb;
     if (type !== '') newCommand += ' ' + type;
@@ -181,47 +191,13 @@ function Setup() {
     setCommand(newCommand);
   });
 
-  // Post the command to the server
-  const postCommand = async (command, currDir) => {
-    console.log('currDir', currDir);
-    try {
-      const response = await fetch('/api', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ command: command, currDir: currDir }),
-      });
-      const cliResponse = await response.json();
-      console.log('the server responded: ', cliResponse);
-      return cliResponse;
-    } catch (e) {
-      console.log(e);
-    }
-  };
-
   // Handle the command input submit event
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('enter button clicked');
     if (currDir === 'NONE SELECTED')
       return alert('Please choose working directory');
-    console.log('command ', command);
 
-    const getCliResponse = async () => {
-      const cliResponse = await postCommand(command, currDir);
-      // Filter for errors
-      if (cliResponse.err) alert('Invalid command. Please try again');
-      // Update response state with the returned CLI response
-      else {
-        const newResponseState = [
-          ...response,
-          { command: command, response: cliResponse },
-        ];
-        setResponse(newResponseState);
-      }
-    };
-
-    // Invoke a fetch request to the server
-    getCliResponse();
+    ipcRenderer.send('post_command', { command, currDir });
   };
 
   // Type options
@@ -604,7 +580,7 @@ function Setup() {
                     alignItems: 'center',
                   }}
                 >
-                  4. INPUT COMMANDS ---
+                  {step4}
                 </div>
               </div>
             </Box>
@@ -641,7 +617,6 @@ function Setup() {
               <CommandLine
                 width='100%'
                 handleSubmit={handleSubmit}
-                postCommand={postCommand}
                 setUserInput={setUserInput}
                 userInput={userInput}
                 command={command}

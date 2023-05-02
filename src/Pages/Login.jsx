@@ -73,7 +73,7 @@ function Login() {
         height={'95vh'}
       >
         <Box
-          src='../../build/icon.ico'
+          src='./kaptn4ico.png'
           sx={{
             height: '200px',
             width: '200px',

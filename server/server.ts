@@ -1,5 +1,4 @@
 import express, { Express, Request, Response } from 'express';
-import apiRouter from './routes/apiRouter';
 import userRouter from './routes/userRouter';
 import clusterRouter from './routes/clusterRouter';
 import mongoose from 'mongoose';
@@ -22,9 +21,6 @@ mongoose.connection.once('open', (): void => {
 
 // Add body parser
 app.use(express.json());
-
-// Handle routes to /api
-// app.use('/api', apiRouter);
 
 // Handle routes to /user
 app.use('/user', userRouter);

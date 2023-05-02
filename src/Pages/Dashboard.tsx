@@ -18,11 +18,6 @@ import CommandLine from '../components/CommandLine.jsx';
 import Terminal from '../components/Terminal.jsx';
 const { ipcRenderer } = require('electron');
 
-// type DashboardState = {
-//   theme = {},
-//   value = {},
-// };
-
 function Dashboard(): JSX.Element {
   const [verb, setVerb] = useState<string>('');
   const [type, setType] = useState<string>('');
@@ -68,6 +63,7 @@ function Dashboard(): JSX.Element {
   // Set the command state based on current inputs
   useEffect(() => {
     ipcRenderer.on('post_command', (event, arg) => {
+      console.log(arg);
       const newResponseState = [
         ...response,
         { command: command, response: arg },
@@ -88,17 +84,13 @@ function Dashboard(): JSX.Element {
     setCommand(newCommand);
   });
 
-  const postCommandIPC = (command, currDir) => {
-    ipcRenderer.send('post_command', { command, currDir });
-  };
-
   // Handle the command input submit event
   const handleSubmit = (e) => {
     e.preventDefault();
     if (currDir === 'NONE SELECTED')
       return alert('Please choose working directory');
 
-    postCommandIPC(command, currDir);
+    ipcRenderer.send('post_command', { command, currDir });
   };
 
   // Clear the input box
@@ -108,12 +100,12 @@ function Dashboard(): JSX.Element {
   };
 
   // Command list options
-  const commandList: { label: string; year: number }[] = [
-    { label: 'get', year: 1994 },
-    { label: 'apply', year: 1972 },
-    { label: 'create', year: 1974 },
-    { label: 'patch', year: 1974 },
-    { label: 'logs', year: 1974 },
+  const commandList: { label: string }[] = [
+    { label: 'get' },
+    { label: 'apply' },
+    { label: 'create' },
+    { label: 'patch' },
+    { label: 'logs' },
   ];
 
   // Type options
@@ -131,7 +123,7 @@ function Dashboard(): JSX.Element {
   ];
 
   // Flag list options
-  const flagList: string[] = ['-o wide', '--force'];
+  const flagList: string[] = ['-o wide', '--force', '-f', '-o default', '-v'];
 
   return (
     <>
