@@ -1,13 +1,14 @@
-const express = require('express');
+import express, { Express, Request, Response } from 'express';
+import apiRouter from './routes/apiRouter';
+import userRouter from './routes/userRouter';
+import clusterRouter from './routes/clusterRouter';
+import mongoose from 'mongoose';
+import path from 'path';
+
 const app = express();
-const path = require('path');
-const apiRouter = require('./routes/apiRouter.js');
-const userRouter = require('./routes/userRouter.js');
-const clusterRouter = require('./routes/clusterRouter.js')
-const mongoose = require('mongoose');
 
 // changing port here for grafana
-const PORT = 6666;
+const PORT: number = 6666;
 
 // Connect to mongo database
 mongoose.connect(
@@ -15,7 +16,7 @@ mongoose.connect(
 );
 
 // Upon successful connection, send update to console
-mongoose.connection.once('open', () => {
+mongoose.connection.once('open', (): void => {
   console.log('WE IN DIS DB');
 });
 
@@ -31,34 +32,34 @@ app.use('/user', userRouter);
 app.use(express.static(path.join(__dirname, '../index')));
 
 // Yining addition: Handle routes to /clusterinfo
-app.use('/clusterinfo', clusterRouter);
-
-// app.get('/', (req, res) => {
-//  res.status(200).sendFile(path.join(__dirname, '/index.html'));
-//  res.send('weinhere');
-// });
-
-//ADD DASHBOARD ROUTE TO SERVE DASHBOARD UPON LOGIN??
-// app.get('/dashboard', (req, res) => {
-//   res.status(200).sendFile(path.join(__dirname, '/Dashboard.jsx'));
-//   // res.send('weinhere')
-// });
+// app.use('/clusterinfo', clusterRouter);
 
 // Handle invalid endpoint
-app.use((req, res) => {
+app.use((req: express.Request, res: express.Response) => {
   res.status(404).send('Not Found');
 });
 
+//creates type for error handler
+type ErrHndl = {
+  log: string;
+  status: number;
+  message: {
+    err: string;
+  };
+};
+
 // Handle errors
-app.use((err, req, res, next) => {
-  const defaultErr = {
+app.use((err: ErrHndl, req: express.Request, res: express.Response) => {
+  const defaultErr: ErrHndl = {
     log: 'Express error handler caught unknown middleware error',
     status: 500,
     message: { err: 'An error occurred' },
   };
-  const errorObj = Object.assign({}, defaultErr, err);
+  const errorObj: ErrHndl = Object.assign({}, defaultErr, err);
   return res.status(errorObj.status).json(errorObj.message);
 });
+
+console.log(PORT);
 
 app.listen(PORT, () => console.log(`Listening on port ${PORT}`));
 

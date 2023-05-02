@@ -10,7 +10,7 @@ import Sidebar from '../../components/Sidebar';
 // }
 // export default Cluster;
 
-export default function CreateYaml() {
+function CreateYaml() {
   const [shown, setShown] = React.useState(false);
 
   return (
@@ -37,3 +37,5 @@ const Modal = (props) => {
     </div>
   );
 };
+
+export default CreateYaml;

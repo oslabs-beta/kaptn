@@ -14,23 +14,108 @@ import OutlinedInput from '@mui/material/OutlinedInput';
 import ListItemText from '@mui/material/ListItemText';
 import Checkbox from '@mui/material/Checkbox';
 import { Backdrop } from '@mui/material';
-import { Box, styled } from '@mui/system';
+import { Box, styled, lighten, darken } from '@mui/system';
 import Grid from '@mui/system/Unstable_Grid';
 import CommandLine from '../components/CommandLine.jsx';
 import Terminal from '../components/Terminal.jsx';
-import Sidebar from '../components/Sidebar';
-import CommandField from '../components/CommandField';
+import Sidebar from '../components/Sidebar.jsx';
+// import CommandField from '../components/CommandField';
+
+const BeginnerHeader = styled('div')(({ theme }) => ({
+  position: 'sticky',
+  top: '-8px',
+  padding: '4px 10px',
+  margin: '0px',
+  color: '#ffffff',
+  backgroundColor: '#352a68',
+  webkitScrollbarColor: 'red yellow',
+}));
+
+const GroupItems = styled('ul')({
+  padding: 0,
+  color: '#ffffff',
+  backgroundColor: '#5c4d9a',
+  webkitScrollbarColor: 'red yellow',
+});
+
+const commands = [
+  { title: 'create', category: 'Beginners Commands' },
+  { title: 'expose', category: 'Beginners Commands' },
+  { title: 'run', category: 'Beginners Commands' },
+  { title: 'set', category: 'Beginners Commands' },
+  { title: 'explain', category: 'Intermediate Commands' },
+  { title: 'get', category: 'Intermediate Commands' },
+  { title: 'edit', category: 'Intermediate Commands' },
+  { title: 'delete', category: 'Intermediate Commands' },
+  { title: 'rollout', category: 'Deploy Commands' },
+  { title: 'scale', category: 'Deploy Commands' },
+  { title: 'autoscale', category: 'Deploy Commands' },
+  { title: 'certificate', category: 'Cluster Management Commands' },
+  { title: 'cluster-info', category: 'Cluster Management Commands' },
+  { title: 'top', category: 'Cluster Management Commands' },
+  { title: 'cordon', category: 'Cluster Management Commands' },
+  { title: 'uncordon', category: 'Cluster Management Commands' },
+  { title: 'drain', category: 'Cluster Management Commands' },
+  { title: 'taint', category: 'Cluster Management Commands' },
+  { title: 'describe', category: 'Troubleshoot/Debug Commands' },
+  { title: 'logs', category: 'Troubleshoot/Debug Commands' },
+  { title: 'attach', category: 'Troubleshoot/Debug Commands' },
+  { title: 'exec', category: 'Troubleshoot/Debug Commands' },
+  { title: 'port-forward', category: 'Troubleshoot/Debug Commands' },
+  { title: 'proxy', category: 'Troubleshoot/Debug Commands' },
+  { title: 'cp', category: 'Troubleshoot/Debug Commands' },
+  { title: 'auth', category: 'Troubleshoot/Debug Commands' },
+  { title: 'debug', category: 'Troubleshoot/Debug Commands' },
+  { title: 'diff', category: 'Advanced Commands' },
+  { title: 'apply', category: 'Advanced Commands' },
+  { title: 'patch', category: 'Advanced Commands' },
+  { title: 'replace', category: 'Advanced Commands' },
+  { title: 'wait', category: 'Advanced Commands' },
+  { title: 'kustomize', category: 'Advanced Commands' },
+  { title: 'label', category: 'Settings Commands' },
+  { title: 'annotate', category: 'Settings Commands' },
+  { title: 'completion', category: 'Settings Commands' },
+  { title: 'alpha', category: 'Other Commands' },
+  { title: 'api-resources', category: 'Other Commands' },
+  { title: 'api-versions', category: 'Other Commands' },
+  { title: 'config', category: 'Other Commands' },
+  { title: 'plugin', category: 'Other Commands' },
+  { title: 'version', category: 'Other Commands' },
+];
 
 function Setup() {
-  const [verb, setVerb] = React.useState('');
-  const [type, setType] = React.useState('');
-  const [name, setName] = React.useState('');
-  const [currDir, setCurrDir] = React.useState('NONE SELECTED');
-  const [userInput, setUserInput] = React.useState('');
-  const [command, setCommand] = useState('');
-  const [response, setResponse] = useState([]);
-  const [editOpen, setEditOpen] = React.useState(false);
+  const [verb, setVerb] = React.useState<string>('');
+  const [type, setType] = React.useState<string>('');
+  const [name, setName] = React.useState<string>('');
+  const [currDir, setCurrDir] = React.useState<string>('NONE SELECTED');
+  const [userInput, setUserInput] = React.useState<string>('');
+  const [command, setCommand] = useState<string>('');
+  const [response, setResponse] = useState<
+    Array<{ command: string; response: { [key: string]: string } }>
+  >([]);
+  const [editOpen, setEditOpen] = React.useState<boolean>(false);
+  const [imgPath, setImgPath] = useState<string>('NONE ENTERED');
+  const [imgField, setImgField] = useState<string>('Enter .IMG');
+  const [flags, setFlags] = useState<Array<string>>([]);
 
+  const options = commands.map((option) => {
+    const firstLetter = commands[0].category;
+    return {
+      firstLetter: /[{commands[0].category}]/.test(firstLetter)
+        ? '0-9'
+        : firstLetter,
+      ...option,
+    };
+  });
+
+  function keyPress(e) {
+    e.preventDefault();
+    console.log('value', e.target.value);
+    if (e.key === 'Enter') {
+      console.log('value', e.target.value);
+      setImgPath(e.target.value);
+    }
+  }
   // Set YAML edit box state
   const handleEditClose = () => {
     setEditOpen(false);
@@ -53,6 +138,13 @@ function Setup() {
     );
   };
 
+  const handleNameChange = (event) => {
+    const {
+      target: { value },
+    } = event;
+    setName(value);
+  };
+
   // Set current directory state
   const handleUploadDirectory = (event) => {
     let path = event.target.files[0].path.split('');
@@ -64,12 +156,27 @@ function Setup() {
     setCurrDir(absPath);
   };
 
+  const handleImgUpload = (event) => {
+    console.log('handleImgUpload event is', event);
+    setImgPath(event.target.value);
+    setImgField('Image Entered');
+  };
+
+  const handleImgField = (e) => {
+    console.log('handleimgFIELD event is', e);
+    setImgField(e.target.value);
+  };
+
   // Set the command state based on current inputs
   useEffect(() => {
     let newCommand = '';
-    if (verb !== '') newCommand += verb;
+    if (verb !== '') newCommand += ' ' + verb;
     if (type !== '') newCommand += ' ' + type;
     if (name !== '') newCommand += ' ' + name;
+    if (flags.length)
+      flags.forEach((flag) => {
+        newCommand += ' ' + flag;
+      });
     if (userInput !== '') newCommand += ' ' + userInput;
     setCommand(newCommand);
   });
@@ -88,7 +195,6 @@ function Setup() {
       return cliResponse;
     } catch (e) {
       console.log(e);
-      setError(true);
     }
   };
 
@@ -137,7 +243,7 @@ function Setup() {
       <Grid
         id='setup-page'
         container
-        disableEqualOverflow='true'
+        disableEqualOverflow
         width={'100vw'}
         height={'95vh'}
         sx={{ pt: 3, pb: 3 }}
@@ -147,7 +253,6 @@ function Setup() {
 
         {/* ----------------MAIN CONTENT---------------- */}
         <Grid id='main-content' container xs={11} height='85%'>
-          
           {/* ----------------SELECTION BOXES---------------- */}
           <Grid
             id='selections'
@@ -194,7 +299,7 @@ function Setup() {
                   fontSize: '11.5px',
                 }}
               >
-                1. CREATE/CHOOSE IMAGE (?)
+                1. Import Image
               </div>
               <div
                 style={{
@@ -213,6 +318,17 @@ function Setup() {
                 }}
               ></div>
 
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  padding: '10px',
+                  fontSize: '9px',
+                }}
+              >
+                {imgPath}
+              </div>
               <Box
                 component='form'
                 sx={{
@@ -223,8 +339,51 @@ function Setup() {
               >
                 <TextField
                   id='outlined-basic'
-                  label='Enter .IMG Path'
+                  label='Enter .IMG'
+                  value={imgField}
                   variant='outlined'
+                  // onChange={handleImgField}
+                  onKeyDown={(ev) => {
+                    ev.preventDefault();
+                    console.log('ev key is', ev.key);
+                    if (imgField === 'Enter .IMG') {
+                      setImgField(ev.key);
+                    }
+                    // else if (ev.key === 'Enter') {
+                    //   // Do code here
+                    //   handleImgUpload(ev);
+                    // } else {
+                    //   console.log('imgFIeld is', imgField);
+
+                    //   console.log('imgPath is', imgPath);
+                    //   setImgField(imgField + ev.key);
+                    // }
+                    else {
+                      if (ev.key === 'Enter') {
+                        handleImgUpload(ev);
+                        setImgField(imgField);
+                      } else if (
+                        ev.key === 'Meta' ||
+                        ev.key === 'Alt' ||
+                        ev.key === 'Dead' ||
+                        ev.key === 'ArrowLeft' ||
+                        ev.key === 'ArrowUp' ||
+                        ev.key === 'ArrowDown' ||
+                        ev.key === 'ArrowRight' ||
+                        ev.key === ' ' ||
+                        ev.key === 'Shift'
+                      ) {
+                        console.log('ev key is:', ev.key);
+                        console.log('in meta alt dead if');
+                      } else if (ev.key === 'Backspace') {
+                        setImgField(imgField.slice(0, imgField.length - 1));
+                      } else {
+                        console.log('imgFIeld is', imgField);
+                        console.log('imgPath is', imgPath);
+                        setImgField(imgField + ev.key);
+                      }
+                    }
+                  }}
                 />
               </Box>
             </Box>
@@ -286,6 +445,7 @@ function Setup() {
                 CHOOSE DIRECTORY
                 <input
                   type='file'
+                  // @ts-expect-error
                   directory=''
                   webkitdirectory=''
                   hidden
@@ -325,17 +485,6 @@ function Setup() {
                   height: '1px',
                 }}
               />
-              <div
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  padding: '10px',
-                  fontSize: '9px',
-                }}
-              >
-                {currDir}
-              </div>
 
               <Button
                 onClick={handleEditOpen}
@@ -351,7 +500,7 @@ function Setup() {
                   fontSize: '12px',
                 }}
               >
-                CREATE .YAML FILE
+                Configure .YAML FILE
               </Button>
               <Backdrop
                 style={{
@@ -435,14 +584,29 @@ function Setup() {
             <Box
               style={{
                 paddingTop: '24px',
-                // paddingLeft: '15px',
+                paddingLeft: '15px',
                 fontSize: '16px',
                 display: 'flex',
                 alignItems: 'center',
+                justifyContent: 'center',
               }}
               width='100%'
             >
-              4. INPUT COMMANDS ---
+              <div
+                style={{
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}
+              >
+                <div
+                  style={{
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}
+                >
+                  4. INPUT COMMANDS ---
+                </div>
+              </div>
             </Box>
           </Grid>
 
@@ -454,6 +618,7 @@ function Setup() {
             container
             justifyContent='center'
             alignContent='space-between'
+            style={{ height: '615px', margin: '10px' }}
           >
             {/* ----------------TERMINAL---------------- */}
             <Terminal response={response} />
@@ -492,10 +657,16 @@ function Setup() {
               alignItems='center'
             >
               <Grid id='commands' xs={3}>
-                <CommandField
+                <Autocomplete
                   disablePortal
                   id='combo-box-demo'
+                  options={options.sort(
+                    (a, b) => -b.firstLetter.localeCompare(a.firstLetter)
+                  )}
+                  groupBy={(option) => option.category}
+                  getOptionLabel={(option) => option.title}
                   onInputChange={(e, newInputValue) => {
+                    console.log('newInputValue is', newInputValue);
                     setVerb(newInputValue);
                     const newCommand = verb + ' ' + type + ' ' + name;
                     setCommand(newCommand);
@@ -503,6 +674,32 @@ function Setup() {
                   }}
                   renderInput={(params) => (
                     <TextField {...params} label='Commands' />
+                  )}
+                  renderGroup={(params) => (
+                    <li
+                      style={{
+                        color: '#ffffff',
+                        fontSize: '13px',
+                      }}
+                      key={params.key}
+                    >
+                      <BeginnerHeader
+                        style={{
+                          color: '#ffffff',
+                          fontSize: '14px',
+                        }}
+                      >
+                        {params.group}
+                      </BeginnerHeader>
+                      <GroupItems
+                        style={{
+                          color: '#ffffff',
+                          fontSize: '14px',
+                        }}
+                      >
+                        {params.children}
+                      </GroupItems>
+                    </li>
                   )}
                 />
               </Grid>
@@ -519,42 +716,35 @@ function Setup() {
                   )}
                 />
               </Grid>
-              <Grid id='name' xs={3}>
+              <Grid id='name' xs={2}>
                 <form
-                  onChange={(e) => {
-                    setName(e.target.value);
-                    console.log(name);
-                  }}
+                  onChange={handleNameChange}
                   onSubmit={(e) => {
                     e.preventDefault();
                   }}
-                  value={name}
                 >
                   <TextField
                     id='outlined-basic'
                     label='Name'
                     variant='outlined'
-                    fullWidth='true'
                   />
                 </form>
               </Grid>
               <Grid id='flag' xs={3}>
-                <FormControl>
-                  <InputLabel id='demo-multiple-checkbox-label'>
-                    Flags (optional)
-                  </InputLabel>
+                <FormControl fullWidth>
+                  <InputLabel id='flag-label'>Flags</InputLabel>
                   <Select
-                    labelId='demo-multiple-checkbox-label'
-                    id='demo-multiple-checkbox'
+                    labelId='flag-label'
+                    id='flag-label'
                     multiple
-                    value={flagList}
+                    value={flags}
                     onChange={handleFlags}
-                    input={<OutlinedInput label='Flags (optional)' />}
+                    input={<OutlinedInput label='Flags' />}
                     renderValue={(selected) => selected.join(', ')}
                   >
                     {flagList.map((name) => (
                       <MenuItem key={name} value={name}>
-                        <Checkbox checked={flagList.indexOf(name) > -1} />
+                        <Checkbox checked={flags.indexOf(name) > -1} />
                         <ListItemText primary={name} />
                       </MenuItem>
                     ))}
