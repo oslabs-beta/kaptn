@@ -5,12 +5,14 @@ import { TextField } from '@mui/material';
 import { Typography } from '@mui/material';
 import { useMode } from '../theme';
 import Grid from '@mui/system/Unstable_Grid';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 function Login() {
   const [password, setInputPassword] = useState('');
   const [username, setInputUsername] = useState('');
   const [loggedIn, setLoggedIn] = useState(false);
+
+  const navigate = useNavigate();
 
   // Send a request to the server to confirm the username and password
   async function checkLogin(username, password) {
@@ -27,7 +29,7 @@ function Login() {
       const parsedResponse = await response.json();
       return parsedResponse;
     } catch (err) {
-      // console.error(err);
+      console.log(err);
     }
   }
   // When log in button is clicked, invoke checkLogin function
@@ -35,17 +37,19 @@ function Login() {
     event.preventDefault();
     const callCheckLogin = async () => {
       const response = await checkLogin(username, password);
+
       // If the request was successful, set the login state to true and redirect to the dashboard
-      console.log('response', response);
       if (!response.err) {
         setLoggedIn(true);
-        window.location.href = 'http://localhost:4444/dashboard';
+        navigate('/dashboard');
       } else {
+        // If the request was unsuccessful, send an alert to the user
         alert('Wrong username or password');
       }
     };
     callCheckLogin();
   }
+
   return (
     <Grid
       id='main-content'
@@ -107,11 +111,9 @@ function Login() {
                 label='Username'
                 fullWidth
                 username={username}
-                sx={
-                  {
-                    mb: 3,
-                  }
-                }
+                sx={{
+                  mb: 3,
+                }}
                 onChange={(e) => {
                   setInputUsername(e.target.value);
                 }}
@@ -122,11 +124,6 @@ function Login() {
                 label='Password'
                 fullWidth
                 password={password}
-                sx={
-                  {
-                    // mb: 3,
-                  }
-                }
                 onChange={(e) => {
                   setInputPassword(e.target.value);
                 }}
@@ -136,7 +133,7 @@ function Login() {
               variant='contained'
               type='submit'
               fullWidth
-              size="large"
+              size='large'
               sx={{
                 display: 'flex',
                 border: '1px solid #68617f',
@@ -154,51 +151,56 @@ function Login() {
               Login
             </Button>
             <Typography variant='body1'>Don't have an account?</Typography>
-            <Grid id='sign-up' container justifyContent='center' alignItems='center' flexDirection='column'>
-            <Link to="/signup">
-            <Button
-              variant='contained'
-              type='submit'
-              size="small"
-              sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                border: '1px solid #68617f',
-                letterSpacing: '1.5px',
-                backgroundColor: '#22145a',
-                mt: 2,
-                ':hover': {
-                  backgroundColor: 'rgb(16,10,54)',
-                },
-              }}
+            <Grid
+              id='sign-up'
+              container
+              justifyContent='center'
+              alignItems='center'
+              flexDirection='column'
             >
-              Sign Up
-            </Button>
-            </Link>
-            <Link to="/dashboard">
-            <Button
-              variant='contained'
-              type='submit'
-              // href='/dashboard'
-              size="small"
-              sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                border: '1px solid #68617f',
-                letterSpacing: '1.5px',
-                backgroundColor: '#22145a',
-                mt: 2,
-                mb: 3,
-                ':hover': {
-                  backgroundColor: 'rgb(16,10,54)',
-                },
-              }}
-            >
-              Continue as guest
-            </Button>
-            </Link>
+              <Link to='/signup'>
+                <Button
+                  variant='contained'
+                  type='submit'
+                  size='small'
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    border: '1px solid #68617f',
+                    letterSpacing: '1.5px',
+                    backgroundColor: '#22145a',
+                    mt: 2,
+                    ':hover': {
+                      backgroundColor: 'rgb(16,10,54)',
+                    },
+                  }}
+                >
+                  Sign Up
+                </Button>
+              </Link>
+              <Link to='/dashboard'>
+                <Button
+                  variant='contained'
+                  type='submit'
+                  size='small'
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    border: '1px solid #68617f',
+                    letterSpacing: '1.5px',
+                    backgroundColor: '#22145a',
+                    mt: 2,
+                    mb: 3,
+                    ':hover': {
+                      backgroundColor: 'rgb(16,10,54)',
+                    },
+                  }}
+                >
+                  Continue as guest
+                </Button>
+              </Link>
             </Grid>
             <Typography variant='caption'>Copyright © Kaptn 2023. </Typography>
           </Box>

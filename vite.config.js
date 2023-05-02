@@ -16,7 +16,7 @@ export default defineConfig({
         changeOrigin: true,
       },
       '/user': {
-        target: 'http://3.86.155.160:6666',
+        target: 'http://localhost:6666',
         changeOrigin: true,
       },
       '/prom-graf-setup': {

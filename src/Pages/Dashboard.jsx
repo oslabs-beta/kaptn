@@ -8,9 +8,7 @@ import {
   FormControl,
   TextField,
   Autocomplete,
-  IconButton,
 } from '@mui/material';
-import { styled } from '@mui/system';
 import Grid from '@mui/system/Unstable_Grid';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import ListItemText from '@mui/material/ListItemText';
@@ -18,7 +16,6 @@ import Checkbox from '@mui/material/Checkbox';
 import SideNav from '../components/Sidebar.jsx';
 import CommandLine from '../components/CommandLine.jsx';
 import Terminal from '../components/Terminal.jsx';
-import SetupButtons from '../components/SetupButtons.jsx';
 const { ipcRenderer } = require('electron');
 
 function Dashboard() {
@@ -52,14 +49,12 @@ function Dashboard() {
       path.pop();
     }
     let absPath = path.join('');
-    console.log('path is ', absPath);
     setCurrDir(absPath);
   };
 
   // Set the command state based on current inputs
   useEffect(() => {
     ipcRenderer.on('post_command', (event, arg) => {
-      console.log('response: ', arg);
       const newResponseState = [
         ...response,
         { command: command, response: arg },
@@ -76,61 +71,22 @@ function Dashboard() {
     setCommand(newCommand);
   });
 
-  const postCommandIPC = (command) => {
-    console.log('in postCommandIPC');
-    ipcRenderer.send('post_command', { command: command });
-  };
-
-  // Post the command to the server
-  const postCommand = async (command, currDir) => {
-    console.log('currDir', currDir);
-    try {
-      const response = await fetch('/api', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ command: command, currDir: currDir }),
-      });
-      const cliResponse = await response.json();
-      console.log('the server responded: ', cliResponse);
-      return cliResponse;
-    } catch (e) {
-      console.log(e);
-      setError(true);
-    }
+  const postCommandIPC = (command, currDir) => {
+    ipcRenderer.send('post_command', { command, currDir });
   };
 
   // Handle the command input submit event
   const handleSubmit = (e) => {
     e.preventDefault();
-    // console.log('enter button clicked');
-    // if (currDir === 'NONE SELECTED')
-    //   return alert('Please choose working directory');
-    console.log('command ', command);
+    if (currDir === 'NONE SELECTED')
+      return alert('Please choose working directory');
 
-    postCommandIPC(command);
-
-    // const getCliResponse = async () => {
-    //   const cliResponse = await postCommand(command, currDir);
-    //   // Filter for errors
-    //   if (cliResponse.err) alert('Invalid command. Please try again');
-    //   // Update response state with the returned CLI response
-    //   else {
-    //     const newResponseState = [
-    //       ...response,
-    //       { command: command, response: cliResponse },
-    //     ];
-    //     setResponse(newResponseState);
-    //   }
-    // };
-
-    // // Invoke a fetch request to the server
-    // getCliResponse();
+    postCommandIPC(command, currDir);
   };
 
   // Clear the input box
   const handleClear = (e) => {
     e.preventDefault();
-    console.log('clear button clicked');
     setUserInput('');
   };
 
@@ -333,7 +289,6 @@ function Dashboard() {
             <CommandLine
               width='100%'
               handleSubmit={handleSubmit}
-              postCommand={postCommand}
               setUserInput={setUserInput}
               userInput={userInput}
               command={command}

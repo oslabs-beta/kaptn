@@ -1,7 +1,7 @@
 const express = require('express');
 const app = express();
 const path = require('path');
-const apiRouter = require('./routes/apiRouter.js');
+// const apiRouter = require('./routes/apiRouter.js');
 const userRouter = require('./routes/userRouter.js');
 const clusterRouter = require('./routes/clusterRouter.js');
 const setupRouter = require('./routes/setupRouter.js');
@@ -25,7 +25,7 @@ mongoose.connection.once('open', () => {
 app.use(express.json());
 
 // Handle routes to /api
-app.use('/api', apiRouter);
+// app.use('/api', apiRouter);
 
 // Handle routes to /user
 app.use('/user', userRouter);

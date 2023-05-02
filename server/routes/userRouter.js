@@ -9,6 +9,7 @@ router.post('/createuser', userController.createUser, (req, res) => {
 
 // Handle POST request to verify user on login
 router.post('/login', userController.verifyUser, (req, res) => {
+  console.log('correct')
   res.status(200).json('Login Successful');
 });
 

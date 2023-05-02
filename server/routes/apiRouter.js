@@ -1,3 +1,7 @@
+/*
+  PLEASE NOTE: This API is no longer being used and has been replaced by the Electron IPC Renderer. See /src/main.js file.
+*/
+
 const express = require('express');
 
 const apiController = require('../controllers/apiController.js');
