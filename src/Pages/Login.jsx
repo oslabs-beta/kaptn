@@ -5,6 +5,7 @@ import { TextField } from '@mui/material';
 import { Typography } from '@mui/material';
 import { useMode } from '../theme';
 import Grid from '@mui/system/Unstable_Grid';
+import { Link } from 'react-router-dom';
 
 function Login() {
   const [password, setInputPassword] = useState('');
@@ -154,10 +155,10 @@ function Login() {
             </Button>
             <Typography variant='body1'>Don't have an account?</Typography>
             <Grid id='sign-up' container justifyContent='center' alignItems='center' flexDirection='column'>
+            <Link to="/signup">
             <Button
               variant='contained'
               type='submit'
-              href='/signup'
               size="small"
               sx={{
                 display: 'flex',
@@ -174,10 +175,12 @@ function Login() {
             >
               Sign Up
             </Button>
+            </Link>
+            <Link to="/dashboard">
             <Button
               variant='contained'
               type='submit'
-              href='/dashboard'
+              // href='/dashboard'
               size="small"
               sx={{
                 display: 'flex',
@@ -195,6 +198,7 @@ function Login() {
             >
               Continue as guest
             </Button>
+            </Link>
             </Grid>
             <Typography variant='caption'>Copyright © Kaptn 2023. </Typography>
           </Box>

@@ -1,8 +1,4 @@
-import {
-  Sidebar,
-  Menu,
-  MenuItem,
-} from 'react-pro-sidebar';
+import { Sidebar, Menu, MenuItem } from 'react-pro-sidebar';
 import React from 'react';
 import { useState, useContext } from 'react';
 import { Box, IconButton, Typography, useTheme } from '@mui/material';
@@ -35,7 +31,7 @@ const Item = ({ title, to, icon, selected, setSlected }) => {
 
 function SideNav(props) {
   const theme = useTheme();
-  const colorMode = useContext(ColorModeContext)
+  const colorMode = useContext(ColorModeContext);
   const colors = tokens(theme.palette.mode);
 
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -48,56 +44,29 @@ function SideNav(props) {
         <Menu>
           {/* MENU ITEMS */}
           <Box paddingLeft={isCollapsed ? undefined : '0%'}>
-            <MenuItem
-              container={Link}
-              href='/dashboard'
-              icon={<HomeOutlinedIcon />}
-              // selected={selected}
-              // setSelect={setSelected}
-              onClick={(e) => console.log('hi')}
-            >
-              Dashboard
-            </MenuItem>
+            <Link to='/dashboard'>
+              <MenuItem icon={<HomeOutlinedIcon />}></MenuItem>
+            </Link>
 
-            <MenuItem
-              container={Link}
-              href='/setup'
-              icon={<AutoFixHigh />}
-              // selected={selected}
-              // setSelect={setSelected}
-            >
-              <Link to='/setup'>Quick Setup</Link>
-            </MenuItem>
+            <Link to='/setup'>
+              <MenuItem icon={<AutoFixHigh />}></MenuItem>
+            </Link>
 
-            <MenuItem
-              container={Link}
-              href='/cluster'
-              icon={<BarChart />}
-              // selected={selected}
-              // setSelect={setSelected}
-            >
-              <Link to='/cluster'>Kluster Visualizer</Link>
-            </MenuItem>
+            <Link to='/cluster'>
+              <MenuItem icon={<BarChart />}></MenuItem>
+            </Link>
 
+            <Link to='/glossary'>
             <MenuItem
-              container={Link}
-              href='/glossary'
               icon={<MenuBook />}
-              // selected={selected}
-              // setSelect={setSelected}
-            >
-              <Link to='/glossary'>Glossary</Link>
-            </MenuItem>
+              color='white'
+            ></MenuItem>
+            </Link>
 
-            <MenuItem
-              container={Link}
-              href='/'
-              icon={<ExitToAppOutlinedIcon />}
-              // selected={selected}
-              // setSelect={setSelected}
-            >
-              <Link to='/'>Log Out</Link>
-            </MenuItem>
+            <Link to='/'>
+              <MenuItem icon={<ExitToAppOutlinedIcon />}></MenuItem>
+            </Link>
+
             <MenuItem>
               <IconButton onClick={colorMode.toggleColorMode}>
                 {theme.palette.mode === 'dark' ? (

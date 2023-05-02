@@ -46,6 +46,7 @@ function App() {
   const [theme, colorMode] = useMode();
 
   return (
+    <HashRouter>
     <ColorModeContext.Provider value={colorMode}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
@@ -53,19 +54,19 @@ function App() {
           <Topbar />
           {/* <SideNav /> */}
           <main className='content'>
-            <HashRouter>
               <Routes>
                 <Route path='/' exact element={<Login />} />
                 <Route path='/signup' element={<Signup />} />
                 <Route path='/dashboard' element={<Dashboard />} />
+                <Route path='/setup' element={<Setup />} />
                 <Route path='/glossary' element={<Glossary />} />
                 <Route path='/cluster' element={<Cluster />} />
               </Routes>
-            </HashRouter>
           </main>
         </div>
       </ThemeProvider>
     </ColorModeContext.Provider>
+    </HashRouter>
   );
 }
 

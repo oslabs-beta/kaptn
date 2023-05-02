@@ -5,6 +5,7 @@ import { TextField } from '@mui/material';
 import { Typography } from '@mui/material';
 import { useMode } from '../theme';
 import Grid from '@mui/system/Unstable_Grid';
+import { Link } from 'react-router-dom';
 
 function Signup() {
   const [password, setInputPassword] = useState('');
@@ -163,11 +164,11 @@ function Signup() {
               justifyContent='center'
               alignItems='center'
             >
+              <Link to="/">
               <Button
                 variant='contained'
                 type='submit'
                 size='small'
-                href='/'
                 sx={{
                   display: 'flex',
                   flexDirection: 'column',
@@ -184,6 +185,7 @@ function Signup() {
               >
                 Sign In
               </Button>
+              </Link>
             </Grid>
             <Typography variant='caption'>Copyright © Kaptn 2023. </Typography>
           </Box>
