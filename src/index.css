@@ -46,3 +46,8 @@ body {
 ::-webkit-scrollbar-track:hover {
   background: blue;
 }
+
+a {
+  color: inherit;
+  text-decoration:none;
+}
