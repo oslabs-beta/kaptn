@@ -13,7 +13,7 @@ import Grid from '@mui/system/Unstable_Grid';
 import { ColorModeContext } from '../theme.ts';
 import DarkModeOutlinedIcon from '@mui/icons-material/DarkModeOutlined';
 
-const Item = ({ title, to, icon, selected, setSlected }) => {
+const Item = ({ title, to, icon, selected, setSelected }) => {
   const colors = tokens(theme.palette.mode);
   return (
     <MenuItem

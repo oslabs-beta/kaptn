@@ -4,17 +4,17 @@ import Button from '@mui/material/Button';
 import { Box } from '@mui/system';
 import { Typography } from '@mui/material';
 
-function SetupButtons() {
-  const handleClick = () => {
-    fetch('/prom-graf-setup/promsetup').then((res) => console.log(res));
+function SetupButtons(): JSX.Element {
+  const handleClick = (): void => {
+    fetch('/prom-graf-setup/promsetup').then((res: Response) => console.log(res));
   };
 
-  const handleGrafClick = () => {
-    fetch('/prom-graf-setup/grafana').then((res) => console.log(res));
+  const handleGrafClick = (): void => {
+    fetch('/prom-graf-setup/grafana').then((res: Response) => console.log(res));
   };
 
-  const handleForwardPort = () => {
-    fetch('/prom-graf-setup/forwardports').then((res) => console.log(res));
+  const handleForwardPort = (): void => {
+    fetch('/prom-graf-setup/forwardports').then((res: Response) => console.log(res));
   }
 
   return (

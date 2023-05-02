@@ -2,8 +2,11 @@ import * as React from 'react';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 import { styled, lighten, darken } from '@mui/system';
+import { Theme, ThemeContext } from '@emotion/react';
+import { useState, useEffect } from 'react';
 
-const BeginnerHeader = styled('div')(({ theme }) => ({
+
+const BeginnerHeader = styled('div')<Theme>(({ theme }) => ({
   position: 'sticky',
   top: '-8px',
   padding: '4px 10px',
@@ -13,7 +16,7 @@ const BeginnerHeader = styled('div')(({ theme }) => ({
   webkitScrollbarColor: 'red yellow',
 }));
 
-const GroupItems = styled('ul')({
+const GroupItems = styled('ul')<Theme>({
   padding: 0,
   color: '#ffffff',
   backgroundColor: '#5c4d9a',
@@ -21,6 +24,7 @@ const GroupItems = styled('ul')({
 });
 
 function CommandField() {
+  const [verb, setVerb] = useState<string>('');
   const options = commands.map((option) => {
     const firstLetter = commands[0].category;
     return {
@@ -36,7 +40,7 @@ function CommandField() {
       style={{
         padding: '0',
         color: '#ffffff',
-        webkitScrollbarColor: 'red yellow',
+        scrollbarColor: 'red yellow',
       }}
     >
       <Autocomplete
@@ -47,7 +51,7 @@ function CommandField() {
         groupBy={(option) => option.category}
         getOptionLabel={(option) => option.title}
         style={{
-          webkitScrollbarColor: 'red yellow',
+          scrollbarColor: 'red yellow',
           backgroundColor: 'transparent',
         }}
         onInputChange={(e, newInputValue) => {
@@ -61,7 +65,7 @@ function CommandField() {
         renderGroup={(params) => (
           <li
             style={{
-              webkitScrollbarColor: 'red yellow',
+              scrollbarColor: 'red yellow',
               color: '#ffffff',
               fontSize: '13px',
             }}
@@ -69,7 +73,7 @@ function CommandField() {
           >
             <BeginnerHeader
               style={{
-                webkitScrollbarColor: 'red yellow',
+                scrollbarColor: 'red yellow',
                 color: '#ffffff',
                 fontSize: '14px',
               }}
@@ -78,7 +82,7 @@ function CommandField() {
             </BeginnerHeader>
             <GroupItems
               style={{
-                webkitScrollbarColor: 'red yellow',
+                scrollbarColor: 'red yellow',
                 color: '#ffffff',
                 fontSize: '14px',
               }}
