@@ -17,14 +17,9 @@ Kaptn is an educational open-source tool that unlocks the full power of kubernet
 - Troubleshoot any confusion with our extensive kubectl glossary
 
 ## Getting Started
-1. Clone the repo:
-2. Install dependencies: `npm install`
-3. Make sure you have your kubernetes cluster up and running. If you’re planning to work with a test application, install docker and minikube or kind to get started
-4. Set up [Grafana](https://grafana.com/get/?plcmt=top-nav&cta=downloads) and [Prometheus](https://prometheus.io/download/)
-5. Start the server by running `npm run dev` and spin up the electron app by running `npm start`
-6. Navigate to `http://localhost:4444/`
-7. You’ll need to create an account via the ‘signup’ button, and then sign in to enter the application
-8. Get started with our easy setup page, or directly via the dashboard terminal
+1. Download the latest release[here](https://github.com/oslabs-beta/kaptn/releases).
+2. Run the installer.
+* If you get a warning that the app is from an unidentified developer, go to System Preferences > Security & Privacy > General and click "Open Anyway".
 
 ## Usage Guidelines
 
