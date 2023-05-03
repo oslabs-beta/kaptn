@@ -1111,49 +1111,6 @@ function Glossary() {
               </Typography>
             </Box>
           </Modal>
-          {/* 
-          <Button
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              backgroundColor: '#a494d7',
-              width: '300px',
-              margin: '20px',
-            }}
-            onClick={handleDeleteOpen}
-          >
-            <div style={{ fontSize: '16px' }}>KUBECTL DELETE:</div>
-            Delete resources by file names, stdin, resources and names, or by
-            resources and label selector
-          </Button>
-          <Modal
-            open={openDelete}
-            onClose={handleDeleteClose}
-            aria-labelledby='modal-modal-title'
-            aria-describedby='modal-modal-description'
-          >
-            <Box sx={style}>
-              <Typography
-                id='modal-modal-title'
-                variant='h6'
-                component='h2'
-              ></Typography>
-              <Typography
-                id='modal-modal-description'
-                style={{
-                  top: '0',
-                  left: '0',
-                  overflow: 'scroll',
-                  height: '100%',
-                  width: '90',
-                  zIndex: '1350',
-                }}
-                sx={{ mt: 2 }}
-              >
-                <pre>{helpDelete}</pre>
-              </Typography>
-            </Box>
-          </Modal> */}
         </Grid>
       </Grid>
     </>

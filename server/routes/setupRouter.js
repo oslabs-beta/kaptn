@@ -3,7 +3,6 @@ const { exec, execSync, spawn, spawnSync } = require('child_process');
 const router = express.Router();
 const setupController = require('../controllers/setupController');
 
-// setupController.promInit
 
 router.get('/promsetup', setupController.promInit, (req, res) => {
   console.log('in setup router');

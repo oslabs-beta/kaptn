@@ -5,7 +5,7 @@ const Terminal = (props) => {
   // Create a div for each command/response in the current session
   const commandLog: JSX.Element[] = [];
 
-  // Format the response for line breaks and spacing
+  // Format the shell response for line breaks and spacing
   // The <pre> tag here ensures proper spacing
   props.response.forEach((el) => {
     const paredResponse: JSX.Element[] = el.response.split('\n').map(function (item: string) {
@@ -13,7 +13,6 @@ const Terminal = (props) => {
         <pre>
           <span>
             {item}
-            {/* <br /> */}
           </span>
         </pre>
       );

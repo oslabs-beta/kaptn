@@ -1,8 +1,5 @@
 const path = require('path');
-const { app, BrowserWindow, ipcMain, ipcRenderer } = require('electron');
-const electronBrowserWindow = require('electron').BrowserWindow;
-const electronIpcMain = require('electron').ipcMain;
-const nodePath = require('path');
+const { app, BrowserWindow, ipcMain } = require('electron');
 const { exec } = require('child_process');
 
 const isDev = process.env.NODE_ENV === 'development';

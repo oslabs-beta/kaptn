@@ -1,14 +1,11 @@
-import React, { useState, useEffect } from 'react';
 import SideNav from '../components/Sidebar';
 import Grid from '@mui/system/Unstable_Grid';
-import SetupButtons from '../components/SetupButtons';
-import Button from '@mui/material/Button';
 
 function Cluster() {
   return (
     <>
       <Grid
-        id='dashboard'
+        id='cluster'
         container
         disableEqualOverflow='true'
         width={'100vw'}
@@ -16,9 +13,7 @@ function Cluster() {
         sx={{ pt: 3, pb: 3 }}
       >
         <SideNav />
-        <SetupButtons />
-
-
+      <h1>Coming soon...</h1>
       </Grid>
     </>
   );
