@@ -76,7 +76,9 @@ If you need additional information on kubectl commands, navigate to the glossary
 
 ## License
 
-MIT
+Distributed under the MIT License. See LICENSE for more information.
+
+Give this product a ⭐️ if it helped you!
 
 ![Untitled (1000 × 300 px) (1)](https://user-images.githubusercontent.com/106838422/235518916-ddc0d40b-fe19-41c9-b43b-ac34894d52b1.png)
 
