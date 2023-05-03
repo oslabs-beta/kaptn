@@ -1,11 +1,11 @@
-import Signup from './pages/Signup.jsx';
-import Login from './pages/Login.jsx';
-import Cluster from './pages/Cluster.jsx';
+import Signup from './Pages/Signup.jsx';
+import Login from './Pages/Login.jsx';
+import Cluster from './Pages/Cluster.jsx';
 import { HashRouter, Route, Routes } from 'react-router-dom';
-import Dashboard from './pages/Dashboard.jsx';
+import Dashboard from './Pages/Dashboard.jsx';
 import Topbar from './components/Topbar.jsx';
-import Setup from './pages/Setup.jsx';
-import Glossary from './pages/Glossary.jsx';
+import Setup from './Pages/Setup.jsx';
+import Glossary from './Pages/Glossary.jsx';
 import { ColorModeContext, useMode } from './theme.js';
 import { CssBaseline, ThemeProvider } from '@mui/material';
 

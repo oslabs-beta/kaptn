@@ -3,7 +3,6 @@ import { InputAdornment, Button, TextField } from '@mui/material';
 const CommandLine = (props) => {
   // Add/remove functionality in text box
   const handleChange = (e) => {
-    console.log('e ', e);
     let newUserInput = '';
     if (e.nativeEvent.inputType === 'deleteContentBackward') {
       newUserInput = props.userInput.slice(0, props.userInput.length - 1);
