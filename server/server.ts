@@ -14,9 +14,7 @@ mongoose.connect(
 );
 
 // Upon successful connection, send update to console
-mongoose.connection.once('open', (): void => {
-  console.log('WE IN DIS DB');
-});
+mongoose.connection.once('open', (): void => {});
 
 // Add body parser
 app.use(express.json());
@@ -50,8 +48,6 @@ app.use((err: ErrHndl, req: express.Request, res: express.Response) => {
   const errorObj: ErrHndl = Object.assign({}, defaultErr, err);
   return res.status(errorObj.status).json(errorObj.message);
 });
-
-console.log(PORT);
 
 app.listen(PORT, () => console.log(`Listening on port ${PORT}`));
 

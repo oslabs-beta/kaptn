@@ -1,3 +1,5 @@
+![Untitled (1000 × 300 px)](https://user-images.githubusercontent.com/106838422/235515939-0ba0157d-9c34-4fd4-ab7d-23dddbc082b3.png)
+
 # kaptn
 
 Kaptn is an educational open-source tool that unlocks the full power of kubernetes command line kubectl, and helps ease the learning curve of setting up and monitoring Kubernetes clusters. Kaptn consists of a terminal equipped with useful command line pointers, an easy set-up component for YAML set up, and grafana dashboards that monitors various aspects of your Kubernetes cluster. 
@@ -11,7 +13,7 @@ Kaptn is an educational open-source tool that unlocks the full power of kubernet
   - Ability to choose or create new image
 - Cluster metrics visualization
   - Kubernetes API server metrics
-  - More coming soon
+  - Connect with Grafana and Prometheus to monitor cluster health
 - Troubleshoot any confusion with our extensive kubectl glossary
 
 ## Getting Started
@@ -64,8 +66,13 @@ If you need additional information on kubectl commands, navigate to the glossary
 - John Choi [GitHub](https://github.com/jhwiwonc) | [LinkedIn](https://www.linkedin.com/in/hwi-won-choi-057081191/)
 - Natalie Cordoves [GitHub](https://github.com/ncordoves) | [LinkedIn](https://www.linkedin.com/in/natalie-cordoves)
 - Olivia Hodel [GitHub](https://github.com/ohodel) | [LinkedIn](https://www.linkedin.com/in/olivia-hodel/)
-- Yining Wang [GitHub](https://github.com/yiningcw) | [GitHub](https://www.linkedin.com/in/yining-wang-83b896108/)
+- Yining Wang [GitHub](https://github.com/yiningcw) | [LinkedIn](https://www.linkedin.com/in/yining-wang-83b896108/)
 
+## License
+
+MIT
+
+![Untitled (1000 × 300 px) (1)](https://user-images.githubusercontent.com/106838422/235518916-ddc0d40b-fe19-41c9-b43b-ac34894d52b1.png)
 
 
     

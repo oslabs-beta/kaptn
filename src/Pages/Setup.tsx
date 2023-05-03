@@ -21,8 +21,10 @@ import Terminal from '../components/Terminal.jsx';
 import Sidebar from '../components/Sidebar.jsx';
 const { ipcRenderer } = require('electron');
 
+//for step 4 text to appear below without eslint/prettier error, assigned to variable here
 const step4 = `4. INPUT COMMANDS --->`;
 
+//section header (e.g. beginner, intermediate, etc) rules for grouped "command" option
 const BeginnerHeader = styled('div')(({ theme }) => ({
   position: 'sticky',
   top: '-8px',
@@ -33,6 +35,7 @@ const BeginnerHeader = styled('div')(({ theme }) => ({
   webkitScrollbarColor: 'red yellow',
 }));
 
+//style for grouped commands
 const GroupItems = styled('ul')({
   padding: 0,
   color: '#ffffff',
@@ -99,6 +102,7 @@ function Setup() {
   const [imgField, setImgField] = useState<string>('Enter .IMG');
   const [flags, setFlags] = useState<Array<string>>([]);
 
+  //maps grouped command options alphabetically including if numbered
   const options = commands.map((option) => {
     const firstLetter = commands[0].category;
     return {
@@ -108,12 +112,10 @@ function Setup() {
       ...option,
     };
   });
-
+  // handles updating img path updating and submission
   function keyPress(e) {
     e.preventDefault();
-    console.log('value', e.target.value);
     if (e.key === 'Enter') {
-      console.log('value', e.target.value);
       setImgPath(e.target.value);
     }
   }
@@ -138,7 +140,7 @@ function Setup() {
       typeof value === 'string' ? value.split(',') : value
     );
   };
-
+  // handles name field changes
   const handleNameChange = (event) => {
     const {
       target: { value },
@@ -153,18 +155,15 @@ function Setup() {
       path.pop();
     }
     let absPath = path.join('');
-    console.log('path is ', absPath);
     setCurrDir(absPath);
   };
-
+  //sets image submission
   const handleImgUpload = (event) => {
-    console.log('handleImgUpload event is', event);
     setImgPath(event.target.value);
     setImgField('Image Entered');
   };
-
+  // updates img text field as typed
   const handleImgField = (e) => {
-    console.log('handleimgFIELD event is', e);
     setImgField(e.target.value);
   };
 
@@ -264,6 +263,7 @@ function Setup() {
                 marginBottom: '25px',
               }}
             >
+              {/* --------------------------- IMAGE CREATION SECTION --------------------- */}
               <div
                 style={{
                   display: 'flex',
@@ -320,7 +320,6 @@ function Setup() {
                   // onChange={handleImgField}
                   onKeyDown={(ev) => {
                     ev.preventDefault();
-                    console.log('ev key is', ev.key);
                     if (imgField === 'Enter .IMG') {
                       setImgField(ev.key);
                     }
@@ -348,13 +347,9 @@ function Setup() {
                         ev.key === ' ' ||
                         ev.key === 'Shift'
                       ) {
-                        console.log('ev key is:', ev.key);
-                        console.log('in meta alt dead if');
                       } else if (ev.key === 'Backspace') {
                         setImgField(imgField.slice(0, imgField.length - 1));
                       } else {
-                        console.log('imgFIeld is', imgField);
-                        console.log('imgPath is', imgPath);
                         setImgField(imgField + ev.key);
                       }
                     }
@@ -362,7 +357,7 @@ function Setup() {
                 />
               </Box>
             </Box>
-
+            {/* ------------------- CHOOSE DIRECTORY SECTION ---------------------------- */}
             <Box
               sx={{
                 display: 'flex',
@@ -428,7 +423,7 @@ function Setup() {
                 />
               </Button>
             </Box>
-
+            {/* ------------------------- CREATE YAML SECTION  ------------------------------- */}
             <Box
               sx={{
                 display: 'flex',
@@ -477,6 +472,7 @@ function Setup() {
               >
                 Configure .YAML FILE
               </Button>
+              {/* ----------- Backdrop is greyed out background during popup ----------------- */}
               <Backdrop
                 style={{
                   color: '#white',
@@ -487,6 +483,7 @@ function Setup() {
                 open={editOpen}
                 onClick={handleEditClose}
               >
+                {/* ------- Paper is modal / popup --------------------------------------- */}
                 <Paper
                   onClick={handleEditClose}
                   style={{
@@ -556,6 +553,8 @@ function Setup() {
                 </Paper>
               </Backdrop>
             </Box>
+            {/* --------------- STEP 4 INPUT COMMANDS --- TEXT ONLY -- SECTION ---------- */}
+
             <Box
               style={{
                 paddingTop: '24px',
@@ -677,6 +676,9 @@ function Setup() {
                   )}
                 />
               </Grid>
+
+              {/* ---------------- TYPES FIELD ------------------------------------- */}
+
               <Grid id='types' xs={3}>
                 <Autocomplete
                   disablePortal
@@ -690,6 +692,9 @@ function Setup() {
                   )}
                 />
               </Grid>
+
+              {/* ---------------- NAMES FIELD ------------------------------------- */}
+
               <Grid id='name' xs={2}>
                 <form
                   onChange={handleNameChange}
@@ -704,6 +709,9 @@ function Setup() {
                   />
                 </form>
               </Grid>
+
+              {/* ---------------- FLAGS DROPDOWN ------------------------------------- */}
+
               <Grid id='flag' xs={3}>
                 <FormControl fullWidth>
                   <InputLabel id='flag-label'>Flags</InputLabel>
