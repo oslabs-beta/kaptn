@@ -2,7 +2,7 @@
 
 # kaptn
 
-Kaptn is a fully downloadable desktop application that provides a user-friendly terminal interface for developers to interact with Kubernetes. With pre-selected kubectl options and the ability to free-type commands, Kaptn provides the training wheels ayou need to gain familiarity and proficiency in K8.
+Kaptn is a fully downloadable desktop application that provides a user-friendly terminal interface for developers to interact with Kubernetes. With pre-selected kubectl options and the ability to free-type commands, Kaptn provides the training wheels you need to gain familiarity and proficiency in K8.
 
 ## Features
 - User-friendly terminal interface
@@ -41,6 +41,10 @@ Our application defaults to our dashboard page, where you will be able to select
     - In the terminal you opened up in step 2, run docker pull <imagename:tagname>
     - Type out the full image name with the tag into the Image Input Field and press the Enter key 
     - You may move onto step 4 once you see the image name render on the screen
+
+![chooseimage (1)](https://user-images.githubusercontent.com/63977843/236069404-e474bd34-4fa5-4503-84b7-bc4956335eda.gif)
+![enterimg (1)](https://user-images.githubusercontent.com/63977843/236068711-3bacf6d2-a42a-49a3-9621-e0135e1a0357.gif)
+
  4. Choose Working Directory
      - Select the working directory from which the virtual command line interface will be launched
      
@@ -53,6 +57,10 @@ Our application defaults to our dashboard page, where you will be able to select
     - Paste your code into the Name input field in the following format and press enter or click run:
   echo ‘YOUR CODE’ > FILENAME.yaml
     - Use your OS finder / files to locate the yaml file you created and confirm that it is configured as you expect
+    
+![configyaml (2)](https://user-images.githubusercontent.com/63977843/236071323-57b395df-0128-40e4-b6e0-a060adcea78b.gif)
+![touchyaml](https://user-images.githubusercontent.com/63977843/236071893-708850e9-d03c-47d0-a5a5-9a1f8efa55a0.gif)
+
   8. Congratulations! You have successfully setup your Kubernetes cluster!
 
     
@@ -65,7 +73,17 @@ The metrics section is made up of various grafana dashboards to monitor differen
 ### Glossary
 If you need additional information on kubectl commands, navigate to the glossary page, where you can select the topic you would like to read further into. 
 
+## Contributing
 
+### How to contribute
+Contributions are an incredibly important part of the open source community. Any contributions you make are greatly appreciated!
+
+* Fork the project
+* Create your feature branch (git checkout -b feature/AmazingFeature)
+* Commit your changes (git commit -m 'Add some AmazingFeature')
+* Push to the branch (git push origin feature/AmazingFeature)
+* Open a pull request (from feature/AmazingFeature to dev)
+* Create a new issue on GitHub
 
 ## Contributors
 - Brecht Horn [GitHub](https://github.com/brechtsky) | [LinkedIn](https://www.linkedin.com/in/brecht-horn-a9b839213/)
@@ -78,7 +96,7 @@ If you need additional information on kubectl commands, navigate to the glossary
 
 Distributed under the MIT License. See LICENSE for more information.
 
-Give this product a ⭐️ if it helped you!
+Give this project a ⭐️ if it helped you!
 
 ![Untitled (1000 × 300 px) (1)](https://user-images.githubusercontent.com/106838422/235518916-ddc0d40b-fe19-41c9-b43b-ac34894d52b1.png)
 
