@@ -1,18 +1,21 @@
 import { Sidebar, Menu, MenuItem } from 'react-pro-sidebar';
-import React from 'react';
 import { useState, useContext } from 'react';
-import { Box, IconButton, Typography, useTheme } from '@mui/material';
+import { Box, IconButton, useTheme } from '@mui/material';
 import { Link } from 'react-router-dom';
-import LightModeIcon from '@mui/icons-material/LightMode';
-import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined';
-import ExitToAppOutlinedIcon from '@mui/icons-material/ExitToAppOutlined';
-import { AutoFixHigh, MenuBook } from '@mui/icons-material';
-import { BarChart } from '@mui/icons-material';
+import {
+  AutoFixHigh,
+  MenuBook,
+  ExitToAppOutlined,
+  HomeOutlined,
+  LightMode,
+  BarChart,
+  DarkModeOutlined,
+} from '@mui/icons-material';
 import Grid from '@mui/system/Unstable_Grid';
 import { ColorModeContext } from '../theme.ts';
-import DarkModeOutlinedIcon from '@mui/icons-material/DarkModeOutlined';
 
 function SideNav(props) {
+  // Color theme is toggled here with the light/dark mode menu item
   const theme = useTheme();
   const colorMode = useContext(ColorModeContext);
 
@@ -24,31 +27,41 @@ function SideNav(props) {
         <Menu>
           <Box paddingLeft={isCollapsed ? undefined : '0%'}>
             <Link to='/dashboard'>
-              <MenuItem icon={<HomeOutlinedIcon />}></MenuItem>
+              <MenuItem
+                id='dashboard-nav'
+                icon={<HomeOutlined />}
+              ></MenuItem>
             </Link>
 
             <Link to='/setup'>
-              <MenuItem icon={<AutoFixHigh />}></MenuItem>
+              <MenuItem id='setup-nav' icon={<AutoFixHigh />}></MenuItem>
             </Link>
 
             <Link to='/cluster'>
-              <MenuItem icon={<BarChart />}></MenuItem>
+              <MenuItem id='cluster-nav' icon={<BarChart />}></MenuItem>
             </Link>
 
             <Link to='/glossary'>
-              <MenuItem icon={<MenuBook />} color='white'></MenuItem>
+              <MenuItem
+                id='glossary-nav'
+                icon={<MenuBook />}
+                color='white'
+              ></MenuItem>
             </Link>
 
             <Link to='/'>
-              <MenuItem icon={<ExitToAppOutlinedIcon />}></MenuItem>
+              <MenuItem
+                id='logout-nav'
+                icon={<ExitToAppOutlined />}
+              ></MenuItem>
             </Link>
 
-            <MenuItem>
+            <MenuItem id='light-dark-button'>
               <IconButton onClick={colorMode.toggleColorMode}>
                 {theme.palette.mode === 'dark' ? (
-                  <DarkModeOutlinedIcon />
+                  <DarkModeOutlined />
                 ) : (
-                  <LightModeIcon />
+                  <LightMode />
                 )}
               </IconButton>
             </MenuItem>

@@ -10,23 +10,6 @@ body {
   overflow-x: hidden;
 }
 
-
-/* .top-bar {
-  -webkit-app-region: drag;
-} */
-
-/* .top-bar button {
-  -webkit-app-region: no-drag;
-}
-
-.top-bar button {
-  -webkit-app-region: no-drag;
-} */
-
-/* input {
-  -webkit-app-region: no-drag;
-} */
-
 /* Scrollbar */
 ::-webkit-scrollbar {
   width: 10px;
@@ -49,5 +32,5 @@ body {
 
 a {
   color: inherit;
-  text-decoration:none;
+  text-decoration: none;
 }

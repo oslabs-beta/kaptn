@@ -1,6 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import { InputAdornment, Button } from '@mui/material';
-import { TextField } from '@mui/material';
+import { InputAdornment, Button, TextField } from '@mui/material';
 
 const CommandLine = (props) => {
   // Add/remove functionality in text box

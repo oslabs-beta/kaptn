@@ -12,6 +12,8 @@ import { CssBaseline, ThemeProvider } from '@mui/material';
 function App() {
   const [theme, colorMode] = useMode();
 
+  // Hash router is used here to optimize for static file serving from Electron
+  // More information here: https://reactrouter.com/en/main/router-components/hash-router
   return (
     <HashRouter>
       <ColorModeContext.Provider value={colorMode}>

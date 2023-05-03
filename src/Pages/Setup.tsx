@@ -9,17 +9,16 @@ import {
   FormControl,
   TextField,
   Autocomplete,
+  OutlinedInput,
+  ListItemText,
+  Checkbox,
+  Backdrop,
 } from '@mui/material';
-import OutlinedInput from '@mui/material/OutlinedInput';
-import ListItemText from '@mui/material/ListItemText';
-import Checkbox from '@mui/material/Checkbox';
-import { Backdrop } from '@mui/material';
 import { Box, styled, lighten, darken } from '@mui/system';
 import Grid from '@mui/system/Unstable_Grid';
 import CommandLine from '../components/CommandLine.jsx';
 import Terminal from '../components/Terminal.jsx';
 import Sidebar from '../components/Sidebar.jsx';
-// import CommandField from '../components/CommandField';
 const { ipcRenderer } = require('electron');
 
 const step4 = `4. INPUT COMMANDS --->`;

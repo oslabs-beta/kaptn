@@ -1,4 +1,3 @@
-import React from 'react';
 import { useState, useEffect } from 'react';
 import {
   Button,
@@ -8,11 +7,11 @@ import {
   FormControl,
   TextField,
   Autocomplete,
+  OutlinedInput,
+  ListItemText,
+  Checkbox,
 } from '@mui/material';
 import Grid from '@mui/system/Unstable_Grid';
-import OutlinedInput from '@mui/material/OutlinedInput';
-import ListItemText from '@mui/material/ListItemText';
-import Checkbox from '@mui/material/Checkbox';
 import SideNav from '../components/Sidebar.jsx';
 import CommandLine from '../components/CommandLine.jsx';
 import Terminal from '../components/Terminal.jsx';
@@ -62,6 +61,7 @@ function Dashboard(): JSX.Element {
 
   // Set the command state based on current inputs
   useEffect(() => {
+    // Listen to post_command response
     ipcRenderer.on('post_command', (event, arg) => {
       console.log(arg);
       const newResponseState = [
