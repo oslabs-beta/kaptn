@@ -9,17 +9,19 @@ import {
   FormControl,
   TextField,
   Autocomplete,
+  OutlinedInput,
+  ListItemText,
+  Checkbox,
+  Backdrop,
 } from '@mui/material';
-import OutlinedInput from '@mui/material/OutlinedInput';
-import ListItemText from '@mui/material/ListItemText';
-import Checkbox from '@mui/material/Checkbox';
-import { Backdrop } from '@mui/material';
 import { Box, styled, lighten, darken } from '@mui/system';
 import Grid from '@mui/system/Unstable_Grid';
 import CommandLine from '../components/CommandLine.jsx';
 import Terminal from '../components/Terminal.jsx';
-import Sidebar from '../components/Sidebar';
-// import CommandField from '../components/CommandField';
+import Sidebar from '../components/Sidebar.jsx';
+const { ipcRenderer } = require('electron');
+
+const step4 = `4. INPUT COMMANDS --->`;
 
 const BeginnerHeader = styled('div')(({ theme }) => ({
   position: 'sticky',
@@ -35,7 +37,6 @@ const GroupItems = styled('ul')({
   padding: 0,
   color: '#ffffff',
   backgroundColor: '#5c4d9a',
-  webkitScrollbarColor: 'red yellow',
 });
 
 const commands = [
@@ -84,17 +85,19 @@ const commands = [
 ];
 
 function Setup() {
-  const [verb, setVerb] = React.useState('');
-  const [type, setType] = React.useState('');
-  const [name, setName] = React.useState('');
-  const [currDir, setCurrDir] = React.useState('NONE SELECTED');
-  const [userInput, setUserInput] = React.useState('');
-  const [command, setCommand] = useState('');
-  const [response, setResponse] = useState([]);
-  const [flags, setFlags] = useState('');
-  const [editOpen, setEditOpen] = React.useState(false);
-  const [imgPath, setImgPath] = useState('NONE ENTERED');
-  const [imgField, setImgField] = useState('Enter .IMG');
+  const [verb, setVerb] = React.useState<string>('');
+  const [type, setType] = React.useState<string>('');
+  const [name, setName] = React.useState<string>('');
+  const [currDir, setCurrDir] = React.useState<string>('NONE SELECTED');
+  const [userInput, setUserInput] = React.useState<string>('');
+  const [command, setCommand] = useState<string>('');
+  const [response, setResponse] = useState<
+    Array<{ command: string; response: { [key: string]: string } }>
+  >([]);
+  const [editOpen, setEditOpen] = React.useState<boolean>(false);
+  const [imgPath, setImgPath] = useState<string>('NONE ENTERED');
+  const [imgField, setImgField] = useState<string>('Enter .IMG');
+  const [flags, setFlags] = useState<Array<string>>([]);
 
   const options = commands.map((option) => {
     const firstLetter = commands[0].category;
@@ -127,16 +130,20 @@ function Setup() {
 
   // Set flag list state
   const handleFlags = (event) => {
-    console.log('event is', event);
     const {
       target: { value },
     } = event;
-
-    console.log('handleflag target value is', value);
     setFlags(
       // On autofill we get a stringified value.
       typeof value === 'string' ? value.split(',') : value
     );
+  };
+
+  const handleNameChange = (event) => {
+    const {
+      target: { value },
+    } = event;
+    setName(value);
   };
 
   // Set current directory state
@@ -163,56 +170,33 @@ function Setup() {
 
   // Set the command state based on current inputs
   useEffect(() => {
+    ipcRenderer.on('post_command', (event, arg) => {
+      const newResponseState = [
+        ...response,
+        { command: command, response: arg },
+      ];
+      setResponse(newResponseState);
+    });
+
     let newCommand = '';
-    if (verb !== '') newCommand += verb;
+    if (verb !== '') newCommand += ' ' + verb;
     if (type !== '') newCommand += ' ' + type;
     if (name !== '') newCommand += ' ' + name;
+    if (flags.length)
+      flags.forEach((flag) => {
+        newCommand += ' ' + flag;
+      });
     if (userInput !== '') newCommand += ' ' + userInput;
     setCommand(newCommand);
   });
 
-  // Post the command to the server
-  const postCommand = async (command, currDir) => {
-    console.log('currDir', currDir);
-    try {
-      const response = await fetch('/api', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ command: command, currDir: currDir }),
-      });
-      const cliResponse = await response.json();
-      console.log('the server responded: ', cliResponse);
-      return cliResponse;
-    } catch (e) {
-      console.log(e);
-      setError(true);
-    }
-  };
-
   // Handle the command input submit event
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('enter button clicked');
     if (currDir === 'NONE SELECTED')
       return alert('Please choose working directory');
-    console.log('command ', command);
 
-    const getCliResponse = async () => {
-      const cliResponse = await postCommand(command, currDir);
-      // Filter for errors
-      if (cliResponse.err) alert('Invalid command. Please try again');
-      // Update response state with the returned CLI response
-      else {
-        const newResponseState = [
-          ...response,
-          { command: command, response: cliResponse },
-        ];
-        setResponse(newResponseState);
-      }
-    };
-
-    // Invoke a fetch request to the server
-    getCliResponse();
+    ipcRenderer.send('post_command', { command, currDir });
   };
 
   // Type options
@@ -234,7 +218,7 @@ function Setup() {
       <Grid
         id='setup-page'
         container
-        disableEqualOverflow='true'
+        disableEqualOverflow
         width={'100vw'}
         height={'95vh'}
         sx={{ pt: 3, pb: 3 }}
@@ -436,6 +420,7 @@ function Setup() {
                 CHOOSE DIRECTORY
                 <input
                   type='file'
+                  // @ts-expect-error
                   directory=''
                   webkitdirectory=''
                   hidden
@@ -475,17 +460,6 @@ function Setup() {
                   height: '1px',
                 }}
               />
-              <div
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  padding: '10px',
-                  fontSize: '9px',
-                }}
-              >
-                {currDir}
-              </div>
 
               <Button
                 onClick={handleEditOpen}
@@ -501,7 +475,7 @@ function Setup() {
                   fontSize: '12px',
                 }}
               >
-                CREATE .YAML FILE
+                Configure .YAML FILE
               </Button>
               <Backdrop
                 style={{
@@ -605,7 +579,7 @@ function Setup() {
                     alignItems: 'center',
                   }}
                 >
-                  4. INPUT COMMANDS ---
+                  {step4}
                 </div>
               </div>
             </Box>
@@ -642,7 +616,6 @@ function Setup() {
               <CommandLine
                 width='100%'
                 handleSubmit={handleSubmit}
-                postCommand={postCommand}
                 setUserInput={setUserInput}
                 userInput={userInput}
                 command={command}
@@ -679,7 +652,6 @@ function Setup() {
                   renderGroup={(params) => (
                     <li
                       style={{
-                        WebkitScrollbarColor: 'red yellow',
                         color: '#ffffff',
                         fontSize: '13px',
                       }}
@@ -687,7 +659,6 @@ function Setup() {
                     >
                       <BeginnerHeader
                         style={{
-                          webkitScrollbarColor: 'red yellow',
                           color: '#ffffff',
                           fontSize: '14px',
                         }}
@@ -696,7 +667,6 @@ function Setup() {
                       </BeginnerHeader>
                       <GroupItems
                         style={{
-                          webkitScrollbarColor: 'red yellow',
                           color: '#ffffff',
                           fontSize: '14px',
                         }}
@@ -720,42 +690,35 @@ function Setup() {
                   )}
                 />
               </Grid>
-              <Grid id='name' xs={3}>
+              <Grid id='name' xs={2}>
                 <form
-                  onChange={(e) => {
-                    setName(e.target.value);
-                    console.log(name);
-                  }}
+                  onChange={handleNameChange}
                   onSubmit={(e) => {
                     e.preventDefault();
                   }}
-                  value={name}
                 >
                   <TextField
                     id='outlined-basic'
                     label='Name'
                     variant='outlined'
-                    fullWidth='true'
                   />
                 </form>
               </Grid>
               <Grid id='flag' xs={3}>
-                <FormControl>
-                  <InputLabel id='demo-multiple-checkbox-label'>
-                    Flags (optional)
-                  </InputLabel>
+                <FormControl fullWidth>
+                  <InputLabel id='flag-label'>Flags</InputLabel>
                   <Select
-                    labelId='demo-multiple-checkbox-label'
-                    id='demo-multiple-checkbox'
+                    labelId='flag-label'
+                    id='flag-label'
                     multiple
-                    value={flagList}
+                    value={flags}
                     onChange={handleFlags}
-                    input={<OutlinedInput label='Flags (optional)' />}
+                    input={<OutlinedInput label='Flags' />}
                     renderValue={(selected) => selected.join(', ')}
                   >
                     {flagList.map((name) => (
                       <MenuItem key={name} value={name}>
-                        <Checkbox unchecked={flagList} />
+                        <Checkbox checked={flags.indexOf(name) > -1} />
                         <ListItemText primary={name} />
                       </MenuItem>
                     ))}

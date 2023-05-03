@@ -1,15 +1,18 @@
-const Users = require('../models/UserModel');
-var qs = require('querystring');
-const bcrypt = require('bcryptjs');
+import Users from '../models/UserModel';
+import bcrypt from 'bcryptjs';
+import * as express from 'express';
 
-const userController = {};
+const userController: Record<string, any> = {}
+
+type CreateUserRequestBody = Record<'username' | 'email' | 'password', string> 
+
+type VerifyUserRequestBody = Record<'username' | 'password', string>
 
 // Create user in the database
-userController.createUser = async (req, res, next) => {
-  const { username, email, password } = req.body;
-
+userController.createUser = async (req: express.Request, res: express.Response, next: express.NextFunction): Promise<void> => {
+  const { username, email, password } = req.body as CreateUserRequestBody;
   try {
-    const newUser = await Users.create({ username, email, password });
+    await Users.create({ username, email, password });
     // If the user is created, return next
     return next();
   } catch (err) {
@@ -17,14 +20,16 @@ userController.createUser = async (req, res, next) => {
     next({
       log: 'Express error handler caught createUser middleware error',
       status: 400,
-      message: { err: err.message },
+      message: { err: 'An error occured CREATE' },
     });
   }
 };
 
 // Verify user on login attempt
-userController.verifyUser = async (req, res, next) => {
-  const { username, password } = req.body;
+userController.verifyUser = async (req: express.Request, res: express.Response, next: express.NextFunction): Promise<void>  => {
+  console.log('in verify user')
+  const { username, password } = req.body as VerifyUserRequestBody;
+  console.log(req.body);
   // Find if the user exists in the database
   const user = await Users.findOne({ username });
   // If user does not exist, return error
@@ -35,7 +40,7 @@ userController.verifyUser = async (req, res, next) => {
       message: { err: 'An error occurred EMAIL' },
     });
   } else {
-    bcrypt.compare(password, user.password, (err, result) => {
+    bcrypt.compare(password, user.password, (err: Error, result: boolean) => {
       // If there is an error in hashing the password, return error
       if (err) {
         return next({
@@ -62,4 +67,4 @@ userController.verifyUser = async (req, res, next) => {
   }
 };
 
-module.exports = userController;
+export default userController;

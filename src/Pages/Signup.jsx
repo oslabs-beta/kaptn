@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import Button from '@mui/material/Button';
 import { Box } from '@mui/system';
 import { TextField } from '@mui/material';
 import { Typography } from '@mui/material';
-import { useMode } from '../theme';
 import Grid from '@mui/system/Unstable_Grid';
+import { Link } from 'react-router-dom';
 
 function Signup() {
   const [password, setInputPassword] = useState('');
@@ -23,11 +23,11 @@ function Signup() {
           password,
         }),
       });
-      // If the response comes back, parse it from JSON and return
+      // If the response comes back successful, parse it from JSON and return
       const parsedResponse = await response.json();
       return parsedResponse;
     } catch (err) {
-      console.error(err);
+      console.log(err);
     }
   }
 
@@ -35,13 +35,14 @@ function Signup() {
   function handleClick(event) {
     event.preventDefault();
 
+    // Handle invalid submissions
     if (username === '' || password === '' || email === '')
       alert('Missing username, email, or password. Please try again');
 
     const callCreateUser = async () => {
       const response = await createUser(username, email, password);
       // If there are no errors, redirect to the login page
-      if (response) window.location.href = 'http://localhost:4444/';
+      if (response) navigate('/');
     };
     callCreateUser();
   }
@@ -163,27 +164,28 @@ function Signup() {
               justifyContent='center'
               alignItems='center'
             >
-              <Button
-                variant='contained'
-                type='submit'
-                size='small'
-                href='/'
-                sx={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  border: '1px solid #68617f',
-                  letterSpacing: '1.5px',
-                  backgroundColor: '#22145a',
-                  mt: 2,
-                  mb: 3,
-                  ':hover': {
-                    backgroundColor: 'rgb(16,10,54)',
-                  },
-                }}
-              >
-                Sign In
-              </Button>
+              <Link to='/'>
+                <Button
+                  variant='contained'
+                  type='submit'
+                  size='small'
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    border: '1px solid #68617f',
+                    letterSpacing: '1.5px',
+                    backgroundColor: '#22145a',
+                    mt: 2,
+                    mb: 3,
+                    ':hover': {
+                      backgroundColor: 'rgb(16,10,54)',
+                    },
+                  }}
+                >
+                  Sign In
+                </Button>
+              </Link>
             </Grid>
             <Typography variant='caption'>Copyright © Kaptn 2023. </Typography>
           </Box>

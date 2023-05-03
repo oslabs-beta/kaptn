@@ -1,7 +1,6 @@
 import { createContext, useState, useMemo } from 'react';
 import { createTheme } from '@mui/material/styles';
 
-
 // set up color scheme using tailwind shades extension
 const tokens = (mode) => ({
   ...(mode === 'dark'
@@ -23,7 +22,6 @@ const tokens = (mode) => ({
           100: '#d0ced7',
           200: '#a09caf',
           300: '#716b88',
-          // 400: '#413960',
           400: 'lightblue',
           500: '#120838',
           600: '#0e062d',
@@ -217,11 +215,11 @@ const ColorModeContext = createContext({
 });
 
 const useMode = () => {
-  const [mode, setMode] = useState('dark');
+  const [mode, setMode] = useState<'light' | 'dark'>('dark');
 
   const colorMode = useMemo(
     () => ({
-      toggleColorMode: () => 
+      toggleColorMode: () =>
         setMode((prev) => (prev === 'light' ? 'dark' : 'light')),
     }),
     []
@@ -229,7 +227,7 @@ const useMode = () => {
   // create the theme from material UI and passing mode into our theme setting
   const theme = useMemo(() => createTheme(themeSettings(mode)), [mode]);
 
-  return [theme, colorMode];
+  return [theme, colorMode] as const;
 };
 
-export { useMode, ColorModeContext, tokens }
+export { useMode, ColorModeContext, tokens };

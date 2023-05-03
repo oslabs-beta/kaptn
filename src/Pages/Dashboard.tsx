@@ -1,4 +1,3 @@
-import React from 'react';
 import { useState, useEffect } from 'react';
 import {
   Button,
@@ -8,32 +7,30 @@ import {
   FormControl,
   TextField,
   Autocomplete,
-  IconButton,
+  OutlinedInput,
+  ListItemText,
+  Checkbox,
 } from '@mui/material';
-import { styled } from '@mui/system';
 import Grid from '@mui/system/Unstable_Grid';
-import OutlinedInput from '@mui/material/OutlinedInput';
-import ListItemText from '@mui/material/ListItemText';
-import Checkbox from '@mui/material/Checkbox';
 import SideNav from '../components/Sidebar.jsx';
 import CommandLine from '../components/CommandLine.jsx';
 import Terminal from '../components/Terminal.jsx';
-import SetupButtons from '../components/SetupButtons.jsx';
+const { ipcRenderer } = require('electron');
 
-function Dashboard() {
-  const [verb, setVerb] = useState('');
-  const [type, setType] = useState('');
-  const [name, setName] = useState('');
-  const [currDir, setCurrDir] = useState('NONE SELECTED');
-  const [userInput, setUserInput] = useState('');
-  const [command, setCommand] = useState('');
-  const [tool, setTool] = useState('');
-  const [response, setResponse] = useState([]);
+function Dashboard(): JSX.Element {
+  const [verb, setVerb] = useState<string>('');
+  const [type, setType] = useState<string>('');
+  const [name, setName] = useState<string>('');
+  const [currDir, setCurrDir] = useState<string>('NONE SELECTED');
+  const [userInput, setUserInput] = useState<string>('');
+  const [command, setCommand] = useState<string>('');
+  const [tool, setTool] = useState<string>('');
+  const [response, setResponse] = useState<
+    Array<{ command: string; response: { [key: string]: string } }>
+  >([]);
+  const [flags, setFlags] = useState<Array<string>>([]);
 
-  // Flag list options
-  const flagList = ['-o wide', '--force'];
-
-  // Set flag list state
+  // Set flag list state on change
   const handleFlags = (event) => {
     const {
       target: { value },
@@ -44,6 +41,14 @@ function Dashboard() {
     );
   };
 
+  // Set name state on change
+  const handleNameChange = (event) => {
+    const {
+      target: { value },
+    } = event;
+    setName(value);
+  };
+
   // Set current directory state
   const handleUploadDirectory = (event) => {
     let path = event.target.files[0].path.split('');
@@ -51,83 +56,60 @@ function Dashboard() {
       path.pop();
     }
     let absPath = path.join('');
-    console.log('path is ', absPath);
     setCurrDir(absPath);
   };
 
   // Set the command state based on current inputs
   useEffect(() => {
+    // Listen to post_command response
+    ipcRenderer.on('post_command', (event, arg) => {
+      console.log(arg);
+      const newResponseState = [
+        ...response,
+        { command: command, response: arg },
+      ];
+      setResponse(newResponseState);
+    });
+
     let newCommand = '';
     if (tool !== '') newCommand += tool;
     if (verb !== '') newCommand += ' ' + verb;
     if (type !== '') newCommand += ' ' + type;
     if (name !== '') newCommand += ' ' + name;
+    if (flags.length)
+      flags.forEach((flag) => {
+        newCommand += ' ' + flag;
+      });
     if (userInput !== '') newCommand += ' ' + userInput;
     setCommand(newCommand);
   });
 
-  // Post the command to the server
-  const postCommand = async (command, currDir) => {
-    console.log('currDir', currDir);
-    try {
-      const response = await fetch('/api', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ command: command, currDir: currDir }),
-      });
-      const cliResponse = await response.json();
-      console.log('the server responded: ', cliResponse);
-      return cliResponse;
-    } catch (e) {
-      console.log(e);
-      setError(true);
-    }
-  };
-
   // Handle the command input submit event
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('enter button clicked');
     if (currDir === 'NONE SELECTED')
       return alert('Please choose working directory');
-    console.log('command ', command);
 
-    const getCliResponse = async () => {
-      const cliResponse = await postCommand(command, currDir);
-      // Filter for errors
-      if (cliResponse.err) alert('Invalid command. Please try again');
-      // Update response state with the returned CLI response
-      else {
-        const newResponseState = [
-          ...response,
-          { command: command, response: cliResponse },
-        ];
-        setResponse(newResponseState);
-      }
-    };
-
-    // Invoke a fetch request to the server
-    getCliResponse();
+    ipcRenderer.send('post_command', { command, currDir });
   };
 
   // Clear the input box
   const handleClear = (e) => {
     e.preventDefault();
-    console.log('clear button clicked');
     setUserInput('');
   };
 
   // Command list options
-  const commandList = [
-    { label: 'get', year: 1994 },
-    { label: 'apply', year: 1972 },
-    { label: 'create', year: 1974 },
-    { label: 'patch', year: 1974 },
-    { label: 'logs', year: 1974 },
+  const commandList: { label: string }[] = [
+    { label: 'get' },
+    { label: 'apply' },
+    { label: 'create' },
+    { label: 'patch' },
+    { label: 'logs' },
   ];
 
   // Type options
-  const types = [
+  const types: { label: string }[] = [
     { label: 'node' },
     { label: 'nodes' },
     { label: 'pod' },
@@ -140,12 +122,15 @@ function Dashboard() {
     { label: 'services' },
   ];
 
+  // Flag list options
+  const flagList: string[] = ['-o wide', '--force', '-f', '-o default', '-v'];
+
   return (
     <>
       <Grid
         id='dashboard'
         container
-        disableEqualOverflow='true'
+        disableEqualOverflow
         width={'100vw'}
         height={'95vh'}
         sx={{ pt: 3, pb: 3 }}
@@ -159,7 +144,7 @@ function Dashboard() {
           height='95%'
           xs={10}
           // spacing={1}
-          disableEqualOverflow='true'
+          disableEqualOverflow
           container
           direction='column'
           wrap='nowrap'
@@ -212,7 +197,7 @@ function Dashboard() {
                   CHOOSE DIRECTORY
                   <input
                     type='file'
-                    directory=''
+                    // @ts-expect-error
                     webkitdirectory=''
                     hidden
                     onChange={handleUploadDirectory}
@@ -271,14 +256,10 @@ function Dashboard() {
               </Grid>
               <Grid id='name' xs={2}>
                 <form
-                  onChange={(e) => {
-                    setName(e.target.value);
-                    console.log(name);
-                  }}
+                  onChange={handleNameChange}
                   onSubmit={(e) => {
                     e.preventDefault();
                   }}
-                  value={name}
                 >
                   <TextField
                     id='outlined-basic'
@@ -288,22 +269,20 @@ function Dashboard() {
                 </form>
               </Grid>
               <Grid id='flag' xs={2}>
-                <FormControl>
-                  <InputLabel id='demo-multiple-checkbox-label'>
-                    Flags (optional)
-                  </InputLabel>
+                <FormControl fullWidth>
+                  <InputLabel id='flag-label'>Flags</InputLabel>
                   <Select
-                    labelId='demo-multiple-checkbox-label'
-                    id='demo-multiple-checkbox'
+                    labelId='flag-label'
+                    id='flag-label'
                     multiple
-                    value={flagList}
+                    value={flags}
                     onChange={handleFlags}
-                    input={<OutlinedInput label='Flags (optional)' />}
+                    input={<OutlinedInput label='Flags' />}
                     renderValue={(selected) => selected.join(', ')}
                   >
                     {flagList.map((name) => (
                       <MenuItem key={name} value={name}>
-                        <Checkbox checked={flagList.indexOf(name) > -1} />
+                        <Checkbox checked={flags.indexOf(name) > -1} />
                         <ListItemText primary={name} />
                       </MenuItem>
                     ))}
@@ -316,7 +295,6 @@ function Dashboard() {
             <CommandLine
               width='100%'
               handleSubmit={handleSubmit}
-              postCommand={postCommand}
               setUserInput={setUserInput}
               userInput={userInput}
               command={command}

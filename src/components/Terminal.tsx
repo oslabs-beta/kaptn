@@ -3,24 +3,23 @@ import Grid from '@mui/system/Unstable_Grid';
 
 const Terminal = (props) => {
   // Create a div for each command/response in the current session
-  const commandLog = [];
+  const commandLog: JSX.Element[] = [];
 
-  // Format the response for line breaks and spacing
+  // Format the shell response for line breaks and spacing
   // The <pre> tag here ensures proper spacing
   props.response.forEach((el) => {
-    const paredResponse = el.response.split('\n').map(function (item) {
+    const paredResponse: JSX.Element[] = el.response.split('\n').map(function (item: string) {
       return (
         <pre>
           <span>
             {item}
-            {/* <br /> */}
           </span>
         </pre>
       );
     });
 
     commandLog.push(
-      <div class='command-log'>
+      <div className='command-log'>
         <strong style={{ color: 'rgb(109, 233, 68)' }}>$ {el.command}</strong>
         <p>{paredResponse}</p>
       </div>
