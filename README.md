@@ -42,8 +42,8 @@ Our application defaults to our dashboard page, where you will be able to select
     - Type out the full image name with the tag into the Image Input Field and press the Enter key 
     - You may move onto step 4 once you see the image name render on the screen
 
-![chooseimage (1)](https://user-images.githubusercontent.com/63977843/236069404-e474bd34-4fa5-4503-84b7-bc4956335eda.gif)
-![enterimg (1)](https://user-images.githubusercontent.com/63977843/236068711-3bacf6d2-a42a-49a3-9621-e0135e1a0357.gif)
+    ![chooseimage (1)](https://user-images.githubusercontent.com/63977843/236069404-e474bd34-4fa5-4503-84b7-bc4956335eda.gif)
+    ![enterimg (1)](https://user-images.githubusercontent.com/63977843/236068711-3bacf6d2-a42a-49a3-9621-e0135e1a0357.gif)
 
  4. Choose Working Directory
      - Select the working directory from which the virtual command line interface will be launched
@@ -58,8 +58,8 @@ Our application defaults to our dashboard page, where you will be able to select
   echo ‘YOUR CODE’ > FILENAME.yaml
     - Use your OS finder / files to locate the yaml file you created and confirm that it is configured as you expect
     
-![configyaml (2)](https://user-images.githubusercontent.com/63977843/236071323-57b395df-0128-40e4-b6e0-a060adcea78b.gif)
-![touchyaml](https://user-images.githubusercontent.com/63977843/236071893-708850e9-d03c-47d0-a5a5-9a1f8efa55a0.gif)
+    ![configyaml (2)](https://user-images.githubusercontent.com/63977843/236071323-57b395df-0128-40e4-b6e0-a060adcea78b.gif)
+    ![touchyaml](https://user-images.githubusercontent.com/63977843/236071893-708850e9-d03c-47d0-a5a5-9a1f8efa55a0.gif)
 
   8. Congratulations! You have successfully setup your Kubernetes cluster!
 
