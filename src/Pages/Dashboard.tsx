@@ -63,7 +63,6 @@ function Dashboard(): JSX.Element {
   useEffect(() => {
     // Listen to post_command response
     ipcRenderer.on('post_command', (event, arg) => {
-      console.log(arg);
       const newResponseState = [
         ...response,
         { command: command, response: arg },
