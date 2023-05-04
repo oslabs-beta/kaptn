@@ -344,7 +344,6 @@ function Setup() {
                         ev.key === 'ArrowUp' ||
                         ev.key === 'ArrowDown' ||
                         ev.key === 'ArrowRight' ||
-                        ev.key === ' ' ||
                         ev.key === 'Shift'
                       ) {
                       } else if (ev.key === 'Backspace') {
