@@ -86,7 +86,7 @@ Contributions are an incredibly important part of the open source community. Any
 * Create a new issue on GitHub
 
 ## Contributors
-- Brecht Horn [GitHub](https://github.com/brechtsky) | [LinkedIn](https://www.linkedin.com/in/brecht-horn-a9b839213/)
+- Brecht Horn [GitHub](https://github.com/brecht-horn) | [LinkedIn](https://www.linkedin.com/in/brecht-horn-a9b839213/)
 - John Choi [GitHub](https://github.com/jhwiwonc) | [LinkedIn](https://www.linkedin.com/in/hwi-won-choi-057081191/)
 - Natalie Cordoves [GitHub](https://github.com/ncordoves) | [LinkedIn](https://www.linkedin.com/in/natalie-cordoves)
 - Olivia Hodel [GitHub](https://github.com/ohodel) | [LinkedIn](https://www.linkedin.com/in/olivia-hodel/)
