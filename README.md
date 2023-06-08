@@ -45,6 +45,8 @@ Kaptn is a fully downloadable desktop application that provides a user-friendly 
 
 If you get a warning that the app is from an unidentified developer, go to System Preferences > Security & Privacy > General and click "Open Anyway".
 
+*Please note, login functionality is currently disabled. Instead, please continue as guest to access all features of Kaptn.
+
 ## Usage Guidelines
 
 ### Overview
