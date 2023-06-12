@@ -84,7 +84,7 @@ function Login() {
         <Box id='subtitle'>
           <Typography
             variant='h2'
-            alignText='center'
+            // alignText='center'
             sx={{ fontWeight: 'bold' }}
           >
             Take command of Kubernetes.

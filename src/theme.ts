@@ -165,7 +165,7 @@ const themeSettings = (mode) => {
               main: colors.primary[100],
             },
             secondary: {
-              main: colors.greenAccent[500],
+              main: colors.primary[700],
             },
             neutral: {
               dark: colors.gray[700],
@@ -173,7 +173,7 @@ const themeSettings = (mode) => {
               light: colors.gray[100],
             },
             background: {
-              default: '#fcfcfc',
+              default: '#f6f4fe',
             },
           }),
     },

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Button from '@mui/material/Button';
 import { Box } from '@mui/system';
-import { Typography } from '@mui/material';
+import { Typography, useTheme } from '@mui/material';
 const { ipcRenderer } = require('electron');
 import Grid from '@mui/system/Unstable_Grid';
 import SideNav from '../components/Sidebar.jsx';
@@ -12,6 +12,8 @@ function SetupButtons() {
   const [uid, setUid] = useState('');
   const now = new Date().getTime();
   const from = new Date(now - 60 * 60 * 1000).getTime();
+
+  const theme = useTheme();
 
   useEffect(() => {
     //Listen to prom_setup event
@@ -139,7 +141,11 @@ function SetupButtons() {
             <Button
               onClick={handleClick}
               variant='contained'
-              style={{ border: '1px solid' }}
+              style={{
+                border: '1px solid',
+                backgroundColor:
+                  theme.palette.mode === 'dark' ? '#150f2d' : '#8881ce',
+              }}
             >
               {' '}
               Set up Prometheus{' '}
@@ -154,7 +160,11 @@ function SetupButtons() {
             <Button
               variant='contained'
               onClick={handleGrafClick}
-              style={{ border: '1px solid' }}
+              style={{
+                border: '1px solid',
+                backgroundColor:
+                  theme.palette.mode === 'dark' ? '#150f2d' : '#8881ce',
+              }}
             >
               Set up Grafana
             </Button>
@@ -165,12 +175,16 @@ function SetupButtons() {
             <Button
               onClick={handleForwardPort}
               variant='contained'
-              style={{ border: '1px solid' }}
+              style={{
+                border: '1px solid',
+                backgroundColor:
+                  theme.palette.mode === 'dark' ? '#150f2d' : '#8881ce',
+              }}
             >
               Start port forwarding...
             </Button>
           </Grid>
-{/* 
+          {/* 
           <Grid xs={2} container>
             <Typography> 4. Show me my cluster </Typography>
             <Button

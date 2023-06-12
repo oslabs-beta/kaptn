@@ -1,6 +1,5 @@
 const path = require('path');
 const { app, BrowserWindow, ipcMain } = require('electron');
-// const { exec } = require('child_process');
 const { exec, spawnSync, spawn } = require('child_process');
 
 const isDev = process.env.NODE_ENV === 'development';
@@ -9,10 +8,11 @@ function createMainWindow() {
   const mainWindow = new BrowserWindow({
     title: 'Kaptn',
     titleBarStyle: 'hidden',
+    trafficLightPosition: { x: '100', y: '100' },
     width: 1200,
     height: 700,
-    minWidth: 900,
-    minHeight: 600,
+    minWidth: 1100,
+    minHeight: 675,
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,

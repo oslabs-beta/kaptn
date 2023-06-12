@@ -10,12 +10,35 @@ import {
   OutlinedInput,
   ListItemText,
   Checkbox,
+  useTheme,
 } from '@mui/material';
 import Grid from '@mui/system/Unstable_Grid';
 import SideNav from '../components/Sidebar.jsx';
 import CommandLine from '../components/CommandLine.jsx';
 import Terminal from '../components/Terminal.jsx';
 const { ipcRenderer } = require('electron');
+import commands from '../components/commands.js';
+import { Box, styled, lighten, darken } from '@mui/system';
+
+//section header (e.g. beginner, intermediate, etc) rules for grouped "command" option
+const BeginnerHeader = styled('div')(({ theme }) => ({
+  position: 'sticky',
+  top: '-8px',
+  padding: '4px 10px',
+  margin: '0px',
+  color: '#ffffff',
+  backgroundColor: '#352a68',
+  webkitScrollbarColor: 'red yellow',
+}));
+
+//style for grouped commands
+const GroupItems = styled('ul')({
+  padding: 0,
+  color: '#ffffff',
+  backgroundColor: '#5c4d9a',
+});
+
+
 
 function Dashboard(): JSX.Element {
   const [verb, setVerb] = useState<string>('');
@@ -29,6 +52,21 @@ function Dashboard(): JSX.Element {
     Array<{ command: string; response: { [key: string]: string } }>
   >([]);
   const [flags, setFlags] = useState<Array<string>>([]);
+
+  //for light/dark mode toggle
+  const theme = useTheme();
+
+ //maps grouped command options alphabetically including if numbered
+ const options = commands.map((option) => {
+  const firstLetter = commands[0].category;
+  return {
+    firstLetter: /[{commands[0].category}]/.test(firstLetter)
+      ? '0-9'
+      : firstLetter,
+    ...option,
+  };
+});
+
 
   // Set flag list state on change
   const handleFlags = (event) => {
@@ -191,6 +229,7 @@ function Dashboard(): JSX.Element {
                     marginBottom: '10px',
                     fontSize: '9px',
                     letterSpacing: '1.5px',
+                    color: theme.palette.mode === 'dark' ? '#9e9d9d' : 'black',
                   }}
                 >
                   CHOOSE DIRECTORY
@@ -227,16 +266,50 @@ function Dashboard(): JSX.Element {
                   )}
                 />
               </Grid>
-              <Grid id='command' xs={2}>
+              <Grid id='commands' xs={3}>
                 <Autocomplete
                   disablePortal
                   id='combo-box-demo'
-                  options={commandList}
+                  options={options.sort(
+                    (a, b) => -b.firstLetter.localeCompare(a.firstLetter)
+                  )}
+                  groupBy={(option) => option.category}
+                  getOptionLabel={(option) => option.title}
                   onInputChange={(e, newInputValue) => {
+                    console.log('newInputValue is', newInputValue);
                     setVerb(newInputValue);
+                    const newCommand = verb + ' ' + type + ' ' + name;
+                    setCommand(newCommand);
+                    // setCommand(newInputValue);
                   }}
                   renderInput={(params) => (
                     <TextField {...params} label='Commands' />
+                  )}
+                  renderGroup={(params) => (
+                    <li
+                      style={{
+                        color: '#ffffff',
+                        fontSize: '13px',
+                      }}
+                      key={params.key}
+                    >
+                      <BeginnerHeader
+                        style={{
+                          color: '#ffffff',
+                          fontSize: '14px',
+                        }}
+                      >
+                        {params.group}
+                      </BeginnerHeader>
+                      <GroupItems
+                        style={{
+                          color: '#ffffff',
+                          fontSize: '14px',
+                        }}
+                      >
+                        {params.children}
+                      </GroupItems>
+                    </li>
                   )}
                 />
               </Grid>

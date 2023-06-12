@@ -13,12 +13,16 @@ import {
   ListItemText,
   Checkbox,
   Backdrop,
+  useTheme,
 } from '@mui/material';
 import { Box, styled, lighten, darken } from '@mui/system';
 import Grid from '@mui/system/Unstable_Grid';
 import CommandLine from '../components/CommandLine.jsx';
 import Terminal from '../components/Terminal.jsx';
 import Sidebar from '../components/Sidebar.jsx';
+import EastIcon from '@mui/icons-material/East';
+import commands from '../components/commands.js';
+
 const { ipcRenderer } = require('electron');
 
 //for step 4 text to appear below without eslint/prettier error, assigned to variable here
@@ -42,51 +46,6 @@ const GroupItems = styled('ul')({
   backgroundColor: '#5c4d9a',
 });
 
-const commands = [
-  { title: 'create', category: 'Beginners Commands' },
-  { title: 'expose', category: 'Beginners Commands' },
-  { title: 'run', category: 'Beginners Commands' },
-  { title: 'set', category: 'Beginners Commands' },
-  { title: 'explain', category: 'Intermediate Commands' },
-  { title: 'get', category: 'Intermediate Commands' },
-  { title: 'edit', category: 'Intermediate Commands' },
-  { title: 'delete', category: 'Intermediate Commands' },
-  { title: 'rollout', category: 'Deploy Commands' },
-  { title: 'scale', category: 'Deploy Commands' },
-  { title: 'autoscale', category: 'Deploy Commands' },
-  { title: 'certificate', category: 'Cluster Management Commands' },
-  { title: 'cluster-info', category: 'Cluster Management Commands' },
-  { title: 'top', category: 'Cluster Management Commands' },
-  { title: 'cordon', category: 'Cluster Management Commands' },
-  { title: 'uncordon', category: 'Cluster Management Commands' },
-  { title: 'drain', category: 'Cluster Management Commands' },
-  { title: 'taint', category: 'Cluster Management Commands' },
-  { title: 'describe', category: 'Troubleshoot/Debug Commands' },
-  { title: 'logs', category: 'Troubleshoot/Debug Commands' },
-  { title: 'attach', category: 'Troubleshoot/Debug Commands' },
-  { title: 'exec', category: 'Troubleshoot/Debug Commands' },
-  { title: 'port-forward', category: 'Troubleshoot/Debug Commands' },
-  { title: 'proxy', category: 'Troubleshoot/Debug Commands' },
-  { title: 'cp', category: 'Troubleshoot/Debug Commands' },
-  { title: 'auth', category: 'Troubleshoot/Debug Commands' },
-  { title: 'debug', category: 'Troubleshoot/Debug Commands' },
-  { title: 'diff', category: 'Advanced Commands' },
-  { title: 'apply', category: 'Advanced Commands' },
-  { title: 'patch', category: 'Advanced Commands' },
-  { title: 'replace', category: 'Advanced Commands' },
-  { title: 'wait', category: 'Advanced Commands' },
-  { title: 'kustomize', category: 'Advanced Commands' },
-  { title: 'label', category: 'Settings Commands' },
-  { title: 'annotate', category: 'Settings Commands' },
-  { title: 'completion', category: 'Settings Commands' },
-  { title: 'alpha', category: 'Other Commands' },
-  { title: 'api-resources', category: 'Other Commands' },
-  { title: 'api-versions', category: 'Other Commands' },
-  { title: 'config', category: 'Other Commands' },
-  { title: 'plugin', category: 'Other Commands' },
-  { title: 'version', category: 'Other Commands' },
-];
-
 function Setup() {
   const [verb, setVerb] = React.useState<string>('');
   const [type, setType] = React.useState<string>('');
@@ -101,6 +60,9 @@ function Setup() {
   const [imgPath, setImgPath] = useState<string>('NONE ENTERED');
   const [imgField, setImgField] = useState<string>('Enter .IMG');
   const [flags, setFlags] = useState<Array<string>>([]);
+
+  //for light/dark mode toggle
+  const theme = useTheme();
 
   //maps grouped command options alphabetically including if numbered
   const options = commands.map((option) => {
@@ -221,12 +183,13 @@ function Setup() {
         width={'100vw'}
         height={'95vh'}
         sx={{ pt: 3, pb: 3 }}
+        style={{ overflow: 'hidden' }}
       >
         {/* ----------------SIDE BAR---------------- */}
         <Sidebar spacing={1} />
 
         {/* ----------------MAIN CONTENT---------------- */}
-        <Grid id='main-content' container xs={11} height='85%'>
+        <Grid id='main-content' container xs={11} height='85%' >
           {/* ----------------SELECTION BOXES---------------- */}
           <Grid
             id='selections'
@@ -234,6 +197,7 @@ function Setup() {
             container
             justifyContent='center'
             alignContent='flex-start'
+            
           >
             <Box
               sx={{
@@ -243,7 +207,7 @@ function Setup() {
                 padding: '10px',
                 width: '100%',
                 borderRadius: '5px',
-                bgcolor: '#2a2152',
+                bgcolor: theme.palette.mode === 'dark' ? '#2a2152' : '#c9c4f9',
                 marginBottom: '20px',
               }}
             >
@@ -259,7 +223,7 @@ function Setup() {
                 padding: '15px',
                 width: '100%',
                 borderRadius: '5px',
-                bgcolor: '#2a2152',
+                bgcolor: theme.palette.mode === 'dark' ? '#2a2152' : '#c9c4f9',
                 marginBottom: '25px',
               }}
             >
@@ -269,17 +233,17 @@ function Setup() {
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
-                  color: '#9e9d9d',
+                  color: theme.palette.mode === 'dark' ? '#9e9d9d' : 'black',
                   paddingBottom: '10px',
-                  fontSize: '11.5px',
+                  fontSize: '10.5px',
                 }}
               >
-                1. Import Image
+                1. IMPORT IMAGE
               </div>
               <div
                 style={{
                   backgroundColor: '#716a8e',
-                  width: '100%',
+                  width: '170',
                   height: '1px',
                 }}
               />
@@ -365,7 +329,7 @@ function Setup() {
                 padding: '5px',
                 width: '100%',
                 borderRadius: '5px',
-                backgroundColor: '#2a2152',
+                bgcolor: theme.palette.mode === 'dark' ? '#2a2152' : '#c9c4f9',
                 marginBottom: '25px',
               }}
             >
@@ -374,7 +338,7 @@ function Setup() {
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
-                  color: '#9e9d9d',
+                  color: theme.palette.mode === 'dark' ? '#9e9d9d' : 'black',
                   paddingBottom: '10px',
                   fontSize: '10.5px',
                   marginTop: '10px',
@@ -409,6 +373,8 @@ function Setup() {
                   width: '170px',
                   marginBottom: '15px',
                   fontSize: '12px',
+                  backgroundColor:
+                    theme.palette.mode === 'dark' ? '#150f2d' : '#8881ce',
                 }}
               >
                 CHOOSE DIRECTORY
@@ -429,7 +395,7 @@ function Setup() {
                 flexDirection: 'column',
                 alignItems: 'center',
                 // colored box behind buttons
-                bgcolor: '#2a2152',
+                bgcolor: theme.palette.mode === 'dark' ? '#2a2152' : '#c9c4f9',
                 padding: '15px',
                 width: '100%',
                 borderRadius: '5px',
@@ -440,7 +406,7 @@ function Setup() {
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
-                  color: '#9e9d9d',
+                  color: theme.palette.mode === 'dark' ? '#9e9d9d' : 'black',
                   paddingBottom: '10px',
                   fontSize: '10.5px',
                 }}
@@ -458,7 +424,8 @@ function Setup() {
               <Button
                 onClick={handleEditOpen}
                 style={{
-                  backgroundColor: '#0d0527',
+                  backgroundColor:
+                    theme.palette.mode === 'dark' ? '#150f2d' : '#8881ce',
                   color: 'white',
                   justifyContent: 'center',
                   alignItems: 'center',
@@ -567,6 +534,7 @@ function Setup() {
             >
               <div
                 style={{
+                  display: 'flex',
                   justifyContent: 'center',
                   alignItems: 'center',
                 }}
@@ -577,8 +545,9 @@ function Setup() {
                     alignItems: 'center',
                   }}
                 >
-                  {step4}
+                  INPUT COMMANDS
                 </div>
+                <EastIcon style={{ marginLeft: '5px', height: '30px' }} />
               </div>
             </Box>
           </Grid>
@@ -587,36 +556,41 @@ function Setup() {
 
           <Grid
             id='terminal-cli'
-            xs={8}
+            xs={9}
             container
             justifyContent='center'
-            alignContent='space-between'
-            style={{ height: '615px', margin: '10px' }}
+            alignContent='start'
+            style={{ height: '715px' }}
           >
             {/* ----------------TERMINAL---------------- */}
             <Terminal response={response} />
 
+            {/* ----------------COMMAND LINE---------------- */}
             <div
               style={{
-                border: '1px solid',
+                // border: '1px solid',
                 borderRadius: '3px',
-                background: '#0e0727',
+                // background:
+                //   theme.palette.mode === 'dark' ? '#0e0727' : '#e6e1fb',
                 // border: '2px solid #c6bebe',
                 height: '60px',
                 width: 'auto',
-                marginTop: '5px',
+                marginTop: '20px',
+                marginBottom: '30px',
+                marginLeft: '5px',
                 fontFamily: 'monospace',
                 padding: '5px',
                 zIndex: '100',
+                alignContent: 'start',
               }}
             >
-              {/* ----------------COMMAND LINE---------------- */}
               <CommandLine
                 width='100%'
                 handleSubmit={handleSubmit}
                 setUserInput={setUserInput}
                 userInput={userInput}
                 command={command}
+                border='0px transparent'
               />
             </div>
 
