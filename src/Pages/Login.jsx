@@ -90,8 +90,8 @@ function Login() {
             Take command of Kubernetes.
           </Typography>
         </Box>
-        <Grid id='below-subtitle' container width={'85%'}>
-          <Box
+        {/* <Grid id='below-subtitle' container width={'85%'}> */}
+          {/* <Box
             id='input-boxes'
             component='form'
             onSubmit={handleSubmit}
@@ -179,7 +179,7 @@ function Login() {
                 >
                   Sign Up
                 </Button>
-              </Link>
+              </Link> */}
               <Link to='/dashboard'>
                 <Button
                   variant='contained'
@@ -202,10 +202,10 @@ function Login() {
                   Continue as guest
                 </Button>
               </Link>
-            </Grid>
+            {/* </Grid> */}
             <Typography variant='caption'>Copyright © Kaptn 2023. </Typography>
-          </Box>
-        </Grid>
+          {/* </Box> */}
+        {/* </Grid> */}
       </Grid>
       <Grid id='main-content-right' xs={4}></Grid>
     </Grid>

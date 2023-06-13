@@ -9,7 +9,7 @@ import {
   HomeOutlined,
   LightMode,
   BarChart,
-  DarkModeOutlined,
+  DarkMode,
 } from '@mui/icons-material';
 import Grid from '@mui/system/Unstable_Grid';
 import { ColorModeContext } from '../theme.ts';
@@ -97,12 +97,12 @@ function SideNav(props) {
               ></MenuItem>
             </Link>
 
-            <MenuItem id='light-dark-button'>
+            <MenuItem id='light-dark-button' style={{position:"fixed", bottom: "10px", left: "0"}}>
               <IconButton onClick={colorMode.toggleColorMode}>
                 {theme.palette.mode === 'dark' ? (
-                  <DarkModeOutlined style={{ color: '#c066e6' }} />
+                  <LightMode style={{ color: '#ac98fa' }} />
                 ) : (
-                  <LightMode style={{ color: '#3c2dac' }} />
+                  <DarkMode style={{ color: '#5456ac' }} />
                 )}
               </IconButton>
             </MenuItem>

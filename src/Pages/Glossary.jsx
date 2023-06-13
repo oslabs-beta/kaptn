@@ -868,10 +868,11 @@ function Glossary() {
               backgroundColor: '#a494d7',
               width: '300px',
               marginTop: '20px',
+              color:"white" 
             }}
             onClick={handleCreateOpen}
           >
-            <div style={{ fontSize: '16px' }}>KUBECTL CREATE:</div>
+            <div style={{ fontSize: '16px', color:"white" }}>KUBECTL CREATE:</div>
             Create a resource from a file or from stdin
           </Button>
           <Modal
@@ -909,10 +910,11 @@ function Glossary() {
               backgroundColor: '#a494d7',
               width: '300px',
               marginTop: '20px',
+              color:"white"
             }}
             onClick={handleExposeOpen}
           >
-            <div style={{ fontSize: '16px' }}>KUBECTL EXPOSE:</div>
+            <div style={{ fontSize: '16px',color:"white" }}>KUBECTL EXPOSE:</div>
             Take a replication controller, service, deployment or pod and expose
             it as a new Kubernetes service
           </Button>
@@ -951,10 +953,11 @@ function Glossary() {
               backgroundColor: '#a494d7',
               width: '300px',
               margin: '20px',
+              color:"white"
             }}
             onClick={handleRunOpen}
           >
-            <div style={{ fontSize: '16px' }}>KUBECTL RUN:</div>
+            <div style={{ fontSize: '16px',color:"white" }}>KUBECTL RUN:</div>
             Run a particular image on the cluster
           </Button>
           <Modal
@@ -993,10 +996,11 @@ function Glossary() {
               backgroundColor: '#a494d7',
               width: '300px',
               margin: '0px',
+              color:"white"
             }}
             onClick={handleSetOpen}
           >
-            <div style={{ fontSize: '16px' }}>KUBECTL SET:</div>
+            <div style={{ fontSize: '16px',color:"white" }}>KUBECTL SET:</div>
             Set specific features on objects
           </Button>
           <Modal
@@ -1035,10 +1039,11 @@ function Glossary() {
               backgroundColor: '#a494d7',
               width: '300px',
               margin: '20px',
+              color:"white"
             }}
             onClick={handleGetOpen}
           >
-            <div style={{ fontSize: '16px' }}>KUBECTL GET:</div>
+            <div style={{ fontSize: '16px',color:"white" }}>KUBECTL GET:</div>
             Display one or many resources
           </Button>
           <Modal
@@ -1077,10 +1082,11 @@ function Glossary() {
               backgroundColor: '#a494d7',
               width: '300px',
               margin: '0px',
+              color:"white"
             }}
             onClick={handleEditOpen}
           >
-            <div style={{ fontSize: '16px' }}>KUBECTL EDIT:</div>
+            <div style={{ fontSize: '16px',color:"white" }}>KUBECTL EDIT:</div>
             Edit a resource on the server
           </Button>
           <Modal

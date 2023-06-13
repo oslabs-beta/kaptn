@@ -38,8 +38,6 @@ const GroupItems = styled('ul')({
   backgroundColor: '#5c4d9a',
 });
 
-
-
 function Dashboard(): JSX.Element {
   const [verb, setVerb] = useState<string>('');
   const [type, setType] = useState<string>('');
@@ -56,17 +54,16 @@ function Dashboard(): JSX.Element {
   //for light/dark mode toggle
   const theme = useTheme();
 
- //maps grouped command options alphabetically including if numbered
- const options = commands.map((option) => {
-  const firstLetter = commands[0].category;
-  return {
-    firstLetter: /[{commands[0].category}]/.test(firstLetter)
-      ? '0-9'
-      : firstLetter,
-    ...option,
-  };
-});
-
+  //maps grouped command options alphabetically including if numbered
+  const options = commands.map((option) => {
+    const firstLetter = commands[0].category;
+    return {
+      firstLetter: /[{commands[0].category}]/.test(firstLetter)
+        ? '0-9'
+        : firstLetter,
+      ...option,
+    };
+  });
 
   // Set flag list state on change
   const handleFlags = (event) => {
@@ -276,7 +273,7 @@ function Dashboard(): JSX.Element {
                   groupBy={(option) => option.category}
                   getOptionLabel={(option) => option.title}
                   onInputChange={(e, newInputValue) => {
-                    console.log('newInputValue is', newInputValue);
+                    // console.log('newInputValue is', newInputValue);
                     setVerb(newInputValue);
                     const newCommand = verb + ' ' + type + ' ' + name;
                     setCommand(newCommand);

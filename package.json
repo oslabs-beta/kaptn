@@ -10,6 +10,7 @@
     "build": "vite build && npm run pack",
     "postinstall": "electron-builder install-app-deps",
     "pack": "electron-builder -mwl",
+    "pack64": "electron-builder -mwl --x64",
     "preview": "vite preview",
     "vite": "vite"
   },
