@@ -110,6 +110,9 @@ Contributions are an incredibly important part of the open source community. Any
 * Open a pull request (from feature/AmazingFeature to dev)
 * Create a new issue on GitHub
 
+## Publications
+Check out our Medium article [here](https://medium.com/@kaptnapp/introducing-kaptn-8c4348c6dcf6).
+
 ## Contributors
 - Brecht Horn [GitHub](https://github.com/brecht-horn) | [LinkedIn](https://www.linkedin.com/in/brecht-horn-a9b839213/)
 - John Choi [GitHub](https://github.com/jhwiwonc) | [LinkedIn](https://www.linkedin.com/in/hwi-won-choi-057081191/)
