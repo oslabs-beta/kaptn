@@ -6,7 +6,7 @@ import Dashboard from './pages/Dashboard.jsx';
 import Topbar from './components/Topbar.jsx';
 import Setup from './pages/Setup.jsx';
 import Glossary from './pages/Glossary.jsx';
-import { ColorModeContext, useMode } from './theme.js';
+import { ColorModeContext, useMode } from './theme';
 import { CssBaseline, ThemeProvider } from '@mui/material';
 
 function App() {
