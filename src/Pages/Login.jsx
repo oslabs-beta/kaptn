@@ -57,7 +57,6 @@ function Login() {
       container
       alignContent='center'
       alignItems='center'
-      height={'95vh'}
     >
       <Grid id='main-content-left' xs={4}></Grid>
       <Grid
