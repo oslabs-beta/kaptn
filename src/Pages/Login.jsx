@@ -7,6 +7,7 @@ import { ColorModeContext, useMode } from '../theme.ts';
 import { CssBaseline, ThemeProvider } from '@mui/material';
 import Grid from '@mui/system/Unstable_Grid';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTheme } from '@mui/material';
 
 function Login() {
   const [password, setInputPassword] = useState('');
@@ -14,6 +15,9 @@ function Login() {
   const [loggedIn, setLoggedIn] = useState(false);
 
   const navigate = useNavigate();
+
+  //for light/dark mode toggle
+  const theme = useTheme();
 
   // Send a request to the server to confirm the username and password
   async function checkLogin(username, password) {
@@ -53,17 +57,20 @@ function Login() {
 
   return (
     <Grid
-      id='main-content'
+      id='login-content'
       container
       alignContent='center'
       alignItems='center'
-      height={'95vh'}
+      width={'87%'}
+      // height={'95vh'}
+      style={{
+        marginTop: '30px',
+      }}
     >
       <Grid id='main-content-left' xs={4}></Grid>
       <Grid
         id='main-content-center'
         container
-        xs={4}
         flexDirection='column'
         alignItems='center'
         justifyContent='space-evenly'
@@ -75,6 +82,7 @@ function Login() {
         <Box
           src='./kaptn4ico.png'
           sx={{
+            marginTop: '40px',
             height: '200px',
             width: '200px',
           }}
@@ -85,13 +93,20 @@ function Login() {
           <Typography
             variant='h2'
             // alignText='center'
-            sx={{ fontWeight: 'bold' }}
+            sx={{ fontWeight: 'bold', fontFamily: 'Outfit' }}
+            style={{
+              color: theme.palette.mode === 'dark' ? 'white' : '#5050a9',
+              textShadow:
+                theme.palette.mode === 'dark'
+                  ? '1px 1px 5px rgb(0, 0, 0, 0.3)'
+                  : '1px 1px 5px rgb(0, 0, 0, 0.0)',
+            }}
           >
             Take command of Kubernetes.
           </Typography>
         </Box>
         {/* <Grid id='below-subtitle' container width={'85%'}> */}
-          {/* <Box
+        {/* <Box
             id='input-boxes'
             component='form'
             onSubmit={handleSubmit}
@@ -180,31 +195,36 @@ function Login() {
                   Sign Up
                 </Button>
               </Link> */}
-              <Link to='/dashboard'>
-                <Button
-                  variant='contained'
-                  type='submit'
-                  size='small'
-                  sx={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    border: '1px solid #68617f',
-                    letterSpacing: '1.5px',
-                    backgroundColor: '#22145a',
-                    mt: 2,
-                    mb: 3,
-                    ':hover': {
-                      backgroundColor: 'rgb(16,10,54)',
-                    },
-                  }}
-                >
-                  Continue as guest
-                </Button>
-              </Link>
-            {/* </Grid> */}
-            <Typography variant='caption'>Copyright © Kaptn 2023. </Typography>
-          {/* </Box> */}
+        <Link to='/dashboard'>
+          <Button
+            variant='contained'
+            type='submit'
+            size='large'
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              border:
+                theme.palette.mode === 'dark'
+                  ? '1px solid #68617f'
+                  : '2px solid #8383de',
+              letterSpacing: '1.5px',
+              backgroundColor:
+                theme.palette.mode === 'dark' ? '#22145a' : '#9d8edc',
+              mt: 2,
+              mb: 3,
+              ':hover': {
+                backgroundColor:
+                  theme.palette.mode === 'dark' ? '#9e9d9d' : '#8e77ec',
+              },
+            }}
+          >
+            Start kaptn
+          </Button>
+        </Link>
+        {/* </Grid> */}
+        <Typography variant='caption'>Copyright © Kaptn 2023. </Typography>
+        {/* </Box> */}
         {/* </Grid> */}
       </Grid>
       <Grid id='main-content-right' xs={4}></Grid>

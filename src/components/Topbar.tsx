@@ -9,10 +9,12 @@ function Topbar(): JSX.Element {
     <Grid
       id='top-bar'
       container
+      zIndex={1000}
       justifyContent='space-between'
       alignItems='center'
       style={{
-        backgroundColor: theme.palette.mode === 'dark' ? '#22145a' : '#9d8edc',
+        backgroundColor: theme.palette.mode === 'dark' ? '#170b49' : '#9d8edc',
+        zIndex: '1500',
       }}
     >
       <Grid

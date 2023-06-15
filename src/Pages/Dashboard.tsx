@@ -13,7 +13,7 @@ import {
   useTheme,
 } from '@mui/material';
 import Grid from '@mui/system/Unstable_Grid';
-import SideNav from '../components/Sidebar.jsx';
+import SideNav from '../components/Sidebar2.jsx';
 import CommandLine from '../components/CommandLine.jsx';
 import Terminal from '../components/Terminal.jsx';
 const { ipcRenderer } = require('electron');
@@ -174,8 +174,8 @@ function Dashboard(): JSX.Element {
         {/* ----------------MAIN CONTENT---------------- */}
         <Grid
           id='main-content'
-          width='75%'
-          height='95%'
+          width='100%'
+          height='100%'
           xs={10}
           // spacing={1}
           disableEqualOverflow
@@ -184,6 +184,7 @@ function Dashboard(): JSX.Element {
           wrap='nowrap'
           justifyContent='space-around'
           alignItems='center'
+          style={{ marginLeft: '35px', marginTop: '25px' }}
         >
           {/* ----------------TERMINAL---------------- */}
           <Terminal response={response} />
@@ -207,10 +208,17 @@ function Dashboard(): JSX.Element {
               width='100%'
               alignItems='flex-end'
               justifyContent='center'
-              sx={{ borderBottom: 1 }}
+              sx={{ borderBottom: 1, width: '95%', paddingBottom: '10px' }}
             >
               <Grid id='directory-item' sx={{ pr: 2 }}>
-                <p>WORKING DIRECTORY:</p>
+                <p
+                  style={{
+                    fontFamily: 'Outfit',
+                    color: theme.palette.mode === 'dark' ? 'White' : '#4e50a5',
+                  }}
+                >
+                  WORKING DIRECTORY:
+                </p>
               </Grid>
               <Grid id='directory-item' sx={{ pr: 2 }}>
                 <p>{currDir}</p>
@@ -221,7 +229,10 @@ function Dashboard(): JSX.Element {
                   component='label'
                   style={{
                     backgroundColor: 'transparent',
-                    border: '1px solid #68617f',
+                    border:
+                      currDir === 'NONE SELECTED'
+                        ? '2px solid #8f85fb'
+                        : '1px solid #68617f',
                     width: '170px',
                     marginBottom: '10px',
                     fontSize: '9px',
@@ -245,11 +256,21 @@ function Dashboard(): JSX.Element {
             <Grid
               id='inputs'
               container
-              width='100%'
+              width='93%'
               justifyContent='space-around'
               alignItems='center'
+              marginRight='30px'
+              marginLeft='25px'
             >
-              <p>INPUTS:</p>
+              <p
+                style={{
+                  marginRight: '10px',
+                  fontFamily: 'Outfit',
+                  color: theme.palette.mode === 'dark' ? 'White' : '#4e50a5',
+                }}
+              >
+                INPUTS:
+              </p>
               <Grid id='kubectl' xs={2}>
                 <Autocomplete
                   defaultValue={'kubectl'}
@@ -323,7 +344,7 @@ function Dashboard(): JSX.Element {
                   )}
                 />
               </Grid>
-              <Grid id='name' xs={2}>
+              <Grid id='name'>
                 <form
                   onChange={handleNameChange}
                   onSubmit={(e) => {

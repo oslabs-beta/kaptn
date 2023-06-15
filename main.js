@@ -1,5 +1,5 @@
 const path = require('path');
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain, Menu } = require('electron');
 const { exec, spawnSync, spawn } = require('child_process');
 const { dialog } = require('electron');
 const isDev = process.env.NODE_ENV === 'development';
@@ -9,10 +9,10 @@ function createMainWindow() {
     title: 'Kaptn',
     titleBarStyle: 'hidden',
     trafficLightPosition: { x: '100', y: '100' },
-    width: 1200,
-    height: 700,
+    width: 1100,
+    height: 800,
     minWidth: 1100,
-    minHeight: 675,
+    minHeight: 800,
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
@@ -37,12 +37,13 @@ ipcMain.on('post_command', (event, arg) => {
   exec(` ${command}`, { cwd: currDir }, (err, stdout, stderr) => {
     // Handle failed command execution
     if (err) {
-      dialog.showErrorBox('Error:', `${err}`);
-      return err;
+      let output = err;
+      // dialog.showErrorBox('', `${err}`);
+      // return event.sender.send('post_command', output);
     }
     // Handle successful command execution but returned error (stderr)
     if (stderr) {
-      dialog.showErrorBox('Success execute, still error:', `${stderr}`);
+      // dialog.showErrorBox('Success execute, still error:', `${stderr}`);
       return event.sender.send('post_command', stderr);
     }
     // Handle successful command execution with no errors

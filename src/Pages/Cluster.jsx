@@ -5,7 +5,7 @@ import { Box } from '@mui/system';
 import { Typography, useTheme } from '@mui/material';
 const { ipcRenderer } = require('electron');
 import Grid from '@mui/system/Unstable_Grid';
-import SideNav from '../components/Sidebar.jsx';
+import SideNav from '../components/Sidebar2.jsx';
 
 function SetupButtons() {
   const [key, setKey] = useState('');
@@ -127,6 +127,7 @@ function SetupButtons() {
         wrap='nowrap'
         justifyContent='space-around'
         alignItems='center'
+        marginLeft="150px"
       >
         <Grid
           className='main-container'

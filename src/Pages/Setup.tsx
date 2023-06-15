@@ -14,16 +14,35 @@ import {
   Checkbox,
   Backdrop,
   useTheme,
+  Modal,
+  Typography,
 } from '@mui/material';
 import { Box, styled, lighten, darken } from '@mui/system';
 import Grid from '@mui/system/Unstable_Grid';
 import CommandLine from '../components/CommandLine.jsx';
 import Terminal from '../components/Terminal.jsx';
-import Sidebar from '../components/Sidebar.jsx';
+import Sidebar from '../components/Sidebar2.jsx';
 import EastIcon from '@mui/icons-material/East';
 import commands from '../components/commands.js';
+import BoltIcon from '@mui/icons-material/Bolt';
+import helpDesk from './Glossary.jsx';
 
 const { ipcRenderer } = require('electron');
+
+const style = {
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: '90%',
+  height: '90%',
+  bgcolor: '#2c1b63',
+  color: 'white',
+  boxShadow: 24,
+  p: 4,
+  padding: '10px',
+  borderRadius: '5px',
+};
 
 //for step 4 text to appear below without eslint/prettier error, assigned to variable here
 const step4 = `4. INPUT COMMANDS --->`;
@@ -60,9 +79,29 @@ function Setup() {
   const [imgPath, setImgPath] = useState<string>('NONE ENTERED');
   const [imgField, setImgField] = useState<string>('Enter .IMG');
   const [flags, setFlags] = useState<Array<string>>([]);
+  const [helpList, setHelpList] = useState<Array<string>>(['']);
+
+  const [openCommand, setCommandOpen] = React.useState(false);
+  const handleCommandOpen = () => setCommandOpen(true);
+  const handleCommandClose = () => setCommandOpen(false);
+
+  const [openType, setTypeOpen] = React.useState(false);
+  const handleTypeOpen = () => setTypeOpen(true);
+  const handleTypeClose = () => setTypeOpen(false);
 
   //for light/dark mode toggle
   const theme = useTheme();
+
+  // let instantHelp = [];
+  // if (verb === '' && type === '') {
+  //   instantHelp = ['NONE SELECTED CHOOSE ABOVE'];
+  // }
+  // else if (type===''){helpList.push(<div>hey there</div>)}
+  // for (let i = 0; i < helpList.length; i++) {
+  //   instantHelp.push(
+  //     <div >{helpList[i]}</div>
+  //   );
+  // }
 
   //maps grouped command options alphabetically including if numbered
   const options = commands.map((option) => {
@@ -181,15 +220,15 @@ function Setup() {
         container
         disableEqualOverflow
         width={'100vw'}
-        height={'95vh'}
-        sx={{ pt: 3, pb: 3 }}
+        height={'auto'}
+        sx={{ pt: 7, pb: 3, pl: 7 }}
         style={{ overflow: 'hidden' }}
       >
         {/* ----------------SIDE BAR---------------- */}
         <Sidebar spacing={1} />
 
         {/* ----------------MAIN CONTENT---------------- */}
-        <Grid id='main-content' container xs={11} height='85%' >
+        <Grid id='main-content' container xs={11} height='85%'>
           {/* ----------------SELECTION BOXES---------------- */}
           <Grid
             id='selections'
@@ -197,21 +236,28 @@ function Setup() {
             container
             justifyContent='center'
             alignContent='flex-start'
-            
           >
             <Box
               sx={{
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
-                padding: '10px',
+                padding: '8px',
                 width: '100%',
                 borderRadius: '5px',
                 bgcolor: theme.palette.mode === 'dark' ? '#2a2152' : '#c9c4f9',
                 marginBottom: '20px',
               }}
             >
-              <div style={{ alignItems: 'center', justifyContent: 'center' }}>
+              <div
+                style={{
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontFamily: 'Outfit',
+                  fontSize: '16px',
+                  color: theme.palette.mode === 'dark' ? 'White' : '#4e50a5',
+                }}
+              >
                 EASY SETUP
               </div>
             </Box>
@@ -224,7 +270,7 @@ function Setup() {
                 width: '100%',
                 borderRadius: '5px',
                 bgcolor: theme.palette.mode === 'dark' ? '#2a2152' : '#c9c4f9',
-                marginBottom: '25px',
+                marginBottom: '22px',
               }}
             >
               {/* --------------------------- IMAGE CREATION SECTION --------------------- */}
@@ -243,7 +289,7 @@ function Setup() {
               <div
                 style={{
                   backgroundColor: '#716a8e',
-                  width: '170',
+                  width: '90%',
                   height: '1px',
                 }}
               />
@@ -330,7 +376,7 @@ function Setup() {
                 width: '100%',
                 borderRadius: '5px',
                 bgcolor: theme.palette.mode === 'dark' ? '#2a2152' : '#c9c4f9',
-                marginBottom: '25px',
+                marginBottom: '22px',
               }}
             >
               <div
@@ -543,11 +589,19 @@ function Setup() {
                   style={{
                     justifyContent: 'center',
                     alignItems: 'center',
+                    fontFamily: 'Outfit',
+                    color: theme.palette.mode === 'dark' ? 'White' : '#4e50a5',
                   }}
                 >
                   INPUT COMMANDS
                 </div>
-                <EastIcon style={{ marginLeft: '5px', height: '30px' }} />
+                <EastIcon
+                  style={{
+                    marginLeft: '5px',
+                    height: '30px',
+                    color: theme.palette.mode === 'dark' ? 'White' : '#4e50a5',
+                  }}
+                />
               </div>
             </Box>
           </Grid>
@@ -616,6 +670,7 @@ function Setup() {
                     setVerb(newInputValue);
                     const newCommand = verb + ' ' + type + ' ' + name;
                     setCommand(newCommand);
+                    setHelpList([newInputValue, type]);
                     // setCommand(newInputValue);
                   }}
                   renderInput={(params) => (
@@ -658,7 +713,12 @@ function Setup() {
                   id='combo-box-demo'
                   options={types}
                   onInputChange={(e, newInputValue) => {
+                    setHelpList([verb, newInputValue]);
                     setType(newInputValue);
+                    // setHelpList([verb, newInputValue]);
+                    console.log('helplist is', helpList);
+                    console.log('verb is', verb);
+                    console.log('type is', type);
                   }}
                   renderInput={(params) => (
                     <TextField {...params} label='Types' />
@@ -707,6 +767,181 @@ function Setup() {
                 </FormControl>
               </Grid>
             </Grid>
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                height: '100px',
+                width: '94%',
+                backgroundColor:
+                  theme.palette.mode === 'dark' ? '#2f2f6d' : '#e1dbfe',
+                marginLeft: '0px',
+                marginTop: '25px',
+                borderRadius: '3px',
+                textAlign: 'center',
+                padding: '5px 0 0 0',
+                fontFamily: 'Outfit',
+                fontWeight: '900',
+                letterSpacing: '1px',
+                alignItems: 'center',
+                fontSize: '16px',
+                color: theme.palette.mode === 'dark' ? 'white' : '#4e50a5',
+              }}
+            >
+              {' '}
+              <div
+                style={{
+                  display: 'flex',
+                  marginTop: '2px',
+                  alignItems: 'center',
+                }}
+              >
+                {' '}
+                <BoltIcon />
+                <div style={{ width: '5px' }} />
+                <div style={{}}>INSTANT HELP DESK</div>
+                <div style={{ width: '5px' }} />
+                <BoltIcon />
+              </div>
+              <div
+                style={{
+                  fontFamily: 'Roboto',
+                  fontWeight: '400',
+                  fontSize: '10px',
+                  letterSpacing: '.6px',
+                  margin: '6px 0 0 0',
+                }}
+              >
+                <em>
+                  CHOOSE ANY "COMMAND" OR "TYPE" THEN CLICK BELOW TO SEE
+                  DOCUMENTATION AND HELP INFO
+                </em>
+              </div>
+              <div style={{ display: 'flex', paddingRight: '10px' }}>
+                <Button
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    // backgroundColor: '#a494d7',
+                    margin: '2px 0px 0 0',
+                    // color: 'white',
+                    fontFamily: 'Outfit',
+                    fontSize: '16px',
+                  }}
+                  onClick={handleCommandOpen}
+                >
+                  {verb}
+                </Button>
+                <Modal
+                  open={openCommand}
+                  onClose={handleCommandClose}
+                  style={{ overflow: 'scroll', height: '100%' }}
+                  aria-labelledby='modal-modal-title'
+                  aria-describedby='modal-modal-description'
+                >
+                  <Box sx={style}>
+                    <Typography
+                      id='modal-modal-title'
+                      // variant='h6'
+                      // component='h2'
+                    ></Typography>
+                    <Typography
+                      id='modal-modal-description'
+                      style={{
+                        top: '0',
+                        left: '0',
+                        overflow: 'auto',
+                        height: '100%',
+                        width: '100%',
+                        paddingLeft: '20px',
+                        zIndex: '1350',
+                      }}
+                      sx={{ mt: 0 }}
+                    >
+                      <pre
+                        style={{
+                          fontFamily: 'Outfit,monospace',
+                          fontSize: '24px',
+                          overflow: 'auto',
+                        }}
+                      >
+                        Kubetcl{'  '}
+                        <strong style={{ fontSize: '38px' }}>{verb}</strong> :
+                      </pre>
+                      <pre
+                        style={{
+                          fontSize: '14px',
+                          overflow: 'auto',
+                        }}
+                      >
+                        {helpDesk[`${verb}`]}
+                      </pre>
+                    </Typography>
+                  </Box>
+                </Modal>
+
+                <Button
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    // backgroundColor: '#a494d7',
+                    margin: '2px 0px 0 0',
+                    // color: 'white',
+                    fontFamily: 'Outfit',
+                    fontSize: '16px',
+                  }}
+                  onClick={handleTypeOpen}
+                >
+                  {type}
+                </Button>
+                <Modal
+                  open={openType}
+                  onClose={handleTypeClose}
+                  aria-labelledby='modal-modal-title'
+                  aria-describedby='modal-modal-description'
+                >
+                  <Box sx={style}>
+                    <Typography
+                      id='modal-modal-title'
+                      // variant='h6'
+                      // component='h2'
+                    ></Typography>
+                    <Typography
+                      id='modal-modal-description'
+                      style={{
+                        top: '0',
+                        left: '0',
+                        overflow: 'auto',
+                        height: '100%',
+                        width: '100%',
+                        paddingLeft: '20px',
+                        zIndex: '1350',
+                      }}
+                      sx={{ mt: 0 }}
+                    >
+                      <pre
+                        style={{
+                          fontFamily: 'Outfit,monospace',
+                          fontSize: '24px',
+                          overflow: 'auto',
+                        }}
+                      >
+                        Kubetcl Type: {'  '}
+                        <strong style={{ fontSize: '38px' }}>{type}</strong>
+                      </pre>
+                      <pre
+                        style={{
+                          fontSize: '14px',
+                          overflow: 'auto',
+                        }}
+                      >
+                        {helpDesk[`${type}`]}
+                      </pre>
+                    </Typography>
+                  </Box>
+                </Modal>
+              </div>
+            </div>
           </Grid>
         </Grid>
       </Grid>

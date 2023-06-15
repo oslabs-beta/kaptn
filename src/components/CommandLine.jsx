@@ -45,7 +45,7 @@ const CommandLine = (props) => {
           id='outlined-start-adornment'
           sx={{
             m: 0,
-            width: '66ch',
+            width: '65.5ch',
             justifyContent: 'center',
             border: '1px solid white',
             borderRadius: '3px',
@@ -61,9 +61,10 @@ const CommandLine = (props) => {
         />
         <Button
           type='submit'
+          id='runButt'
           variant='contained'
           style={{
-            margin: '0 3px 0 6px',
+            margin: '1px 3px 0 6px',
             alightContent: 'center',
             background: 'transparent',
             fontSize: '16px',
