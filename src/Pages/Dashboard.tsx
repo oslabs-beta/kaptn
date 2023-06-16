@@ -11,6 +11,8 @@ import {
   ListItemText,
   Checkbox,
   useTheme,
+  Modal,
+  Typography,
 } from '@mui/material';
 import Grid from '@mui/system/Unstable_Grid';
 import SideNav from '../components/Sidebar2.jsx';
@@ -19,6 +21,25 @@ import Terminal from '../components/Terminal.jsx';
 const { ipcRenderer } = require('electron');
 import commands from '../components/commands.js';
 import { Box, styled, lighten, darken } from '@mui/system';
+
+import BoltIcon from '@mui/icons-material/Bolt';
+import helpDesk from './Glossary.jsx';
+import React from 'react';
+
+const style = {
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: '90%',
+  height: '90%',
+  bgcolor: '#2c1b63',
+  color: 'white',
+  boxShadow: 24,
+  p: 4,
+  padding: '10px',
+  borderRadius: '5px',
+};
 
 //section header (e.g. beginner, intermediate, etc) rules for grouped "command" option
 const BeginnerHeader = styled('div')(({ theme }) => ({
@@ -50,6 +71,15 @@ function Dashboard(): JSX.Element {
     Array<{ command: string; response: { [key: string]: string } }>
   >([]);
   const [flags, setFlags] = useState<Array<string>>([]);
+  const [helpList, setHelpList] = useState<Array<string>>(['']);
+
+  const [openCommand, setCommandOpen] = React.useState(false);
+  const handleCommandOpen = () => setCommandOpen(true);
+  const handleCommandClose = () => setCommandOpen(false);
+
+  const [openType, setTypeOpen] = React.useState(false);
+  const handleTypeOpen = () => setTypeOpen(true);
+  const handleTypeClose = () => setTypeOpen(false);
 
   //for light/dark mode toggle
   const theme = useTheme();
@@ -182,7 +212,8 @@ function Dashboard(): JSX.Element {
           container
           direction='column'
           wrap='nowrap'
-          justifyContent='space-around'
+          justifyContent='start
+          '
           alignItems='center'
           style={{ marginLeft: '35px', marginTop: '25px' }}
         >
@@ -198,7 +229,7 @@ function Dashboard(): JSX.Element {
             sx={{ pt: 1 }}
             justifyContent='center'
             alignItems='center'
-            alignContent='space-between'
+            alignContent='start'
             width='100%'
           >
             {/* ----------------CHOOSE DIRECTORY---------------- */}
@@ -208,7 +239,12 @@ function Dashboard(): JSX.Element {
               width='100%'
               alignItems='flex-end'
               justifyContent='center'
-              sx={{ borderBottom: 1, width: '95%', paddingBottom: '10px' }}
+              sx={{
+                borderBottom: 1,
+                width: '95%',
+                paddingBottom: '10px',
+                marginBottom: '20px',
+              }}
             >
               <Grid id='directory-item' sx={{ pr: 2 }}>
                 <p
@@ -257,10 +293,11 @@ function Dashboard(): JSX.Element {
               id='inputs'
               container
               width='93%'
-              justifyContent='space-around'
+              justifyContent='space-evenly'
               alignItems='center'
               marginRight='30px'
               marginLeft='25px'
+              marginTop='10px'
             >
               <p
                 style={{
@@ -382,15 +419,192 @@ function Dashboard(): JSX.Element {
             </Grid>
 
             {/* ----------------COMMAND LINE---------------- */}
-            <CommandLine
-              width='100%'
-              handleSubmit={handleSubmit}
-              setUserInput={setUserInput}
-              userInput={userInput}
-              command={command}
-              handleClear={handleClear}
-            />
+            <div style={{ marginTop: '30px' }}>
+              <CommandLine
+                width='100%'
+                handleSubmit={handleSubmit}
+                setUserInput={setUserInput}
+                userInput={userInput}
+                command={command}
+                handleClear={handleClear}
+              />
+            </div>
           </Grid>
+          {/* <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              height: '100px',
+              width: '55%',
+              backgroundColor:
+                theme.palette.mode === 'dark' ? '#2f2f6d' : '#e1dbfe',
+              marginLeft: '0',
+              marginTop: '20px',
+              borderRadius: '3px',
+              textAlign: 'center',
+              padding: '5px 0 0 0',
+              fontFamily: 'Outfit',
+              fontWeight: '900',
+              letterSpacing: '1px',
+              alignItems: 'center',
+              fontSize: '16px',
+              color: theme.palette.mode === 'dark' ? 'white' : '#4e50a5',
+            }}
+          >
+            {' '}
+            <div
+              style={{
+                display: 'flex',
+                marginTop: '2px',
+                alignItems: 'center',
+              }}
+            >
+              {' '}
+              <BoltIcon />
+              <div style={{ width: '5px' }} />
+              <div style={{}}>INSTANT HELP DESK</div>
+              <div style={{ width: '5px' }} />
+              <BoltIcon />
+            </div>
+            <div
+              style={{
+                fontFamily: 'Roboto',
+                fontWeight: '400',
+                fontSize: '10px',
+                letterSpacing: '.6px',
+                margin: '6px 0 0 0',
+              }}
+            >
+              <em>
+                CHOOSE ANY "COMMAND" OR "TYPE" THEN CLICK BELOW TO SEE
+                DOCUMENTATION AND HELP INFO
+              </em>
+            </div>
+            <div style={{ display: 'flex', paddingRight: '10px' }}>
+              <Button
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  // backgroundColor: '#a494d7',
+                  margin: '2px 0px 0 0',
+                  // color: 'white',
+                  fontFamily: 'Outfit',
+                  fontSize: '16px',
+                }}
+                onClick={handleCommandOpen}
+              >
+                {verb}
+              </Button>
+              <Modal
+                open={openCommand}
+                onClose={handleCommandClose}
+                style={{ overflow: 'scroll', height: '100%' }}
+                aria-labelledby='modal-modal-title'
+                aria-describedby='modal-modal-description'
+              >
+                <Box sx={style}>
+                  <Typography
+                    id='modal-modal-title'
+                    // variant='h6'
+                    // component='h2'
+                  ></Typography>
+                  <Typography
+                    id='modal-modal-description'
+                    style={{
+                      top: '0',
+                      left: '0',
+                      overflow: 'auto',
+                      height: '100%',
+                      width: '100%',
+                      paddingLeft: '20px',
+                      zIndex: '1350',
+                    }}
+                    sx={{ mt: 0 }}
+                  >
+                    <pre
+                      style={{
+                        fontFamily: 'Outfit,monospace',
+                        fontSize: '24px',
+                        overflow: 'auto',
+                      }}
+                    >
+                      Kubetcl{'  '}
+                      <strong style={{ fontSize: '38px' }}>{verb}</strong> :
+                    </pre>
+                    <pre
+                      style={{
+                        fontSize: '14px',
+                        overflow: 'auto',
+                      }}
+                    >
+                      {helpDesk[`${verb}`]}
+                    </pre>
+                  </Typography>
+                </Box>
+              </Modal>
+
+              <Button
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  // backgroundColor: '#a494d7',
+                  margin: '2px 0px 0 0',
+                  // color: 'white',
+                  fontFamily: 'Outfit',
+                  fontSize: '16px',
+                }}
+                onClick={handleTypeOpen}
+              >
+                {type}
+              </Button>
+              <Modal
+                open={openType}
+                onClose={handleTypeClose}
+                aria-labelledby='modal-modal-title'
+                aria-describedby='modal-modal-description'
+              >
+                <Box sx={style}>
+                  <Typography
+                    id='modal-modal-title'
+                    // variant='h6'
+                    // component='h2'
+                  ></Typography>
+                  <Typography
+                    id='modal-modal-description'
+                    style={{
+                      top: '0',
+                      left: '0',
+                      overflow: 'auto',
+                      height: '100%',
+                      width: '100%',
+                      paddingLeft: '20px',
+                      zIndex: '1350',
+                    }}
+                    sx={{ mt: 0 }}
+                  >
+                    <pre
+                      style={{
+                        fontFamily: 'Outfit,monospace',
+                        fontSize: '24px',
+                        overflow: 'auto',
+                      }}
+                    >
+                      Kubetcl Type: {'  '}
+                      <strong style={{ fontSize: '38px' }}>{type}</strong>
+                    </pre>
+                    <pre
+                      style={{
+                        fontSize: '14px',
+                        overflow: 'auto',
+                      }}
+                    >
+                      {helpDesk[`${type}`]}
+                    </pre>
+                  </Typography>
+                </Box>
+              </Modal>
+            </div>
+          </div> */}
         </Grid>
       </Grid>
     </>

@@ -61,13 +61,13 @@ function Login() {
       container
       alignContent='center'
       alignItems='center'
-      width={'87%'}
+      justifyContent='center'
+      width={'100%'}
       // height={'95vh'}
       style={{
         marginTop: '30px',
       }}
     >
-      <Grid id='main-content-left' xs={4}></Grid>
       <Grid
         id='main-content-center'
         container
@@ -83,8 +83,8 @@ function Login() {
           src='./kaptn4ico.png'
           sx={{
             marginTop: '40px',
-            height: '200px',
-            width: '200px',
+            height: '270px',
+            width: '270px',
           }}
           component='img'
           width='100%'
@@ -93,7 +93,7 @@ function Login() {
           <Typography
             variant='h2'
             // alignText='center'
-            sx={{ fontWeight: 'bold', fontFamily: 'Outfit' }}
+            sx={{ fontWeight: 'bold', fontFamily: 'Outfit', fontSize: '42px' }}
             style={{
               color: theme.palette.mode === 'dark' ? 'white' : '#5050a9',
               textShadow:
@@ -105,96 +105,7 @@ function Login() {
             Take command of Kubernetes.
           </Typography>
         </Box>
-        {/* <Grid id='below-subtitle' container width={'85%'}> */}
-        {/* <Box
-            id='input-boxes'
-            component='form'
-            onSubmit={handleSubmit}
-            width='100%'
-            sx={{ display: 'flex', flexDirection: 'column' }}
-            xs={4}
-          >
-            <Box
-              sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-              }}
-            >
-              <TextField
-                type='text'
-                name='username'
-                label='Username'
-                fullWidth
-                username={username}
-                sx={{
-                  mb: 3,
-                }}
-                onChange={(e) => {
-                  setInputUsername(e.target.value);
-                }}
-              />
-              <TextField
-                type='password'
-                name='password'
-                label='Password'
-                fullWidth
-                password={password}
-                onChange={(e) => {
-                  setInputPassword(e.target.value);
-                }}
-              />
-            </Box>
-            <Button
-              variant='contained'
-              type='submit'
-              fullWidth
-              size='large'
-              sx={{
-                display: 'flex',
-                border: '1px solid #68617f',
-                flexDirection: 'column',
-                alignItems: 'center',
-                letterSpacing: '1.5px',
-                backgroundColor: '#22145a',
-                mt: 2,
-                mb: 5,
-                ':hover': {
-                  backgroundColor: 'rgb(16,10,54)',
-                },
-              }}
-            >
-              Login
-            </Button>
-            <Typography variant='body1'>Don't have an account?</Typography>
-            <Grid
-              id='sign-up'
-              container
-              justifyContent='center'
-              alignItems='center'
-              flexDirection='column'
-            >
-              <Link to='/signup'>
-                <Button
-                  variant='contained'
-                  type='submit'
-                  size='small'
-                  sx={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    border: '1px solid #68617f',
-                    letterSpacing: '1.5px',
-                    backgroundColor: '#22145a',
-                    mt: 2,
-                    ':hover': {
-                      backgroundColor: 'rgb(16,10,54)',
-                    },
-                  }}
-                >
-                  Sign Up
-                </Button>
-              </Link> */}
+
         <Link to='/dashboard'>
           <Button
             variant='contained'
@@ -204,6 +115,8 @@ function Login() {
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
+              fontSize:"16px",
+              fontFamily:"Outfit",
               border:
                 theme.palette.mode === 'dark'
                   ? '1px solid #68617f'
@@ -227,7 +140,6 @@ function Login() {
         {/* </Box> */}
         {/* </Grid> */}
       </Grid>
-      <Grid id='main-content-right' xs={4}></Grid>
     </Grid>
   );
 }

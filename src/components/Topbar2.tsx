@@ -57,7 +57,7 @@ function Topbar(): JSX.Element {
       <div
         style={
           {
-            width: '95px',
+            width: '73px',
             height: '100%',
             // backgroundColor: 'purple',
             WebkitAppRegion: 'drag',

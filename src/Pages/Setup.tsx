@@ -767,12 +767,17 @@ function Setup() {
                 </FormControl>
               </Grid>
             </Grid>
-            <div
+            
+          </Grid>
+          <div
               style={{
+                position:"absolute",
+                left:"58px",
+                top: "650px",
                 display: 'flex',
                 flexDirection: 'column',
                 height: '100px',
-                width: '94%',
+                width: '86%',
                 backgroundColor:
                   theme.palette.mode === 'dark' ? '#2f2f6d' : '#e1dbfe',
                 marginLeft: '0px',
@@ -942,7 +947,6 @@ function Setup() {
                 </Modal>
               </div>
             </div>
-          </Grid>
         </Grid>
       </Grid>
     </>

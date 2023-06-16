@@ -39,6 +39,7 @@ const CommandLine = (props) => {
           justifyContent: 'center',
           alignItems: 'center',
           borderColor: 'transparent',
+          
         }}
       >
         <TextField
