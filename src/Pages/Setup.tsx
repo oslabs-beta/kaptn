@@ -70,12 +70,13 @@ function Setup() {
   const [type, setType] = React.useState<string>('');
   const [name, setName] = React.useState<string>('');
   const [currDir, setCurrDir] = React.useState<string>('NONE SELECTED');
+  const [shortDir, setShortDir] = React.useState<string>('NONE SELECTED');
   const [userInput, setUserInput] = React.useState<string>('');
   const [command, setCommand] = useState<string>('');
   const [response, setResponse] = useState<
     Array<{ command: string; response: { [key: string]: string } }>
   >([]);
-  const [editOpen, setEditOpen] = React.useState<boolean>(false);
+  const [yamlOpen, setYamlOpen] = React.useState<boolean>(false);
   const [imgPath, setImgPath] = useState<string>('NONE ENTERED');
   const [imgField, setImgField] = useState<string>('Enter .IMG');
   const [flags, setFlags] = useState<Array<string>>([]);
@@ -121,11 +122,11 @@ function Setup() {
     }
   }
   // Set YAML edit box state
-  const handleEditClose = () => {
-    setEditOpen(false);
+  const handleYamlClose = () => {
+    setYamlOpen(false);
   };
-  const handleEditOpen = () => {
-    setEditOpen(true);
+  const handleYamlOpen = () => {
+    setYamlOpen(true);
   };
 
   // Flag list options
@@ -157,6 +158,16 @@ function Setup() {
     }
     let absPath = path.join('');
     setCurrDir(absPath);
+    let absArr = absPath.split('');
+    let shortArr = [];
+    for (let i = absArr.length - 2; absArr[i] !== '/'; i--) {
+      shortArr.unshift(absArr[i]);
+    }
+    shortArr.unshift('/');
+    console.log('shortArr is', shortArr);
+    let shortPath = shortArr.join('') + '/';
+    console.log('shortpath is', shortPath);
+    setShortDir('...' + shortPath);
   };
   //sets image submission
   const handleImgUpload = (event) => {
@@ -408,7 +419,7 @@ function Setup() {
                   fontSize: '9px',
                 }}
               >
-                {currDir}
+                {shortDir}
               </div>
 
               <Button
@@ -468,7 +479,7 @@ function Setup() {
               />
 
               <Button
-                onClick={handleEditOpen}
+                onClick={handleYamlOpen}
                 style={{
                   backgroundColor:
                     theme.palette.mode === 'dark' ? '#150f2d' : '#8881ce',
@@ -490,21 +501,23 @@ function Setup() {
                   color: '#white',
                   justifyContent: 'center',
                   alignItems: 'center',
-                  position: 'relative',
+                  position: 'absolute',
+                  left: '0',
+                  right: '0',
                 }}
-                open={editOpen}
-                onClick={handleEditClose}
+                open={yamlOpen}
+                onClick={handleYamlClose}
               >
                 {/* ------- Paper is modal / popup --------------------------------------- */}
                 <Paper
-                  onClick={handleEditClose}
+                  onClick={handleYamlClose}
                   style={{
                     height: '80%',
                     width: '90%',
                     backgroundColor: 'white',
                     overflow: 'scroll',
                     color: 'black',
-                    paddingLeft: '10px',
+                    paddingLeft: '0px',
                     zIndex: '1350',
                     position: 'fixed',
                     top: '80px',
@@ -518,7 +531,7 @@ function Setup() {
                     style={{
                       width: '900px',
                       alignItems: 'center',
-                      marginLeft: '80px',
+                      marginLeft: '40px',
                       justifyContent: 'center',
                     }}
                   >
@@ -542,7 +555,7 @@ function Setup() {
                         fontSize: '14px',
                         fontWeight: '500',
                         width: '100%',
-                        paddingBottom: '20px',
+                        paddingBottom: '0px',
                         alignItems: 'center',
                         justifyContent: 'center',
                         textAlign: 'center',
@@ -556,6 +569,7 @@ function Setup() {
                     </div>
 
                     <iframe
+                      id='yaml'
                       src='https://k8syaml.com'
                       width='900px'
                       height='900px'
@@ -767,186 +781,185 @@ function Setup() {
                 </FormControl>
               </Grid>
             </Grid>
-            
           </Grid>
           <div
+            style={{
+              position: 'absolute',
+              left: '58px',
+              top: '650px',
+              display: 'flex',
+              flexDirection: 'column',
+              height: '100px',
+              width: '86%',
+              backgroundColor:
+                theme.palette.mode === 'dark' ? '#2f2f6d' : '#e1dbfe',
+              marginLeft: '0px',
+              marginTop: '25px',
+              borderRadius: '3px',
+              textAlign: 'center',
+              padding: '5px 0 0 0',
+              fontFamily: 'Outfit',
+              fontWeight: '900',
+              letterSpacing: '1px',
+              alignItems: 'center',
+              fontSize: '16px',
+              color: theme.palette.mode === 'dark' ? 'white' : '#4e50a5',
+            }}
+          >
+            {' '}
+            <div
               style={{
-                position:"absolute",
-                left:"58px",
-                top: "650px",
                 display: 'flex',
-                flexDirection: 'column',
-                height: '100px',
-                width: '86%',
-                backgroundColor:
-                  theme.palette.mode === 'dark' ? '#2f2f6d' : '#e1dbfe',
-                marginLeft: '0px',
-                marginTop: '25px',
-                borderRadius: '3px',
-                textAlign: 'center',
-                padding: '5px 0 0 0',
-                fontFamily: 'Outfit',
-                fontWeight: '900',
-                letterSpacing: '1px',
+                marginTop: '2px',
                 alignItems: 'center',
-                fontSize: '16px',
-                color: theme.palette.mode === 'dark' ? 'white' : '#4e50a5',
               }}
             >
               {' '}
-              <div
+              <BoltIcon />
+              <div style={{ width: '5px' }} />
+              <div style={{}}>INSTANT HELP DESK</div>
+              <div style={{ width: '5px' }} />
+              <BoltIcon />
+            </div>
+            <div
+              style={{
+                fontFamily: 'Roboto',
+                fontWeight: '400',
+                fontSize: '10px',
+                letterSpacing: '.6px',
+                margin: '6px 0 0 0',
+              }}
+            >
+              <em>
+                CHOOSE ANY "COMMAND" OR "TYPE" THEN CLICK BELOW TO SEE
+                DOCUMENTATION AND HELP INFO
+              </em>
+            </div>
+            <div style={{ display: 'flex', paddingRight: '10px' }}>
+              <Button
                 style={{
                   display: 'flex',
-                  marginTop: '2px',
-                  alignItems: 'center',
+                  flexDirection: 'column',
+                  // backgroundColor: '#a494d7',
+                  margin: '2px 0px 0 0',
+                  // color: 'white',
+                  fontFamily: 'Outfit',
+                  fontSize: '16px',
                 }}
+                onClick={handleCommandOpen}
               >
-                {' '}
-                <BoltIcon />
-                <div style={{ width: '5px' }} />
-                <div style={{}}>INSTANT HELP DESK</div>
-                <div style={{ width: '5px' }} />
-                <BoltIcon />
-              </div>
-              <div
-                style={{
-                  fontFamily: 'Roboto',
-                  fontWeight: '400',
-                  fontSize: '10px',
-                  letterSpacing: '.6px',
-                  margin: '6px 0 0 0',
-                }}
+                {verb}
+              </Button>
+              <Modal
+                open={openCommand}
+                onClose={handleCommandClose}
+                style={{ overflow: 'scroll', height: '100%' }}
+                aria-labelledby='modal-modal-title'
+                aria-describedby='modal-modal-description'
               >
-                <em>
-                  CHOOSE ANY "COMMAND" OR "TYPE" THEN CLICK BELOW TO SEE
-                  DOCUMENTATION AND HELP INFO
-                </em>
-              </div>
-              <div style={{ display: 'flex', paddingRight: '10px' }}>
-                <Button
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    // backgroundColor: '#a494d7',
-                    margin: '2px 0px 0 0',
-                    // color: 'white',
-                    fontFamily: 'Outfit',
-                    fontSize: '16px',
-                  }}
-                  onClick={handleCommandOpen}
-                >
-                  {verb}
-                </Button>
-                <Modal
-                  open={openCommand}
-                  onClose={handleCommandClose}
-                  style={{ overflow: 'scroll', height: '100%' }}
-                  aria-labelledby='modal-modal-title'
-                  aria-describedby='modal-modal-description'
-                >
-                  <Box sx={style}>
-                    <Typography
-                      id='modal-modal-title'
-                      // variant='h6'
-                      // component='h2'
-                    ></Typography>
-                    <Typography
-                      id='modal-modal-description'
+                <Box sx={style}>
+                  <Typography
+                    id='modal-modal-title'
+                    // variant='h6'
+                    // component='h2'
+                  ></Typography>
+                  <Typography
+                    id='modal-modal-description'
+                    style={{
+                      top: '0',
+                      left: '0',
+                      overflow: 'auto',
+                      height: '100%',
+                      width: '100%',
+                      paddingLeft: '20px',
+                      zIndex: '1350',
+                    }}
+                    sx={{ mt: 0 }}
+                  >
+                    <pre
                       style={{
-                        top: '0',
-                        left: '0',
+                        fontFamily: 'Outfit,monospace',
+                        fontSize: '24px',
                         overflow: 'auto',
-                        height: '100%',
-                        width: '100%',
-                        paddingLeft: '20px',
-                        zIndex: '1350',
                       }}
-                      sx={{ mt: 0 }}
                     >
-                      <pre
-                        style={{
-                          fontFamily: 'Outfit,monospace',
-                          fontSize: '24px',
-                          overflow: 'auto',
-                        }}
-                      >
-                        Kubetcl{'  '}
-                        <strong style={{ fontSize: '38px' }}>{verb}</strong> :
-                      </pre>
-                      <pre
-                        style={{
-                          fontSize: '14px',
-                          overflow: 'auto',
-                        }}
-                      >
-                        {helpDesk[`${verb}`]}
-                      </pre>
-                    </Typography>
-                  </Box>
-                </Modal>
+                      Kubetcl{'  '}
+                      <strong style={{ fontSize: '38px' }}>{verb}</strong> :
+                    </pre>
+                    <pre
+                      style={{
+                        fontSize: '14px',
+                        overflow: 'auto',
+                      }}
+                    >
+                      {helpDesk[`${verb}`]}
+                    </pre>
+                  </Typography>
+                </Box>
+              </Modal>
 
-                <Button
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    // backgroundColor: '#a494d7',
-                    margin: '2px 0px 0 0',
-                    // color: 'white',
-                    fontFamily: 'Outfit',
-                    fontSize: '16px',
-                  }}
-                  onClick={handleTypeOpen}
-                >
-                  {type}
-                </Button>
-                <Modal
-                  open={openType}
-                  onClose={handleTypeClose}
-                  aria-labelledby='modal-modal-title'
-                  aria-describedby='modal-modal-description'
-                >
-                  <Box sx={style}>
-                    <Typography
-                      id='modal-modal-title'
-                      // variant='h6'
-                      // component='h2'
-                    ></Typography>
-                    <Typography
-                      id='modal-modal-description'
+              <Button
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  // backgroundColor: '#a494d7',
+                  margin: '2px 0px 0 0',
+                  // color: 'white',
+                  fontFamily: 'Outfit',
+                  fontSize: '16px',
+                }}
+                onClick={handleTypeOpen}
+              >
+                {type}
+              </Button>
+              <Modal
+                open={openType}
+                onClose={handleTypeClose}
+                aria-labelledby='modal-modal-title'
+                aria-describedby='modal-modal-description'
+              >
+                <Box sx={style}>
+                  <Typography
+                    id='modal-modal-title'
+                    // variant='h6'
+                    // component='h2'
+                  ></Typography>
+                  <Typography
+                    id='modal-modal-description'
+                    style={{
+                      top: '0',
+                      left: '0',
+                      overflow: 'auto',
+                      height: '100%',
+                      width: '100%',
+                      paddingLeft: '20px',
+                      zIndex: '1350',
+                    }}
+                    sx={{ mt: 0 }}
+                  >
+                    <pre
                       style={{
-                        top: '0',
-                        left: '0',
+                        fontFamily: 'Outfit,monospace',
+                        fontSize: '24px',
                         overflow: 'auto',
-                        height: '100%',
-                        width: '100%',
-                        paddingLeft: '20px',
-                        zIndex: '1350',
                       }}
-                      sx={{ mt: 0 }}
                     >
-                      <pre
-                        style={{
-                          fontFamily: 'Outfit,monospace',
-                          fontSize: '24px',
-                          overflow: 'auto',
-                        }}
-                      >
-                        Kubetcl Type: {'  '}
-                        <strong style={{ fontSize: '38px' }}>{type}</strong>
-                      </pre>
-                      <pre
-                        style={{
-                          fontSize: '14px',
-                          overflow: 'auto',
-                        }}
-                      >
-                        {helpDesk[`${type}`]}
-                      </pre>
-                    </Typography>
-                  </Box>
-                </Modal>
-              </div>
+                      Kubetcl Type: {'  '}
+                      <strong style={{ fontSize: '38px' }}>{type}</strong>
+                    </pre>
+                    <pre
+                      style={{
+                        fontSize: '14px',
+                        overflow: 'auto',
+                      }}
+                    >
+                      {helpDesk[`${type}`]}
+                    </pre>
+                  </Typography>
+                </Box>
+              </Modal>
             </div>
+          </div>
         </Grid>
       </Grid>
     </>

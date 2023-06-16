@@ -43,7 +43,7 @@ function SideNav(props) {
     >
       <LightTooltip
         title='K8s CLI'
-        followCursor={true}
+        placement='right'
         arrow
         style={{ backgroundColor: 'red' }}
       >
@@ -61,7 +61,7 @@ function SideNav(props) {
           </Link>
         </div>
       </LightTooltip>
-      <LightTooltip title='Easy Setup' followCursor={true} arrow>
+      <LightTooltip title='Easy Setup' placement='right' arrow>
         <div
           style={{ height: '20px', paddingLeft: '8px', marginBottom: '20px' }}
         >
@@ -77,7 +77,7 @@ function SideNav(props) {
         </div>
       </LightTooltip>
 
-      <LightTooltip title='Cluster Visualizer' followCursor={true} arrow>
+      <LightTooltip title='Cluster Visualizer' placement='right' arrow>
         <div style={{ paddingLeft: '8px' }}>
           <Link to='/cluster'>
             <BarChart
@@ -108,7 +108,7 @@ function SideNav(props) {
         </div>
       </LightTooltip> */}
 
-      <LightTooltip title='Log Out' followCursor={true} arrow>
+      <LightTooltip title='Log Out' placement='right' arrow>
         <div style={{ paddingLeft: '8px', marginTop: '16px' }}>
           <Link to='/'>
             <ExitToAppOutlined
@@ -121,7 +121,7 @@ function SideNav(props) {
           </Link>
         </div>
       </LightTooltip>
-      <LightTooltip title='Dark / Light Mode' followCursor={true} arrow>
+      <LightTooltip title='Dark / Light Mode' placement='right' arrow>
         <div
           id='light-dark-button'
           style={{

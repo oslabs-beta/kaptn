@@ -7,7 +7,7 @@
   "scripts": {
     "start": "NODE_ENV='development' electron .",
     "dev": "concurrently \"NODE_ENV='development' nodemon server/server.js\" \"NODE_ENV='development' vite dev\" --host 0.0.0.0",
-    "build": "vite build && npm run pack",
+    "build": "vite build && npm run pack64",
     "postinstall": "electron-builder install-app-deps",
     "pack": "electron-builder -mwl",
     "pack64": "electron-builder -mwl --x64",
