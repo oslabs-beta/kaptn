@@ -20,11 +20,13 @@ import CommandLine from '../components/CommandLine.jsx';
 import Terminal from '../components/Terminal.jsx';
 const { ipcRenderer } = require('electron');
 import commands from '../components/commands.js';
-import { Box, styled, lighten, darken } from '@mui/system';
-
+import { Box, lighten, darken } from '@mui/system';
 import BoltIcon from '@mui/icons-material/Bolt';
 import helpDesk from './Glossary.jsx';
 import React from 'react';
+import Switch from '@mui/material/Switch';
+import Tooltip, { TooltipProps, tooltipClasses } from '@mui/material/Tooltip';
+import { styled } from '@mui/material/styles';
 
 const style = {
   position: 'absolute',
@@ -40,6 +42,16 @@ const style = {
   padding: '10px',
   borderRadius: '5px',
 };
+
+const LightTooltip = styled(({ className, ...props }: TooltipProps) => (
+  <Tooltip {...props} classes={{ popper: className }} />
+))(({ theme }) => ({
+  [`& .${tooltipClasses.tooltip}`]: {
+    backgroundColor: theme.palette.mode === 'dark' ? '#5c4d9a' : '#8383de',
+    color: 'white',
+    fontSize: 11,
+  },
+}));
 
 //section header (e.g. beginner, intermediate, etc) rules for grouped "command" option
 const BeginnerHeader = styled('div')(({ theme }) => ({
@@ -67,7 +79,7 @@ function Dashboard(): JSX.Element {
   const [shortDir, setShortDir] = React.useState<string>('NONE SELECTED');
   const [userInput, setUserInput] = useState<string>('');
   const [command, setCommand] = useState<string>('');
-  const [tool, setTool] = useState<string>('');
+  const [tool, setTool] = useState<string>('kubectl');
   const [response, setResponse] = useState<
     Array<{ command: string; response: { [key: string]: string } }>
   >([]);
@@ -81,6 +93,9 @@ function Dashboard(): JSX.Element {
   const [openType, setTypeOpen] = React.useState(false);
   const handleTypeOpen = () => setTypeOpen(true);
   const handleTypeClose = () => setTypeOpen(false);
+
+  const [k8toolHover, setK8ToolHover] = useState<boolean>(false);
+  const [checked, setChecked] = React.useState(true);
 
   //for light/dark mode toggle
   const theme = useTheme();
@@ -135,6 +150,62 @@ function Dashboard(): JSX.Element {
     setShortDir('...' + shortPath);
   };
 
+  // Clear the input box
+  const handleClear = (e) => {
+    e.preventDefault();
+    setVerb('');
+    setUserInput('');
+    console.log(verb);
+  };
+
+  //
+  const handleK8ToolChange = (event) => {
+    setChecked(event.target.checked);
+    if (!checked) setTool('kubectl');
+    else setTool('');
+  };
+
+  let k8tool = '';
+  if (checked === true) {
+    k8tool = 'ON';
+  } else k8tool = 'OFF';
+
+  const toggleK8ToolHover = () => {
+    let toolHoverStatus = !k8toolHover;
+    setK8ToolHover(toolHoverStatus);
+  };
+
+  let k8toolStyle = {
+    display: 'flex',
+    justifyContent: 'flex-start',
+    border:
+      theme.palette.mode === 'dark'
+        ? '.1px solid #ffffff50'
+        : '.1px solid #00000090',
+    borderRadius: '3px',
+    padding: '13px 0px 13px 8px',
+    width: '135px',
+  };
+  if (k8toolHover && theme.palette.mode === 'dark') {
+    k8toolStyle = {
+      display: 'flex',
+      justifyContent: 'flex-start',
+      border: '1px solid #ffffff',
+      borderRadius: '3px',
+      padding: '13px 0px 13px 7.5px',
+      width: '135px',
+    };
+  } else if (k8toolHover && theme.palette.mode === 'light') {
+    k8toolStyle = {
+      display: 'flex',
+      justifyContent: 'flex-start',
+      border: '1px solid #000000',
+      borderRadius: '3px',
+      padding: '13px 0px 13px 7.5px',
+      width: '135px',
+    };
+  }
+
   // Set the command state based on current inputs
   useEffect(() => {
     // Listen to post_command response
@@ -166,12 +237,6 @@ function Dashboard(): JSX.Element {
       return alert('Please choose working directory');
 
     ipcRenderer.send('post_command', { command, currDir });
-  };
-
-  // Clear the input box
-  const handleClear = (e) => {
-    e.preventDefault();
-    setUserInput('');
   };
 
   // Command list options
@@ -216,7 +281,7 @@ function Dashboard(): JSX.Element {
         {/* ----------------MAIN CONTENT---------------- */}
         <Grid
           id='main-content'
-          width='100%'
+          width='92%'
           height='100%'
           xs={10}
           // spacing={1}
@@ -224,16 +289,12 @@ function Dashboard(): JSX.Element {
           container
           direction='column'
           wrap='nowrap'
-          justifyContent='start
-          '
+          justifyContent='center'
           alignItems='center'
-          style={{ marginLeft: '35px', marginTop: '25px' }}
+          style={{ marginLeft: '5.5%', marginTop: '25px' }}
         >
           {/* ----------------TERMINAL---------------- */}
-          <Terminal
-            response={response}
-            style={{ height: '10%', width: '50%' }}
-          />
+          <Terminal response={response} />
 
           {/* ----------------BELOW TERMINAL---------------- */}
           <Grid
@@ -304,39 +365,77 @@ function Dashboard(): JSX.Element {
             </Grid>
 
             {/* ----------------INPUT BOXES---------------- */}
-            <Grid
+
+            <div
               id='inputs'
-              container
-              width='93%'
-              justifyContent='space-evenly'
-              alignItems='center'
-              marginRight='30px'
-              marginLeft='25px'
-              marginTop='7px'
+              style={{
+                display: 'flex',
+                flexDirection: 'row',
+                width: '90%',
+                marginTop: '6px',
+                justifyContent: 'space-around',
+                alignItems: 'center',
+              }}
             >
-              <p
-                style={{
-                  marginRight: '10px',
-                  fontFamily: 'Outfit',
-                  color: theme.palette.mode === 'dark' ? 'White' : '#4e50a5',
-                }}
+              <LightTooltip
+                title='If using kubectl commands, keep this on. If using global commands, turn this off.'
+                placement='top'
+                arrow
+                enterDelay={1500}
+                leaveDelay={100}
+                enterNextDelay={1500}
               >
-                INPUTS:
-              </p>
-              <Grid id='kubectl' xs={2}>
-                <Autocomplete
-                  defaultValue={'kubectl'}
-                  disablePortal
-                  options={['kubectl']}
-                  onInputChange={(e, newInputValue) => {
-                    setTool(newInputValue);
-                  }}
-                  renderInput={(params) => (
-                    <TextField {...params} label='kubectl (on/off)' />
-                  )}
-                />
-              </Grid>
-              <Grid id='commands' xs={3}>
+                <div
+                  id='k8tool'
+                  style={k8toolStyle}
+                  onMouseEnter={toggleK8ToolHover}
+                  onMouseLeave={toggleK8ToolHover}
+                >
+                  <div
+                    style={{
+                      padding: '0px 4px 0 6px',
+                      fontSize: '15px',
+                      color:
+                        theme.palette.mode === 'dark' && k8tool === 'ON'
+                          ? 'white'
+                          : theme.palette.mode === 'dark' && k8tool === 'OFF'
+                          ? '#ffffff99'
+                          : theme.palette.mode === 'light' && k8tool === 'ON'
+                          ? '#3f42c3'
+                          : '#00000082',
+                      letterSpacing: '-.2px',
+                    }}
+                  >
+                    kubectl
+                  </div>
+                  <Switch
+                    size='small'
+                    checked={checked}
+                    onChange={handleK8ToolChange}
+                    inputProps={{ 'aria-label': 'controlled' }}
+                  />
+                  <div
+                    style={{
+                      padding: '4.5px 1px 0 1px',
+                      fontSize: '10px',
+                      color:
+                        k8tool === 'OFF' && theme.palette.mode === 'light'
+                          ? 'grey'
+                          : k8tool === 'ON' && theme.palette.mode === 'light'
+                          ? ''
+                          : k8tool === 'OFF' && theme.palette.mode === 'dark'
+                          ? '#ffffff99'
+                          : '',
+                    }}
+                  >
+                    {k8tool}
+                  </div>
+                </div>
+              </LightTooltip>
+              <div
+                id='commands'
+                style={{ width: '25%', margin: '0 5px 0 5px' }}
+              >
                 <Autocomplete
                   disablePortal
                   id='combo-box-demo'
@@ -346,10 +445,11 @@ function Dashboard(): JSX.Element {
                   groupBy={(option) => option.category}
                   getOptionLabel={(option) => option.title}
                   onInputChange={(e, newInputValue) => {
-                    // console.log('newInputValue is', newInputValue);
+                    console.log('newInputValue is', newInputValue);
                     setVerb(newInputValue);
                     const newCommand = verb + ' ' + type + ' ' + name;
                     setCommand(newCommand);
+                    setHelpList([newInputValue, type]);
                     // setCommand(newInputValue);
                   }}
                   renderInput={(params) => (
@@ -382,21 +482,32 @@ function Dashboard(): JSX.Element {
                     </li>
                   )}
                 />
-              </Grid>
-              <Grid id='type' xs={2}>
+              </div>
+
+              {/* ---------------- TYPES FIELD ------------------------------------- */}
+
+              <div id='types' style={{ width: '20%' }}>
                 <Autocomplete
                   disablePortal
                   id='combo-box-demo'
                   options={types}
                   onInputChange={(e, newInputValue) => {
+                    setHelpList([verb, newInputValue]);
                     setType(newInputValue);
+                    // setHelpList([verb, newInputValue]);
+                    console.log('helplist is', helpList);
+                    console.log('verb is', verb);
+                    console.log('type is', type);
                   }}
                   renderInput={(params) => (
                     <TextField {...params} label='Types' />
                   )}
                 />
-              </Grid>
-              <Grid id='name' xs={2}>
+              </div>
+
+              {/* ---------------- NAMES FIELD ------------------------------------- */}
+
+              <div id='name' style={{ width: '25%', margin: '0 5px 0 5px' }}>
                 <form
                   onChange={handleNameChange}
                   onSubmit={(e) => {
@@ -407,10 +518,14 @@ function Dashboard(): JSX.Element {
                     id='outlined-basic'
                     label='Name'
                     variant='outlined'
+                    style={{ width: '100%' }}
                   />
                 </form>
-              </Grid>
-              <Grid id='flag' xs={1.2}>
+              </div>
+
+              {/* ---------------- FLAGS DROPDOWN ------------------------------------- */}
+
+              <div id='flag' style={{ width: '15%', marginLeft: '0px' }}>
                 <FormControl fullWidth>
                   <InputLabel id='flag-label'>Flags</InputLabel>
                   <Select
@@ -430,193 +545,203 @@ function Dashboard(): JSX.Element {
                     ))}
                   </Select>
                 </FormControl>
-              </Grid>
-            </Grid>
+              </div>
+            </div>
 
             {/* ----------------COMMAND LINE---------------- */}
-            <div style={{ marginTop: '20px' }}>
-              <CommandLine
-                width='100%'
-                handleSubmit={handleSubmit}
-                setUserInput={setUserInput}
-                userInput={userInput}
-                command={command}
-                handleClear={handleClear}
-              />
-            </div>
             <div
               style={{
                 display: 'flex',
                 flexDirection: 'column',
-                height: '80px',
-                width: '55%',
-                backgroundColor:
-                  theme.palette.mode === 'dark' ? '#2f2f6d' : '#e1dbfe',
-                marginLeft: '0',
-                marginTop: '17px',
-                borderRadius: '3px',
-                textAlign: 'center',
-                padding: '3px 0 0 0',
-                fontFamily: 'Outfit',
-                fontWeight: '900',
-                letterSpacing: '1px',
-                alignItems: 'center',
-                fontSize: '12px',
-                color: theme.palette.mode === 'dark' ? 'white' : '#4e50a5',
+                width: '72%',
+                marginLeft: '40px',
+                justifyContent: 'center',
               }}
             >
-              {' '}
+              <div style={{ marginTop: '20px' }}>
+                <CommandLine
+                  width='100%'
+                  handleSubmit={handleSubmit}
+                  setUserInput={setUserInput}
+                  userInput={userInput}
+                  command={command}
+                  handleClear={handleClear}
+                />
+              </div>
               <div
                 style={{
                   display: 'flex',
-                  marginTop: '2px',
+                  flexDirection: 'column',
+                  height: '80px',
+                  width: '75%',
+                  backgroundColor:
+                    theme.palette.mode === 'dark' ? '#2f2f6d' : '#e1dbfe',
+                  marginLeft: '8%',
+                  marginTop: '17px',
+                  borderRadius: '3px',
+                  textAlign: 'center',
+                  padding: '3px 0 0 0',
+                  fontFamily: 'Outfit',
+                  fontWeight: '900',
+                  letterSpacing: '1px',
                   alignItems: 'center',
+                  fontSize: '12px',
+                  color: theme.palette.mode === 'dark' ? 'white' : '#4e50a5',
                 }}
               >
                 {' '}
-                <BoltIcon fontSize='small' />
-                <div style={{ width: '5px' }} />
-                <div style={{}}>INSTANT HELP DESK</div>
-                <div style={{ width: '5px' }} />
-                <BoltIcon fontSize='small' />
-              </div>
-              <div
-                style={{
-                  fontFamily: 'Roboto',
-                  fontWeight: '400',
-                  fontSize: '9px',
-                  letterSpacing: '.6px',
-                  margin: '4px 0 0 0',
-                }}
-              >
-                <em>
-                  CHOOSE ANY "COMMAND" OR "TYPE" THEN CLICK BELOW TO SEE
-                  DOCUMENTATION AND HELP INFO
-                </em>
-              </div>
-              <div style={{ display: 'flex', paddingRight: '10px' }}>
-                <Button
+                <div
                   style={{
                     display: 'flex',
-                    flexDirection: 'column',
-                    // backgroundColor: '#a494d7',
-                    margin: '0px 0px 0 0',
-                    // color: 'white',
-                    fontFamily: 'Outfit',
-                    fontSize: '14px',
+                    marginTop: '2px',
+                    alignItems: 'center',
                   }}
-                  onClick={handleCommandOpen}
                 >
-                  {verb}
-                </Button>
-                <Modal
-                  open={openCommand}
-                  onClose={handleCommandClose}
-                  style={{ overflow: 'scroll', height: '100%' }}
-                  aria-labelledby='modal-modal-title'
-                  aria-describedby='modal-modal-description'
+                  {' '}
+                  <BoltIcon fontSize='small' />
+                  <div style={{ width: '5px' }} />
+                  <div style={{}}>INSTANT HELP DESK</div>
+                  <div style={{ width: '5px' }} />
+                  <BoltIcon fontSize='small' />
+                </div>
+                <div
+                  style={{
+                    fontFamily: 'Roboto',
+                    fontWeight: '400',
+                    fontSize: '9px',
+                    letterSpacing: '.6px',
+                    margin: '4px 0 0 0',
+                  }}
                 >
-                  <Box sx={style}>
-                    <Typography
-                      id='modal-modal-title'
-                      // variant='h6'
-                      // component='h2'
-                    ></Typography>
-                    <Typography
-                      id='modal-modal-description'
-                      style={{
-                        top: '0',
-                        left: '0',
-                        overflow: 'auto',
-                        height: '100%',
-                        width: '100%',
-                        paddingLeft: '20px',
-                        zIndex: '1350',
-                      }}
-                      sx={{ mt: 0 }}
-                    >
-                      <pre
+                  <em>
+                    CHOOSE ANY "COMMAND" OR "TYPE" THEN CLICK BELOW TO SEE
+                    DOCUMENTATION AND HELP INFO
+                  </em>
+                </div>
+                <div style={{ display: 'flex', paddingRight: '10px' }}>
+                  <Button
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      // backgroundColor: '#a494d7',
+                      margin: '0px 0px 0 0',
+                      // color: 'white',
+                      fontFamily: 'Outfit',
+                      fontSize: '14px',
+                    }}
+                    onClick={handleCommandOpen}
+                  >
+                    {verb}
+                  </Button>
+                  <Modal
+                    open={openCommand}
+                    onClose={handleCommandClose}
+                    style={{ overflow: 'scroll', height: '100%' }}
+                    aria-labelledby='modal-modal-title'
+                    aria-describedby='modal-modal-description'
+                  >
+                    <Box sx={style}>
+                      <Typography
+                        id='modal-modal-title'
+                        // variant='h6'
+                        // component='h2'
+                      ></Typography>
+                      <Typography
+                        id='modal-modal-description'
                         style={{
-                          fontFamily: 'Outfit,monospace',
-                          fontSize: '24px',
+                          top: '0',
+                          left: '0',
                           overflow: 'auto',
+                          height: '100%',
+                          width: '100%',
+                          paddingLeft: '20px',
+                          zIndex: '1350',
                         }}
+                        sx={{ mt: 0 }}
                       >
-                        Kubetcl{'  '}
-                        <strong style={{ fontSize: '38px' }}>{verb}</strong> :
-                      </pre>
-                      <pre
-                        style={{
-                          fontSize: '14px',
-                          overflow: 'auto',
-                        }}
-                      >
-                        {helpDesk[`${verb}`]}
-                      </pre>
-                    </Typography>
-                  </Box>
-                </Modal>
+                        <pre
+                          style={{
+                            fontFamily: 'Outfit,monospace',
+                            fontSize: '24px',
+                            overflow: 'auto',
+                          }}
+                        >
+                          Kubetcl{'  '}
+                          <strong style={{ fontSize: '38px' }}>{verb}</strong> :
+                        </pre>
+                        <pre
+                          style={{
+                            fontSize: '14px',
+                            overflow: 'auto',
+                          }}
+                        >
+                          {helpDesk[`${verb}`]}
+                        </pre>
+                      </Typography>
+                    </Box>
+                  </Modal>
 
-                <Button
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'row',
-                    // backgroundColor: '#a494d7',
-                    margin: '0px 0px 0 0',
-                    // color: 'white',
-                    fontFamily: 'Outfit',
-                    fontSize: '14px',
-                  }}
-                  onClick={handleTypeOpen}
-                >
-                  {type}
-                </Button>
-                <Modal
-                  open={openType}
-                  onClose={handleTypeClose}
-                  aria-labelledby='modal-modal-title'
-                  aria-describedby='modal-modal-description'
-                >
-                  <Box sx={style}>
-                    <Typography
-                      id='modal-modal-title'
-                      // variant='h6'
-                      // component='h2'
-                    ></Typography>
-                    <Typography
-                      id='modal-modal-description'
-                      style={{
-                        top: '0',
-                        left: '0',
-                        overflow: 'auto',
-                        height: '100%',
-                        width: '100%',
-                        paddingLeft: '20px',
-                        zIndex: '1350',
-                      }}
-                      sx={{ mt: 0 }}
-                    >
-                      <pre
+                  <Button
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'row',
+                      // backgroundColor: '#a494d7',
+                      margin: '0px 0px 0 0',
+                      // color: 'white',
+                      fontFamily: 'Outfit',
+                      fontSize: '14px',
+                    }}
+                    onClick={handleTypeOpen}
+                  >
+                    {type}
+                  </Button>
+                  <Modal
+                    open={openType}
+                    onClose={handleTypeClose}
+                    aria-labelledby='modal-modal-title'
+                    aria-describedby='modal-modal-description'
+                  >
+                    <Box sx={style}>
+                      <Typography
+                        id='modal-modal-title'
+                        // variant='h6'
+                        // component='h2'
+                      ></Typography>
+                      <Typography
+                        id='modal-modal-description'
                         style={{
-                          fontFamily: 'Outfit,monospace',
-                          fontSize: '24px',
+                          top: '0',
+                          left: '0',
                           overflow: 'auto',
+                          height: '100%',
+                          width: '100%',
+                          paddingLeft: '20px',
+                          zIndex: '1350',
                         }}
+                        sx={{ mt: 0 }}
                       >
-                        Kubetcl Type: {'  '}
-                        <strong style={{ fontSize: '38px' }}>{type}</strong>
-                      </pre>
-                      <pre
-                        style={{
-                          fontSize: '14px',
-                          overflow: 'auto',
-                        }}
-                      >
-                        {helpDesk[`${type}`]}
-                      </pre>
-                    </Typography>
-                  </Box>
-                </Modal>
+                        <pre
+                          style={{
+                            fontFamily: 'Outfit,monospace',
+                            fontSize: '24px',
+                            overflow: 'auto',
+                          }}
+                        >
+                          Kubetcl Type: {'  '}
+                          <strong style={{ fontSize: '38px' }}>{type}</strong>
+                        </pre>
+                        <pre
+                          style={{
+                            fontSize: '14px',
+                            overflow: 'auto',
+                          }}
+                        >
+                          {helpDesk[`${type}`]}
+                        </pre>
+                      </Typography>
+                    </Box>
+                  </Modal>
+                </div>
               </div>
             </div>
           </Grid>

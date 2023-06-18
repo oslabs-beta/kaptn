@@ -65,7 +65,8 @@ function Login() {
       width={'100%'}
       // height={'95vh'}
       style={{
-        marginTop: '30px',
+        marginTop: '32px',
+        height: '100%',
       }}
     >
       <Grid
@@ -76,8 +77,10 @@ function Login() {
         justifyContent='space-evenly'
         sx={{
           textAlign: 'center',
+          width:"100%",
+          backgroundColor: theme.palette.mode === 'dark' ? '' : '#c8c8fc',
         }}
-        height={'95vh'}
+        height={'96vh'}
       >
         <Box
           src='./kaptn4ico.png'
@@ -95,7 +98,7 @@ function Login() {
             // alignText='center'
             sx={{ fontWeight: 'bold', fontFamily: 'Outfit', fontSize: '42px' }}
             style={{
-              color: theme.palette.mode === 'dark' ? 'white' : '#5050a9',
+              color: theme.palette.mode === 'dark' ? 'white' : '#3c3c9a',
               textShadow:
                 theme.palette.mode === 'dark'
                   ? '1px 1px 5px rgb(0, 0, 0, 0.3)'
@@ -115,8 +118,8 @@ function Login() {
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              fontSize:"16px",
-              fontFamily:"Outfit",
+              fontSize: '16px',
+              fontFamily: 'Outfit',
               border:
                 theme.palette.mode === 'dark'
                   ? '1px solid #68617f'

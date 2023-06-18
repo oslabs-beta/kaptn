@@ -28,11 +28,9 @@ function SideNav(props) {
     [`& .${tooltipClasses.tooltip}`]: {
       backgroundColor: theme.palette.mode === 'dark' ? '#5c4d9a' : '#8383de',
       color: 'white',
-      // boxShadow: theme.shadows[1],
       fontSize: 11,
     },
   }));
-  // const [isCollapsed, setIsCollapsed] = useState(false);
 
   return (
     <div
@@ -45,6 +43,9 @@ function SideNav(props) {
         title='K8s CLI'
         placement='right'
         arrow
+        enterDelay={500}
+        leaveDelay={200}
+        enterNextDelay={500}
         style={{ backgroundColor: 'red' }}
       >
         <div
@@ -61,7 +62,14 @@ function SideNav(props) {
           </Link>
         </div>
       </LightTooltip>
-      <LightTooltip title='Easy Setup' placement='right' arrow>
+      <LightTooltip
+        title='Easy Setup'
+        placement='right'
+        arrow
+        enterDelay={500}
+        leaveDelay={200}
+        enterNextDelay={500}
+      >
         <div
           style={{ height: '20px', paddingLeft: '8px', marginBottom: '20px' }}
         >
@@ -77,7 +85,14 @@ function SideNav(props) {
         </div>
       </LightTooltip>
 
-      <LightTooltip title='Cluster Visualizer' placement='right' arrow>
+      <LightTooltip
+        title='Cluster Visualizer'
+        placement='right'
+        arrow
+        enterDelay={500}
+        leaveDelay={200}
+        enterNextDelay={500}
+      >
         <div style={{ paddingLeft: '8px' }}>
           <Link to='/cluster'>
             <BarChart
@@ -108,7 +123,14 @@ function SideNav(props) {
         </div>
       </LightTooltip> */}
 
-      <LightTooltip title='Log Out' placement='right' arrow>
+      <LightTooltip
+        title='Log Out'
+        placement='right'
+        arrow
+        enterDelay={500}
+        leaveDelay={200}
+        enterNextDelay={500}
+      >
         <div style={{ paddingLeft: '8px', marginTop: '16px' }}>
           <Link to='/'>
             <ExitToAppOutlined
@@ -121,7 +143,14 @@ function SideNav(props) {
           </Link>
         </div>
       </LightTooltip>
-      <LightTooltip title='Dark / Light Mode' placement='right' arrow>
+      <LightTooltip
+        title='Dark / Light Mode'
+        placement='right'
+        arrow
+        enterDelay={500}
+        leaveDelay={200}
+        enterNextDelay={500}
+      >
         <div
           id='light-dark-button'
           style={{

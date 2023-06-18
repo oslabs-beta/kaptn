@@ -26,6 +26,8 @@ import EastIcon from '@mui/icons-material/East';
 import commands from '../components/commands.js';
 import BoltIcon from '@mui/icons-material/Bolt';
 import helpDesk from './Glossary.jsx';
+import Switch from '@mui/material/Switch';
+import Tooltip, { TooltipProps, tooltipClasses } from '@mui/material/Tooltip';
 
 const { ipcRenderer } = require('electron');
 
@@ -43,6 +45,16 @@ const style = {
   padding: '10px',
   borderRadius: '5px',
 };
+
+const LightTooltip = styled(({ className, ...props }: TooltipProps) => (
+  <Tooltip {...props} classes={{ popper: className }} />
+))(({ theme }) => ({
+  [`& .${tooltipClasses.tooltip}`]: {
+    backgroundColor: theme.palette.mode === 'dark' ? '#5c4d9a' : '#8383de',
+    color: 'white',
+    fontSize: 11,
+  },
+}));
 
 //for step 4 text to appear below without eslint/prettier error, assigned to variable here
 const step4 = `4. INPUT COMMANDS --->`;
@@ -91,19 +103,11 @@ function Setup() {
   const handleTypeOpen = () => setTypeOpen(true);
   const handleTypeClose = () => setTypeOpen(false);
 
+  const [k8toolHover, setK8ToolHover] = useState<boolean>(false);
+  const [checked, setChecked] = React.useState(true);
+
   //for light/dark mode toggle
   const theme = useTheme();
-
-  // let instantHelp = [];
-  // if (verb === '' && type === '') {
-  //   instantHelp = ['NONE SELECTED CHOOSE ABOVE'];
-  // }
-  // else if (type===''){helpList.push(<div>hey there</div>)}
-  // for (let i = 0; i < helpList.length; i++) {
-  //   instantHelp.push(
-  //     <div >{helpList[i]}</div>
-  //   );
-  // }
 
   //maps grouped command options alphabetically including if numbered
   const options = commands.map((option) => {
@@ -122,7 +126,7 @@ function Setup() {
       setImgPath(e.target.value);
     }
   }
-  // Set YAML edit box state
+  // Set YAML modal box state
   const handleYamlClose = () => {
     setYamlOpen(false);
   };
@@ -151,7 +155,7 @@ function Setup() {
     setName(value);
   };
 
-  // Set current directory state
+  // Set current work directory, and short directory (for its visible label)
   const handleUploadDirectory = (event) => {
     let path = event.target.files[0].path.split('');
     while (path[path.length - 1] !== '/') {
@@ -179,6 +183,62 @@ function Setup() {
   const handleImgField = (e) => {
     setImgField(e.target.value);
   };
+
+  // // Clear the input box
+  // const handleClear = (e) => {
+  //   e.preventDefault();
+  //   setVerb('');
+  //   setUserInput('');
+  //   console.log(verb);
+  // };
+
+  //
+  const handleK8ToolChange = (event) => {
+    setChecked(event.target.checked);
+    if (!checked) setTool('kubectl');
+    else setTool('');
+  };
+
+  let k8tool = '';
+  if (checked === true) {
+    k8tool = 'ON';
+  } else k8tool = 'OFF';
+
+  const toggleK8ToolHover = () => {
+    let toolHoverStatus = !k8toolHover;
+    setK8ToolHover(toolHoverStatus);
+  };
+
+  let k8toolStyle = {
+    display: 'flex',
+    justifyContent: 'flex-start',
+    border:
+      theme.palette.mode === 'dark'
+        ? '.1px solid #ffffff50'
+        : '.1px solid #00000090',
+    borderRadius: '3px',
+    padding: '13px 0px 13px 8px',
+    width: '135px',
+  };
+  if (k8toolHover && theme.palette.mode === 'dark') {
+    k8toolStyle = {
+      display: 'flex',
+      justifyContent: 'flex-start',
+      border: '1px solid #ffffff',
+      borderRadius: '3px',
+      padding: '13px 0px 13px 7.5px',
+      width: '135px',
+    };
+  } else if (k8toolHover && theme.palette.mode === 'light') {
+    k8toolStyle = {
+      display: 'flex',
+      justifyContent: 'flex-start',
+      border: '1px solid #000000',
+      borderRadius: '3px',
+      padding: '13px 0px 13px 7.5px',
+      width: '135px',
+    };
+  }
 
   // Set the command state based on current inputs
   useEffect(() => {
@@ -672,19 +732,61 @@ function Setup() {
               justifyContent='space-around'
               alignItems='center'
             >
-              <Grid id='kubectl' xs={2.3}>
-                <Autocomplete
-                  defaultValue={'kubectl'}
-                  disablePortal
-                  options={['kubectl']}
-                  onInputChange={(e, newInputValue) => {
-                    setTool(newInputValue);
-                  }}
-                  renderInput={(params) => (
-                    <TextField {...params} label='kubectl (on/off)' />
-                  )}
-                />
-              </Grid>
+              <LightTooltip
+                title='If using kubectl commands, keep this on. If using global commands, turn this off.'
+                placement='top'
+                arrow
+                enterDelay={2000}
+                leaveDelay={100}
+                enterNextDelay={2000}
+              >
+                <div
+                  id='k8tool'
+                  style={k8toolStyle}
+                  onMouseEnter={toggleK8ToolHover}
+                  onMouseLeave={toggleK8ToolHover}
+                >
+                  <div
+                    style={{
+                      padding: '0px 4px 0 6px',
+                      fontSize: '15px',
+                      color:
+                        theme.palette.mode === 'dark' && k8tool === 'ON'
+                          ? 'white'
+                          : theme.palette.mode === 'dark' && k8tool === 'OFF'
+                          ? '#ffffff99'
+                          : theme.palette.mode === 'light' && k8tool === 'ON'
+                          ? '#3f42c3'
+                          : '#00000082',
+                      letterSpacing: '-.2px',
+                    }}
+                  >
+                    kubectl
+                  </div>
+                  <Switch
+                    size='small'
+                    checked={checked}
+                    onChange={handleK8ToolChange}
+                    inputProps={{ 'aria-label': 'controlled' }}
+                  />
+                  <div
+                    style={{
+                      padding: '4.5px 1px 0 1px',
+                      fontSize: '10px',
+                      color:
+                        k8tool === 'OFF' && theme.palette.mode === 'light'
+                          ? 'grey'
+                          : k8tool === 'ON' && theme.palette.mode === 'light'
+                          ? ''
+                          : k8tool === 'OFF' && theme.palette.mode === 'dark'
+                          ? '#ffffff99'
+                          : '',
+                    }}
+                  >
+                    {k8tool}
+                  </div>
+                </div>
+              </LightTooltip>
               <Grid id='commands' xs={3}>
                 <Autocomplete
                   disablePortal

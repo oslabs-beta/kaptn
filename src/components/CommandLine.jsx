@@ -18,6 +18,9 @@ const CommandLine = (props) => {
   const handleClear = (e) => {
     let userInput = '';
     props.setUserInput(userInput);
+    props.setVerb(userInput);
+    props.setType(userInput);
+    props.setFlags([]);
   };
 
   return (
@@ -39,15 +42,15 @@ const CommandLine = (props) => {
           justifyContent: 'center',
           alignItems: 'center',
           borderColor: 'transparent',
-          
         }}
       >
         <TextField
           id='outlined-start-adornment'
           sx={{
             m: 0,
-            width: '65.5ch',
-            justifyContent: 'center',
+            p: 0,
+            width: '76%',
+            justifyContent: 'start',
             border: '1px solid white',
             borderRadius: '3px',
             background: theme.palette.mode === 'dark' ? '#0e0727' : '#e6e1fb',
@@ -65,12 +68,12 @@ const CommandLine = (props) => {
           id='runButt'
           variant='contained'
           style={{
-            margin: '1px 3px 0 6px',
+            margin: '1px 6px 0 8px',
             alightContent: 'center',
             background: 'transparent',
             fontSize: '16px',
             height: '53px',
-            width: '60px',
+            width: '11%',
             color: theme.palette.mode === 'dark' ? 'white' : '#685aef',
             border:
               theme.palette.mode === 'dark'
@@ -86,10 +89,10 @@ const CommandLine = (props) => {
             handleClear(e);
           }}
           style={{
-            margin: '0 6px 0 3px',
+            margin: '1px 0px 0 3px',
             justifyContent: 'center',
             height: '53px',
-            width: '60px',
+            width: '10%',
             fontSize: '11px',
             color: theme.palette.mode === 'dark' ? 'lightgrey' : 'grey',
             background: 'transparent',

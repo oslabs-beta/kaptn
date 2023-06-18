@@ -6,7 +6,7 @@ const Terminal = (props) => {
   const theme = useTheme();
   const clear = '[H[2J';
   console.log('clear is', clear);
-  
+
   // Create a div for each command/response in the current session
   let commandLog: JSX.Element[] = [];
 
@@ -61,8 +61,8 @@ const Terminal = (props) => {
     <Grid
       id='terminal'
       xs={8}
-      width='95%'
-      height='60%'
+      width='100%'
+      height='100%'
       style={{
         border:
           theme.palette.mode === 'dark'
@@ -77,7 +77,6 @@ const Terminal = (props) => {
       }}
     >
       {commandLog}
-      
     </Grid>
   );
 };

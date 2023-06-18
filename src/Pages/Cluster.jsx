@@ -127,7 +127,7 @@ function SetupButtons() {
         wrap='nowrap'
         justifyContent='space-around'
         alignItems='center'
-        marginLeft="150px"
+        marginLeft='150px'
       >
         <Grid
           className='main-container'
@@ -185,32 +185,25 @@ function SetupButtons() {
               Start port forwarding...
             </Button>
           </Grid>
-          {/* 
+
           <Grid xs={2} container>
             <Typography> 4. Show me my cluster </Typography>
-            <Button
+            <a href={url} target='_blank'>
+              Click here to open in new browser
+            </a>
+            {/* <Button
               onClick={handleCluster}
               variant='contained'
               style={{ border: '1px solid' }}
             >
               cluster time
-            </Button>
-          </Grid> */}
+            </Button> */}
+          </Grid>
         </Grid>
-        <div
-          className='frame'
-          src={url}
-          width='100%'
-          height='100%'
-          title='embed cluster'
-          style={{
-            fontSize: '30px',
-            paddingBottom: '150px',
-            paddingRight: '120px',
-          }}
-        >
-          In-App Visualizer Coming Soon!
-        </div>
+        <embed
+          src={'http://127.0.0.1:3000/login'}
+          style={{ height: '500px', width: '500px' }}
+        ></embed>
       </Grid>
     </Grid>
   );
