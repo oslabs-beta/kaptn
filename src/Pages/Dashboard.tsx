@@ -64,6 +64,7 @@ function Dashboard(): JSX.Element {
   const [type, setType] = useState<string>('');
   const [name, setName] = useState<string>('');
   const [currDir, setCurrDir] = useState<string>('NONE SELECTED');
+  const [shortDir, setShortDir] = React.useState<string>('NONE SELECTED');
   const [userInput, setUserInput] = useState<string>('');
   const [command, setCommand] = useState<string>('');
   const [tool, setTool] = useState<string>('');
@@ -122,6 +123,16 @@ function Dashboard(): JSX.Element {
     }
     let absPath = path.join('');
     setCurrDir(absPath);
+    let absArr = absPath.split('');
+    let shortArr = [];
+    for (let i = absArr.length - 2; absArr[i] !== '/'; i--) {
+      shortArr.unshift(absArr[i]);
+    }
+    shortArr.unshift('/');
+    console.log('shortArr is', shortArr);
+    let shortPath = shortArr.join('') + '/';
+    console.log('shortpath is', shortPath);
+    setShortDir('...' + shortPath);
   };
 
   // Set the command state based on current inputs
@@ -195,9 +206,10 @@ function Dashboard(): JSX.Element {
         id='dashboard'
         container
         disableEqualOverflow
+        overflow='hidden'
         width={'100vw'}
-        height={'95vh'}
-        sx={{ pt: 3, pb: 3 }}
+        height={'98vh'}
+        sx={{ pt: 4, pb: 3 }}
       >
         {/* ----------------SIDE BAR---------------- */}
         <SideNav spacing={2} />
@@ -218,14 +230,17 @@ function Dashboard(): JSX.Element {
           style={{ marginLeft: '35px', marginTop: '25px' }}
         >
           {/* ----------------TERMINAL---------------- */}
-          <Terminal response={response} />
+          <Terminal
+            response={response}
+            style={{ height: '10%', width: '50%' }}
+          />
 
           {/* ----------------BELOW TERMINAL---------------- */}
           <Grid
             id='below-terminal'
             container
-            xs={4}
-            height={'35%'}
+            xs={2}
+            height={'45%'}
             sx={{ pt: 1 }}
             justifyContent='center'
             alignItems='center'
@@ -242,8 +257,8 @@ function Dashboard(): JSX.Element {
               sx={{
                 borderBottom: 1,
                 width: '95%',
-                paddingBottom: '10px',
-                marginBottom: '20px',
+                paddingBottom: '6px',
+                marginBottom: '15px',
               }}
             >
               <Grid id='directory-item' sx={{ pr: 2 }}>
@@ -257,7 +272,7 @@ function Dashboard(): JSX.Element {
                 </p>
               </Grid>
               <Grid id='directory-item' sx={{ pr: 2 }}>
-                <p>{currDir}</p>
+                <p>{shortDir}</p>
               </Grid>
               <Grid id='directory-item'>
                 <Button
@@ -297,7 +312,7 @@ function Dashboard(): JSX.Element {
               alignItems='center'
               marginRight='30px'
               marginLeft='25px'
-              marginTop='10px'
+              marginTop='7px'
             >
               <p
                 style={{
@@ -317,7 +332,7 @@ function Dashboard(): JSX.Element {
                     setTool(newInputValue);
                   }}
                   renderInput={(params) => (
-                    <TextField {...params} label='kubectl' />
+                    <TextField {...params} label='kubectl (on/off)' />
                   )}
                 />
               </Grid>
@@ -381,7 +396,7 @@ function Dashboard(): JSX.Element {
                   )}
                 />
               </Grid>
-              <Grid id='name'>
+              <Grid id='name' xs={2}>
                 <form
                   onChange={handleNameChange}
                   onSubmit={(e) => {
@@ -395,7 +410,7 @@ function Dashboard(): JSX.Element {
                   />
                 </form>
               </Grid>
-              <Grid id='flag' xs={2}>
+              <Grid id='flag' xs={1.2}>
                 <FormControl fullWidth>
                   <InputLabel id='flag-label'>Flags</InputLabel>
                   <Select
@@ -419,7 +434,7 @@ function Dashboard(): JSX.Element {
             </Grid>
 
             {/* ----------------COMMAND LINE---------------- */}
-            <div style={{ marginTop: '30px' }}>
+            <div style={{ marginTop: '20px' }}>
               <CommandLine
                 width='100%'
                 handleSubmit={handleSubmit}
@@ -429,182 +444,182 @@ function Dashboard(): JSX.Element {
                 handleClear={handleClear}
               />
             </div>
-          </Grid>
-          {/* <div
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              height: '100px',
-              width: '55%',
-              backgroundColor:
-                theme.palette.mode === 'dark' ? '#2f2f6d' : '#e1dbfe',
-              marginLeft: '0',
-              marginTop: '20px',
-              borderRadius: '3px',
-              textAlign: 'center',
-              padding: '5px 0 0 0',
-              fontFamily: 'Outfit',
-              fontWeight: '900',
-              letterSpacing: '1px',
-              alignItems: 'center',
-              fontSize: '16px',
-              color: theme.palette.mode === 'dark' ? 'white' : '#4e50a5',
-            }}
-          >
-            {' '}
             <div
               style={{
                 display: 'flex',
-                marginTop: '2px',
+                flexDirection: 'column',
+                height: '80px',
+                width: '55%',
+                backgroundColor:
+                  theme.palette.mode === 'dark' ? '#2f2f6d' : '#e1dbfe',
+                marginLeft: '0',
+                marginTop: '17px',
+                borderRadius: '3px',
+                textAlign: 'center',
+                padding: '3px 0 0 0',
+                fontFamily: 'Outfit',
+                fontWeight: '900',
+                letterSpacing: '1px',
                 alignItems: 'center',
+                fontSize: '12px',
+                color: theme.palette.mode === 'dark' ? 'white' : '#4e50a5',
               }}
             >
               {' '}
-              <BoltIcon />
-              <div style={{ width: '5px' }} />
-              <div style={{}}>INSTANT HELP DESK</div>
-              <div style={{ width: '5px' }} />
-              <BoltIcon />
-            </div>
-            <div
-              style={{
-                fontFamily: 'Roboto',
-                fontWeight: '400',
-                fontSize: '10px',
-                letterSpacing: '.6px',
-                margin: '6px 0 0 0',
-              }}
-            >
-              <em>
-                CHOOSE ANY "COMMAND" OR "TYPE" THEN CLICK BELOW TO SEE
-                DOCUMENTATION AND HELP INFO
-              </em>
-            </div>
-            <div style={{ display: 'flex', paddingRight: '10px' }}>
-              <Button
+              <div
                 style={{
                   display: 'flex',
-                  flexDirection: 'column',
-                  // backgroundColor: '#a494d7',
-                  margin: '2px 0px 0 0',
-                  // color: 'white',
-                  fontFamily: 'Outfit',
-                  fontSize: '16px',
+                  marginTop: '2px',
+                  alignItems: 'center',
                 }}
-                onClick={handleCommandOpen}
               >
-                {verb}
-              </Button>
-              <Modal
-                open={openCommand}
-                onClose={handleCommandClose}
-                style={{ overflow: 'scroll', height: '100%' }}
-                aria-labelledby='modal-modal-title'
-                aria-describedby='modal-modal-description'
+                {' '}
+                <BoltIcon fontSize='small' />
+                <div style={{ width: '5px' }} />
+                <div style={{}}>INSTANT HELP DESK</div>
+                <div style={{ width: '5px' }} />
+                <BoltIcon fontSize='small' />
+              </div>
+              <div
+                style={{
+                  fontFamily: 'Roboto',
+                  fontWeight: '400',
+                  fontSize: '9px',
+                  letterSpacing: '.6px',
+                  margin: '4px 0 0 0',
+                }}
               >
-                <Box sx={style}>
-                  <Typography
-                    id='modal-modal-title'
-                    // variant='h6'
-                    // component='h2'
-                  ></Typography>
-                  <Typography
-                    id='modal-modal-description'
-                    style={{
-                      top: '0',
-                      left: '0',
-                      overflow: 'auto',
-                      height: '100%',
-                      width: '100%',
-                      paddingLeft: '20px',
-                      zIndex: '1350',
-                    }}
-                    sx={{ mt: 0 }}
-                  >
-                    <pre
+                <em>
+                  CHOOSE ANY "COMMAND" OR "TYPE" THEN CLICK BELOW TO SEE
+                  DOCUMENTATION AND HELP INFO
+                </em>
+              </div>
+              <div style={{ display: 'flex', paddingRight: '10px' }}>
+                <Button
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    // backgroundColor: '#a494d7',
+                    margin: '0px 0px 0 0',
+                    // color: 'white',
+                    fontFamily: 'Outfit',
+                    fontSize: '14px',
+                  }}
+                  onClick={handleCommandOpen}
+                >
+                  {verb}
+                </Button>
+                <Modal
+                  open={openCommand}
+                  onClose={handleCommandClose}
+                  style={{ overflow: 'scroll', height: '100%' }}
+                  aria-labelledby='modal-modal-title'
+                  aria-describedby='modal-modal-description'
+                >
+                  <Box sx={style}>
+                    <Typography
+                      id='modal-modal-title'
+                      // variant='h6'
+                      // component='h2'
+                    ></Typography>
+                    <Typography
+                      id='modal-modal-description'
                       style={{
-                        fontFamily: 'Outfit,monospace',
-                        fontSize: '24px',
+                        top: '0',
+                        left: '0',
                         overflow: 'auto',
+                        height: '100%',
+                        width: '100%',
+                        paddingLeft: '20px',
+                        zIndex: '1350',
                       }}
+                      sx={{ mt: 0 }}
                     >
-                      Kubetcl{'  '}
-                      <strong style={{ fontSize: '38px' }}>{verb}</strong> :
-                    </pre>
-                    <pre
-                      style={{
-                        fontSize: '14px',
-                        overflow: 'auto',
-                      }}
-                    >
-                      {helpDesk[`${verb}`]}
-                    </pre>
-                  </Typography>
-                </Box>
-              </Modal>
+                      <pre
+                        style={{
+                          fontFamily: 'Outfit,monospace',
+                          fontSize: '24px',
+                          overflow: 'auto',
+                        }}
+                      >
+                        Kubetcl{'  '}
+                        <strong style={{ fontSize: '38px' }}>{verb}</strong> :
+                      </pre>
+                      <pre
+                        style={{
+                          fontSize: '14px',
+                          overflow: 'auto',
+                        }}
+                      >
+                        {helpDesk[`${verb}`]}
+                      </pre>
+                    </Typography>
+                  </Box>
+                </Modal>
 
-              <Button
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  // backgroundColor: '#a494d7',
-                  margin: '2px 0px 0 0',
-                  // color: 'white',
-                  fontFamily: 'Outfit',
-                  fontSize: '16px',
-                }}
-                onClick={handleTypeOpen}
-              >
-                {type}
-              </Button>
-              <Modal
-                open={openType}
-                onClose={handleTypeClose}
-                aria-labelledby='modal-modal-title'
-                aria-describedby='modal-modal-description'
-              >
-                <Box sx={style}>
-                  <Typography
-                    id='modal-modal-title'
-                    // variant='h6'
-                    // component='h2'
-                  ></Typography>
-                  <Typography
-                    id='modal-modal-description'
-                    style={{
-                      top: '0',
-                      left: '0',
-                      overflow: 'auto',
-                      height: '100%',
-                      width: '100%',
-                      paddingLeft: '20px',
-                      zIndex: '1350',
-                    }}
-                    sx={{ mt: 0 }}
-                  >
-                    <pre
+                <Button
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    // backgroundColor: '#a494d7',
+                    margin: '0px 0px 0 0',
+                    // color: 'white',
+                    fontFamily: 'Outfit',
+                    fontSize: '14px',
+                  }}
+                  onClick={handleTypeOpen}
+                >
+                  {type}
+                </Button>
+                <Modal
+                  open={openType}
+                  onClose={handleTypeClose}
+                  aria-labelledby='modal-modal-title'
+                  aria-describedby='modal-modal-description'
+                >
+                  <Box sx={style}>
+                    <Typography
+                      id='modal-modal-title'
+                      // variant='h6'
+                      // component='h2'
+                    ></Typography>
+                    <Typography
+                      id='modal-modal-description'
                       style={{
-                        fontFamily: 'Outfit,monospace',
-                        fontSize: '24px',
+                        top: '0',
+                        left: '0',
                         overflow: 'auto',
+                        height: '100%',
+                        width: '100%',
+                        paddingLeft: '20px',
+                        zIndex: '1350',
                       }}
+                      sx={{ mt: 0 }}
                     >
-                      Kubetcl Type: {'  '}
-                      <strong style={{ fontSize: '38px' }}>{type}</strong>
-                    </pre>
-                    <pre
-                      style={{
-                        fontSize: '14px',
-                        overflow: 'auto',
-                      }}
-                    >
-                      {helpDesk[`${type}`]}
-                    </pre>
-                  </Typography>
-                </Box>
-              </Modal>
+                      <pre
+                        style={{
+                          fontFamily: 'Outfit,monospace',
+                          fontSize: '24px',
+                          overflow: 'auto',
+                        }}
+                      >
+                        Kubetcl Type: {'  '}
+                        <strong style={{ fontSize: '38px' }}>{type}</strong>
+                      </pre>
+                      <pre
+                        style={{
+                          fontSize: '14px',
+                          overflow: 'auto',
+                        }}
+                      >
+                        {helpDesk[`${type}`]}
+                      </pre>
+                    </Typography>
+                  </Box>
+                </Modal>
+              </div>
             </div>
-          </div> */}
+          </Grid>
         </Grid>
       </Grid>
     </>

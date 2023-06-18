@@ -68,5 +68,8 @@ a {
 #yaml {
   -webkit-transform: scale(0.9);
   -moz-transform: scale(0.9);
-  
+}
+
+#terminal {
+  overflow-anchor: none !important;
 }

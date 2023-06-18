@@ -66,6 +66,7 @@ const GroupItems = styled('ul')({
 });
 
 function Setup() {
+  const [tool, setTool] = useState<string>('');
   const [verb, setVerb] = React.useState<string>('');
   const [type, setType] = React.useState<string>('');
   const [name, setName] = React.useState<string>('');
@@ -190,6 +191,7 @@ function Setup() {
     });
 
     let newCommand = '';
+    if (tool !== '') newCommand += tool;
     if (verb !== '') newCommand += ' ' + verb;
     if (type !== '') newCommand += ' ' + type;
     if (name !== '') newCommand += ' ' + name;
@@ -236,7 +238,7 @@ function Setup() {
         style={{ overflow: 'hidden' }}
       >
         {/* ----------------SIDE BAR---------------- */}
-        <Sidebar spacing={1} />
+        <Sidebar spacing={0} />
 
         {/* ----------------MAIN CONTENT---------------- */}
         <Grid id='main-content' container xs={11} height='85%'>
@@ -670,6 +672,19 @@ function Setup() {
               justifyContent='space-around'
               alignItems='center'
             >
+              <Grid id='kubectl' xs={2.3}>
+                <Autocomplete
+                  defaultValue={'kubectl'}
+                  disablePortal
+                  options={['kubectl']}
+                  onInputChange={(e, newInputValue) => {
+                    setTool(newInputValue);
+                  }}
+                  renderInput={(params) => (
+                    <TextField {...params} label='kubectl (on/off)' />
+                  )}
+                />
+              </Grid>
               <Grid id='commands' xs={3}>
                 <Autocomplete
                   disablePortal
@@ -721,7 +736,7 @@ function Setup() {
 
               {/* ---------------- TYPES FIELD ------------------------------------- */}
 
-              <Grid id='types' xs={3}>
+              <Grid id='types' xs={2.5}>
                 <Autocomplete
                   disablePortal
                   id='combo-box-demo'
@@ -742,7 +757,7 @@ function Setup() {
 
               {/* ---------------- NAMES FIELD ------------------------------------- */}
 
-              <Grid id='name' xs={2}>
+              <Grid id='name' xs={2.5}>
                 <form
                   onChange={handleNameChange}
                   onSubmit={(e) => {
@@ -759,7 +774,7 @@ function Setup() {
 
               {/* ---------------- FLAGS DROPDOWN ------------------------------------- */}
 
-              <Grid id='flag' xs={3}>
+              <Grid id='flag' xs={1.5}>
                 <FormControl fullWidth>
                   <InputLabel id='flag-label'>Flags</InputLabel>
                   <Select
