@@ -6,6 +6,7 @@ import { Typography, useTheme } from '@mui/material';
 const { ipcRenderer } = require('electron');
 import Grid from '@mui/system/Unstable_Grid';
 import SideNav from '../components/Sidebar2.jsx';
+import LaunchIcon from '@mui/icons-material/Launch';
 
 function SetupButtons() {
   const [key, setKey] = useState('');
@@ -79,133 +80,166 @@ function SetupButtons() {
 
   const handleCluster = () => {
     ipcRenderer.send('retrieve_key');
-    // fetch('/api/key')
-    //   .then((res) => res.json())
-    //   .then((data) => setKey(data));
+    fetch('/api/key')
+      .then((res) => res.json())
+      .then((data) => setKey(data));
 
-    // ipcRenderer.send('retrieve_uid', { key:key,
-    //   dashboard: 'Kubernetes / API server'});
-    // fetch('/api/uid', {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //   },
-    //   body: JSON.stringify({
-    //     key: key,
-    //     dashboard: 'Kubernetes / API server',
-    //   }),
-    // })
-    //   .then((res) => res.json())
-    //   .then((data) => {
-    //     console.log(data);
-    //     setUid(data)});
+    ipcRenderer.send('retrieve_uid', {
+      key: key,
+      dashboard: 'Kubernetes / API server',
+    });
+    fetch('/api/uid', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        key: key,
+        dashboard: 'Kubernetes / API server',
+      }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(data);
+        setUid(data);
+      });
+
+    let url = `http://localhost:3000/d/${uid}/kubernetes-api-server?orgId=1&refresh=10s&from=${from}&to=${now}&kiosk=true`;
+    ipcRenderer.send('openbrowser', url);
   };
 
-  const url = `http://localhost:3000/d/${uid}/kubernetes-api-server?orgId=1&refresh=10s&from=${from}&to=${now}&kiosk=true`;
-
   return (
-    <Grid
-      id='dashboard'
-      container
-      disableEqualOverflow
-      width={'100vw'}
-      height={'95vh'}
-      sx={{ pt: 3, pb: 3 }}
+    <div
+      style={{
+        width: '125%',
+      }}
     >
       {/* ----------------SIDE BAR---------------- */}
-      <SideNav spacing={2} />
+      <SideNav />
       {/* ----------------MAIN CONTENT---------------- */}
-      <Grid
-        id='main-content'
-        width='75%'
-        height='95%'
-        xs={10}
+      <div
+        // id='main-content'
+        width='1100px'
+        height='100%'
         // spacing={1}
-        disableEqualOverflow
-        container
-        direction='column'
-        wrap='nowrap'
-        justifyContent='space-around'
-        alignItems='center'
-        marginLeft='150px'
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          // alignItems: 'center',
+          marginLeft: '35px',
+          marginTop: '15px',
+          textAlign: 'center',
+        }}
       >
-        <Grid
-          className='main-container'
-          container
-          justifyContent='space-around'
+        <div
+          style={{
+            width: '60%',
+            display: 'flex',
+            flexDirection: 'column',
+            margin: '50px 10px 50px 50px',
+          }}
         >
-          <Grid xs={2} container>
-            <Typography>
-              {' '}
-              1. Neet to set up Prometheus in your cluster?{' '}
-            </Typography>
-            <Button
-              onClick={handleClick}
-              variant='contained'
-              style={{
-                border: '1px solid',
-                backgroundColor:
-                  theme.palette.mode === 'dark' ? '#150f2d' : '#8881ce',
-              }}
-            >
-              {' '}
-              Set up Prometheus{' '}
-            </Button>
-          </Grid>
+          <Typography> 1. Set up Prometheus in your cluster </Typography>
 
-          <Grid xs={2} container>
-            <Typography>
-              {' '}
-              2. Need to set up Grafana in your cluster?{' '}
-            </Typography>
-            <Button
-              variant='contained'
-              onClick={handleGrafClick}
-              style={{
-                border: '1px solid',
-                backgroundColor:
-                  theme.palette.mode === 'dark' ? '#150f2d' : '#8881ce',
-              }}
-            >
-              Set up Grafana
-            </Button>
-          </Grid>
+          <br />
+          <Button
+            onClick={handleClick}
+            variant='contained'
+            style={{
+              border: '1px solid',
+              height: '60px',
+              backgroundColor:
+                theme.palette.mode === 'dark' ? '#150f2d' : '#8881ce',
+            }}
+          >
+            {' '}
+            Set up Prometheus{' '}
+          </Button>
+        </div>
 
-          <Grid xs={2} container>
-            <Typography> 3. Need to forward ports to see metrics? </Typography>
-            <Button
-              onClick={handleForwardPort}
-              variant='contained'
-              style={{
-                border: '1px solid',
-                backgroundColor:
-                  theme.palette.mode === 'dark' ? '#150f2d' : '#8881ce',
-              }}
-            >
-              Start port forwarding...
-            </Button>
-          </Grid>
+        <div
+          style={{
+            width: '60%',
+            display: 'flex',
+            flexDirection: 'column',
+            margin: '50px 10px 50px 10px',
+          }}
+        >
+          <Typography> 2. Set up Grafana in your cluster </Typography>
 
-          <Grid xs={2} container>
-            <Typography> 4. Show me my cluster </Typography>
-            <a href={url} target='_blank'>
-              Click here to open in new browser
-            </a>
-            {/* <Button
-              onClick={handleCluster}
-              variant='contained'
-              style={{ border: '1px solid' }}
-            >
-              cluster time
-            </Button> */}
-          </Grid>
-        </Grid>
+          <br />
+          <Button
+            variant='contained'
+            onClick={handleGrafClick}
+            style={{
+              border: '1px solid',
+              height: '60px',
+              backgroundColor:
+                theme.palette.mode === 'dark' ? '#150f2d' : '#8881ce',
+            }}
+          >
+            Set up Grafana
+          </Button>
+        </div>
+
+        <div
+          style={{
+            width: '60%',
+            display: 'flex',
+            flexDirection: 'column',
+            margin: '50px 10px 50px 10px',
+          }}
+        >
+          <Typography> 3.Forward ports to see metrics </Typography>
+          <br />
+          <Button
+            onClick={handleForwardPort}
+            variant='contained'
+            style={{
+              border: '1px solid',
+              height: '60px',
+              backgroundColor:
+                theme.palette.mode === 'dark' ? '#150f2d' : '#8881ce',
+            }}
+          >
+            Start port forwarding
+          </Button>
+        </div>
+
+        <div
+          style={{
+            width: '60%',
+            display: 'flex',
+            flexDirection: 'column',
+            margin: '50px 30px 50px 10px',
+          }}
+        >
+          <Typography> 4. Open and view my cluster </Typography>
+
+          <br />
+
+          <Button
+            onClick={handleCluster}
+            variant='contained'
+            style={{
+              border: '1px solid',
+              height: '60px',
+              // marginTop: '20px',
+              paddingRight: '8px',
+              backgroundColor:
+                theme.palette.mode === 'dark' ? '#150f2d' : '#8881ce',
+            }}
+          >
+            LAUNCH IN BROWSER{' '}
+            <LaunchIcon fontSize='small' style={{ margin: '0 0 2px 6px' }} />
+          </Button>
+        </div>
         <embed
           src={'http://127.0.0.1:3000/login'}
-          style={{ height: '500px', width: '500px' }}
+          style={{ height: '500px', width: '400px' }}
         ></embed>
-      </Grid>
-    </Grid>
+      </div>
+    </div>
   );
 }
 

@@ -77,7 +77,7 @@ function Login() {
         justifyContent='space-evenly'
         sx={{
           textAlign: 'center',
-          width:"100%",
+          width: '100%',
           backgroundColor: theme.palette.mode === 'dark' ? '' : '#c8c8fc',
         }}
         height={'96vh'}
@@ -117,21 +117,34 @@ function Login() {
             sx={{
               display: 'flex',
               flexDirection: 'column',
-              alignItems: 'center',
+              alignItems: 'start',
               fontSize: '16px',
               fontFamily: 'Outfit',
+              transitionProperty: 'background-image',
+              transition: 'all 2s',
+              mozTransition: 'all 2s',
+              webkitTransition: 'all 2s',
+              oTransition: 'all 2s',
               border:
                 theme.palette.mode === 'dark'
                   ? '1px solid #68617f'
-                  : '2px solid #8383de',
+                  : '3px solid #9621f9',
               letterSpacing: '1.5px',
               backgroundColor:
-                theme.palette.mode === 'dark' ? '#22145a' : '#9d8edc',
-              mt: 2,
-              mb: 3,
+                theme.palette.mode === 'dark' ? '#22145a' : '#3c3c9a',
+              // mt: 2,
+              // mb: 3,
               ':hover': {
                 backgroundColor:
-                  theme.palette.mode === 'dark' ? '#9e9d9d' : '#8e77ec',
+                  theme.palette.mode === 'dark' ? '#a021f9' : '#8e77ec',
+                backgroundImage:
+                  theme.palette.mode === 'dark'
+                    ? 'linear-gradient(to right top, #dc44e3, #c53fe0, #ac3add, #9237d9, #7634d5, #6c33d6, #6132d8, #5432d9, #5f32e1, #6933e9, #7433f0, #7f32f8)'
+                    : 'linear-gradient(to right bottom, #5d2aed, #7329e7, #8529e1, #932adc, #9f2cd6, #a12dd7, #a32ed8, #a52fd9, #9e2fe0, #952fe8, #8b30f0, #7f32f8);',
+                border:
+                  theme.palette.mode === 'dark'
+                    ? '1px solid #af21f9'
+                    : '3px solid #9621f9',
               },
             }}
           >

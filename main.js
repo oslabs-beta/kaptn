@@ -123,6 +123,12 @@ ipcMain.on('forward_ports', (event, arg) => {
   });
 });
 
+ipcMain.on('openbrowser', (event, arg) => {
+  event.returnValue = 'Message received!';
+  console.log('attempting to open:', arg);
+  require('electron').shell.openExternal(arg);
+});
+
 // Load the main window
 app.whenReady().then(() => {
   createMainWindow();

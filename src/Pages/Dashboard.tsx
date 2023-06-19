@@ -28,21 +28,6 @@ import Switch from '@mui/material/Switch';
 import Tooltip, { TooltipProps, tooltipClasses } from '@mui/material/Tooltip';
 import { styled } from '@mui/material/styles';
 
-const style = {
-  position: 'absolute',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  width: '90%',
-  height: '90%',
-  bgcolor: '#2c1b63',
-  color: 'white',
-  boxShadow: 24,
-  p: 4,
-  padding: '10px',
-  borderRadius: '5px',
-};
-
 const LightTooltip = styled(({ className, ...props }: TooltipProps) => (
   <Tooltip {...props} classes={{ popper: className }} />
 ))(({ theme }) => ({
@@ -99,6 +84,21 @@ function Dashboard(): JSX.Element {
 
   //for light/dark mode toggle
   const theme = useTheme();
+
+  const style = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: '90%',
+    height: '90%',
+    bgcolor: theme.palette.mode === 'dark' ? '#2c1b63' : '#e9e5fa',
+    color: theme.palette.mode === 'dark' ? 'white' : '#47456e',
+    boxShadow: 24,
+    p: 4,
+    padding: '10px',
+    borderRadius: '5px',
+  };
 
   //maps grouped command options alphabetically including if numbered
   const options = commands.map((option) => {
@@ -378,12 +378,12 @@ function Dashboard(): JSX.Element {
               }}
             >
               <LightTooltip
-                title='If using kubectl commands, keep this on. If using global commands, turn this off.'
+                title='If using kubectl commands, keep this on. If using other or global commands, turn this off.'
                 placement='top'
                 arrow
-                enterDelay={1500}
+                enterDelay={1800}
                 leaveDelay={100}
-                enterNextDelay={1500}
+                enterNextDelay={3000}
               >
                 <div
                   id='k8tool'
@@ -392,6 +392,13 @@ function Dashboard(): JSX.Element {
                   onMouseLeave={toggleK8ToolHover}
                 >
                   <div
+                    onClick={() => {
+                      if (tool === 'kubectl') {
+                        setTool('');
+                        setChecked(!checked);
+                      } else setTool('kubectl');
+                      setChecked(!checked);
+                    }}
                     style={{
                       padding: '0px 4px 0 6px',
                       fontSize: '15px',
@@ -554,7 +561,7 @@ function Dashboard(): JSX.Element {
                 display: 'flex',
                 flexDirection: 'column',
                 width: '72%',
-                marginLeft: '40px',
+                marginLeft: '25px',
                 justifyContent: 'center',
               }}
             >
@@ -576,7 +583,7 @@ function Dashboard(): JSX.Element {
                   width: '75%',
                   backgroundColor:
                     theme.palette.mode === 'dark' ? '#2f2f6d' : '#e1dbfe',
-                  marginLeft: '8%',
+                  marginLeft: '10%',
                   marginTop: '17px',
                   borderRadius: '3px',
                   textAlign: 'center',
