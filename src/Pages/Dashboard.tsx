@@ -1,3 +1,4 @@
+import React from 'react';
 import { useState, useEffect } from 'react';
 import {
   Button,
@@ -14,7 +15,7 @@ import {
 import Grid from '@mui/system/Unstable_Grid';
 import SideNav from '../components/Sidebar.jsx';
 import CommandLine from '../components/CommandLine.jsx';
-import Terminal from '../components/Terminal.jsx';
+import Terminal from '../components/Terminal';
 const { ipcRenderer } = require('electron');
 
 function Dashboard(): JSX.Element {
