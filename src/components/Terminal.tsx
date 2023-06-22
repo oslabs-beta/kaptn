@@ -60,7 +60,6 @@ const Terminal = (props) => {
   return (
     <Grid
       id='terminal'
-      xs={8}
       width='100%'
       height='100%'
       style={{

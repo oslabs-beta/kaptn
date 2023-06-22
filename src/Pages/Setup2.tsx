@@ -28,6 +28,7 @@ import BoltIcon from '@mui/icons-material/Bolt';
 import helpDesk from './Glossary.jsx';
 import Switch from '@mui/material/Switch';
 import Tooltip, { TooltipProps, tooltipClasses } from '@mui/material/Tooltip';
+// import { makeStyles } from '@mui/material';
 
 const { ipcRenderer } = require('electron');
 
@@ -41,6 +42,12 @@ const LightTooltip = styled(({ className, ...props }: TooltipProps) => (
   },
 }));
 
+// const useStyles = makeStyles((theme) => ({
+//   option: {
+//     backgroundColor: 'red',
+//   },
+// }));
+
 //for step 4 text to appear below without eslint/prettier error, assigned to variable here
 const step4 = `4. INPUT COMMANDS --->`;
 
@@ -52,7 +59,6 @@ const BeginnerHeader = styled('div')(({ theme }) => ({
   margin: '0px',
   color: '#ffffff',
   backgroundColor: '#352a68',
-  webkitScrollbarColor: 'red yellow',
 }));
 
 //style for grouped commands
@@ -76,7 +82,7 @@ function Setup() {
   >([]);
   const [yamlOpen, setYamlOpen] = React.useState<boolean>(false);
   const [imgPath, setImgPath] = useState<string>('NONE ENTERED');
-  const [imgField, setImgField] = useState<string>('Enter .IMG');
+  const [imgField, setImgField] = useState<string>('');
   const [flags, setFlags] = useState<Array<string>>([]);
   const [helpList, setHelpList] = useState<Array<string>>(['']);
 
@@ -327,6 +333,8 @@ function Setup() {
                 justifyContent: 'center',
                 fontFamily: 'Outfit',
                 fontSize: '16px',
+                fontWeight:"800",
+                letterSpacing: "1px",
                 color: theme.palette.mode === 'dark' ? 'White' : '#4e50a5',
               }}
             >
@@ -403,7 +411,7 @@ function Setup() {
                 // onChange={handleImgField}
                 onKeyDown={(ev) => {
                   ev.preventDefault();
-                  if (imgField === 'Enter .IMG') {
+                  if (imgField === '') {
                     setImgField(ev.key);
                   }
                   // else if (ev.key === 'Enter') {
@@ -854,6 +862,18 @@ function Setup() {
           <div id='types' style={{ width: '18%' }}>
             <Autocomplete
               disablePortal
+              // classes={{
+              //   option: classes.option,
+              // }}
+              // sx={{
+              //   '& .MuiAutocomplete-input, & .MuiAutocomplete-root, & .MuiAutocomplete-popper, & .MuiAutocomplete-paper, & .Mui-expanded, & .MuiAutocomplete-groupUl, & .MuiAutocomplete-inputFocused, & .MuiAutocomplete-option, & .MuiAutocomplete-noOptions, & .MuiAutocomplete-listbox,  & .MuiAutocomplete-popupIndicatorOpen, & .MuiAutocomplete-inputFocused, & .MuiAutocomplete-input, & .MuiAutocomplete-inputRoot, & .MuiAutocomplete-hasPopupIcon, & .MuiAutocomplete-tag, & .MuiAutocomplete-loading, & .MuiAutocomplete-popperDisablePortal':
+              //     {
+              //       backgroundColor: 'blue',
+              //     },
+              // }}
+              componentsProps={{
+                paper: { sx: { backgroundColor: '#5c4d9a', color: 'white' } }, // or static color like "#293346"
+              }}
               id='combo-box-demo'
               options={types}
               onInputChange={(e, newInputValue) => {
@@ -901,9 +921,21 @@ function Setup() {
                 renderValue={(selected) => selected.join(', ')}
               >
                 {flagList.map((name) => (
-                  <MenuItem key={name} value={name}>
+                  <MenuItem
+                    key={name}
+                    value={name}
+                    style={{
+                      backgroundColor: '#5c4d9a',
+                      color: 'white',
+                    }}
+                  >
                     <Checkbox checked={flags.indexOf(name) > -1} />
-                    <ListItemText primary={name} />
+                    <ListItemText
+                      primary={name}
+                      style={{
+                        color: '#ffffff',
+                      }}
+                    />
                   </MenuItem>
                 ))}
               </Select>

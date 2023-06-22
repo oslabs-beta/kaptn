@@ -8,7 +8,8 @@ function createMainWindow() {
   const mainWindow = new BrowserWindow({
     title: 'Kaptn',
     titleBarStyle: 'hidden',
-    trafficLightPosition: { x: '100', y: '100' },
+    trafficLightPosition: { x: 11.5, y: 8 },
+    // trafficLightPosition: { x: '100', y: '100' },
     width: 1100,
     height: 800,
     minWidth: 1100,
@@ -73,13 +74,14 @@ ipcMain.on('prom_setup', (event, arg) => {
 
 // Listen to graf_setup event
 ipcMain.on('graf_setup', (event, arg) => {
+  let returnValue;
   let podName;
   const getFunc = exec('kubectl get pods', (err, stdout, stderr) => {
     if (err) {
-      console.log(`exec error: ${err}`);
+      returnValue = `exec error: ${err}`;
     }
     if (stderr) {
-      console.log(`stderr: ${stderr}`);
+      returnValue = `stderr: ${stderr}`;
     }
 
     const output = stdout.split('\n');
@@ -100,12 +102,16 @@ ipcMain.on('graf_setup', (event, arg) => {
       stdio: 'inherit',
       shell: true,
     });
-    return event.sender.send('graf_setup', 'Grafana setup complete');
   });
+  return event.sender.send(
+    'graf_setup',
+    `Grafana setup complete: ${returnValue}`
+  );
 });
 
 // Listen to forward_ports event
 ipcMain.on('forward_ports', (event, arg) => {
+  let returnData = '';
   const ports = spawn(
     `kubectl port-forward deployment/prometheus666-grafana 3000`,
     {
@@ -114,19 +120,155 @@ ipcMain.on('forward_ports', (event, arg) => {
   );
 
   ports.stderr.on('data', (data) => {
-    console.log(`grafana port forwarding error: ${data}`);
+    returnData = `port forwarding error: ${data}`;
+    console.log(returnData);
+    return event.sender.send('forward_ports', returnData);
   });
 
   ports.stdout.on('data', (data) => {
-    console.log(`stdout: ${data}`);
-    return event.sender.send('prom_setup', 'Port forward complete');
+    returnData = `stdout: ${data}`;
+    console.log(returnData);
+    return event.sender.send('forward_ports', returnData);
   });
+});
+
+ipcMain.on('retrieve_key', (event, arg) => {
+  const cacheKey = 'api_key';
+
+  // Helper function to retrieve the API key
+  const getAPIKey = async () => {
+    try {
+      // If the API key is not in the cache, fetch it from the API
+      const response = await fetch('http://localhost:3000/api/auth/keys', {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: {
+          Authorization:
+            'Basic ' + Buffer.from('admin:prom-operator').toString('base64'),
+          Accept: '*/*',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: Math.random().toString(36).substring(7),
+          role: 'Admin',
+          secondsToLive: 86400,
+        }),
+      });
+
+      const data = await response.json();
+
+      // Send the fetched response
+      console.log('data.key is:', data.key);
+      let key = data.key;
+      // return event.sender.send('retrieve_key', data);
+
+      const arg = {
+        dashboard: 'Kubernetes / API server',
+      };
+      const { dashboard } = arg;
+      console.log('arg is:', arg);
+      console.log('key is:', key);
+      console.log('dashboard is:', dashboard);
+      // const cachedValue = await redis.get(dashboard);
+
+      // // Return the cached UID if it exists
+      // if (cachedValue !== null) {
+      //   return event.sender.send('retrieve_uid', cachedValue);
+      // }
+
+      let encodedDash = encodeURIComponent(dashboard);
+      // If the UID is not in the cache, fetch it from the API
+      let response2 = await fetch(
+        `http://localhost:3000/api/search?query=${encodedDash}`,
+        {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${key}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      let data2 = await response2.json();
+      console.log('data is', data2);
+
+      // Send the fetched response
+      let uid = data2[0].uid;
+      console.log('uid in getUID is:', uid);
+
+      const now = new Date().getTime();
+      const from = new Date(now - 60 * 60 * 1000).getTime();
+      let url = `http://localhost:3000/d/${uid}/kubernetes-api-server?orgId=1&refresh=10s&from=${from}&to=${now}&kiosk=true`;
+      console.log('attempting to open:', url);
+      require('electron').shell.openExternal(url);
+      return event.sender.send('retrieve_key', `true`);
+    } catch (error) {
+      console.log(error);
+      return event.sender.send('retrieve_key', `Error: ${error}`);
+    }
+  };
+
+  getAPIKey();
+
+  // const getUID = async () => {
+  //   try {
+  //     const arg = {
+  //       dashboard: 'Kubernetes / API server',
+  //     };
+  //     const { dashboard } = arg;
+  //     console.log('arg is:', arg);
+  //     console.log('key is:', key);
+  //     console.log('dashboard is:', dashboard);
+  //     // const cachedValue = await redis.get(dashboard);
+
+  //     // // Return the cached UID if it exists
+  //     // if (cachedValue !== null) {
+  //     //   return event.sender.send('retrieve_uid', cachedValue);
+  //     // }
+
+  //     let encodedDash = encodeURIComponent(dashboard);
+  //     // If the UID is not in the cache, fetch it from the API
+  //     let response = await fetch(
+  //       `http://localhost:3000/api/search?query=${encodedDash}`,
+  //       {
+  //         method: 'GET',
+  //         headers: {
+  //           Authorization: `Bearer ${key}`,
+  //           'Content-Type': 'application/json',
+  //         },
+  //       }
+  //     );
+
+  //     let data = await response.json();
+  //     console.log('data is', data);
+
+  //     // Send the fetched response
+  //     let uid = data[0].uid;
+  //     console.log('uid in getUID is:', uid);
+  //     // getUID();
+  //     const now = new Date().getTime();
+  //     const from = new Date(now - 60 * 60 * 1000).getTime();
+  //     url = `http://localhost:3000/d/${uid}/kubernetes-api-server?orgId=1&refresh=10s&from=${from}&to=${now}&kiosk=true`;
+  //     console.log('attempting to open:', url);
+  //     require('electron').shell.openExternal(url);
+  //     // return event.sender.send('retrieve_uid', uid);
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
+});
+
+// Listen to retrieve_uid event
+ipcMain.on('retrieve_uid', (event, arg) => {
+  // Helper function to retrieve the UID key
 });
 
 ipcMain.on('openbrowser', (event, arg) => {
   event.returnValue = 'Message received!';
-  console.log('attempting to open:', arg);
-  require('electron').shell.openExternal(arg);
+  const now = new Date().getTime();
+  const from = new Date(now - 60 * 60 * 1000).getTime();
+  url = `http://localhost:3000/d/${uid}/kubernetes-api-server?orgId=1&refresh=10s&from=${from}&to=${now}&kiosk=true`;
+  require('electron').shell.openExternal(url);
 });
 
 // Load the main window

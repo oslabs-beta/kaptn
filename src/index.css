@@ -75,3 +75,11 @@ a {
 #terminal {
   overflow-anchor: none !important;
 }
+
+.clusterStatusIcons{
+  transform: scale(6.8)
+}
+
+.clusterLoadingIcon{
+  transform: scale(9.8)
+}

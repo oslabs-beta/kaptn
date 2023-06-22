@@ -498,6 +498,11 @@ function Dashboard(): JSX.Element {
                   disablePortal
                   id='combo-box-demo'
                   options={types}
+                  componentsProps={{
+                    paper: {
+                      sx: { backgroundColor: '#5c4d9a', color: 'white' },
+                    },
+                  }}
                   onInputChange={(e, newInputValue) => {
                     setHelpList([verb, newInputValue]);
                     setType(newInputValue);
@@ -545,7 +550,14 @@ function Dashboard(): JSX.Element {
                     renderValue={(selected) => selected.join(', ')}
                   >
                     {flagList.map((name) => (
-                      <MenuItem key={name} value={name}>
+                      <MenuItem
+                        key={name}
+                        value={name}
+                        style={{
+                          backgroundColor: '#5c4d9a',
+                          color: 'white',
+                        }}
+                      >
                         <Checkbox checked={flags.indexOf(name) > -1} />
                         <ListItemText primary={name} />
                       </MenuItem>
