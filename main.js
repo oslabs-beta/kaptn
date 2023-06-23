@@ -1,15 +1,22 @@
 const path = require('path');
-const { app, BrowserWindow, ipcMain, Menu } = require('electron');
+const {
+  app,
+  BrowserWindow,
+  ipcMain,
+  Menu,
+  MenuItem,
+  globalShortcut,
+} = require('electron');
 const { exec, spawnSync, spawn } = require('child_process');
 const { dialog } = require('electron');
 const isDev = process.env.NODE_ENV === 'development';
+const { clipboard } = require('electron');
 
 function createMainWindow() {
   const mainWindow = new BrowserWindow({
     title: 'Kaptn',
     titleBarStyle: 'hidden',
     trafficLightPosition: { x: 11.5, y: 8 },
-    // trafficLightPosition: { x: '100', y: '100' },
     width: 1100,
     height: 800,
     minWidth: 1100,
@@ -19,6 +26,44 @@ function createMainWindow() {
       contextIsolation: false,
     },
   });
+
+  // var template = [
+  //   {
+  //     label: 'Application',
+  //     submenu: [
+  //       {
+  //         label: 'About Application',
+  //         selector: 'orderFrontStandardAboutPanel:',
+  //       },
+  //       { type: 'separator' },
+  //       {
+  //         label: 'Quit',
+  //         accelerator: 'Command+Q',
+  //         click: function () {
+  //           app.quit();
+  //         },
+  //       },
+  //     ],
+  //   },
+  //   {
+  //     label: 'Edit',
+  //     submenu: [
+  //       { label: 'Undo', accelerator: 'CmdOrCtrl+Z', selector: 'undo:' },
+  //       { label: 'Redo', accelerator: 'Shift+CmdOrCtrl+Z', selector: 'redo:' },
+  //       { type: 'separator' },
+  //       { label: 'Cut', accelerator: 'CmdOrCtrl+X', selector: 'cut:' },
+  //       { label: 'Copy', accelerator: 'CmdOrCtrl+C', selector: 'copy:' },
+  //       { label: 'Paste', accelerator: 'CmdOrCtrl+V', selector: 'paste:' },
+  //       {
+  //         label: 'Select All',
+  //         accelerator: 'CmdOrCtrl+A',
+  //         selector: 'selectAll:',
+  //       },
+  //     ],
+  //   },
+  // ];
+
+  // Menu.setApplicationMenu(Menu.buildFromTemplate(template));
 
   if (isDev) {
     mainWindow.loadURL('http://localhost:4444/');
@@ -158,7 +203,7 @@ ipcMain.on('retrieve_key', (event, arg) => {
       const data = await response.json();
 
       // Send the fetched response
-      console.log('data.key is:', data.key);
+      // console.log('data.key is:', data.key);
       let key = data.key;
       // return event.sender.send('retrieve_key', data);
 
@@ -166,7 +211,7 @@ ipcMain.on('retrieve_key', (event, arg) => {
         dashboard: 'Kubernetes / API server',
       };
       const { dashboard } = arg;
-      console.log('arg is:', arg);
+      // console.log('arg is:', arg);
       console.log('key is:', key);
       console.log('dashboard is:', dashboard);
       // const cachedValue = await redis.get(dashboard);
@@ -194,7 +239,7 @@ ipcMain.on('retrieve_key', (event, arg) => {
 
       // Send the fetched response
       let uid = data2[0].uid;
-      console.log('uid in getUID is:', uid);
+      console.log('uid is:', uid);
 
       const now = new Date().getTime();
       const from = new Date(now - 60 * 60 * 1000).getTime();
@@ -274,4 +319,14 @@ ipcMain.on('openbrowser', (event, arg) => {
 // Load the main window
 app.whenReady().then(() => {
   createMainWindow();
+
+  // // Register a 'CommandOrControl+Y' shortcut listener.
+  // globalShortcut.register('CommandOrControl+c', (e) => {
+  //   // Do stuff when Y and either Command/Control is pressed.
+  //   clipboard.writeText(e);
+  // });
+  // globalShortcut.register('CommandOrControl+v', () => {
+  //   // Do stuff when Y and either Command/Control is pressed.
+  //   clipboard.readText();
+  // });
 });

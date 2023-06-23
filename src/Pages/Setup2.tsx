@@ -295,6 +295,21 @@ function Setup() {
   return (
     <>
       <Sidebar />
+      <Backdrop
+        style={{
+          color: 'black',
+          justifyContent: 'center',
+          alignItems: 'center',
+          position: 'absolute',
+          left: '0',
+          right: '0',
+          zIndex: '1349',
+          width: '100%',
+          height: '100%',
+        }}
+        open={yamlOpen}
+        onClick={handleYamlClose}
+      ></Backdrop>
       <div
         style={{
           position: 'absolute',
@@ -333,8 +348,8 @@ function Setup() {
                 justifyContent: 'center',
                 fontFamily: 'Outfit',
                 fontSize: '16px',
-                fontWeight:"800",
-                letterSpacing: "1px",
+                fontWeight: '800',
+                letterSpacing: '1px',
                 color: theme.palette.mode === 'dark' ? 'White' : '#4e50a5',
               }}
             >
@@ -426,7 +441,7 @@ function Setup() {
                   else {
                     if (ev.key === 'Enter') {
                       handleImgUpload(ev);
-                      setImgField(imgField);
+                      setImgField('');
                     } else if (
                       ev.key === 'Meta' ||
                       ev.key === 'Alt' ||
@@ -568,12 +583,15 @@ function Setup() {
             {/* ----------- Backdrop is greyed out background during popup ----------------- */}
             <Backdrop
               style={{
-                color: '#white',
+                color: 'black',
                 justifyContent: 'center',
                 alignItems: 'center',
                 position: 'absolute',
                 left: '0',
                 right: '0',
+                zIndex: '1349',
+                width: '100%',
+                height: '100%',
               }}
               open={yamlOpen}
               onClick={handleYamlClose}
@@ -587,11 +605,11 @@ function Setup() {
                   backgroundColor: 'white',
                   overflow: 'scroll',
                   color: 'black',
-                  paddingLeft: '0px',
+                  paddingLeft: '8px',
                   zIndex: '1350',
                   position: 'fixed',
                   top: '80px',
-                  left: '70px',
+                  left: '65px',
                   alignItems: 'center',
                   justifyContent: 'center',
                 }}
@@ -601,20 +619,21 @@ function Setup() {
                   style={{
                     width: '900px',
                     alignItems: 'center',
-                    marginLeft: '40px',
+                    marginLeft: '80px',
                     justifyContent: 'center',
                   }}
                 >
                   <div
                     style={{
-                      font: 'Roboto',
-                      fontSize: '14px',
+                      fontFamily: 'Outfit',
+                      fontSize: '20px',
                       fontWeight: '900',
                       width: '100%',
                       paddingTop: '20px',
                       alignItems: 'center',
                       justifyContent: 'center',
                       textAlign: 'center',
+                      color: '#6466b2',
                     }}
                   >
                     PLEASE USE THE TOOL BELOW TO CREATE YOUR .YAML FILE
@@ -625,17 +644,18 @@ function Setup() {
                       fontSize: '14px',
                       fontWeight: '500',
                       width: '100%',
-                      paddingBottom: '0px',
+                      paddingBottom: '15px',
                       alignItems: 'center',
                       justifyContent: 'center',
                       textAlign: 'center',
+                      color: 'grey',
                     }}
                   >
                     Once you've finished, use the copy clipboard button in the
                     top right corner. <br />
-                    Then click in the white space on either side to close the
-                    popup, and continue following the instructions in the help
-                    center.
+                    Then click in the blank space on either side of the popup to
+                    close it, and continue following the instructions in the
+                    help center.
                   </div>
 
                   <iframe

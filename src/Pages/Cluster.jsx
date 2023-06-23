@@ -34,68 +34,58 @@ function SetupButtons() {
   const [grafStatus, setGrafStatus] = useState('no attempt');
   const [portForwardStatus, setPortForwardStatus] = useState('no attempt');
   const [launchStatus, setLaunchStatus] = useState('no attempt');
+  const [log, setLog] = useState('');
 
   const theme = useTheme();
-
-  let url;
 
   useEffect(() => {
     //Listen to prom_setup event
     ipcRenderer.on('prom_setup', (event, arg) => {
-      let returnedValue = arg;
-      if (returnedValue.includes('Prom setup complete')) {
-        setPromStatus('true');
-      } else setPromStatus(returnedValue);
-      console.log('prom steup return is: ', returnedValue);
+      setTimeout(() => {
+        let returnedValue = arg;
+        setLog(log + 'prom log:' + returnedValue);
+        if (returnedValue.includes('Prom setup complete')) {
+          setPromStatus('true');
+        } else setPromStatus(returnedValue);
+        console.log('prom steup return is: ', returnedValue);
+      }, 1000);
     });
 
     //Listen to graph_setup event
     ipcRenderer.on('graf_setup', (event, arg) => {
-      let returnedValue = arg;
-      if (returnedValue.includes('Grafana setup complete')) {
-        setGrafStatus('true');
-      } else setGrafStatus(returnedValue);
-      console.log('graf setup return is: ', returnedValue);
+      setTimeout(() => {
+        let returnedValue = arg;
+        setLog(log + ' GRAF LOG:' + returnedValue);
+        if (returnedValue.includes('Grafana setup complete')) {
+          setGrafStatus('true');
+        } else setGrafStatus(returnedValue);
+        console.log('graf setup return is: ', returnedValue);
+      }, 1000);
     });
 
     //Listen to forward_ports event
     ipcRenderer.on('forward_ports', (event, arg) => {
-      if (arg.includes('stdout: ')) {
-        setPortForwardStatus('true');
-      } else setPortForwardStatus(arg);
-      console.log(arg);
+      setTimeout(() => {
+        setLog(log + 'PORT FORWARD LOG:' + arg);
+        if (arg.includes('stdout: ')) {
+          setPortForwardStatus('true');
+        } else setPortForwardStatus(arg);
+        console.log(arg);
+      }, 1000);
     });
 
     //Listen to retrieve_key event
     ipcRenderer.on('retrieve_key', (event, arg) => {
-      if (arg === 'true') {
-        setLaunchStatus('true');
-      } else {
-        setLaunchStatus('');
-        console.log('launch status is now:', launchStatus);
-      }
-      // let keyfetch = arg.key;
-      // console.log('arg TYPE in retrieve key listen is:', typeof arg);
-      // setKey(arg.key);
-      // setInterval(console.log('key after fetch is:', key), 4000);
-      // if (key !== '') {
-      //   ipcRenderer.send('retrieve_uid', {
-      //     key: key,
-      //     dashboard: 'Kubernetes / API server',
-      //   });
-      // }
+      setTimeout(() => {
+        setLog(log + ' LAUNCH LOG:' + arg);
+        if (arg === 'true') {
+          setLaunchStatus('true');
+        } else {
+          setLaunchStatus('');
+          console.log('launch status is now:', launchStatus);
+        }
+      }, 1000);
     });
-
-    //Listen to retrieve_uid event
-    // ipcRenderer.on('retrieve_uid', (event, arg) => {
-    //   // console.log(arg);
-    //   setUid(arg);
-    //   // console.log(url);
-    //   console.log('UID IS THIS!', uid);
-
-    //   url = `http://localhost:3000/d/${uid}/kubernetes-api-server?orgId=1&refresh=10s&from=${from}&to=${now}&kiosk=true`;
-    //   ipcRenderer.send('openbrowser', url);
-    // });
   });
 
   const handleClick = () => {
@@ -130,11 +120,20 @@ function SetupButtons() {
   if (portForwardStatus === 'no attempt') {
     portForwardDiv = (
       <>
+        <div>
+          {' '}
+          <RadioButtonUnchecked
+            className='clusterStatusIcons'
+            style={{
+              color: theme.palette.mode === 'dark' ? '#353050' : '#8781c9',
+            }}
+          />
+        </div>
         <div
           style={{
-            position: 'absolute',
-            top: '25.2%',
-            left: '61.8%',
+            position: 'relative',
+            top: '-34%',
+            left: '-.2%',
             marginTop: '0px',
             fontFamily: 'Outfit',
             fontSize: '66px',
@@ -145,16 +144,7 @@ function SetupButtons() {
           {' '}
           3
         </div>
-        <div>
-          {' '}
-          <RadioButtonUnchecked
-            className='clusterStatusIcons'
-            style={{
-              color: theme.palette.mode === 'dark' ? '#353050' : '#8781c9',
-            }}
-          />
-        </div>
-        <div style={{ marginTop: '70px' }}>
+        <div style={{ marginTop: '-29px' }}>
           <Typography
             style={{
               fontSize: '12px',
@@ -425,11 +415,20 @@ function SetupButtons() {
   } else if (promStatus === 'no attempt') {
     promStatusDiv = (
       <>
+        <div>
+          {' '}
+          <RadioButtonUnchecked
+            className='clusterStatusIcons'
+            style={{
+              color: theme.palette.mode === 'dark' ? '#353050' : '#8781c9',
+            }}
+          />
+        </div>
         <div
           style={{
-            position: 'absolute',
-            top: '25.3%',
-            left: '14.85%',
+            position: 'relative',
+            top: '-34%',
+            left: '-1%',
             marginTop: '0px',
             fontFamily: 'Outfit',
             fontSize: '66px',
@@ -440,16 +439,7 @@ function SetupButtons() {
           {' '}
           1
         </div>
-        <div>
-          {' '}
-          <RadioButtonUnchecked
-            className='clusterStatusIcons'
-            style={{
-              color: theme.palette.mode === 'dark' ? '#353050' : '#8781c9',
-            }}
-          />
-        </div>
-        <div style={{ marginTop: '70px' }}>
+        <div style={{ marginTop: '-29px' }}>
           <Typography
             style={{
               fontSize: '12px',
@@ -698,7 +688,7 @@ function SetupButtons() {
             height: '60px',
             // color: '#2fc665',
             backgroundColor:
-              theme.palette.mode === 'dark' ? '#150f2d' : 'tranparent',
+              theme.palette.mode === 'dark' ? '#150f2d' : 'transparent',
           }}
         >
           Set up Grafana
@@ -708,11 +698,20 @@ function SetupButtons() {
   } else if (grafStatus === 'no attempt') {
     grafStatusDiv = (
       <>
+        <div>
+          {' '}
+          <RadioButtonUnchecked
+            className='clusterStatusIcons'
+            style={{
+              color: theme.palette.mode === 'dark' ? '#353050' : '#8781c9',
+            }}
+          />
+        </div>
         <div
           style={{
-            position: 'absolute',
-            top: '25.2%',
-            left: '38.1%',
+            position: 'relative',
+            top: '-34%',
+            left: '0%',
             marginTop: '0px',
             fontFamily: 'Outfit',
             fontSize: '66px',
@@ -723,16 +722,7 @@ function SetupButtons() {
           {' '}
           2
         </div>
-        <div>
-          {' '}
-          <RadioButtonUnchecked
-            className='clusterStatusIcons'
-            style={{
-              color: theme.palette.mode === 'dark' ? '#353050' : '#8781c9',
-            }}
-          />
-        </div>
-        <div style={{ marginTop: '70px' }}>
+        <div style={{ marginTop: '-29px' }}>
           <Typography
             style={{
               fontSize: '12px',
@@ -828,11 +818,20 @@ function SetupButtons() {
   if (launchStatus === 'no attempt') {
     launchStatusDiv = (
       <>
+        <div>
+          {' '}
+          <RadioButtonUnchecked
+            className='clusterStatusIcons'
+            style={{
+              color: theme.palette.mode === 'dark' ? '#353050' : '#8781c9',
+            }}
+          />
+        </div>
         <div
           style={{
-            position: 'absolute',
-            top: '25.2%',
-            left: '85%',
+            position: 'relative',
+            top: '-34%',
+            left: '-1%',
             marginTop: '0px',
             fontFamily: 'Outfit',
             fontSize: '66px',
@@ -843,17 +842,8 @@ function SetupButtons() {
           {' '}
           4
         </div>
-        <div>
-          {' '}
-          <RadioButtonUnchecked
-            className='clusterStatusIcons'
-            style={{
-              color: theme.palette.mode === 'dark' ? '#353050' : '#8781c9',
-            }}
-          />
-        </div>
 
-        <div style={{ marginTop: '70px' }}>
+        <div style={{ marginTop: '-29px' }}>
           <Typography
             style={{
               fontSize: '12px',
@@ -1174,6 +1164,7 @@ function SetupButtons() {
             style={{ height: '500px', width: '400px' }}
           ></embed> */}
         </div>
+        {/* {log} */}
       </div>
     </>
   );

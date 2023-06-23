@@ -7,14 +7,29 @@
   "scripts": {
     "start": "NODE_ENV='development' electron .",
     "dev": "concurrently \"NODE_ENV='development' nodemon server/server.js\" \"NODE_ENV='development' vite dev\" --host 0.0.0.0",
-    "build": "vite build && npm run pack",
+    "build": "vite build",
+    "build:mwl": "vite build && npm run pack",
     "build64": "vite build && npm run pack64",
+    "build:windows": "npm run build && electron-builder --windows --x64",
+    "build:mac": "npm run build && electron-builder --mac",
+    "build:linux": "npm run build && electron-builder --linux",
     "postinstall": "electron-builder install-app-deps",
     "pack": "electron-builder -mwl",
     "pack64": "electron-builder -mwl --x64",
     "preview": "vite preview",
     "vite": "vite"
   },
+  "author": {
+    "name": "kaptn",
+    "url": "https://kaptn.io/"
+  },
+  "contributors": [
+    "Brecht Horn",
+    "Olivia Hodel",
+    "Hwi Won Choi",
+    "Natalie Cordoves",
+    "Yining Wang"
+  ],
   "dependencies": {
     "@emotion/react": "^11.10.6",
     "@emotion/styled": "^11.10.6",
@@ -48,5 +63,41 @@
     "https": "^1.0.0",
     "typescript": "^5.0.4",
     "vite": "^4.2.0"
+  },
+  "build": {
+    "appId": "kaptn",
+    "productName": "kaptn",
+    "asar": true,
+    "win": {
+      "target": "nsis",
+      "icon": "./public/icon.ico",
+      "requestedExecutionLevel": "asInvoker"
+    },
+    "nsis": {
+      "oneClick": false,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "kaptn",
+      "perMachine": false,
+      "deleteAppDataOnUninstall": true,
+      "allowElevation": false,
+      "allowToChangeInstallationDirectory": true,
+      "menuCategory": true,
+      "installerLanguages": [
+        "en_US"
+      ]
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "./build/icons/macIcon.icns",
+      "category": "public.app-category.developer-tools"
+    },
+    "dmg": {
+      "icon": "./build/icons/macIcon.icns",
+      "title": "kaptn"
+    },
+    "linux": {
+      "target": "AppImage"
+    }
   }
 }

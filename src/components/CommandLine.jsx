@@ -1,4 +1,5 @@
 import { InputAdornment, Button, TextField, useTheme } from '@mui/material';
+// import { clipboard } from 'electron';
 
 const CommandLine = (props) => {
   const theme = useTheme();
@@ -6,6 +7,7 @@ const CommandLine = (props) => {
   // Add/remove functionality in text box
   const handleChange = (e) => {
     let newUserInput = '';
+    console.log('e.nativeEvent.inputType is: ', e.nativeEvent.inputType);
     if (e.nativeEvent.inputType === 'deleteContentBackward') {
       newUserInput = props.userInput.slice(0, props.userInput.length - 1);
     } else {
@@ -20,8 +22,19 @@ const CommandLine = (props) => {
     props.setUserInput(userInput);
     props.setVerb(userInput);
     props.setType(userInput);
+    props.setName(userInput);
     props.setFlags([]);
   };
+
+  // const handlePaste = (event) => {
+  //   let userInput = event.clipboardData.items[0].getAsString();
+  //   console.log(userInput);
+  //   props.setUserInput(userInput);
+  //   props.setVerb(userInput);
+  //   props.setType(userInput);
+  //   props.setName(userInput);
+  //   props.setFlags([]);
+  // };
 
   return (
     <div
@@ -62,6 +75,9 @@ const CommandLine = (props) => {
             ),
           }}
           value={props.command}
+          // onPaste={(e) => {
+          //   handlePaste(e);
+          // }}
         />
         <Button
           type='submit'

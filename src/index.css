@@ -13,7 +13,7 @@ body {
 /* Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
-  height: 7px
+  height: 7px;
 }
 
 /* Track */
@@ -66,20 +66,21 @@ a {
 #subtitle {
   text-shadow: 1px 1px 5px rgb(0, 0, 0, 0.3) !important;
 }
-
+/* 
 #yaml {
-  -webkit-transform: scale(0.9);
-  -moz-transform: scale(0.9);
-}
+  transform: none;
+  -webkit-transform: scale(0.95);
+  -moz-transform: scale(0.95);
+} */
 
 #terminal {
   overflow-anchor: none !important;
 }
 
-.clusterStatusIcons{
-  transform: scale(6.8)
+.clusterStatusIcons {
+  transform: scale(6.8);
 }
 
-.clusterLoadingIcon{
-  transform: scale(9.8)
+.clusterLoadingIcon {
+  transform: scale(9.8);
 }
