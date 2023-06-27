@@ -12,6 +12,7 @@ import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
 import HighlightOffOutlinedIcon from '@mui/icons-material/HighlightOffOutlined';
 import CircularProgress from '@mui/material/CircularProgress';
 import Tooltip, { tooltipClasses } from '@mui/material/Tooltip';
+import LightbulbIcon from '@mui/icons-material/Lightbulb';
 
 import { styled } from '@mui/material/styles';
 
@@ -114,6 +115,12 @@ function SetupButtons() {
     //   key: key,
     //   dashboard: 'Kubernetes / API server',
     // });
+  };
+
+  const handleKillPort = () => {
+    setPortForwardStatus('loading');
+    ipcRenderer.send('kill_port');
+    ipcRenderer.send('forward_ports');
   };
 
   let portForwardDiv;
@@ -317,17 +324,9 @@ function SetupButtons() {
             style={{ color: '#cf485b' }}
           />
         </div>
-        <div style={{ marginTop: '70px' }}>
-          <Typography
-            style={{
-              fontSize: '12px',
-              color: '#cf4848',
-              fontWeight: '500',
-            }}
-          >
-            {' '}
-            FORWARD PORTS TO SEE METRICS{' '}
-          </Typography>
+        
+        <div id="killport"onClick={handleKillPort} style={{ color: '#8f85fb', paddingTop:"73px", fontSize:"10.5px" }}><u>
+          CLICK HERE TO ATTEMPT TO KILL PORT 3000</u>
         </div>
         <br />
         <Button
@@ -345,6 +344,7 @@ function SetupButtons() {
         <div style={{ fontSize: '12px', color: '#cf4848', marginTop: '20px' }}>
           ERROR OCCURRED! PLEASE TRY AGAIN
         </div>
+        
       </>
     );
   }
@@ -857,7 +857,7 @@ function SetupButtons() {
         </div>
         <br />
         <LightTooltip
-          title='Retrieve UID and launch Cluster Visualizer through your local web browser'
+          title='Retrieve UID and log in to Cluster Visualizer through your local web browser'
           placement='bottom'
           arrow
           enterDelay={1500}
@@ -876,7 +876,7 @@ function SetupButtons() {
                 theme.palette.mode === 'dark' ? '#150f2d' : '#8881ce',
             }}
           >
-            LAUNCH IN BROWSER{' '}
+            LOG IN THROUGH BROWSER{' '}
             <LaunchIcon fontSize='small' style={{ margin: '0 0 2px 6px' }} />
           </Button>
         </LightTooltip>
@@ -934,7 +934,7 @@ function SetupButtons() {
             color: '#2fc665',
           }}
         >
-          LAUNCH IN BROWSER{' '}
+           LOG IN THROUGH BROWSER{' '}
           <LaunchIcon fontSize='small' style={{ margin: '0 0 2px 6px' }} />
         </Button>
       </>
@@ -995,7 +995,7 @@ function SetupButtons() {
               theme.palette.mode === 'dark' ? '#150f2d' : 'transparent',
           }}
         >
-          LAUNCH IN BROWSER{' '}
+          LOG IN THROUGH BROWSER{' '}
           <LaunchIcon fontSize='small' style={{ margin: '0 0 2px 6px' }} />
         </Button>
       </>
@@ -1163,6 +1163,108 @@ function SetupButtons() {
             src={'http://127.0.0.1:3000/login'}
             style={{ height: '500px', width: '400px' }}
           ></embed> */}
+        </div>
+        <div
+          style={{
+            width: '450px',
+            height: '190px',
+            position: 'absolute',
+            bottom: '40px',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'left',
+            alignItems: 'start',
+            padding: '17px 10px 10px 20px',
+            marginTop: '0px',
+            marginLeft: '20px',
+            borderRadius: '10px',
+            backgroundColor:
+              theme.palette.mode === 'dark' ? '#2a2152' : '#dedafc',
+          }}
+        >
+          {' '}
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'row',
+              justifyContent: 'flex-start',
+              alignItems:"center"
+            }}
+          >
+            <LightbulbIcon
+              // fontSize='large'
+              style={{ fontSize:"25px",color: '#8f85fb', marginRight: '8px' }}
+            />
+            <div
+              style={{
+                color: '#8f85fb',
+                fontSize: '22px',
+                fontFamily: 'Outfit',
+                fontWeight: '800',
+                letterSpacing: '2px',
+                paddingTop: '0px',
+                lineHeight: '5px',
+              }}
+            >
+              HELPFUL TIP!
+            </div>
+          </div>
+          <div
+            style={{
+              textAlign: 'left',
+              margin: '14px 0 0 10px',
+              fontSize: '15px',
+            }}
+          >
+            If this is your first time visualizing your clusters, use the
+            following credentials at the login screen:
+          </div>
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'row',
+              textAlign: 'left',
+              alignItems: 'center',
+              margin: '10px 0 0 10px',
+              fontSize: '15px',
+            }}
+          >
+            username:{' '}
+            <div
+              style={{
+                fontFamily: 'outfit',
+                fontWeight: '600',
+                fontSize: '18px',
+                marginLeft: '5px',
+                color: '#8f85fb',
+              }}
+            >
+              admin
+            </div>
+          </div>
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'row',
+              textAlign: 'left',
+              alignItems: 'center',
+              margin: '10px 0 0 10px',
+              fontSize: '15px',
+            }}
+          >
+            password:{' '}
+            <div
+              style={{
+                fontFamily: 'outfit',
+                fontWeight: '600',
+                fontSize: '18px',
+                marginLeft: '5px',
+                color: '#8f85fb',
+              }}
+            >
+              prom-operator
+            </div>
+          </div>
         </div>
         {/* {log} */}
       </div>

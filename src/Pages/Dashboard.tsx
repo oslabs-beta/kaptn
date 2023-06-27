@@ -144,9 +144,7 @@ function Dashboard(): JSX.Element {
       shortArr.unshift(absArr[i]);
     }
     shortArr.unshift('/');
-    console.log('shortArr is', shortArr);
     let shortPath = shortArr.join('') + '/';
-    console.log('shortpath is', shortPath);
     setShortDir('...' + shortPath);
   };
 
@@ -411,6 +409,10 @@ function Dashboard(): JSX.Element {
                           ? '#3f42c3'
                           : '#00000082',
                       letterSpacing: '-.2px',
+                      WebkitUserSelect: 'none' /* Safari */,
+                      MozUserSelect: 'none' /* Firefox */,
+                      msUserSelect: 'none' /* IE10+/Edge */,
+                      userSelect: 'none',
                     }}
                   >
                     kubectl
@@ -422,6 +424,13 @@ function Dashboard(): JSX.Element {
                     inputProps={{ 'aria-label': 'controlled' }}
                   />
                   <div
+                    onClick={() => {
+                      if (tool === 'kubectl') {
+                        setTool('');
+                        setChecked(!checked);
+                      } else setTool('kubectl');
+                      setChecked(!checked);
+                    }}
                     style={{
                       padding: '4.5px 1px 0 1px',
                       fontSize: '10px',
@@ -433,6 +442,10 @@ function Dashboard(): JSX.Element {
                           : k8tool === 'OFF' && theme.palette.mode === 'dark'
                           ? '#ffffff99'
                           : '',
+                      WebkitUserSelect: 'none' /* Safari */,
+                      MozUserSelect: 'none' /* Firefox */,
+                      msUserSelect: 'none' /* IE10+/Edge */,
+                      userSelect: 'none',
                     }}
                   >
                     {k8tool}
@@ -582,6 +595,10 @@ function Dashboard(): JSX.Element {
                   width='100%'
                   handleSubmit={handleSubmit}
                   setUserInput={setUserInput}
+                  setVerb={setVerb}
+                  setType={setType}
+                  setName={setName}
+                  setFlags={setFlags}
                   userInput={userInput}
                   command={command}
                   handleClear={handleClear}

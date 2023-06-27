@@ -18,22 +18,23 @@ const CommandLine = (props) => {
   };
 
   const handleClear = (e) => {
-    let userInput = '';
-    props.setUserInput(userInput);
-    props.setVerb(userInput);
-    props.setType(userInput);
-    props.setName(userInput);
+    let userInput2 = '';
+
+    props.setUserInput(userInput2);
+    props.setVerb(userInput2);
+    props.setType(userInput2);
+    props.setName(userInput2);
     props.setFlags([]);
   };
 
   // const handlePaste = (event) => {
   //   let userInput = event.clipboardData.items[0].getAsString();
-  //   console.log(userInput);
+  //   //   console.log(userInput);
   //   props.setUserInput(userInput);
-  //   props.setVerb(userInput);
-  //   props.setType(userInput);
-  //   props.setName(userInput);
-  //   props.setFlags([]);
+  //   //   props.setVerb(userInput);
+  //   //   props.setType(userInput);
+  //   //   props.setName(userInput);
+  //   //   props.setFlags([]);
   // };
 
   return (
@@ -46,9 +47,6 @@ const CommandLine = (props) => {
     >
       <form
         onSubmit={props.handleSubmit}
-        onChange={(e) => {
-          handleChange(e);
-        }}
         value={props.command}
         style={{
           width: '100%',
@@ -73,6 +71,9 @@ const CommandLine = (props) => {
             startAdornment: (
               <InputAdornment position='start'>$ </InputAdornment>
             ),
+          }}
+          onChange={(e) => {
+            handleChange(e);
           }}
           value={props.command}
           // onPaste={(e) => {

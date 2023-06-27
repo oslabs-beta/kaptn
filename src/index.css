@@ -10,6 +10,11 @@ body {
   overflow-x: hidden;
 }
 
+/* killport 300 link turns to hand when hovered */
+#killport:hover {
+  cursor: pointer;
+}
+
 /* Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;

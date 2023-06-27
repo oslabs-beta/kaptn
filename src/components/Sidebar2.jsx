@@ -124,7 +124,7 @@ function SideNav(props) {
       </LightTooltip> */}
 
       <LightTooltip
-        title='Log Out'
+        title='Back to Start'
         placement='right'
         arrow
         enterDelay={500}

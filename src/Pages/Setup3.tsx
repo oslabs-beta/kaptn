@@ -28,6 +28,9 @@ import BoltIcon from '@mui/icons-material/Bolt';
 import helpDesk from './Glossary.jsx';
 import Switch from '@mui/material/Switch';
 import Tooltip, { TooltipProps, tooltipClasses } from '@mui/material/Tooltip';
+import StarIcon from '@mui/icons-material/Star';
+import StarOutlineIcon from '@mui/icons-material/StarOutline';
+import StarHalfIcon from '@mui/icons-material/StarHalf';
 // import { makeStyles } from '@mui/material';
 
 const { ipcRenderer } = require('electron');
@@ -41,15 +44,6 @@ const LightTooltip = styled(({ className, ...props }: TooltipProps) => (
     fontSize: 11,
   },
 }));
-
-// const useStyles = makeStyles((theme) => ({
-//   option: {
-//     backgroundColor: 'red',
-//   },
-// }));
-
-//for step 4 text to appear below without eslint/prettier error, assigned to variable here
-const step4 = `4. INPUT COMMANDS --->`;
 
 //section header (e.g. beginner, intermediate, etc) rules for grouped "command" option
 const BeginnerHeader = styled('div')(({ theme }) => ({
@@ -625,7 +619,7 @@ function Setup() {
                     top right corner. <br />
                     Then click in the blank space on either side of the popup to
                     close it, and continue following the instructions in the
-                    help center.
+                    learning center.
                   </div>
 
                   <iframe
@@ -640,44 +634,6 @@ function Setup() {
             </Backdrop>
           </Box>
           {/* --------------- STEP 4 INPUT COMMANDS --- TEXT ONLY -- SECTION ---------- */}
-
-          <Box
-            style={{
-              paddingTop: '24px',
-              paddingLeft: '15px',
-              fontSize: '16px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-            width='100%'
-          >
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-              }}
-            >
-              <div
-                style={{
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  fontFamily: 'Outfit',
-                  color: theme.palette.mode === 'dark' ? 'White' : '#4e50a5',
-                }}
-              >
-                INPUT COMMANDS
-              </div>
-              <EastIcon
-                style={{
-                  marginLeft: '5px',
-                  height: '30px',
-                  color: theme.palette.mode === 'dark' ? 'White' : '#4e50a5',
-                }}
-              />
-            </div>
-          </Box>
         </div>
       </div>
       {/* ------------------ START OF TERMINAL COLUMN-------- */}
@@ -685,14 +641,22 @@ function Setup() {
         style={{
           display: 'flex',
           flexDirection: 'column',
-          margin: '58px 25px 0 310px',
+          margin: '58px 25px 0 0',
           paddingBottom: '0px',
           justifyContent: 'flex-start',
           alignItems: 'flex-start',
           alignContent: 'flex-start',
+          width: '99%',
         }}
       >
-        <div style={{ height: '445px', width: '100%', marginBottom: '20px' }}>
+        <div
+          style={{
+            height: '56vh',
+            width: '70%',
+            marginBottom: '20px',
+            marginLeft: '310px',
+          }}
+        >
           <Terminal response={response} />
         </div>
         <div
@@ -703,10 +667,10 @@ function Setup() {
             //   theme.palette.mode === 'dark' ? '#0e0727' : '#e6e1fb',
             // border: '2px solid #c6bebe',
             height: '60px',
-            width: '100%',
+            width: '70.5%',
             marginTop: '00px',
             marginBottom: '15px',
-            marginLeft: '0px',
+            marginLeft: '310px',
             marginRight: '0px',
             fontFamily: 'monospace',
             padding: '0px',
@@ -714,7 +678,6 @@ function Setup() {
           }}
         >
           <CommandLine
-            width='100%'
             handleSubmit={handleSubmit}
             setUserInput={setUserInput}
             setVerb={setVerb}
@@ -735,11 +698,40 @@ function Setup() {
           style={{
             display: 'flex',
             flexDirection: 'row',
-            width: '99%',
+            width: '98.5%',
             justifyContent: 'space-around',
             alignItems: 'center',
           }}
         >
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              marginLeft: '50px',
+              marginRight: '10px',
+              width: '355px',
+            }}
+          >
+            <div
+              style={{
+                justifyContent: 'center',
+                alignItems: 'start',
+                fontFamily: 'Outfit',
+                fontSize: '19px',
+                color: theme.palette.mode === 'dark' ? 'White' : '#4e50a5',
+              }}
+            >
+              INPUT COMMANDS
+            </div>
+            <EastIcon
+              style={{
+                marginLeft: '5px',
+                height: '30px',
+                color: theme.palette.mode === 'dark' ? 'White' : '#4e50a5',
+              }}
+            />
+          </div>
           <LightTooltip
             title='If using kubectl commands, keep this on. If using other or global commands, turn this off.'
             placement='bottom'
@@ -775,6 +767,11 @@ function Setup() {
                       ? '#3f42c3'
                       : '#00000082',
                   letterSpacing: '-.2px',
+                  WebkitUserSelect: 'none' /* Safari */,
+                  MozUserSelect: 'none' /* Firefox */,
+                  msUserSelect: 'none' /* IE10+/Edge */,
+                  userSelect: 'none',
+                  width: '55px',
                 }}
               >
                 kubectl
@@ -786,8 +783,16 @@ function Setup() {
                 inputProps={{ 'aria-label': 'controlled' }}
               />
               <div
+                onClick={() => {
+                  if (tool === 'kubectl') {
+                    setTool('');
+                    setChecked(!checked);
+                  } else setTool('kubectl');
+                  setChecked(!checked);
+                }}
                 style={{
-                  padding: '4.5px 1px 0 1px',
+                  padding:
+                    k8tool === 'OFF' ? '4.5px 6px 0 1px' : '4.5px 9px 0 2px',
                   fontSize: '10px',
                   color:
                     k8tool === 'OFF' && theme.palette.mode === 'light'
@@ -797,6 +802,10 @@ function Setup() {
                       : k8tool === 'OFF' && theme.palette.mode === 'dark'
                       ? '#ffffff99'
                       : '',
+                  WebkitUserSelect: 'none' /* Safari */,
+                  MozUserSelect: 'none' /* Firefox */,
+                  msUserSelect: 'none' /* IE10+/Edge */,
+                  userSelect: 'none',
                 }}
               >
                 {k8tool}
@@ -942,12 +951,230 @@ function Setup() {
         <div
           style={{
             position: 'absolute',
-            left: '58px',
-            top: '645px',
+            left: '60px',
+            bottom: '22px',
             display: 'flex',
             flexDirection: 'column',
             height: '105px',
-            width: '92%',
+            width: '43%',
+            backgroundColor:
+              theme.palette.mode === 'dark' ? '#2f2f6d' : '#e1dbfe',
+            // marginLeft: '0px',
+            // marginTop: '25px',
+            borderRadius: '3px',
+            textAlign: 'center',
+            padding: '5px 0 0 0px',
+            margin: '5px 0 0 0px',
+            fontFamily: 'Outfit',
+            fontWeight: '900',
+            letterSpacing: '1px',
+            alignItems: 'flex-start',
+            fontSize: '18px',
+            color: theme.palette.mode === 'dark' ? 'white' : '#4e50a5',
+          }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'row',
+              borderBottom: '.5px solid white',
+              padding: '0 0 10px 14px',
+              width: '100%',
+              height: '33px',
+            }}
+          >
+            LEARNING CENTER:
+            <div
+              style={{
+                fontSize: '9px',
+                fontFamily: 'Roboto',
+                fontWeight: '400',
+                width: '50%',
+                margin: '0 2% 0 5%',
+                lineHeight: '13px',
+              }}
+            >
+              <em>
+                CLICK ON ANY LINK BELOW FOR TUTORIALS AND LEARNING RESOURCES
+              </em>
+            </div>
+          </div>
+          <div
+            style={{
+              overflow: 'scroll',
+              overflowX: 'hidden',
+              width: '100%',
+              height: '100%',
+              alignItems: 'start',
+            }}
+          >
+            {' '}
+            <div
+              style={{
+                display: 'flex',
+                padding: '1px 10px 0px 5px',
+                flexDirection: 'row',
+                justifyContent: 'center',
+                alignItems: 'center',
+                backgroundColor:
+                  theme.palette.mode === 'dark' ? '#22225a' : '#c8bef7',
+              }}
+            >
+              <div
+                style={{
+                  fontSize: '11px',
+                  fontFamily: 'Roboto',
+                  fontWeight: '400',
+                  height: '18px',
+                }}
+              >
+                <a
+                  href='https://kubernetes.io/docs/tutorials/hello-minikube/'
+                  target='blank'
+                >
+                  MINIKUBE TUTORIAL (Ideal for first timers)
+                </a>
+              </div>
+              <div style={{ marginLeft: '68px', justifyContent: 'flex-end' }}>
+                <StarIcon fontSize='small' /> <StarIcon fontSize='small' />{' '}
+                <StarIcon fontSize='small' /> <StarIcon fontSize='small' />{' '}
+                <StarIcon fontSize='small' />
+              </div>
+            </div>
+            <div
+              style={{
+                display: 'flex',
+                padding: '0px 10px 0px 5px',
+                flexDirection: 'row',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+            >
+              <div
+                style={{
+                  fontSize: '11px',
+                  fontFamily: 'Roboto',
+                  fontWeight: '400',
+                  height: '18px',
+                }}
+              >
+                <a
+                  href='https://www.youtube.com/watch?v=s_o8dwzRlu4&themeRefresh=1'
+                  target='blank'
+                >
+                  CRASH COURSE FOR BEGINNERS (1-hour)
+                </a>
+              </div>
+              <div style={{ marginLeft: '80px', justifyContent: 'flex-end' }}>
+                <StarIcon fontSize='small' /> <StarIcon fontSize='small' />{' '}
+                <StarIcon fontSize='small' /> <StarIcon fontSize='small' />{' '}
+                <StarIcon fontSize='small' />
+              </div>
+            </div>
+            <div
+              style={{
+                display: 'flex',
+                padding: '0px 10px 0px 5px',
+                flexDirection: 'row',
+                justifyContent: 'center',
+                alignItems: 'center',
+                backgroundColor:
+                  theme.palette.mode === 'dark' ? '#22225a' : '#c8bef7',
+              }}
+            >
+              <div
+                style={{
+                  fontSize: '11px',
+                  fontFamily: 'Roboto',
+                  fontWeight: '400',
+                  height: '18px',
+                }}
+              >
+                <a
+                  href='https://www.youtube.com/watch?v=d6WC5n9G_sM'
+                  target='blank'
+                >
+                  FULL BEGINNERS TUTORIAL (3-hours)
+                </a>
+              </div>
+              <div style={{ marginLeft: '100px', justifyContent: 'flex-end' }}>
+                <StarIcon fontSize='small' /> <StarIcon fontSize='small' />{' '}
+                <StarIcon fontSize='small' /> <StarIcon fontSize='small' />{' '}
+                <StarIcon fontSize='small' />
+              </div>
+            </div>
+            <div
+              style={{
+                display: 'flex',
+                padding: '0px 10px 0px 5px',
+                flexDirection: 'row',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+            >
+              <div
+                style={{
+                  fontSize: '11px',
+                  fontFamily: 'Roboto',
+                  fontWeight: '400',
+                  height: '18px',
+                }}
+              >
+                <a
+                  href='https://kubernetes.io/docs/tutorials/kubernetes-basics/'
+                  target='blank'
+                >
+                  LEARN KUBERNETES BASICS (kubernetes.io)
+                </a>
+              </div>
+              <div style={{ marginLeft: '61px', justifyContent: 'flex-end' }}>
+                <StarIcon fontSize='small' /> <StarIcon fontSize='small' />{' '}
+                <StarIcon fontSize='small' /> <StarIcon fontSize='small' />{' '}
+                <StarOutlineIcon fontSize='small' />
+              </div>
+            </div>
+            <div
+              style={{
+                display: 'flex',
+                padding: '0px 10px 0px 5px',
+                flexDirection: 'row',
+                justifyContent: 'center',
+                alignItems: 'center',
+                backgroundColor:
+                  theme.palette.mode === 'dark' ? '#22225a' : '#c8bef7',
+              }}
+            >
+              <div
+                style={{
+                  fontSize: '11px',
+                  fontFamily: 'Roboto',
+                  fontWeight: '400',
+                  height: '18px',
+                }}
+              >
+                <a href='https://kubernetes.io/docs/tutorials/' target='blank'>
+                  MISC. KUBERNETES TUTORIALS (kubernetes.io)
+                </a>
+              </div>
+              <div style={{ marginLeft: '43px', justifyContent: 'flex-end' }}>
+                <StarIcon fontSize='small' /> <StarIcon fontSize='small' />{' '}
+                <StarIcon fontSize='small' /> <StarIcon fontSize='small' />{' '}
+                <StarOutlineIcon fontSize='small' />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div></div>
+
+        <div
+          style={{
+            position: 'absolute',
+            left: '50%',
+            bottom: '22px',
+            display: 'flex',
+            flexDirection: 'column',
+            height: '105px',
+            width: '47.5%',
             backgroundColor:
               theme.palette.mode === 'dark' ? '#2f2f6d' : '#e1dbfe',
             marginLeft: '0px',
@@ -982,9 +1209,9 @@ function Setup() {
             style={{
               fontFamily: 'Roboto',
               fontWeight: '400',
-              fontSize: '10px',
+              fontSize: '9.5px',
               letterSpacing: '.6px',
-              margin: '6px 0 0 0',
+              margin: '4px 0 2px 0',
             }}
           >
             <em>
@@ -998,7 +1225,7 @@ function Setup() {
                 display: 'flex',
                 flexDirection: 'column',
                 // backgroundColor: '#a494d7',
-                margin: '2px 0px 0 0',
+                margin: '5px 0px 5px 0',
                 // color: 'white',
                 fontFamily: 'Outfit',
                 fontSize: '16px',
@@ -1060,7 +1287,7 @@ function Setup() {
                 display: 'flex',
                 flexDirection: 'column',
                 // backgroundColor: '#a494d7',
-                margin: '2px 0px 0 0',
+                margin: '5px 0px 5px 0',
                 // color: 'white',
                 fontFamily: 'Outfit',
                 fontSize: '16px',

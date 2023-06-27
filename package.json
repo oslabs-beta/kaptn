@@ -3,6 +3,7 @@
   "productName": "Kaptn",
   "private": true,
   "version": "1.1.0",
+  "description": "Powerful K8s Development Tool",
   "main": "main.js",
   "scripts": {
     "start": "NODE_ENV='development' electron .",
@@ -20,7 +21,7 @@
     "vite": "vite"
   },
   "author": {
-    "name": "kaptn",
+    "name": "Kaptn",
     "url": "https://kaptn.io/"
   },
   "contributors": [
@@ -30,6 +31,7 @@
     "Natalie Cordoves",
     "Yining Wang"
   ],
+  "license": "MIT",
   "dependencies": {
     "@emotion/react": "^11.10.6",
     "@emotion/styled": "^11.10.6",
@@ -42,6 +44,8 @@
     "concurrently": "^8.0.1",
     "esbuild-darwin-arm64": "^0.15.18",
     "express": "^4.18.2",
+    "fix-esm": "^1.0.1",
+    "fix-path": "^3.0.0",
     "mongoose": "^7.0.3",
     "nodemon": "^2.0.22",
     "react": "^18.2.0",
@@ -65,8 +69,8 @@
     "vite": "^4.2.0"
   },
   "build": {
-    "appId": "kaptn",
-    "productName": "kaptn",
+    "appId": "Kaptn",
+    "productName": "Kaptn",
     "asar": true,
     "win": {
       "target": "nsis",
@@ -77,7 +81,7 @@
       "oneClick": false,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "kaptn",
+      "shortcutName": "Kaptn",
       "perMachine": false,
       "deleteAppDataOnUninstall": true,
       "allowElevation": false,
@@ -89,15 +93,27 @@
     },
     "mac": {
       "target": "dmg",
-      "icon": "./build/icons/macIcon.icns",
+      "icon": "./public/icon.icns",
       "category": "public.app-category.developer-tools"
     },
     "dmg": {
-      "icon": "./build/icons/macIcon.icns",
-      "title": "kaptn"
+      "icon": "./public/icon.icns",
+      "title": "Kaptn",
+      "background": "./public/dmgbackground.tiff"
     },
     "linux": {
+      "icon": "./public/icon.icns",
       "target": "AppImage"
-    }
+    },
+    "directories": {
+      "buildResources": "assets"
+    },
+    "files": [
+      "package.json",
+      "dist/**/*",
+      "node_modules",
+      "main.js",
+      "src/assets/**/*"
+    ]
   }
 }

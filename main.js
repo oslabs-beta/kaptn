@@ -9,8 +9,10 @@ const {
 } = require('electron');
 const { exec, spawnSync, spawn } = require('child_process');
 const { dialog } = require('electron');
-const isDev = process.env.NODE_ENV === 'development';
 const { clipboard } = require('electron');
+const fixPath = require('fix-path');
+
+const isDev = process.env.NODE_ENV === 'development';
 
 function createMainWindow() {
   const mainWindow = new BrowserWindow({
@@ -69,6 +71,8 @@ function createMainWindow() {
     mainWindow.loadURL('http://localhost:4444/');
     mainWindow.webContents.openDevTools();
   } else {
+    //in production, fix env.PATH for correct CLI use
+    fixPath();
     // In production, render the html build file
     mainWindow.loadURL(`file://${path.join(__dirname, '/dist/index.html#/')}`);
   }
@@ -177,6 +181,17 @@ ipcMain.on('forward_ports', (event, arg) => {
   });
 });
 
+  // Listen to forward_ports event
+  ipcMain.on('kill_port', (event, arg) => {
+    const ports = spawn(
+      `kill -9 $(lsof -ti:3000)`,
+      {
+        shell: true,
+      }
+    );
+  })
+
+
 ipcMain.on('retrieve_key', (event, arg) => {
   const cacheKey = 'api_key';
 
@@ -243,7 +258,7 @@ ipcMain.on('retrieve_key', (event, arg) => {
 
       const now = new Date().getTime();
       const from = new Date(now - 60 * 60 * 1000).getTime();
-      let url = `http://localhost:3000/d/${uid}/kubernetes-api-server?orgId=1&refresh=10s&from=${from}&to=${now}&kiosk=true`;
+      let url = `http://localhost:3000/d/${uid}/kubernetes-api-server?orgId=1&refresh=10s&from=${from}&to=${now}&kiosk=true?username=admin&password=prom-operator`;
       console.log('attempting to open:', url);
       require('electron').shell.openExternal(url);
       return event.sender.send('retrieve_key', `true`);

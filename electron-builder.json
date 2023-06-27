@@ -1,8 +1,7 @@
 {
-  "appId": "kaptn",
+  "appId": "Kaptn",
   "productName": "Kaptn",
   "directories": {
-    "app": ".",
     "buildResources": "assets"
   },
   "files": [
@@ -24,8 +23,18 @@
   },
   "linux": {
     "target": "AppImage",
-    "icon": "build/icon.ico"
+    "icon": "./public/icon.ico"
+  },
+  "nsis": {
+    "oneClick": false,
+    "createDesktopShortcut": true,
+    "createStartMenuShortcut": true,
+    "shortcutName": "kaptn",
+    "perMachine": false,
+    "deleteAppDataOnUninstall": true,
+    "allowElevation": false,
+    "allowToChangeInstallationDirectory": true,
+    "menuCategory": true,
+    "installerLanguages": ["en_US"]
   }
 }
-
-

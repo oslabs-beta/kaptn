@@ -1,13 +1,14 @@
-import Signup from './Pages/Signup.jsx';
+import Signup from './Pages/Signup2.jsx';
 import Login from './Pages/Login.jsx';
 import Cluster from './Pages/Cluster.jsx';
 import { HashRouter, Route, Routes } from 'react-router-dom';
 import Dashboard from './Pages/Dashboard.jsx';
 import Topbar from './components/Topbar2.jsx';
-import Setup from './Pages/Setup2.jsx';
+import Setup from './Pages/Setup3.jsx';
 import Glossary from './Pages/Glossary.jsx';
 import { ColorModeContext, useMode } from './theme.js';
 import { CssBaseline, ThemeProvider } from '@mui/material';
+
 
 function App() {
   const [theme, colorMode] = useMode();
