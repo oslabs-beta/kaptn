@@ -9,7 +9,7 @@ import {
   HomeOutlined,
   LightMode,
   BarChart,
-  DarkModeOutlined,
+  DarkMode,
 } from '@mui/icons-material';
 import Grid from '@mui/system/Unstable_Grid';
 import { ColorModeContext } from '../theme.ts';
@@ -19,32 +19,66 @@ function SideNav(props) {
   const theme = useTheme();
   const colorMode = useContext(ColorModeContext);
 
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  // const [isCollapsed, setIsCollapsed] = useState(false);
 
   return (
     <Grid xs={props.spacing} container>
-      <Sidebar defaultCollapsed backgroundColor=''>
+      <Sidebar defaultCollapsed backgroundColor='' style={{ width: '0px' }}>
         <Menu>
-          <Box paddingLeft={isCollapsed ? undefined : '0%'}>
+          <Box paddingLeft={'0'}>
             <Link to='/dashboard'>
               <MenuItem
                 id='dashboard-nav'
-                icon={<HomeOutlined />}
+                icon={
+                  <HomeOutlined
+                    style={{
+                      color:
+                        theme.palette.mode === 'dark' ? 'white' : '#8881ce',
+                    }}
+                  />
+                }
               ></MenuItem>
             </Link>
 
             <Link to='/setup'>
-              <MenuItem id='setup-nav' icon={<AutoFixHigh />}></MenuItem>
+              <MenuItem
+                id='setup-nav'
+                icon={
+                  <AutoFixHigh
+                    style={{
+                      color:
+                        theme.palette.mode === 'dark' ? 'white' : '#8881ce',
+                    }}
+                  />
+                }
+              ></MenuItem>
             </Link>
 
             <Link to='/cluster'>
-              <MenuItem id='cluster-nav' icon={<BarChart />}></MenuItem>
+              <MenuItem
+                id='cluster-nav'
+                icon={
+                  <BarChart
+                    style={{
+                      color:
+                        theme.palette.mode === 'dark' ? 'white' : '#8881ce',
+                    }}
+                  />
+                }
+              ></MenuItem>
             </Link>
 
             <Link to='/glossary'>
               <MenuItem
                 id='glossary-nav'
-                icon={<MenuBook />}
+                icon={
+                  <MenuBook
+                    style={{
+                      color:
+                        theme.palette.mode === 'dark' ? 'white' : '#8881ce',
+                    }}
+                  />
+                }
                 color='white'
               ></MenuItem>
             </Link>
@@ -52,16 +86,23 @@ function SideNav(props) {
             <Link to='/'>
               <MenuItem
                 id='logout-nav'
-                icon={<ExitToAppOutlined />}
+                icon={
+                  <ExitToAppOutlined
+                    style={{
+                      color:
+                        theme.palette.mode === 'dark' ? 'white' : '#8881ce',
+                    }}
+                  />
+                }
               ></MenuItem>
             </Link>
 
-            <MenuItem id='light-dark-button'>
+            <MenuItem id='light-dark-button' style={{position:"fixed", bottom: "10px", left: "0"}}>
               <IconButton onClick={colorMode.toggleColorMode}>
                 {theme.palette.mode === 'dark' ? (
-                  <DarkModeOutlined />
+                  <LightMode style={{ color: '#ac98fa' }} />
                 ) : (
-                  <LightMode />
+                  <DarkMode style={{ color: '#5456ac' }} />
                 )}
               </IconButton>
             </MenuItem>

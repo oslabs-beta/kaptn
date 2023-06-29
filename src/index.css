@@ -10,27 +10,82 @@ body {
   overflow-x: hidden;
 }
 
+/* killport 300 link turns to hand when hovered */
+#killport:hover {
+  cursor: pointer;
+}
+
 /* Scrollbar */
 ::-webkit-scrollbar {
-  width: 10px;
+  width: 8px;
+  height: 7px;
 }
 
 /* Track */
 ::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.729);
+  background: rgba(62, 69, 124, 0.129);
 }
 
 /* Handle */
 ::-webkit-scrollbar-thumb {
-  background: rgb(109, 233, 68);
+  background: #716b88;
+  border-radius: 2.5px;
 }
 
 /* Handle on Hover */
 ::-webkit-scrollbar-track:hover {
-  background: blue;
+  background: rgb(160, 160, 195, 0.2);
 }
 
 a {
   color: inherit;
   text-decoration: none;
+}
+
+#sidebarTopDiv {
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 30px;
+  left: 0px;
+  width: 36px;
+  height: 100%;
+  /* margin: 0 30px 0 0; */
+  padding: 30px 0px 0 0;
+  /* background-color: red; */
+  border-right: 10px;
+  border-color: white;
+  /* z-index: -1000; */
+}
+
+.menuIcons:hover {
+  background-color: #8383de70;
+  border-radius: 9px;
+}
+
+#runButt:hover {
+  border: 1.5px solid #685aef !important;
+  color: #685aef !important;
+}
+
+#subtitle {
+  text-shadow: 1px 1px 5px rgb(0, 0, 0, 0.3) !important;
+}
+
+#yaml {
+  transform: none;
+  -webkit-transform: scale(0.9);
+  -moz-transform: scale(0.9);
+}
+
+#terminal {
+  overflow-anchor: none !important;
+}
+
+.clusterStatusIcons {
+  transform: scale(6.8);
+}
+
+.clusterLoadingIcon {
+  transform: scale(9.8);
 }

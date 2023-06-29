@@ -2,14 +2,21 @@
   "name": "react",
   "productName": "Kaptn",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.1.0",
+  "description": "Powerful K8s Development Tool",
   "main": "main.js",
   "scripts": {
     "start": "NODE_ENV='development' electron .",
     "dev": "concurrently \"NODE_ENV='development' nodemon server/server.js\" \"NODE_ENV='development' vite dev\" --host 0.0.0.0",
-    "build": "vite build && npm run pack",
+    "build": "vite build",
+    "build:mwl": "vite build && npm run pack",
+    "build64": "vite build && npm run pack64",
+    "build:windows": "npm run build && electron-builder --windows --x64",
+    "build:mac": "npm run build && electron-builder --mac",
+    "build:linux": "npm run build && electron-builder --linux --x64",
     "postinstall": "electron-builder install-app-deps",
     "pack": "electron-builder -mwl",
+    "pack64": "electron-builder -mwl --x64",
     "preview": "vite preview",
     "vite": "vite",
     "test": "jest"
@@ -17,6 +24,18 @@
   "jest": {
     "testEnvironment": "jsdom"
   },
+  "author": {
+    "name": "Kaptn",
+    "url": "https://kaptn.io/"
+  },
+  "contributors": [
+    "Brecht Horn",
+    "Olivia Hodel",
+    "Hwi Won Choi",
+    "Natalie Cordoves",
+    "Yining Wang"
+  ],
+  "license": "MIT",
   "dependencies": {
     "@emotion/react": "^11.10.6",
     "@emotion/styled": "^11.10.6",
@@ -29,6 +48,8 @@
     "concurrently": "^8.0.1",
     "esbuild-darwin-arm64": "^0.15.18",
     "express": "^4.18.2",
+    "fix-esm": "^1.0.1",
+    "fix-path": "^3.0.0",
     "mongoose": "^7.0.3",
     "nodemon": "^2.0.22",
     "react": "^18.2.0",
@@ -53,11 +74,59 @@
     "@vitejs/plugin-react": "^3.1.0",
     "babel-jest": "^29.5.0",
     "electron": "^24.0.0",
-    "electron-builder": "^23.6.0",
+    "electron-builder": "^24.4.0",
+    "electron-packager": "^17.1.1",
     "https": "^1.0.0",
     "jest": "^29.5.0",
     "jest-environment-jsdom": "^29.5.0",
     "typescript": "^5.0.4",
     "vite": "^4.2.0"
+  },
+  "build": {
+    "appId": "Kaptn",
+    "productName": "Kaptn",
+    "asar": true,
+    "win": {
+      "target": "nsis",
+      "icon": "./public/icon.ico",
+      "requestedExecutionLevel": "asInvoker"
+    },
+    "nsis": {
+      "oneClick": false,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Kaptn",
+      "perMachine": false,
+      "deleteAppDataOnUninstall": true,
+      "allowElevation": false,
+      "allowToChangeInstallationDirectory": true,
+      "menuCategory": true,
+      "installerLanguages": [
+        "en_US"
+      ]
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "./public/icon.icns",
+      "category": "public.app-category.developer-tools"
+    },
+    "dmg": {
+      "icon": "./public/icon.icns",
+      "title": "Kaptn",
+      "background": "./public/dmgbackground.tiff"
+    },
+    "linux": {
+      "icon": "./public/icon.icns",
+      "target": "AppImage"
+    },
+    "directories": {
+      "buildResources": "assets"
+    },
+    "files": [
+      "package.json",
+      "dist/**/*",
+      "node_modules",
+      "main.js"
+    ]
   }
 }
