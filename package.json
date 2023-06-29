@@ -13,7 +13,7 @@
     "build64": "vite build && npm run pack64",
     "build:windows": "npm run build && electron-builder --windows --x64",
     "build:mac": "npm run build && electron-builder --mac",
-    "build:linux": "npm run build && electron-builder --linux",
+    "build:linux": "npm run build && electron-builder --linux --x64",
     "postinstall": "electron-builder install-app-deps",
     "pack": "electron-builder -mwl",
     "pack64": "electron-builder -mwl --x64",
@@ -62,7 +62,7 @@
     "@types/react-dom": "^18.0.11",
     "@vitejs/plugin-react": "^3.1.0",
     "electron": "^24.0.0",
-    "electron-builder": "^23.6.0",
+    "electron-builder": "^24.4.0",
     "electron-packager": "^17.1.1",
     "https": "^1.0.0",
     "typescript": "^5.0.4",
@@ -112,8 +112,7 @@
       "package.json",
       "dist/**/*",
       "node_modules",
-      "main.js",
-      "src/assets/**/*"
+      "main.js"
     ]
   }
 }

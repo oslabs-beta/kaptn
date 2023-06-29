@@ -71,12 +71,12 @@ a {
 #subtitle {
   text-shadow: 1px 1px 5px rgb(0, 0, 0, 0.3) !important;
 }
-/* 
+
 #yaml {
   transform: none;
-  -webkit-transform: scale(0.95);
-  -moz-transform: scale(0.95);
-} */
+  -webkit-transform: scale(0.9);
+  -moz-transform: scale(0.9);
+}
 
 #terminal {
   overflow-anchor: none !important;

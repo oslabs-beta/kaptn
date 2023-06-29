@@ -565,11 +565,11 @@ function Setup() {
                 onClick={handleYamlClose}
                 style={{
                   height: '80%',
-                  width: '90%',
+                  width: '87%',
                   backgroundColor: 'white',
                   overflow: 'scroll',
                   color: 'black',
-                  paddingLeft: '8px',
+                  paddingLeft: '-10px',
                   zIndex: '1350',
                   position: 'fixed',
                   top: '80px',
@@ -583,7 +583,7 @@ function Setup() {
                   style={{
                     width: '900px',
                     alignItems: 'center',
-                    marginLeft: '80px',
+                    marginLeft: '25px',
                     justifyContent: 'center',
                   }}
                 >

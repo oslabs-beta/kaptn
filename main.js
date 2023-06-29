@@ -74,7 +74,7 @@ function createMainWindow() {
     //in production, fix env.PATH for correct CLI use
     fixPath();
     // In production, render the html build file
-    mainWindow.loadURL(`file://${path.join(__dirname, '/dist/index.html#/')}`);
+    mainWindow.loadURL(`file://${__dirname}/./dist/index.html#`);
   }
 }
 
@@ -195,7 +195,7 @@ ipcMain.on('forward_ports', (event, arg) => {
 ipcMain.on('retrieve_key', (event, arg) => {
   const cacheKey = 'api_key';
 
-  // Helper function to retrieve the API key
+  // Helper function to retrieve the API key and then UID
   const getAPIKey = async () => {
     try {
       // If the API key is not in the cache, fetch it from the API
@@ -217,24 +217,12 @@ ipcMain.on('retrieve_key', (event, arg) => {
 
       const data = await response.json();
 
-      // Send the fetched response
-      // console.log('data.key is:', data.key);
       let key = data.key;
-      // return event.sender.send('retrieve_key', data);
 
       const arg = {
         dashboard: 'Kubernetes / API server',
       };
       const { dashboard } = arg;
-      // console.log('arg is:', arg);
-      console.log('key is:', key);
-      console.log('dashboard is:', dashboard);
-      // const cachedValue = await redis.get(dashboard);
-
-      // // Return the cached UID if it exists
-      // if (cachedValue !== null) {
-      //   return event.sender.send('retrieve_uid', cachedValue);
-      // }
 
       let encodedDash = encodeURIComponent(dashboard);
       // If the UID is not in the cache, fetch it from the API
@@ -250,11 +238,8 @@ ipcMain.on('retrieve_key', (event, arg) => {
       );
 
       let data2 = await response2.json();
-      console.log('data is', data2);
 
-      // Send the fetched response
       let uid = data2[0].uid;
-      console.log('uid is:', uid);
 
       const now = new Date().getTime();
       const from = new Date(now - 60 * 60 * 1000).getTime();
@@ -269,59 +254,8 @@ ipcMain.on('retrieve_key', (event, arg) => {
   };
 
   getAPIKey();
-
-  // const getUID = async () => {
-  //   try {
-  //     const arg = {
-  //       dashboard: 'Kubernetes / API server',
-  //     };
-  //     const { dashboard } = arg;
-  //     console.log('arg is:', arg);
-  //     console.log('key is:', key);
-  //     console.log('dashboard is:', dashboard);
-  //     // const cachedValue = await redis.get(dashboard);
-
-  //     // // Return the cached UID if it exists
-  //     // if (cachedValue !== null) {
-  //     //   return event.sender.send('retrieve_uid', cachedValue);
-  //     // }
-
-  //     let encodedDash = encodeURIComponent(dashboard);
-  //     // If the UID is not in the cache, fetch it from the API
-  //     let response = await fetch(
-  //       `http://localhost:3000/api/search?query=${encodedDash}`,
-  //       {
-  //         method: 'GET',
-  //         headers: {
-  //           Authorization: `Bearer ${key}`,
-  //           'Content-Type': 'application/json',
-  //         },
-  //       }
-  //     );
-
-  //     let data = await response.json();
-  //     console.log('data is', data);
-
-  //     // Send the fetched response
-  //     let uid = data[0].uid;
-  //     console.log('uid in getUID is:', uid);
-  //     // getUID();
-  //     const now = new Date().getTime();
-  //     const from = new Date(now - 60 * 60 * 1000).getTime();
-  //     url = `http://localhost:3000/d/${uid}/kubernetes-api-server?orgId=1&refresh=10s&from=${from}&to=${now}&kiosk=true`;
-  //     console.log('attempting to open:', url);
-  //     require('electron').shell.openExternal(url);
-  //     // return event.sender.send('retrieve_uid', uid);
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
 });
 
-// Listen to retrieve_uid event
-ipcMain.on('retrieve_uid', (event, arg) => {
-  // Helper function to retrieve the UID key
-});
 
 ipcMain.on('openbrowser', (event, arg) => {
   event.returnValue = 'Message received!';
@@ -335,13 +269,4 @@ ipcMain.on('openbrowser', (event, arg) => {
 app.whenReady().then(() => {
   createMainWindow();
 
-  // // Register a 'CommandOrControl+Y' shortcut listener.
-  // globalShortcut.register('CommandOrControl+c', (e) => {
-  //   // Do stuff when Y and either Command/Control is pressed.
-  //   clipboard.writeText(e);
-  // });
-  // globalShortcut.register('CommandOrControl+v', () => {
-  //   // Do stuff when Y and either Command/Control is pressed.
-  //   clipboard.readText();
-  // });
 });
