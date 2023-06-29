@@ -34,7 +34,7 @@ Kaptn is a fully downloadable desktop application that provides a user-friendly 
 - Quick kubernetes setup 
   - Personalized YAML file creator
   - Ability to choose or create new image
-- Coming Soon! Cluster metrics visualization
+- Cluster metrics visualization
   - Kubernetes API server metrics
   - Connect with Grafana and Prometheus to monitor cluster health
 - Troubleshoot any confusion with our extensive kubectl glossary
