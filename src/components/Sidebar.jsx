@@ -6,110 +6,170 @@ import {
   AutoFixHigh,
   MenuBook,
   ExitToAppOutlined,
-  HomeOutlined,
   LightMode,
   BarChart,
   DarkMode,
+  BorderColor,
 } from '@mui/icons-material';
 import Grid from '@mui/system/Unstable_Grid';
 import { ColorModeContext } from '../theme.ts';
+import Tooltip, { tooltipClasses } from '@mui/material/Tooltip';
+import { styled } from '@mui/material/styles';
+import HomeRoundedIcon from '@mui/icons-material/HomeRounded';
 
 function SideNav(props) {
   // Color theme is toggled here with the light/dark mode menu item
   const theme = useTheme();
   const colorMode = useContext(ColorModeContext);
 
-  // const [isCollapsed, setIsCollapsed] = useState(false);
+  const LightTooltip = styled(({ className, ...props }) => (
+    <Tooltip {...props} classes={{ popper: className }} />
+  ))(({ theme }) => ({
+    [`& .${tooltipClasses.tooltip}`]: {
+      backgroundColor: theme.palette.mode === 'dark' ? '#5c4d9a' : '#8383de',
+      color: 'white',
+      fontSize: 11,
+    },
+  }));
 
   return (
-    <Grid xs={props.spacing} container>
-      <Sidebar defaultCollapsed backgroundColor='' style={{ width: '0px' }}>
-        <Menu>
-          <Box paddingLeft={'0'}>
-            <Link to='/dashboard'>
-              <MenuItem
-                id='dashboard-nav'
-                icon={
-                  <HomeOutlined
-                    style={{
-                      color:
-                        theme.palette.mode === 'dark' ? 'white' : '#8881ce',
-                    }}
-                  />
-                }
-              ></MenuItem>
-            </Link>
+    <div
+      id='sidebarTopDiv'
+      style={{
+        backgroundColor: theme.palette.mode === 'dark' ? '#170b49 ' : '#cec5fc',
+      }}
+    >
+      <LightTooltip
+        title='K8s CLI'
+        placement='right'
+        arrow
+        enterDelay={500}
+        leaveDelay={200}
+        enterNextDelay={500}
+        style={{ backgroundColor: 'red' }}
+      >
+        <div
+          style={{ height: '20px', paddingLeft: '8px', marginBottom: '20px' }}
+        >
+          <Link to='/dashboard'>
+            <HomeRoundedIcon
+              className='menuIcons'
+              fontSize='medium'
+              style={{
+                color: theme.palette.mode === 'dark' ? '#c6bfe2' : '#6466b2',
+              }}
+            />
+          </Link>
+        </div>
+      </LightTooltip>
+      <LightTooltip
+        title='Easy Setup'
+        placement='right'
+        arrow
+        enterDelay={500}
+        leaveDelay={200}
+        enterNextDelay={500}
+      >
+        <div
+          style={{ height: '20px', paddingLeft: '8px', marginBottom: '20px' }}
+        >
+          <Link to='/setup'>
+            <AutoFixHigh
+              className='menuIcons'
+              fontSize='medium'
+              style={{
+                color: theme.palette.mode === 'dark' ? '#c6bfe2' : '#6466b2',
+              }}
+            />
+          </Link>
+        </div>
+      </LightTooltip>
 
-            <Link to='/setup'>
-              <MenuItem
-                id='setup-nav'
-                icon={
-                  <AutoFixHigh
-                    style={{
-                      color:
-                        theme.palette.mode === 'dark' ? 'white' : '#8881ce',
-                    }}
-                  />
-                }
-              ></MenuItem>
-            </Link>
+      <LightTooltip
+        title='Cluster Visualizer'
+        placement='right'
+        arrow
+        enterDelay={500}
+        leaveDelay={200}
+        enterNextDelay={500}
+      >
+        <div style={{ paddingLeft: '8px' }}>
+          <Link to='/cluster'>
+            <BarChart
+              className='menuIcons'
+              fontSize='medium'
+              style={{
+                color: theme.palette.mode === 'dark' ? '#c6bfe2' : '#6466b2',
+              }}
+            />
+          </Link>
+        </div>
+      </LightTooltip>
 
-            <Link to='/cluster'>
-              <MenuItem
-                id='cluster-nav'
-                icon={
-                  <BarChart
-                    style={{
-                      color:
-                        theme.palette.mode === 'dark' ? 'white' : '#8881ce',
-                    }}
-                  />
-                }
-              ></MenuItem>
-            </Link>
+      {/* <LightTooltip title='Glossary' followCursor={true} arrow>
+        <div
+          style={{ height: '10px', marginBottom: '50px', padding: '0 0px 0 8px' }}
+        >
+          <Link to='/glossary'>
+            <MenuBook
+              className='menuIcons'
+              fontSize='medium'
+              style={{
+                height: '50px',
+                color: theme.palette.mode === 'dark' ? '#c6bfe2' : '#f2f2f2',
+              }}
+            />
+          </Link>
+        </div>
+      </LightTooltip> */}
 
-            <Link to='/glossary'>
-              <MenuItem
-                id='glossary-nav'
-                icon={
-                  <MenuBook
-                    style={{
-                      color:
-                        theme.palette.mode === 'dark' ? 'white' : '#8881ce',
-                    }}
-                  />
-                }
-                color='white'
-              ></MenuItem>
-            </Link>
-
-            <Link to='/'>
-              <MenuItem
-                id='logout-nav'
-                icon={
-                  <ExitToAppOutlined
-                    style={{
-                      color:
-                        theme.palette.mode === 'dark' ? 'white' : '#8881ce',
-                    }}
-                  />
-                }
-              ></MenuItem>
-            </Link>
-
-            <MenuItem id='light-dark-button' style={{position:"fixed", bottom: "10px", left: "0"}}>
-              <IconButton onClick={colorMode.toggleColorMode}>
-                {theme.palette.mode === 'dark' ? (
-                  <LightMode style={{ color: '#ac98fa' }} />
-                ) : (
-                  <DarkMode style={{ color: '#5456ac' }} />
-                )}
-              </IconButton>
-            </MenuItem>
-          </Box>
-        </Menu>
-      </Sidebar>
-    </Grid>
+      <LightTooltip
+        title='Back to Start'
+        placement='right'
+        arrow
+        enterDelay={500}
+        leaveDelay={200}
+        enterNextDelay={500}
+      >
+        <div style={{ paddingLeft: '8px', marginTop: '16px' }}>
+          <Link to='/'>
+            <ExitToAppOutlined
+              className='menuIcons'
+              fontSize='medium'
+              style={{
+                color: theme.palette.mode === 'dark' ? '#c6bfe2' : '#6466b2',
+              }}
+            />
+          </Link>
+        </div>
+      </LightTooltip>
+      <LightTooltip
+        title='Dark / Light Mode'
+        placement='right'
+        arrow
+        enterDelay={500}
+        leaveDelay={200}
+        enterNextDelay={500}
+      >
+        <div
+          id='light-dark-button'
+          style={{
+            position: 'fixed',
+            bottom: '1px',
+            left: '1px',
+            zIndex: '1500',
+          }}
+        >
+          <IconButton onClick={colorMode.toggleColorMode}>
+            {theme.palette.mode === 'dark' ? (
+              <LightMode fontSize='small' style={{ color: '#ac98fa' }} />
+            ) : (
+              <DarkMode fontSize='small' style={{ color: '#5456ac' }} />
+            )}
+          </IconButton>
+        </div>
+      </LightTooltip>
+    </div>
   );
 }
 

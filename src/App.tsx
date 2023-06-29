@@ -1,10 +1,10 @@
-import Signup from './Pages/Signup2.jsx';
+import Signup from './Pages/Signup.jsx';
 import Login from './Pages/Login.jsx';
 import Cluster from './Pages/Cluster.jsx';
 import { HashRouter, Route, Routes } from 'react-router-dom';
 import Dashboard from './Pages/Dashboard.jsx';
-import Topbar from './components/Topbar2.jsx';
-import Setup from './Pages/Setup3.jsx';
+import Topbar from './components/Topbar.js';
+import Setup from './Pages/Setup.js';
 import Glossary from './Pages/Glossary.jsx';
 import { ColorModeContext, useMode } from './theme.js';
 import { CssBaseline, ThemeProvider } from '@mui/material';
@@ -28,7 +28,6 @@ function App() {
                 <Route path='/signup' element={<Signup />} />
                 <Route path='/dashboard' element={<Dashboard />} />
                 <Route path='/setup' element={<Setup />} />
-                {/* <Route path='/glossary' element={<Glossary />} /> */}
                 <Route path='/cluster' element={<Cluster />} />
               </Routes>
             </main>

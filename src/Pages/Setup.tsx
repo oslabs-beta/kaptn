@@ -20,31 +20,20 @@ import {
 import { Box, styled, lighten, darken } from '@mui/system';
 import Grid from '@mui/system/Unstable_Grid';
 import CommandLine from '../components/CommandLine.jsx';
-import Terminal from '../components/Terminal.jsx';
-import Sidebar from '../components/Sidebar2.jsx';
+import Terminal from '../components/Terminal.js';
+import Sidebar from '../components/Sidebar.jsx';
 import EastIcon from '@mui/icons-material/East';
 import commands from '../components/commands.js';
 import BoltIcon from '@mui/icons-material/Bolt';
 import helpDesk from './Glossary.jsx';
 import Switch from '@mui/material/Switch';
 import Tooltip, { TooltipProps, tooltipClasses } from '@mui/material/Tooltip';
+import StarIcon from '@mui/icons-material/Star';
+import StarOutlineIcon from '@mui/icons-material/StarOutline';
+import StarHalfIcon from '@mui/icons-material/StarHalf';
+// import { makeStyles } from '@mui/material';
 
 const { ipcRenderer } = require('electron');
-
-const style = {
-  position: 'absolute',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  width: '90%',
-  height: '90%',
-  bgcolor: '#2c1b63',
-  color: 'white',
-  boxShadow: 24,
-  p: 4,
-  padding: '10px',
-  borderRadius: '5px',
-};
 
 const LightTooltip = styled(({ className, ...props }: TooltipProps) => (
   <Tooltip {...props} classes={{ popper: className }} />
@@ -56,9 +45,6 @@ const LightTooltip = styled(({ className, ...props }: TooltipProps) => (
   },
 }));
 
-//for step 4 text to appear below without eslint/prettier error, assigned to variable here
-const step4 = `4. INPUT COMMANDS --->`;
-
 //section header (e.g. beginner, intermediate, etc) rules for grouped "command" option
 const BeginnerHeader = styled('div')(({ theme }) => ({
   position: 'sticky',
@@ -67,7 +53,6 @@ const BeginnerHeader = styled('div')(({ theme }) => ({
   margin: '0px',
   color: '#ffffff',
   backgroundColor: '#352a68',
-  webkitScrollbarColor: 'red yellow',
 }));
 
 //style for grouped commands
@@ -78,7 +63,7 @@ const GroupItems = styled('ul')({
 });
 
 function Setup() {
-  const [tool, setTool] = useState<string>('');
+  const [tool, setTool] = useState<string>('kubectl');
   const [verb, setVerb] = React.useState<string>('');
   const [type, setType] = React.useState<string>('');
   const [name, setName] = React.useState<string>('');
@@ -91,7 +76,7 @@ function Setup() {
   >([]);
   const [yamlOpen, setYamlOpen] = React.useState<boolean>(false);
   const [imgPath, setImgPath] = useState<string>('NONE ENTERED');
-  const [imgField, setImgField] = useState<string>('Enter .IMG');
+  const [imgField, setImgField] = useState<string>('');
   const [flags, setFlags] = useState<Array<string>>([]);
   const [helpList, setHelpList] = useState<Array<string>>(['']);
 
@@ -108,6 +93,21 @@ function Setup() {
 
   //for light/dark mode toggle
   const theme = useTheme();
+
+  const style = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: '90%',
+    height: '90%',
+    bgcolor: theme.palette.mode === 'dark' ? '#2c1b63' : '#e9e5fa',
+    color: theme.palette.mode === 'dark' ? 'white' : '#47456e',
+    boxShadow: 24,
+    p: 4,
+    padding: '10px',
+    borderRadius: '5px',
+  };
 
   //maps grouped command options alphabetically including if numbered
   const options = commands.map((option) => {
@@ -155,6 +155,13 @@ function Setup() {
     setName(value);
   };
 
+  const handleImgChange = (event) => {
+    const {
+      target: { value },
+    } = event;
+    setImgField(value);
+  };
+
   // Set current work directory, and short directory (for its visible label)
   const handleUploadDirectory = (event) => {
     let path = event.target.files[0].path.split('');
@@ -169,15 +176,13 @@ function Setup() {
       shortArr.unshift(absArr[i]);
     }
     shortArr.unshift('/');
-    console.log('shortArr is', shortArr);
     let shortPath = shortArr.join('') + '/';
-    console.log('shortpath is', shortPath);
     setShortDir('...' + shortPath);
   };
   //sets image submission
-  const handleImgUpload = (event) => {
-    setImgPath(event.target.value);
-    setImgField('Image Entered');
+  const handleImgUpload = (e) => {
+    setImgPath(imgField);
+    setImgField('');
   };
   // updates img text field as typed
   const handleImgField = (e) => {
@@ -195,8 +200,8 @@ function Setup() {
   //
   const handleK8ToolChange = (event) => {
     setChecked(event.target.checked);
-    if (!checked) setTool('kubectl');
-    else setTool('');
+    if (checked) setTool('');
+    else setTool('kubectl');
   };
 
   let k8tool = '';
@@ -288,402 +293,1062 @@ function Setup() {
 
   return (
     <>
-      <Grid
-        id='setup-page'
-        container
-        disableEqualOverflow
-        width={'100vw'}
-        height={'auto'}
-        sx={{ pt: 7, pb: 3, pl: 7 }}
-        style={{ overflow: 'hidden' }}
+      <Sidebar />
+      <Backdrop
+        style={{
+          color: 'black',
+          justifyContent: 'center',
+          alignItems: 'center',
+          position: 'absolute',
+          left: '0',
+          right: '0',
+          zIndex: '1349',
+          width: '100%',
+          height: '100%',
+        }}
+        open={yamlOpen}
+        onClick={handleYamlClose}
+      ></Backdrop>
+      <div
+        style={{
+          position: 'absolute',
+          top: '58px',
+          left: '60px',
+          display: 'flex',
+          flexDirection: 'column',
+        }}
       >
-        {/* ----------------SIDE BAR---------------- */}
-        <Sidebar spacing={0} />
-
-        {/* ----------------MAIN CONTENT---------------- */}
-        <Grid id='main-content' container xs={11} height='85%'>
-          {/* ----------------SELECTION BOXES---------------- */}
-          <Grid
-            id='selections'
-            xs={3}
-            container
-            justifyContent='center'
-            alignContent='flex-start'
+        {/* ---------   ---EASY SETUP COLUMN -------------- */}
+        <div
+          id='selections'
+          style={{
+            width: '225px',
+            justifyContent: 'center',
+            alignContent: 'flex-start',
+          }}
+        >
+          {/* ----------EASY SETUP TITLE ------ */}
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              padding: '8px',
+              width: '100%',
+              borderRadius: '5px',
+              backgroundColor:
+                theme.palette.mode === 'dark' ? '#2a2152' : '#c9c4f9',
+              marginBottom: '20px',
+            }}
           >
-            <Box
-              sx={{
+            <div
+              style={{
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontFamily: 'Outfit',
+                fontSize: '16px',
+                fontWeight: '800',
+                letterSpacing: '1px',
+                color: theme.palette.mode === 'dark' ? 'White' : '#4e50a5',
+              }}
+            >
+              EASY SETUP
+            </div>
+          </div>
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              padding: '15px',
+              width: '100%',
+              borderRadius: '5px',
+              backgroundColor:
+                theme.palette.mode === 'dark' ? '#2a2152' : '#c9c4f9',
+              marginBottom: '22px',
+            }}
+          >
+            {/* --------------------------- IMAGE CREATION SECTION --------------------- */}
+            <div
+              style={{
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
-                padding: '8px',
-                width: '100%',
-                borderRadius: '5px',
-                bgcolor: theme.palette.mode === 'dark' ? '#2a2152' : '#c9c4f9',
-                marginBottom: '20px',
+                color: theme.palette.mode === 'dark' ? '#9e9d9d' : 'black',
+                paddingBottom: '10px',
+                fontSize: '10.5px',
               }}
             >
-              <div
-                style={{
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontFamily: 'Outfit',
-                  fontSize: '16px',
-                  color: theme.palette.mode === 'dark' ? 'White' : '#4e50a5',
-                }}
-              >
-                EASY SETUP
-              </div>
-            </Box>
-            <Box
-              sx={{
+              1. IMPORT IMAGE
+            </div>
+            <div
+              style={{
+                backgroundColor: '#716a8e',
+                width: '90%',
+                height: '1px',
+              }}
+            />
+            <div
+              style={{
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
-                padding: '15px',
-                width: '100%',
-                borderRadius: '5px',
-                bgcolor: theme.palette.mode === 'dark' ? '#2a2152' : '#c9c4f9',
-                marginBottom: '22px',
+                paddingTop: '5px',
+                fontSize: '9px',
               }}
-            >
-              {/* --------------------------- IMAGE CREATION SECTION --------------------- */}
-              <div
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  color: theme.palette.mode === 'dark' ? '#9e9d9d' : 'black',
-                  paddingBottom: '10px',
-                  fontSize: '10.5px',
-                }}
-              >
-                1. IMPORT IMAGE
-              </div>
-              <div
-                style={{
-                  backgroundColor: '#716a8e',
-                  width: '90%',
-                  height: '1px',
-                }}
-              />
-              <div
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  paddingTop: '5px',
-                  fontSize: '9px',
-                }}
-              ></div>
+            ></div>
 
-              <div
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  padding: '10px',
-                  fontSize: '9px',
-                }}
-              >
-                {imgPath}
-              </div>
-              <Box
-                component='form'
-                sx={{
-                  '& > :not(style)': { m: 1, width: '160px' },
-                }}
-                noValidate
-                autoComplete='off'
-              >
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                padding: '10px',
+                fontSize: '9px',
+              }}
+            >
+              {imgPath}
+            </div>
+            <Box
+              sx={{
+                '& > :not(style)': { m: 1, width: '160px' },
+              }}
+            >
+              {' '}
+              <form onSubmit={handleImgUpload}>
                 <TextField
                   id='outlined-basic'
                   label='Enter .IMG'
                   value={imgField}
                   variant='outlined'
-                  // onChange={handleImgField}
-                  onKeyDown={(ev) => {
-                    ev.preventDefault();
-                    if (imgField === 'Enter .IMG') {
-                      setImgField(ev.key);
-                    }
-                    // else if (ev.key === 'Enter') {
-                    //   // Do code here
-                    //   handleImgUpload(ev);
-                    // } else {
-                    //   console.log('imgFIeld is', imgField);
-
-                    //   console.log('imgPath is', imgPath);
-                    //   setImgField(imgField + ev.key);
-                    // }
-                    else {
-                      if (ev.key === 'Enter') {
-                        handleImgUpload(ev);
-                        setImgField(imgField);
-                      } else if (
-                        ev.key === 'Meta' ||
-                        ev.key === 'Alt' ||
-                        ev.key === 'Dead' ||
-                        ev.key === 'ArrowLeft' ||
-                        ev.key === 'ArrowUp' ||
-                        ev.key === 'ArrowDown' ||
-                        ev.key === 'ArrowRight' ||
-                        ev.key === 'Shift'
-                      ) {
-                      } else if (ev.key === 'Backspace') {
-                        setImgField(imgField.slice(0, imgField.length - 1));
-                      } else {
-                        setImgField(imgField + ev.key);
-                      }
-                    }
-                  }}
+                  onChange={(e) => handleImgField(e)}
                 />
-              </Box>
+              </form>
             </Box>
-            {/* ------------------- CHOOSE DIRECTORY SECTION ---------------------------- */}
-            <Box
-              sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                padding: '5px',
-                width: '100%',
-                borderRadius: '5px',
-                bgcolor: theme.palette.mode === 'dark' ? '#2a2152' : '#c9c4f9',
-                marginBottom: '22px',
-              }}
-            >
-              <div
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  color: theme.palette.mode === 'dark' ? '#9e9d9d' : 'black',
-                  paddingBottom: '10px',
-                  fontSize: '10.5px',
-                  marginTop: '10px',
-                }}
-              >
-                2. CHOOSE WORKING DIRECTORY
-              </div>
-              <div
-                style={{
-                  backgroundColor: '#716a8e',
-                  width: '170px',
-                  height: '1px',
-                }}
-              />
-              <div
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  padding: '10px',
-                  fontSize: '9px',
-                }}
-              >
-                {shortDir}
-              </div>
-
-              <Button
-                variant='contained'
-                component='label'
-                style={{
-                  border: '1px solid white',
-                  width: '170px',
-                  marginBottom: '15px',
-                  fontSize: '12px',
-                  backgroundColor:
-                    theme.palette.mode === 'dark' ? '#150f2d' : '#8881ce',
-                }}
-              >
-                CHOOSE DIRECTORY
-                <input
-                  type='file'
-                  // @ts-expect-error
-                  directory=''
-                  webkitdirectory=''
-                  hidden
-                  onChange={handleUploadDirectory}
-                />
-              </Button>
-            </Box>
-            {/* ------------------------- CREATE YAML SECTION  ------------------------------- */}
-            <Box
-              sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                // colored box behind buttons
-                bgcolor: theme.palette.mode === 'dark' ? '#2a2152' : '#c9c4f9',
-                padding: '15px',
-                width: '100%',
-                borderRadius: '5px',
-              }}
-            >
-              <div
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  color: theme.palette.mode === 'dark' ? '#9e9d9d' : 'black',
-                  paddingBottom: '10px',
-                  fontSize: '10.5px',
-                }}
-              >
-                3. CHOOSE/CREATE YAML FILE
-              </div>
-              <div
-                style={{
-                  backgroundColor: '#716a8e',
-                  width: '170px',
-                  height: '1px',
-                }}
-              />
-
-              <Button
-                onClick={handleYamlOpen}
-                style={{
-                  backgroundColor:
-                    theme.palette.mode === 'dark' ? '#150f2d' : '#8881ce',
-                  color: 'white',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  marginTop: '20px',
-                  border: '1px solid white',
-                  width: '170px',
-                  marginBottom: '15px',
-                  fontSize: '12px',
-                }}
-              >
-                Configure .YAML FILE
-              </Button>
-              {/* ----------- Backdrop is greyed out background during popup ----------------- */}
-              <Backdrop
-                style={{
-                  color: '#white',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  position: 'absolute',
-                  left: '0',
-                  right: '0',
-                }}
-                open={yamlOpen}
-                onClick={handleYamlClose}
-              >
-                {/* ------- Paper is modal / popup --------------------------------------- */}
-                <Paper
-                  onClick={handleYamlClose}
-                  style={{
-                    height: '80%',
-                    width: '90%',
-                    backgroundColor: 'white',
-                    overflow: 'scroll',
-                    color: 'black',
-                    paddingLeft: '0px',
-                    zIndex: '1350',
-                    position: 'fixed',
-                    top: '80px',
-                    left: '70px',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                  color='black'
-                >
-                  <div
-                    style={{
-                      width: '900px',
-                      alignItems: 'center',
-                      marginLeft: '40px',
-                      justifyContent: 'center',
-                    }}
-                  >
-                    <div
-                      style={{
-                        font: 'Roboto',
-                        fontSize: '14px',
-                        fontWeight: '900',
-                        width: '100%',
-                        paddingTop: '20px',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        textAlign: 'center',
-                      }}
-                    >
-                      PLEASE USE THE TOOL BELOW TO CREATE YOUR .YAML FILE
-                    </div>
-                    <div
-                      style={{
-                        font: 'Roboto',
-                        fontSize: '14px',
-                        fontWeight: '500',
-                        width: '100%',
-                        paddingBottom: '0px',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        textAlign: 'center',
-                      }}
-                    >
-                      Once you've finished, use the copy clipboard button in the
-                      top right corner. <br />
-                      Then click in the white space on either side to close the
-                      popup, and continue following the instructions in the help
-                      center.
-                    </div>
-
-                    <iframe
-                      id='yaml'
-                      src='https://k8syaml.com'
-                      width='900px'
-                      height='900px'
-                      style={{ alignItems: 'center' }}
-                    ></iframe>
-                  </div>
-                </Paper>
-              </Backdrop>
-            </Box>
-            {/* --------------- STEP 4 INPUT COMMANDS --- TEXT ONLY -- SECTION ---------- */}
-
-            <Box
+          </div>
+          {/* ------------------- CHOOSE DIRECTORY SECTION ---------------------------- */}
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              padding: '5px',
+              width: '100%',
+              borderRadius: '5px',
+              bgcolor: theme.palette.mode === 'dark' ? '#2a2152' : '#c9c4f9',
+              marginBottom: '22px',
+            }}
+          >
+            <div
               style={{
-                paddingTop: '24px',
-                paddingLeft: '15px',
-                fontSize: '16px',
                 display: 'flex',
+                flexDirection: 'column',
                 alignItems: 'center',
-                justifyContent: 'center',
+                color: theme.palette.mode === 'dark' ? '#9e9d9d' : 'black',
+                paddingBottom: '10px',
+                fontSize: '10.5px',
+                marginTop: '10px',
               }}
-              width='100%'
             >
-              <div
+              2. CHOOSE WORKING DIRECTORY
+            </div>
+            <div
+              style={{
+                backgroundColor: '#716a8e',
+                width: '170px',
+                height: '1px',
+              }}
+            />
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                padding: '10px',
+                fontSize: '9px',
+              }}
+            >
+              {shortDir}
+            </div>
+
+            <Button
+              variant='contained'
+              component='label'
+              style={{
+                border: '1px solid white',
+                width: '170px',
+                marginBottom: '15px',
+                fontSize: '12px',
+                backgroundColor:
+                  theme.palette.mode === 'dark' ? '#150f2d' : '#8881ce',
+              }}
+            >
+              CHOOSE DIRECTORY
+              <input
+                type='file'
+                // @ts-expect-error
+                directory=''
+                webkitdirectory=''
+                hidden
+                onChange={handleUploadDirectory}
+              />
+            </Button>
+          </Box>
+          {/* ------------------------- CREATE YAML SECTION  ------------------------------- */}
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              // colored box behind buttons
+              bgcolor: theme.palette.mode === 'dark' ? '#2a2152' : '#c9c4f9',
+              padding: '15px',
+              width: '100%',
+              borderRadius: '5px',
+            }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                color: theme.palette.mode === 'dark' ? '#9e9d9d' : 'black',
+                paddingBottom: '10px',
+                fontSize: '10.5px',
+              }}
+            >
+              3. CHOOSE/CREATE YAML FILE
+            </div>
+            <div
+              style={{
+                backgroundColor: '#716a8e',
+                width: '170px',
+                height: '1px',
+              }}
+            />
+
+            <Button
+              onClick={handleYamlOpen}
+              style={{
+                backgroundColor:
+                  theme.palette.mode === 'dark' ? '#150f2d' : '#8881ce',
+                color: 'white',
+                justifyContent: 'center',
+                alignItems: 'center',
+                marginTop: '20px',
+                border: '1px solid white',
+                width: '170px',
+                marginBottom: '15px',
+                fontSize: '12px',
+              }}
+            >
+              Configure .YAML FILE
+            </Button>
+            {/* ----------- Backdrop is greyed out background during popup ----------------- */}
+            <Backdrop
+              style={{
+                color: 'black',
+                justifyContent: 'center',
+                alignItems: 'center',
+                position: 'absolute',
+                left: '0',
+                right: '0',
+                zIndex: '1349',
+                width: '100%',
+                height: '100%',
+              }}
+              open={yamlOpen}
+              onClick={handleYamlClose}
+            >
+              {/* ------- Paper is modal / popup --------------------------------------- */}
+              <Paper
+                onClick={handleYamlClose}
                 style={{
-                  display: 'flex',
-                  justifyContent: 'center',
+                  height: '80%',
+                  width: '87%',
+                  backgroundColor: 'white',
+                  overflow: 'scroll',
+                  color: 'black',
+                  paddingLeft: '-10px',
+                  zIndex: '1350',
+                  position: 'fixed',
+                  top: '80px',
+                  left: '65px',
                   alignItems: 'center',
+                  justifyContent: 'center',
                 }}
+                color='black'
               >
                 <div
                   style={{
-                    justifyContent: 'center',
+                    width: '900px',
                     alignItems: 'center',
-                    fontFamily: 'Outfit',
-                    color: theme.palette.mode === 'dark' ? 'White' : '#4e50a5',
+                    marginLeft: '25px',
+                    justifyContent: 'center',
                   }}
                 >
-                  INPUT COMMANDS
+                  <div
+                    style={{
+                      fontFamily: 'Outfit',
+                      fontSize: '20px',
+                      fontWeight: '900',
+                      width: '100%',
+                      paddingTop: '20px',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      textAlign: 'center',
+                      color: '#6466b2',
+                    }}
+                  >
+                    PLEASE USE THE TOOL BELOW TO CREATE YOUR .YAML FILE
+                  </div>
+                  <div
+                    style={{
+                      font: 'Roboto',
+                      fontSize: '14px',
+                      fontWeight: '500',
+                      width: '100%',
+                      paddingBottom: '15px',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      textAlign: 'center',
+                      color: 'grey',
+                    }}
+                  >
+                    Once you've finished, use the copy clipboard button in the
+                    top right corner. <br />
+                    Then click in the blank space on either side of the popup to
+                    close it, and continue following the instructions in the
+                    learning center.
+                  </div>
+
+                  <iframe
+                    id='yaml'
+                    src='https://k8syaml.com'
+                    width='900px'
+                    height='900px'
+                    style={{ alignItems: 'center' }}
+                  ></iframe>
                 </div>
-                <EastIcon
-                  style={{
-                    marginLeft: '5px',
-                    height: '30px',
-                    color: theme.palette.mode === 'dark' ? 'White' : '#4e50a5',
-                  }}
-                />
+              </Paper>
+            </Backdrop>
+          </Box>
+          {/* --------------- STEP 4 INPUT COMMANDS --- TEXT ONLY -- SECTION ---------- */}
+        </div>
+      </div>
+      {/* ------------------ START OF TERMINAL COLUMN-------- */}
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          margin: '58px 25px 0 0',
+          paddingBottom: '0px',
+          justifyContent: 'flex-start',
+          alignItems: 'flex-start',
+          alignContent: 'flex-start',
+          width: '99%',
+        }}
+      >
+        <div
+          style={{
+            height: '56vh',
+            width: '70%',
+            marginBottom: '20px',
+            marginLeft: '310px',
+          }}
+        >
+          <Terminal response={response} />
+        </div>
+        <div
+          style={{
+            // border: '1px solid',
+            borderRadius: '3px',
+            // background:
+            //   theme.palette.mode === 'dark' ? '#0e0727' : '#e6e1fb',
+            // border: '2px solid #c6bebe',
+            height: '60px',
+            width: '70.5%',
+            marginTop: '00px',
+            marginBottom: '15px',
+            marginLeft: '310px',
+            marginRight: '0px',
+            fontFamily: 'monospace',
+            padding: '0px',
+            zIndex: '100',
+          }}
+        >
+          <CommandLine
+            handleSubmit={handleSubmit}
+            setUserInput={setUserInput}
+            setVerb={setVerb}
+            setType={setType}
+            setName={setName}
+            setFlags={setFlags}
+            userInput={userInput}
+            command={command}
+            setCommand={setCommand}
+            border='0px transparent'
+          />
+        </div>
+
+        {/* ----------------INPUTS SECTION---------------- */}
+
+        <div
+          id='inputs'
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
+            width: '98.5%',
+            justifyContent: 'space-around',
+            alignItems: 'center',
+          }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              marginLeft: '50px',
+              marginRight: '10px',
+              width: '355px',
+            }}
+          >
+            <div
+              style={{
+                justifyContent: 'center',
+                alignItems: 'start',
+                fontFamily: 'Outfit',
+                fontSize: '19px',
+                color: theme.palette.mode === 'dark' ? 'White' : '#4e50a5',
+              }}
+            >
+              INPUT COMMANDS
+            </div>
+            <EastIcon
+              style={{
+                marginLeft: '5px',
+                height: '30px',
+                color: theme.palette.mode === 'dark' ? 'White' : '#4e50a5',
+              }}
+            />
+          </div>
+          <LightTooltip
+            title='If using kubectl commands, keep this on. If using other or global commands, turn this off.'
+            placement='bottom'
+            arrow
+            enterDelay={1800}
+            leaveDelay={100}
+            enterNextDelay={3000}
+          >
+            <div
+              id='k8tool'
+              style={k8toolStyle}
+              onMouseEnter={toggleK8ToolHover}
+              onMouseLeave={toggleK8ToolHover}
+            >
+              <div
+                onClick={() => {
+                  if (tool === 'kubectl') {
+                    setTool('');
+                    setChecked(!checked);
+                  } else setTool('kubectl');
+                  setChecked(!checked);
+                }}
+                style={{
+                  padding: '0px 4px 0 6px',
+                  fontSize: '15px',
+                  fontFamily: 'Roboto',
+                  color:
+                    theme.palette.mode === 'dark' && k8tool === 'ON'
+                      ? 'white'
+                      : theme.palette.mode === 'dark' && k8tool === 'OFF'
+                      ? '#ffffff99'
+                      : theme.palette.mode === 'light' && k8tool === 'ON'
+                      ? '#3f42c3'
+                      : '#00000082',
+                  letterSpacing: '-.2px',
+                  WebkitUserSelect: 'none' /* Safari */,
+                  MozUserSelect: 'none' /* Firefox */,
+                  msUserSelect: 'none' /* IE10+/Edge */,
+                  userSelect: 'none',
+                  width: '55px',
+                }}
+              >
+                kubectl
               </div>
-            </Box>
-          </Grid>
+              <Switch
+                size='small'
+                checked={checked}
+                onChange={handleK8ToolChange}
+                inputProps={{ 'aria-label': 'controlled' }}
+              />
+              <div
+                onClick={() => {
+                  if (tool === 'kubectl') {
+                    setTool('');
+                    setChecked(!checked);
+                  } else setTool('kubectl');
+                  setChecked(!checked);
+                }}
+                style={{
+                  padding:
+                    k8tool === 'OFF' ? '4.5px 6px 0 1px' : '4.5px 9px 0 2px',
+                  fontSize: '10px',
+                  color:
+                    k8tool === 'OFF' && theme.palette.mode === 'light'
+                      ? 'grey'
+                      : k8tool === 'ON' && theme.palette.mode === 'light'
+                      ? ''
+                      : k8tool === 'OFF' && theme.palette.mode === 'dark'
+                      ? '#ffffff99'
+                      : '',
+                  WebkitUserSelect: 'none' /* Safari */,
+                  MozUserSelect: 'none' /* Firefox */,
+                  msUserSelect: 'none' /* IE10+/Edge */,
+                  userSelect: 'none',
+                }}
+              >
+                {k8tool}
+              </div>
+            </div>
+          </LightTooltip>
+          <div id='commands' style={{ width: '25%', margin: '0 5px 0 5px' }}>
+            <Autocomplete
+              disablePortal
+              id='combo-box-demo'
+              options={options.sort(
+                (a, b) => -b.firstLetter.localeCompare(a.firstLetter)
+              )}
+              groupBy={(option) => option.category}
+              getOptionLabel={(option) => option.title}
+              onInputChange={(e, newInputValue) => {
+                console.log('newInputValue is', newInputValue);
+                setVerb(newInputValue);
+                const newCommand = verb + ' ' + type + ' ' + name;
+                setCommand(newCommand);
+                setHelpList([newInputValue, type]);
+                // setCommand(newInputValue);
+              }}
+              renderInput={(params) => (
+                <TextField {...params} label='Commands' />
+              )}
+              renderGroup={(params) => (
+                <li
+                  style={{
+                    color: '#ffffff',
+                    fontSize: '13px',
+                  }}
+                  key={params.key}
+                >
+                  <BeginnerHeader
+                    style={{
+                      color: '#ffffff',
+                      fontSize: '14px',
+                    }}
+                  >
+                    {params.group}
+                  </BeginnerHeader>
+                  <GroupItems
+                    style={{
+                      color: '#ffffff',
+                      fontSize: '14px',
+                    }}
+                  >
+                    {params.children}
+                  </GroupItems>
+                </li>
+              )}
+            />
+          </div>
 
-          {/* ----------------TERMINAL CLI---------------- */}
+          {/* ---------------- TYPES FIELD ------------------------------------- */}
 
+          <div id='types' style={{ width: '18%' }}>
+            <Autocomplete
+              disablePortal
+              // classes={{
+              //   option: classes.option,
+              // }}
+              // sx={{
+              //   '& .MuiAutocomplete-input, & .MuiAutocomplete-root, & .MuiAutocomplete-popper, & .MuiAutocomplete-paper, & .Mui-expanded, & .MuiAutocomplete-groupUl, & .MuiAutocomplete-inputFocused, & .MuiAutocomplete-option, & .MuiAutocomplete-noOptions, & .MuiAutocomplete-listbox,  & .MuiAutocomplete-popupIndicatorOpen, & .MuiAutocomplete-inputFocused, & .MuiAutocomplete-input, & .MuiAutocomplete-inputRoot, & .MuiAutocomplete-hasPopupIcon, & .MuiAutocomplete-tag, & .MuiAutocomplete-loading, & .MuiAutocomplete-popperDisablePortal':
+              //     {
+              //       backgroundColor: 'blue',
+              //     },
+              // }}
+              componentsProps={{
+                paper: { sx: { backgroundColor: '#5c4d9a', color: 'white' } }, // or static color like "#293346"
+              }}
+              id='combo-box-demo'
+              options={types}
+              onInputChange={(e, newInputValue) => {
+                setHelpList([verb, newInputValue]);
+                setType(newInputValue);
+                // setHelpList([verb, newInputValue]);
+                console.log('helplist is', helpList);
+                console.log('verb is', verb);
+                console.log('type is', type);
+              }}
+              renderInput={(params) => <TextField {...params} label='Types' />}
+            />
+          </div>
+
+          {/* ---------------- NAMES FIELD ------------------------------------- */}
+
+          <div id='name' style={{ width: '24%', margin: '0 5px 0 5px' }}>
+            <form
+              onChange={handleNameChange}
+              onSubmit={(e) => {
+                e.preventDefault();
+              }}
+            >
+              <TextField
+                id='outlined-basic'
+                label='Name'
+                variant='outlined'
+                style={{ width: '100%' }}
+              />
+            </form>
+          </div>
+
+          {/* ---------------- FLAGS DROPDOWN ------------------------------------- */}
+
+          <div id='flag' style={{ width: '15%', marginLeft: '0px' }}>
+            <FormControl fullWidth>
+              <InputLabel id='flag-label'>Flags</InputLabel>
+              <Select
+                labelId='flag-label'
+                id='flag-label'
+                multiple
+                value={flags}
+                onChange={handleFlags}
+                input={<OutlinedInput label='Flags' />}
+                renderValue={(selected) => selected.join(', ')}
+              >
+                {flagList.map((name) => (
+                  <MenuItem
+                    key={name}
+                    value={name}
+                    style={{
+                      backgroundColor: '#5c4d9a',
+                      color: 'white',
+                    }}
+                  >
+                    <Checkbox checked={flags.indexOf(name) > -1} />
+                    <ListItemText
+                      primary={name}
+                      style={{
+                        color: '#ffffff',
+                      }}
+                    />
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </div>
+        </div>
+        {/* ------ INSTANT HELP SECTION ----- */}
+
+        <div
+          style={{
+            position: 'absolute',
+            left: '60px',
+            bottom: '22px',
+            display: 'flex',
+            flexDirection: 'column',
+            height: '105px',
+            width: '43%',
+            backgroundColor:
+              theme.palette.mode === 'dark' ? '#2f2f6d' : '#e1dbfe',
+            // marginLeft: '0px',
+            // marginTop: '25px',
+            borderRadius: '3px',
+            textAlign: 'center',
+            padding: '5px 0 0 0px',
+            margin: '5px 0 0 0px',
+            fontFamily: 'Outfit',
+            fontWeight: '900',
+            letterSpacing: '1px',
+            alignItems: 'flex-start',
+            fontSize: '18px',
+            color: theme.palette.mode === 'dark' ? 'white' : '#4e50a5',
+          }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'row',
+              borderBottom: '.5px solid white',
+              padding: '0 0 10px 14px',
+              width: '100%',
+              height: '33px',
+            }}
+          >
+            LEARNING CENTER:
+            <div
+              style={{
+                fontSize: '9px',
+                fontFamily: 'Roboto',
+                fontWeight: '400',
+                width: '50%',
+                margin: '0 2% 0 5%',
+                lineHeight: '13px',
+              }}
+            >
+              <em>
+                CLICK ON ANY LINK BELOW FOR TUTORIALS AND LEARNING RESOURCES
+              </em>
+            </div>
+          </div>
+          <div
+            style={{
+              overflow: 'scroll',
+              overflowX: 'hidden',
+              width: '100%',
+              height: '100%',
+              alignItems: 'start',
+            }}
+          >
+            {' '}
+            <div
+              style={{
+                display: 'flex',
+                padding: '1px 10px 0px 5px',
+                flexDirection: 'row',
+                justifyContent: 'center',
+                alignItems: 'center',
+                backgroundColor:
+                  theme.palette.mode === 'dark' ? '#22225a' : '#c8bef7',
+              }}
+            >
+              <div
+                style={{
+                  fontSize: '11px',
+                  fontFamily: 'Roboto',
+                  fontWeight: '400',
+                  height: '18px',
+                }}
+              >
+                <a
+                  href='https://kubernetes.io/docs/tutorials/hello-minikube/'
+                  target='blank'
+                >
+                  MINIKUBE TUTORIAL (Ideal for first timers)
+                </a>
+              </div>
+              <div style={{ marginLeft: '68px', justifyContent: 'flex-end' }}>
+                <StarIcon fontSize='small' /> <StarIcon fontSize='small' />{' '}
+                <StarIcon fontSize='small' /> <StarIcon fontSize='small' />{' '}
+                <StarIcon fontSize='small' />
+              </div>
+            </div>
+            <div
+              style={{
+                display: 'flex',
+                padding: '0px 10px 0px 5px',
+                flexDirection: 'row',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+            >
+              <div
+                style={{
+                  fontSize: '11px',
+                  fontFamily: 'Roboto',
+                  fontWeight: '400',
+                  height: '18px',
+                }}
+              >
+                <a
+                  href='https://www.youtube.com/watch?v=s_o8dwzRlu4&themeRefresh=1'
+                  target='blank'
+                >
+                  CRASH COURSE FOR BEGINNERS (1-hour)
+                </a>
+              </div>
+              <div style={{ marginLeft: '80px', justifyContent: 'flex-end' }}>
+                <StarIcon fontSize='small' /> <StarIcon fontSize='small' />{' '}
+                <StarIcon fontSize='small' /> <StarIcon fontSize='small' />{' '}
+                <StarIcon fontSize='small' />
+              </div>
+            </div>
+            <div
+              style={{
+                display: 'flex',
+                padding: '0px 10px 0px 5px',
+                flexDirection: 'row',
+                justifyContent: 'center',
+                alignItems: 'center',
+                backgroundColor:
+                  theme.palette.mode === 'dark' ? '#22225a' : '#c8bef7',
+              }}
+            >
+              <div
+                style={{
+                  fontSize: '11px',
+                  fontFamily: 'Roboto',
+                  fontWeight: '400',
+                  height: '18px',
+                }}
+              >
+                <a
+                  href='https://www.youtube.com/watch?v=d6WC5n9G_sM'
+                  target='blank'
+                >
+                  FULL BEGINNERS TUTORIAL (3-hours)
+                </a>
+              </div>
+              <div style={{ marginLeft: '100px', justifyContent: 'flex-end' }}>
+                <StarIcon fontSize='small' /> <StarIcon fontSize='small' />{' '}
+                <StarIcon fontSize='small' /> <StarIcon fontSize='small' />{' '}
+                <StarIcon fontSize='small' />
+              </div>
+            </div>
+            <div
+              style={{
+                display: 'flex',
+                padding: '0px 10px 0px 5px',
+                flexDirection: 'row',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+            >
+              <div
+                style={{
+                  fontSize: '11px',
+                  fontFamily: 'Roboto',
+                  fontWeight: '400',
+                  height: '18px',
+                }}
+              >
+                <a
+                  href='https://kubernetes.io/docs/tutorials/kubernetes-basics/'
+                  target='blank'
+                >
+                  LEARN KUBERNETES BASICS (kubernetes.io)
+                </a>
+              </div>
+              <div style={{ marginLeft: '61px', justifyContent: 'flex-end' }}>
+                <StarIcon fontSize='small' /> <StarIcon fontSize='small' />{' '}
+                <StarIcon fontSize='small' /> <StarIcon fontSize='small' />{' '}
+                <StarOutlineIcon fontSize='small' />
+              </div>
+            </div>
+            <div
+              style={{
+                display: 'flex',
+                padding: '0px 10px 0px 5px',
+                flexDirection: 'row',
+                justifyContent: 'center',
+                alignItems: 'center',
+                backgroundColor:
+                  theme.palette.mode === 'dark' ? '#22225a' : '#c8bef7',
+              }}
+            >
+              <div
+                style={{
+                  fontSize: '11px',
+                  fontFamily: 'Roboto',
+                  fontWeight: '400',
+                  height: '18px',
+                }}
+              >
+                <a href='https://kubernetes.io/docs/tutorials/' target='blank'>
+                  MISC. KUBERNETES TUTORIALS (kubernetes.io)
+                </a>
+              </div>
+              <div style={{ marginLeft: '43px', justifyContent: 'flex-end' }}>
+                <StarIcon fontSize='small' /> <StarIcon fontSize='small' />{' '}
+                <StarIcon fontSize='small' /> <StarIcon fontSize='small' />{' '}
+                <StarOutlineIcon fontSize='small' />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div></div>
+
+        <div
+          style={{
+            position: 'absolute',
+            left: '50%',
+            bottom: '22px',
+            display: 'flex',
+            flexDirection: 'column',
+            height: '105px',
+            width: '47.5%',
+            backgroundColor:
+              theme.palette.mode === 'dark' ? '#2f2f6d' : '#e1dbfe',
+            marginLeft: '0px',
+            marginTop: '25px',
+            borderRadius: '3px',
+            textAlign: 'center',
+            padding: '5px 0 0 0',
+            fontFamily: 'Outfit',
+            fontWeight: '900',
+            letterSpacing: '1px',
+            alignItems: 'center',
+            fontSize: '16px',
+            color: theme.palette.mode === 'dark' ? 'white' : '#4e50a5',
+          }}
+        >
+          {' '}
+          <div
+            style={{
+              display: 'flex',
+              marginTop: '2px',
+              alignItems: 'center',
+            }}
+          >
+            {' '}
+            <BoltIcon />
+            <div style={{ width: '5px' }} />
+            <div style={{}}>INSTANT HELP DESK</div>
+            <div style={{ width: '5px' }} />
+            <BoltIcon />
+          </div>
+          <div
+            style={{
+              fontFamily: 'Roboto',
+              fontWeight: '400',
+              fontSize: '9.5px',
+              letterSpacing: '.6px',
+              margin: '4px 0 2px 0',
+            }}
+          >
+            <em>
+              CHOOSE ANY "COMMAND" OR "TYPE" THEN CLICK BELOW TO SEE
+              DOCUMENTATION AND HELP INFO
+            </em>
+          </div>
+          <div style={{ display: 'flex', paddingRight: '10px' }}>
+            <Button
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                // backgroundColor: '#a494d7',
+                margin: '5px 0px 5px 0',
+                // color: 'white',
+                fontFamily: 'Outfit',
+                fontSize: '16px',
+              }}
+              onClick={handleCommandOpen}
+            >
+              {verb}
+            </Button>
+            <Modal
+              open={openCommand}
+              onClose={handleCommandClose}
+              style={{ overflow: 'scroll', height: '100%' }}
+              aria-labelledby='modal-modal-title'
+              aria-describedby='modal-modal-description'
+            >
+              <Box sx={style}>
+                <Typography
+                  id='modal-modal-title'
+                  // variant='h6'
+                  // component='h2'
+                ></Typography>
+                <Typography
+                  id='modal-modal-description'
+                  style={{
+                    top: '0',
+                    left: '0',
+                    overflow: 'auto',
+                    height: '100%',
+                    width: '100%',
+                    paddingLeft: '20px',
+                    zIndex: '1350',
+                  }}
+                  sx={{ mt: 0 }}
+                >
+                  <pre
+                    style={{
+                      fontFamily: 'Outfit,monospace',
+                      fontSize: '24px',
+                      overflow: 'auto',
+                    }}
+                  >
+                    Kubetcl{'  '}
+                    <strong style={{ fontSize: '38px' }}>{verb}</strong> :
+                  </pre>
+                  <pre
+                    style={{
+                      fontSize: '14px',
+                      overflow: 'auto',
+                    }}
+                  >
+                    {helpDesk[`${verb}`]}
+                  </pre>
+                </Typography>
+              </Box>
+            </Modal>
+
+            <Button
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                // backgroundColor: '#a494d7',
+                margin: '5px 0px 5px 0',
+                // color: 'white',
+                fontFamily: 'Outfit',
+                fontSize: '16px',
+              }}
+              onClick={handleTypeOpen}
+            >
+              {type}
+            </Button>
+            <Modal
+              open={openType}
+              onClose={handleTypeClose}
+              aria-labelledby='modal-modal-title'
+              aria-describedby='modal-modal-description'
+            >
+              <Box sx={style}>
+                <Typography
+                  id='modal-modal-title'
+                  // variant='h6'
+                  // component='h2'
+                ></Typography>
+                <Typography
+                  id='modal-modal-description'
+                  style={{
+                    top: '0',
+                    left: '0',
+                    overflow: 'auto',
+                    height: '100%',
+                    width: '100%',
+                    paddingLeft: '20px',
+                    zIndex: '1350',
+                  }}
+                  sx={{ mt: 0 }}
+                >
+                  <pre
+                    style={{
+                      fontFamily: 'Outfit,monospace',
+                      fontSize: '24px',
+                      overflow: 'auto',
+                    }}
+                  >
+                    Kubetcl Type: {'  '}
+                    <strong style={{ fontSize: '38px' }}>{type}</strong>
+                  </pre>
+                  <pre
+                    style={{
+                      fontSize: '14px',
+                      overflow: 'auto',
+                    }}
+                  >
+                    {helpDesk[`${type}`]}
+                  </pre>
+                </Typography>
+              </Box>
+            </Modal>
+          </div>
+        </div>
+      </div>
+      {/* ----- END OF EASY SETUP COLUMN ------ */}
+
+      {/* ----------------TERMINAL CLI COLUMN---------------- */}
+      {/* 
           <Grid
             id='terminal-cli'
             xs={9}
@@ -691,394 +1356,10 @@ function Setup() {
             justifyContent='center'
             alignContent='start'
             style={{ height: '715px' }}
-          >
-            {/* ----------------TERMINAL---------------- */}
-            <Terminal response={response} />
+          > */}
+      {/* ----------------TERMINAL---------------- */}
 
-            {/* ----------------COMMAND LINE---------------- */}
-            <div
-              style={{
-                // border: '1px solid',
-                borderRadius: '3px',
-                // background:
-                //   theme.palette.mode === 'dark' ? '#0e0727' : '#e6e1fb',
-                // border: '2px solid #c6bebe',
-                height: '60px',
-                width: 'auto',
-                marginTop: '20px',
-                marginBottom: '30px',
-                marginLeft: '5px',
-                fontFamily: 'monospace',
-                padding: '5px',
-                zIndex: '100',
-                alignContent: 'start',
-              }}
-            >
-              <CommandLine
-                width='100%'
-                handleSubmit={handleSubmit}
-                setUserInput={setUserInput}
-                userInput={userInput}
-                command={command}
-                border='0px transparent'
-              />
-            </div>
-
-            {/* ----------------INPUT SECTION---------------- */}
-            <Grid
-              id='inputs'
-              container
-              width='95%'
-              justifyContent='space-around'
-              alignItems='center'
-            >
-              <LightTooltip
-                title='If using kubectl commands, keep this on. If using global commands, turn this off.'
-                placement='top'
-                arrow
-                enterDelay={2000}
-                leaveDelay={100}
-                enterNextDelay={2000}
-              >
-                <div
-                  id='k8tool'
-                  style={k8toolStyle}
-                  onMouseEnter={toggleK8ToolHover}
-                  onMouseLeave={toggleK8ToolHover}
-                >
-                  <div
-                    style={{
-                      padding: '0px 4px 0 6px',
-                      fontSize: '15px',
-                      color:
-                        theme.palette.mode === 'dark' && k8tool === 'ON'
-                          ? 'white'
-                          : theme.palette.mode === 'dark' && k8tool === 'OFF'
-                          ? '#ffffff99'
-                          : theme.palette.mode === 'light' && k8tool === 'ON'
-                          ? '#3f42c3'
-                          : '#00000082',
-                      letterSpacing: '-.2px',
-                    }}
-                  >
-                    kubectl
-                  </div>
-                  <Switch
-                    size='small'
-                    checked={checked}
-                    onChange={handleK8ToolChange}
-                    inputProps={{ 'aria-label': 'controlled' }}
-                  />
-                  <div
-                    style={{
-                      padding: '4.5px 1px 0 1px',
-                      fontSize: '10px',
-                      color:
-                        k8tool === 'OFF' && theme.palette.mode === 'light'
-                          ? 'grey'
-                          : k8tool === 'ON' && theme.palette.mode === 'light'
-                          ? ''
-                          : k8tool === 'OFF' && theme.palette.mode === 'dark'
-                          ? '#ffffff99'
-                          : '',
-                    }}
-                  >
-                    {k8tool}
-                  </div>
-                </div>
-              </LightTooltip>
-              <Grid id='commands' xs={3}>
-                <Autocomplete
-                  disablePortal
-                  id='combo-box-demo'
-                  options={options.sort(
-                    (a, b) => -b.firstLetter.localeCompare(a.firstLetter)
-                  )}
-                  groupBy={(option) => option.category}
-                  getOptionLabel={(option) => option.title}
-                  onInputChange={(e, newInputValue) => {
-                    console.log('newInputValue is', newInputValue);
-                    setVerb(newInputValue);
-                    const newCommand = verb + ' ' + type + ' ' + name;
-                    setCommand(newCommand);
-                    setHelpList([newInputValue, type]);
-                    // setCommand(newInputValue);
-                  }}
-                  renderInput={(params) => (
-                    <TextField {...params} label='Commands' />
-                  )}
-                  renderGroup={(params) => (
-                    <li
-                      style={{
-                        color: '#ffffff',
-                        fontSize: '13px',
-                      }}
-                      key={params.key}
-                    >
-                      <BeginnerHeader
-                        style={{
-                          color: '#ffffff',
-                          fontSize: '14px',
-                        }}
-                      >
-                        {params.group}
-                      </BeginnerHeader>
-                      <GroupItems
-                        style={{
-                          color: '#ffffff',
-                          fontSize: '14px',
-                        }}
-                      >
-                        {params.children}
-                      </GroupItems>
-                    </li>
-                  )}
-                />
-              </Grid>
-
-              {/* ---------------- TYPES FIELD ------------------------------------- */}
-
-              <Grid id='types' xs={2.5}>
-                <Autocomplete
-                  disablePortal
-                  id='combo-box-demo'
-                  options={types}
-                  onInputChange={(e, newInputValue) => {
-                    setHelpList([verb, newInputValue]);
-                    setType(newInputValue);
-                    // setHelpList([verb, newInputValue]);
-                    console.log('helplist is', helpList);
-                    console.log('verb is', verb);
-                    console.log('type is', type);
-                  }}
-                  renderInput={(params) => (
-                    <TextField {...params} label='Types' />
-                  )}
-                />
-              </Grid>
-
-              {/* ---------------- NAMES FIELD ------------------------------------- */}
-
-              <Grid id='name' xs={2.5}>
-                <form
-                  onChange={handleNameChange}
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                  }}
-                >
-                  <TextField
-                    id='outlined-basic'
-                    label='Name'
-                    variant='outlined'
-                  />
-                </form>
-              </Grid>
-
-              {/* ---------------- FLAGS DROPDOWN ------------------------------------- */}
-
-              <Grid id='flag' xs={1.5}>
-                <FormControl fullWidth>
-                  <InputLabel id='flag-label'>Flags</InputLabel>
-                  <Select
-                    labelId='flag-label'
-                    id='flag-label'
-                    multiple
-                    value={flags}
-                    onChange={handleFlags}
-                    input={<OutlinedInput label='Flags' />}
-                    renderValue={(selected) => selected.join(', ')}
-                  >
-                    {flagList.map((name) => (
-                      <MenuItem key={name} value={name}>
-                        <Checkbox checked={flags.indexOf(name) > -1} />
-                        <ListItemText primary={name} />
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-            </Grid>
-          </Grid>
-          <div
-            style={{
-              position: 'absolute',
-              left: '58px',
-              top: '650px',
-              display: 'flex',
-              flexDirection: 'column',
-              height: '100px',
-              width: '86%',
-              backgroundColor:
-                theme.palette.mode === 'dark' ? '#2f2f6d' : '#e1dbfe',
-              marginLeft: '0px',
-              marginTop: '25px',
-              borderRadius: '3px',
-              textAlign: 'center',
-              padding: '5px 0 0 0',
-              fontFamily: 'Outfit',
-              fontWeight: '900',
-              letterSpacing: '1px',
-              alignItems: 'center',
-              fontSize: '16px',
-              color: theme.palette.mode === 'dark' ? 'white' : '#4e50a5',
-            }}
-          >
-            {' '}
-            <div
-              style={{
-                display: 'flex',
-                marginTop: '2px',
-                alignItems: 'center',
-              }}
-            >
-              {' '}
-              <BoltIcon />
-              <div style={{ width: '5px' }} />
-              <div style={{}}>INSTANT HELP DESK</div>
-              <div style={{ width: '5px' }} />
-              <BoltIcon />
-            </div>
-            <div
-              style={{
-                fontFamily: 'Roboto',
-                fontWeight: '400',
-                fontSize: '10px',
-                letterSpacing: '.6px',
-                margin: '6px 0 0 0',
-              }}
-            >
-              <em>
-                CHOOSE ANY "COMMAND" OR "TYPE" THEN CLICK BELOW TO SEE
-                DOCUMENTATION AND HELP INFO
-              </em>
-            </div>
-            <div style={{ display: 'flex', paddingRight: '10px' }}>
-              <Button
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  // backgroundColor: '#a494d7',
-                  margin: '2px 0px 0 0',
-                  // color: 'white',
-                  fontFamily: 'Outfit',
-                  fontSize: '16px',
-                }}
-                onClick={handleCommandOpen}
-              >
-                {verb}
-              </Button>
-              <Modal
-                open={openCommand}
-                onClose={handleCommandClose}
-                style={{ overflow: 'scroll', height: '100%' }}
-                aria-labelledby='modal-modal-title'
-                aria-describedby='modal-modal-description'
-              >
-                <Box sx={style}>
-                  <Typography
-                    id='modal-modal-title'
-                    // variant='h6'
-                    // component='h2'
-                  ></Typography>
-                  <Typography
-                    id='modal-modal-description'
-                    style={{
-                      top: '0',
-                      left: '0',
-                      overflow: 'auto',
-                      height: '100%',
-                      width: '100%',
-                      paddingLeft: '20px',
-                      zIndex: '1350',
-                    }}
-                    sx={{ mt: 0 }}
-                  >
-                    <pre
-                      style={{
-                        fontFamily: 'Outfit,monospace',
-                        fontSize: '24px',
-                        overflow: 'auto',
-                      }}
-                    >
-                      Kubetcl{'  '}
-                      <strong style={{ fontSize: '38px' }}>{verb}</strong> :
-                    </pre>
-                    <pre
-                      style={{
-                        fontSize: '14px',
-                        overflow: 'auto',
-                      }}
-                    >
-                      {helpDesk[`${verb}`]}
-                    </pre>
-                  </Typography>
-                </Box>
-              </Modal>
-
-              <Button
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  // backgroundColor: '#a494d7',
-                  margin: '2px 0px 0 0',
-                  // color: 'white',
-                  fontFamily: 'Outfit',
-                  fontSize: '16px',
-                }}
-                onClick={handleTypeOpen}
-              >
-                {type}
-              </Button>
-              <Modal
-                open={openType}
-                onClose={handleTypeClose}
-                aria-labelledby='modal-modal-title'
-                aria-describedby='modal-modal-description'
-              >
-                <Box sx={style}>
-                  <Typography
-                    id='modal-modal-title'
-                    // variant='h6'
-                    // component='h2'
-                  ></Typography>
-                  <Typography
-                    id='modal-modal-description'
-                    style={{
-                      top: '0',
-                      left: '0',
-                      overflow: 'auto',
-                      height: '100%',
-                      width: '100%',
-                      paddingLeft: '20px',
-                      zIndex: '1350',
-                    }}
-                    sx={{ mt: 0 }}
-                  >
-                    <pre
-                      style={{
-                        fontFamily: 'Outfit,monospace',
-                        fontSize: '24px',
-                        overflow: 'auto',
-                      }}
-                    >
-                      Kubetcl Type: {'  '}
-                      <strong style={{ fontSize: '38px' }}>{type}</strong>
-                    </pre>
-                    <pre
-                      style={{
-                        fontSize: '14px',
-                        overflow: 'auto',
-                      }}
-                    >
-                      {helpDesk[`${type}`]}
-                    </pre>
-                  </Typography>
-                </Box>
-              </Modal>
-            </div>
-          </div>
-        </Grid>
-      </Grid>
+      {/* ----------------COMMAND LINE---------------- */}
     </>
   );
 }

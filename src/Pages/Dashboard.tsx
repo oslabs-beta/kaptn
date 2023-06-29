@@ -15,7 +15,7 @@ import {
   Typography,
 } from '@mui/material';
 import Grid from '@mui/system/Unstable_Grid';
-import SideNav from '../components/Sidebar2.jsx';
+import SideNav from '../components/Sidebar.jsx';
 import CommandLine from '../components/CommandLine.jsx';
 import Terminal from '../components/Terminal.jsx';
 const { ipcRenderer } = require('electron');

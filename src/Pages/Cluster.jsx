@@ -5,7 +5,7 @@ import { Box } from '@mui/system';
 import { Typography, useTheme } from '@mui/material';
 const { ipcRenderer } = require('electron');
 import Grid from '@mui/system/Unstable_Grid';
-import SideNav from '../components/Sidebar2.jsx';
+import SideNav from '../components/Sidebar.jsx';
 import LaunchIcon from '@mui/icons-material/Launch';
 import { RadioButtonUnchecked } from '@mui/icons-material';
 import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
@@ -324,9 +324,13 @@ function SetupButtons() {
             style={{ color: '#cf485b' }}
           />
         </div>
-        
-        <div id="killport"onClick={handleKillPort} style={{ color: '#8f85fb', paddingTop:"73px", fontSize:"10.5px" }}><u>
-          CLICK HERE TO ATTEMPT TO KILL PORT 3000</u>
+
+        <div
+          id='killport'
+          onClick={handleKillPort}
+          style={{ color: '#8f85fb', paddingTop: '73px', fontSize: '10.5px' }}
+        >
+          <u>CLICK HERE TO ATTEMPT TO KILL PORT 3000</u>
         </div>
         <br />
         <Button
@@ -344,7 +348,6 @@ function SetupButtons() {
         <div style={{ fontSize: '12px', color: '#cf4848', marginTop: '20px' }}>
           ERROR OCCURRED! PLEASE TRY AGAIN
         </div>
-        
       </>
     );
   }
@@ -934,7 +937,7 @@ function SetupButtons() {
             color: '#2fc665',
           }}
         >
-           LOG IN THROUGH BROWSER{' '}
+          LOG IN THROUGH BROWSER{' '}
           <LaunchIcon fontSize='small' style={{ margin: '0 0 2px 6px' }} />
         </Button>
       </>
@@ -1188,12 +1191,12 @@ function SetupButtons() {
               display: 'flex',
               flexDirection: 'row',
               justifyContent: 'flex-start',
-              alignItems:"center"
+              alignItems: 'center',
             }}
           >
             <LightbulbIcon
               // fontSize='large'
-              style={{ fontSize:"25px",color: '#8f85fb', marginRight: '8px' }}
+              style={{ fontSize: '25px', color: '#8f85fb', marginRight: '8px' }}
             />
             <div
               style={{
