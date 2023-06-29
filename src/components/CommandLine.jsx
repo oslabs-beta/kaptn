@@ -101,6 +101,7 @@ const CommandLine = (props) => {
           Run
         </Button>
         <Button
+          data-testid = 'clear-button'
           variant='contained'
           onClick={(e) => {
             handleClear(e);
@@ -115,8 +116,7 @@ const CommandLine = (props) => {
             background: 'transparent',
             border: '.1px solid gray',
           }}
-        >
-          Clear
+        >Clear
         </Button>
       </form>
     </div>
