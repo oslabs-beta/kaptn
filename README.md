@@ -52,7 +52,9 @@ If you get a warning that the app is from an unidentified developer, go to Syste
 ### Overview
 Our application defaults to our dashboard page, where you will be able to select a folder from your local system as the current working directory. From there, you can choose from the pre-suggested commands—including kubectl—to manage your kubernetes clusters or free-type in the command line interface. You can click on the ‘run’ button to run your command, or the ‘clear’ button to wipe the command line.
 
-![dashboardnew](https://user-images.githubusercontent.com/63977843/236047446-ce02ed71-84c4-4646-8cf2-538d2115ddbb.jpg)
+
+![dashboardnew](https://github.com/oslabs-beta/kaptn/assets/119518056/fc791173-c81b-4e82-a68e-3a2731933c52)
+
 
 ### Easy Setup
 
