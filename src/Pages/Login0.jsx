@@ -118,9 +118,8 @@ function Login() {
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'start',
-              fontSize: '20px',
+              fontSize: '16px',
               fontFamily: 'Outfit',
-              padding: "7px 30px 7px 30px",
               transitionProperty: 'background-image',
               transition: 'all 2s',
               mozTransition: 'all 2s',
@@ -130,7 +129,7 @@ function Login() {
                 theme.palette.mode === 'dark'
                   ? '1px solid #68617f'
                   : '3px solid #9621f9',
-              letterSpacing: '3.5px',
+              letterSpacing: '1.5px',
               backgroundColor:
                 theme.palette.mode === 'dark' ? '#22145a' : '#3c3c9a',
               // mt: 2,
@@ -149,7 +148,7 @@ function Login() {
               },
             }}
           >
-            CONTINUE
+            Start kaptn
           </Button>
         </Link>
         {/* </Grid> */}

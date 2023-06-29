@@ -6,22 +6,22 @@ const tokens = (mode) => ({
   ...(mode === 'dark'
     ? {
         gray: {
-          100: '#f1f2f3',
-          200: '#e3e5e7',
-          300: '#d4d8da',
-          400: '#c6cbce',
-          500: '#b8bec2',
-          600: '#93989b',
-          700: '#6e7274',
-          800: '#4a4c4e',
-          900: '#252627',
+          100: '#5c4d9a',
+          200: '#5c4d9a',
+          300: '#5c4d9a',
+          400: '#5c4d9a',
+          500: '#5c4d9a',
+          600: '#5c4d9a',
+          700: '#5c4d9a',
+          800: '#5c4d9a',
+          900: '#5c4d9a',
         },
 
         // a primary dark color
         primary: {
           100: '#d0ced7',
           200: '#a09caf',
-          300: '#716b88',
+          300: '#8f85fb',
           400: 'lightblue',
           500: '#120838',
           600: '#0e062d',
@@ -84,7 +84,7 @@ const tokens = (mode) => ({
 
         // a primary dark color
         primary: {
-          100: '#04020b',
+          100: '#595ce3',
           200: '#070316',
           300: '#0b0522',
           400: '#0e062d',
@@ -146,7 +146,7 @@ const themeSettings = (mode) => {
       ...(mode === 'dark'
         ? {
             primary: {
-              main: colors.primary[500],
+              main: colors.primary[300],
             },
             secondary: {
               main: colors.greenAccent[500],
@@ -165,7 +165,7 @@ const themeSettings = (mode) => {
               main: colors.primary[100],
             },
             secondary: {
-              main: colors.greenAccent[500],
+              main: colors.primary[500],
             },
             neutral: {
               dark: colors.gray[700],
@@ -173,7 +173,7 @@ const themeSettings = (mode) => {
               light: colors.gray[100],
             },
             background: {
-              default: '#fcfcfc',
+              default: '#f6f4fe',
             },
           }),
     },
