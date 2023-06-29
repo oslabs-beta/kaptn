@@ -96,9 +96,6 @@ The metrics section is made up of various grafana dashboards to monitor differen
   - Kubernetes API server: API server request rates/latencies, workqueue latencies, and etcd cache hit rate
   ![Screen Shot 2023-04-19 at 8 30 55 PM](https://user-images.githubusercontent.com/121407046/233463294-1ac4b9f4-12a6-467c-b4ff-5af227d7c6f6.png)
   
-### Glossary
-If you need additional information on kubectl commands, navigate to the glossary page, where you can select the topic you would like to read further into. 
-
 ## Contributing
 
 ### How to contribute
