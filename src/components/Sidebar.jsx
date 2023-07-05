@@ -106,22 +106,7 @@ function SideNav(props) {
         </div>
       </LightTooltip>
 
-      {/* <LightTooltip title='Glossary' followCursor={true} arrow>
-        <div
-          style={{ height: '10px', marginBottom: '50px', padding: '0 0px 0 8px' }}
-        >
-          <Link to='/glossary'>
-            <MenuBook
-              className='menuIcons'
-              fontSize='medium'
-              style={{
-                height: '50px',
-                color: theme.palette.mode === 'dark' ? '#c6bfe2' : '#f2f2f2',
-              }}
-            />
-          </Link>
-        </div>
-      </LightTooltip> */}
+ 
 
       <LightTooltip
         title='Back to Start'

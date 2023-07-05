@@ -1,59 +1,14 @@
 import React, { useState } from 'react';
 import Button from '@mui/material/Button';
 import { Box } from '@mui/system';
-import { TextField } from '@mui/material';
 import { Typography } from '@mui/material';
-import { ColorModeContext, useMode } from '../theme.ts';
-import { CssBaseline, ThemeProvider } from '@mui/material';
 import Grid from '@mui/system/Unstable_Grid';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useTheme } from '@mui/material';
 
-function Login() {
-  const [password, setInputPassword] = useState('');
-  const [username, setInputUsername] = useState('');
-  const [loggedIn, setLoggedIn] = useState(false);
-
-  const navigate = useNavigate();
-
+function Start() {
   //for light/dark mode toggle
   const theme = useTheme();
-
-  // Send a request to the server to confirm the username and password
-  async function checkLogin(username, password) {
-    try {
-      const response = await fetch('/user/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          username,
-          password,
-        }),
-      });
-      // If there are no errors, convert response from JSON and return
-      const parsedResponse = await response.json();
-      return parsedResponse;
-    } catch (err) {
-      console.log(err);
-    }
-  }
-  // When log in button is clicked, invoke checkLogin function
-  function handleSubmit(event) {
-    event.preventDefault();
-    const callCheckLogin = async () => {
-      const response = await checkLogin(username, password);
-
-      // If the request was successful, set the login state to true and redirect to the dashboard
-      if (!response.err) {
-        setLoggedIn(true);
-        navigate('/dashboard');
-      } else {
-        // If the request was unsuccessful, send an alert to the user
-        alert('Wrong username or password');
-      }
-    };
-    callCheckLogin();
-  }
 
   return (
     <Grid
@@ -83,7 +38,7 @@ function Login() {
         height={'96vh'}
       >
         <Box
-          src='./kaptn4ico.png'
+          src='/kaptn4ico.png'
           sx={{
             marginTop: '40px',
             height: '270px',
@@ -109,7 +64,7 @@ function Login() {
           </Typography>
         </Box>
 
-        <Link to='/signup'>
+        <Link to='/welcome'>
           <Button
             variant='contained'
             type='submit'
@@ -120,7 +75,7 @@ function Login() {
               alignItems: 'start',
               fontSize: '20px',
               fontFamily: 'Outfit',
-              padding: "7px 30px 7px 30px",
+              padding: '7px 30px 7px 30px',
               transitionProperty: 'background-image',
               transition: 'all 2s',
               mozTransition: 'all 2s',
@@ -152,12 +107,9 @@ function Login() {
             CONTINUE
           </Button>
         </Link>
-        {/* </Grid> */}
         <Typography variant='caption'>Copyright © Kaptn 2023. </Typography>
-        {/* </Box> */}
-        {/* </Grid> */}
       </Grid>
     </Grid>
   );
 }
-export default Login;
+export default Start;

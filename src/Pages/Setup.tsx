@@ -25,7 +25,7 @@ import Sidebar from '../components/Sidebar.jsx';
 import EastIcon from '@mui/icons-material/East';
 import commands from '../components/commands.js';
 import BoltIcon from '@mui/icons-material/Bolt';
-import helpDesk from './Glossary.jsx';
+import helpDesk from '../components/HelpDesk.jsx';
 import Switch from '@mui/material/Switch';
 import Tooltip, { TooltipProps, tooltipClasses } from '@mui/material/Tooltip';
 import StarIcon from '@mui/icons-material/Star';
@@ -189,6 +189,7 @@ function Setup() {
     setImgField(e.target.value);
   };
 
+  
   // // Clear the input box
   // const handleClear = (e) => {
   //   e.preventDefault();
@@ -197,7 +198,10 @@ function Setup() {
   //   console.log(verb);
   // };
 
-  //
+
+
+
+  // handle kubectl on off switch
   const handleK8ToolChange = (event) => {
     setChecked(event.target.checked);
     if (checked) setTool('');
@@ -822,7 +826,6 @@ function Setup() {
               groupBy={(option) => option.category}
               getOptionLabel={(option) => option.title}
               onInputChange={(e, newInputValue) => {
-                console.log('newInputValue is', newInputValue);
                 setVerb(newInputValue);
                 const newCommand = verb + ' ' + type + ' ' + name;
                 setCommand(newCommand);
@@ -866,15 +869,6 @@ function Setup() {
           <div id='types' style={{ width: '18%' }}>
             <Autocomplete
               disablePortal
-              // classes={{
-              //   option: classes.option,
-              // }}
-              // sx={{
-              //   '& .MuiAutocomplete-input, & .MuiAutocomplete-root, & .MuiAutocomplete-popper, & .MuiAutocomplete-paper, & .Mui-expanded, & .MuiAutocomplete-groupUl, & .MuiAutocomplete-inputFocused, & .MuiAutocomplete-option, & .MuiAutocomplete-noOptions, & .MuiAutocomplete-listbox,  & .MuiAutocomplete-popupIndicatorOpen, & .MuiAutocomplete-inputFocused, & .MuiAutocomplete-input, & .MuiAutocomplete-inputRoot, & .MuiAutocomplete-hasPopupIcon, & .MuiAutocomplete-tag, & .MuiAutocomplete-loading, & .MuiAutocomplete-popperDisablePortal':
-              //     {
-              //       backgroundColor: 'blue',
-              //     },
-              // }}
               componentsProps={{
                 paper: { sx: { backgroundColor: '#5c4d9a', color: 'white' } }, // or static color like "#293346"
               }}
@@ -883,10 +877,6 @@ function Setup() {
               onInputChange={(e, newInputValue) => {
                 setHelpList([verb, newInputValue]);
                 setType(newInputValue);
-                // setHelpList([verb, newInputValue]);
-                console.log('helplist is', helpList);
-                console.log('verb is', verb);
-                console.log('type is', type);
               }}
               renderInput={(params) => <TextField {...params} label='Types' />}
             />
@@ -1345,21 +1335,6 @@ function Setup() {
           </div>
         </div>
       </div>
-      {/* ----- END OF EASY SETUP COLUMN ------ */}
-
-      {/* ----------------TERMINAL CLI COLUMN---------------- */}
-      {/* 
-          <Grid
-            id='terminal-cli'
-            xs={9}
-            container
-            justifyContent='center'
-            alignContent='start'
-            style={{ height: '715px' }}
-          > */}
-      {/* ----------------TERMINAL---------------- */}
-
-      {/* ----------------COMMAND LINE---------------- */}
     </>
   );
 }
