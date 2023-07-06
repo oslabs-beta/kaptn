@@ -1,4 +1,5 @@
-![Untitled (1000 × 300 px)](https://user-images.githubusercontent.com/106838422/235515939-0ba0157d-9c34-4fd4-ab7d-23dddbc082b3.png)
+![Untitled (1000 × 300 px)](https://github.com/oslabs-beta/kaptn/assets/119518056/41f21e71-7ffc-4337-8c22-5364a17b87e0)
+
 
 <div align='center'>
 
