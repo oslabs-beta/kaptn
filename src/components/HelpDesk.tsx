@@ -1,4 +1,4 @@
-const helpDesk = {};
+const helpDesk : { [key: string]: string }= {};
 
 helpDesk.create = `Create a resource from a file or from stdin.
 

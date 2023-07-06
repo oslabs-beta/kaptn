@@ -7,7 +7,7 @@ const CommandLine = (props) => {
   // Add/remove functionality in text box
   const handleChange = (e) => {
     let newUserInput = '';
-    console.log('e.nativeEvent.inputType is: ', e.nativeEvent.inputType);
+    // console.log('e.nativeEvent.inputType is: ', e.nativeEvent.inputType);
     if (e.nativeEvent.inputType === 'deleteContentBackward') {
       newUserInput = props.userInput.slice(0, props.userInput.length - 1);
     } else {
@@ -47,7 +47,7 @@ const CommandLine = (props) => {
     >
       <form
         onSubmit={props.handleSubmit}
-        value={props.command}
+        data-value={props.command}
         style={{
           width: '100%',
           justifyContent: 'center',
@@ -86,7 +86,6 @@ const CommandLine = (props) => {
           variant='contained'
           style={{
             margin: '1px 6px 0 8px',
-            alightContent: 'center',
             background: 'transparent',
             fontSize: '16px',
             height: '53px',

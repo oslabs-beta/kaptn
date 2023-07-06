@@ -31,14 +31,9 @@ const Terminal = (props) => {
         >
           $ {el.command}
         </strong>
-        <p>{paredResponse}</p>
+        <>{paredResponse}</>
       </div>
     );
-    if (el.command === `clear`) {
-      while (commandLog.length > 0) {
-        commandLog.pop();
-      }
-    }
   });
 
   return (

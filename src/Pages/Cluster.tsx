@@ -1,22 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import Button from '@mui/material/Button';
-import { Box } from '@mui/system';
 import { Typography, useTheme } from '@mui/material';
 const { ipcRenderer } = require('electron');
-import Grid from '@mui/system/Unstable_Grid';
-import SideNav from '../components/Sidebar.jsx';
+import SideNav from '../components/Sidebar.js';
 import LaunchIcon from '@mui/icons-material/Launch';
 import { RadioButtonUnchecked } from '@mui/icons-material';
 import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
 import HighlightOffOutlinedIcon from '@mui/icons-material/HighlightOffOutlined';
 import CircularProgress from '@mui/material/CircularProgress';
-import Tooltip, { tooltipClasses } from '@mui/material/Tooltip';
+import Tooltip, { TooltipProps, tooltipClasses } from '@mui/material/Tooltip';
 import LightbulbIcon from '@mui/icons-material/Lightbulb';
 
 import { styled } from '@mui/material/styles';
 
-const LightTooltip = styled(({ className, ...props }) => (
+const LightTooltip = styled(({ className, ...props }: TooltipProps) => (
   <Tooltip {...props} classes={{ popper: className }} />
 ))(({ theme }) => ({
   [`& .${tooltipClasses.tooltip}`]: {
@@ -107,10 +104,6 @@ function SetupButtons() {
     setLaunchStatus('loading');
     ipcRenderer.send('retrieve_key');
 
-    // ipcRenderer.send('retrieve_uid', {
-    //   key: key,
-    //   dashboard: 'Kubernetes / API server',
-    // });
   };
 
   const handleKillPort = () => {
@@ -394,7 +387,7 @@ function SetupButtons() {
         <Button
           onClick={handleClick}
           variant='contained'
-          disabled='true'
+          data-disabled='true'
           style={{
             border: '1px solid',
             height: '60px',
@@ -1063,7 +1056,7 @@ function SetupButtons() {
       {/* ----------------MAIN CONTENT---------------- */}
 
       <div
-        height='100%'
+        data-height='100%'
         // spacing={1}
         style={{
           display: 'flex',
@@ -1087,7 +1080,7 @@ function SetupButtons() {
             color: theme.palette.mode === 'dark' ? 'white' : '#6466b2',
           }}
         >
-          CLUSTER VISUALIZER
+          CLUSTER METRICS VISUALIZER
         </div>
         <div
           style={{
