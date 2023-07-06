@@ -38,7 +38,7 @@ function Start() {
         height={"96vh"}
       >
         <Box
-          src="/kaptn4ico.png"
+          src="./kaptn4ico.png"
           sx={{
             marginTop: "40px",
             height: "270px",
