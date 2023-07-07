@@ -1,4 +1,4 @@
-import { InputAdornment, Button, TextField, useTheme } from '@mui/material';
+import { InputAdornment, Button, TextField, useTheme } from "@mui/material";
 // import { clipboard } from 'electron';
 
 const CommandLine = (props) => {
@@ -6,9 +6,9 @@ const CommandLine = (props) => {
 
   // Add/remove functionality in text box
   const handleChange = (e) => {
-    let newUserInput = '';
+    let newUserInput = "";
     // console.log('e.nativeEvent.inputType is: ', e.nativeEvent.inputType);
-    if (e.nativeEvent.inputType === 'deleteContentBackward') {
+    if (e.nativeEvent.inputType === "deleteContentBackward") {
       newUserInput = props.userInput.slice(0, props.userInput.length - 1);
     } else {
       newUserInput =
@@ -18,7 +18,7 @@ const CommandLine = (props) => {
   };
 
   const handleClear = (e) => {
-    let userInput2 = '';
+    let userInput2 = "";
 
     props.setUserInput(userInput2);
     props.setVerb(userInput2);
@@ -40,36 +40,36 @@ const CommandLine = (props) => {
   return (
     <div
       style={{
-        justifyContent: 'center',
-        alignItems: 'center',
-        borderColor: 'transparent',
+        justifyContent: "center",
+        alignItems: "center",
+        borderColor: "transparent",
       }}
     >
       <form
         onSubmit={props.handleSubmit}
         data-value={props.command}
         style={{
-          width: '100%',
-          justifyContent: 'center',
-          alignItems: 'center',
-          borderColor: 'transparent',
+          width: "100%",
+          justifyContent: "center",
+          alignItems: "center",
+          borderColor: "transparent",
         }}
       >
         <TextField
-          id='outlined-start-adornment'
+          id="outlined-start-adornment"
           sx={{
             m: 0,
             p: 0,
-            width: '76%',
-            justifyContent: 'start',
-            border: '1px solid white',
-            borderRadius: '3px',
-            background: theme.palette.mode === 'dark' ? '#0e0727' : '#e6e1fb',
+            width: "76%",
+            justifyContent: "start",
+            border: "1px solid white",
+            borderRadius: "3px",
+            background: theme.palette.mode === "dark" ? "#0e0727" : "#e6e1fb",
             // borderColor: 'transparent',
           }}
           InputProps={{
             startAdornment: (
-              <InputAdornment position='start'>$ </InputAdornment>
+              <InputAdornment position="start">$ </InputAdornment>
             ),
           }}
           onChange={(e) => {
@@ -81,41 +81,42 @@ const CommandLine = (props) => {
           // }}
         />
         <Button
-          type='submit'
-          id='runButt'
-          variant='contained'
+          type="submit"
+          id="runButt"
+          variant="contained"
           style={{
-            margin: '1px 6px 0 8px',
-            background: 'transparent',
-            fontSize: '16px',
-            height: '53px',
-            width: '11%',
-            color: theme.palette.mode === 'dark' ? 'white' : '#685aef',
+            margin: "1px 6px 0 8px",
+            background: "transparent",
+            fontSize: "16px",
+            height: "53px",
+            width: "11%",
+            color: theme.palette.mode === "dark" ? "white" : "#685aef",
             border:
-              theme.palette.mode === 'dark'
-                ? '1px solid white'
-                : '1.5px solid #685aef',
+              theme.palette.mode === "dark"
+                ? "1px solid white"
+                : "1.5px solid #685aef",
           }}
         >
           Run
         </Button>
         <Button
-          data-testid = 'clear-button'
-          variant='contained'
+          id="clear-button"
+          variant="contained"
           onClick={(e) => {
             handleClear(e);
           }}
           style={{
-            margin: '1px 0px 0 3px',
-            justifyContent: 'center',
-            height: '53px',
-            width: '10%',
-            fontSize: '11px',
-            color: theme.palette.mode === 'dark' ? 'lightgrey' : 'grey',
-            background: 'transparent',
-            border: '.1px solid gray',
+            margin: "1px 0px 0 3px",
+            justifyContent: "center",
+            height: "53px",
+            width: "10%",
+            fontSize: "11px",
+            color: theme.palette.mode === "dark" ? "lightgrey" : "grey",
+            background: "transparent",
+            border: ".1px solid gray",
           }}
-        >Clear
+        >
+          Clear
         </Button>
       </form>
     </div>

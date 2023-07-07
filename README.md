@@ -38,7 +38,8 @@ Kaptn is a fully downloadable desktop application that provides a user-friendly 
 - Cluster metrics visualization
   - Kubernetes API server metrics
   - Connect with Grafana and Prometheus to monitor cluster health
-- Troubleshoot any confusion with our extensive kubectl glossary
+- Troubleshoot any confusion with the Instant Help Desk
+- Follow tutorials and master K8s with our Learning Center
 
 ## Getting Started
 
