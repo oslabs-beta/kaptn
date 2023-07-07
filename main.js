@@ -29,44 +29,6 @@ function createMainWindow() {
     },
   });
 
-  // var template = [
-  //   {
-  //     label: 'Application',
-  //     submenu: [
-  //       {
-  //         label: 'About Application',
-  //         selector: 'orderFrontStandardAboutPanel:',
-  //       },
-  //       { type: 'separator' },
-  //       {
-  //         label: 'Quit',
-  //         accelerator: 'Command+Q',
-  //         click: function () {
-  //           app.quit();
-  //         },
-  //       },
-  //     ],
-  //   },
-  //   {
-  //     label: 'Edit',
-  //     submenu: [
-  //       { label: 'Undo', accelerator: 'CmdOrCtrl+Z', selector: 'undo:' },
-  //       { label: 'Redo', accelerator: 'Shift+CmdOrCtrl+Z', selector: 'redo:' },
-  //       { type: 'separator' },
-  //       { label: 'Cut', accelerator: 'CmdOrCtrl+X', selector: 'cut:' },
-  //       { label: 'Copy', accelerator: 'CmdOrCtrl+C', selector: 'copy:' },
-  //       { label: 'Paste', accelerator: 'CmdOrCtrl+V', selector: 'paste:' },
-  //       {
-  //         label: 'Select All',
-  //         accelerator: 'CmdOrCtrl+A',
-  //         selector: 'selectAll:',
-  //       },
-  //     ],
-  //   },
-  // ];
-
-  // Menu.setApplicationMenu(Menu.buildFromTemplate(template));
-
   if (isDev) {
     mainWindow.loadURL('http://localhost:4444/');
     mainWindow.webContents.openDevTools();
@@ -139,7 +101,6 @@ ipcMain.on('graf_setup', (event, arg) => {
         [podName] = pod.split(' ');
       }
     });
-    console.log('Pod name (Main.js, line 91): ', podName);
   });
 
   getFunc.once('close', () => {
@@ -170,13 +131,11 @@ ipcMain.on('forward_ports', (event, arg) => {
 
   ports.stderr.on('data', (data) => {
     returnData = `port forwarding error: ${data}`;
-    console.log(returnData);
     return event.sender.send('forward_ports', returnData);
   });
 
   ports.stdout.on('data', (data) => {
     returnData = `stdout: ${data}`;
-    console.log(returnData);
     return event.sender.send('forward_ports', returnData);
   });
 });
@@ -244,11 +203,9 @@ ipcMain.on('retrieve_key', (event, arg) => {
       const now = new Date().getTime();
       const from = new Date(now - 60 * 60 * 1000).getTime();
       let url = `http://localhost:3000/d/${uid}/kubernetes-api-server?orgId=1&refresh=10s&from=${from}&to=${now}&kiosk=true?username=admin&password=prom-operator`;
-      console.log('attempting to open:', url);
       require('electron').shell.openExternal(url);
       return event.sender.send('retrieve_key', `true`);
     } catch (error) {
-      console.log(error);
       return event.sender.send('retrieve_key', `Error: ${error}`);
     }
   };

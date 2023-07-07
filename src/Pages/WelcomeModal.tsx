@@ -4,7 +4,7 @@ import { Backdrop, Button } from '@mui/material';
 import { ColorModeContext, useMode } from '../theme';
 import { CssBaseline, ThemeProvider } from '@mui/material';
 
-function Signup() {
+function WelcomeModal() {
   const [theme, colorMode] = useMode();
   return (
     <>
@@ -192,4 +192,4 @@ function Signup() {
   );
 }
 
-export default Signup;
+export default WelcomeModal;

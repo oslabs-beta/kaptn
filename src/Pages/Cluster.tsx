@@ -1,22 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import Button from '@mui/material/Button';
-import { Box } from '@mui/system';
 import { Typography, useTheme } from '@mui/material';
 const { ipcRenderer } = require('electron');
-import Grid from '@mui/system/Unstable_Grid';
-import SideNav from '../components/Sidebar.jsx';
+import SideNav from '../components/Sidebar.js';
 import LaunchIcon from '@mui/icons-material/Launch';
 import { RadioButtonUnchecked } from '@mui/icons-material';
 import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
 import HighlightOffOutlinedIcon from '@mui/icons-material/HighlightOffOutlined';
 import CircularProgress from '@mui/material/CircularProgress';
-import Tooltip, { tooltipClasses } from '@mui/material/Tooltip';
+import Tooltip, { TooltipProps, tooltipClasses } from '@mui/material/Tooltip';
 import LightbulbIcon from '@mui/icons-material/Lightbulb';
 
 import { styled } from '@mui/material/styles';
 
-const LightTooltip = styled(({ className, ...props }) => (
+const LightTooltip = styled(({ className, ...props }: TooltipProps) => (
   <Tooltip {...props} classes={{ popper: className }} />
 ))(({ theme }) => ({
   [`& .${tooltipClasses.tooltip}`]: {
@@ -27,10 +24,6 @@ const LightTooltip = styled(({ className, ...props }) => (
 }));
 
 function SetupButtons() {
-  const [key, setKey] = useState('');
-  const [uid, setUid] = useState('');
-  const now = new Date().getTime();
-  const from = new Date(now - 60 * 60 * 1000).getTime();
   const [promStatus, setPromStatus] = useState('no attempt');
   const [grafStatus, setGrafStatus] = useState('no attempt');
   const [portForwardStatus, setPortForwardStatus] = useState('no attempt');
@@ -48,7 +41,7 @@ function SetupButtons() {
         if (returnedValue.includes('Prom setup complete')) {
           setPromStatus('true');
         } else setPromStatus(returnedValue);
-        console.log('prom steup return is: ', returnedValue);
+        // console.log('prom steup return is: ', returnedValue);
       }, 1000);
     });
 
@@ -60,7 +53,7 @@ function SetupButtons() {
         if (returnedValue.includes('Grafana setup complete')) {
           setGrafStatus('true');
         } else setGrafStatus(returnedValue);
-        console.log('graf setup return is: ', returnedValue);
+        // console.log('graf setup return is: ', returnedValue);
       }, 1000);
     });
 
@@ -71,7 +64,7 @@ function SetupButtons() {
         if (arg.includes('stdout: ')) {
           setPortForwardStatus('true');
         } else setPortForwardStatus(arg);
-        console.log(arg);
+        // console.log(arg);
       }, 1000);
     });
 
@@ -83,7 +76,7 @@ function SetupButtons() {
           setLaunchStatus('true');
         } else {
           setLaunchStatus('');
-          console.log('launch status is now:', launchStatus);
+          // console.log('launch status is now:', launchStatus);
         }
       }, 1000);
     });
@@ -111,10 +104,6 @@ function SetupButtons() {
     setLaunchStatus('loading');
     ipcRenderer.send('retrieve_key');
 
-    // ipcRenderer.send('retrieve_uid', {
-    //   key: key,
-    //   dashboard: 'Kubernetes / API server',
-    // });
   };
 
   const handleKillPort = () => {
@@ -354,7 +343,6 @@ function SetupButtons() {
 
   let promStatusDiv;
   if (promStatus === 'loading') {
-    console.log('prom status is: ', promStatus);
     promStatusDiv = (
       <>
         <div
@@ -399,7 +387,7 @@ function SetupButtons() {
         <Button
           onClick={handleClick}
           variant='contained'
-          disabled='true'
+          data-disabled='true'
           style={{
             border: '1px solid',
             height: '60px',
@@ -1068,7 +1056,7 @@ function SetupButtons() {
       {/* ----------------MAIN CONTENT---------------- */}
 
       <div
-        height='100%'
+        data-height='100%'
         // spacing={1}
         style={{
           display: 'flex',
@@ -1092,7 +1080,7 @@ function SetupButtons() {
             color: theme.palette.mode === 'dark' ? 'white' : '#6466b2',
           }}
         >
-          CLUSTER VISUALIZER
+          CLUSTER METRICS VISUALIZER
         </div>
         <div
           style={{
@@ -1161,11 +1149,7 @@ function SetupButtons() {
           >
             {launchStatusDiv}
           </div>
-          {/*           
-          <embed
-            src={'http://127.0.0.1:3000/login'}
-            style={{ height: '500px', width: '400px' }}
-          ></embed> */}
+          {/* ------------------ HELP HINT TIP SECTION BEGINS--------------------- */}
         </div>
         <div
           style={{

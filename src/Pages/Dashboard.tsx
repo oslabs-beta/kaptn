@@ -22,7 +22,7 @@ const { ipcRenderer } = require('electron');
 import commands from '../components/commands.js';
 import { Box, lighten, darken } from '@mui/system';
 import BoltIcon from '@mui/icons-material/Bolt';
-import helpDesk from './Glossary.jsx';
+import helpDesk from '../components/HelpDesk.jsx';
 import React from 'react';
 import Switch from '@mui/material/Switch';
 import Tooltip, { TooltipProps, tooltipClasses } from '@mui/material/Tooltip';
@@ -153,10 +153,9 @@ function Dashboard(): JSX.Element {
     e.preventDefault();
     setVerb('');
     setUserInput('');
-    console.log(verb);
   };
 
-  //
+  // handle kubectl on off switch
   const handleK8ToolChange = (event) => {
     setChecked(event.target.checked);
     if (!checked) setTool('kubectl');
@@ -465,7 +464,6 @@ function Dashboard(): JSX.Element {
                   groupBy={(option) => option.category}
                   getOptionLabel={(option) => option.title}
                   onInputChange={(e, newInputValue) => {
-                    console.log('newInputValue is', newInputValue);
                     setVerb(newInputValue);
                     const newCommand = verb + ' ' + type + ' ' + name;
                     setCommand(newCommand);
@@ -520,9 +518,6 @@ function Dashboard(): JSX.Element {
                     setHelpList([verb, newInputValue]);
                     setType(newInputValue);
                     // setHelpList([verb, newInputValue]);
-                    console.log('helplist is', helpList);
-                    console.log('verb is', verb);
-                    console.log('type is', type);
                   }}
                   renderInput={(params) => (
                     <TextField {...params} label='Types' />
@@ -604,6 +599,7 @@ function Dashboard(): JSX.Element {
                   handleClear={handleClear}
                 />
               </div>
+              {/* ---------- INSTANT HELP DESK SECTION BEGINS ------------- */}
               <div
                 style={{
                   display: 'flex',

@@ -4,8 +4,6 @@ import { useTheme } from '@mui/material';
 
 const Terminal = (props) => {
   const theme = useTheme();
-  const clear = '[H[2J';
-  console.log('clear is', clear);
 
   // Create a div for each command/response in the current session
   let commandLog: JSX.Element[] = [];
@@ -22,20 +20,7 @@ const Terminal = (props) => {
           </pre>
         );
       });
-    console.log(
-      'pared response is:',
-      paredResponse[0].props.children.props.children
-    );
-    if (paredResponse[0].props.children.props.children === clear) {
-      console.log('in if expression');
-    }
-    console.log('commandLog is after:', commandLog);
-
-    //   if (paredResponse === [<pre>
-    // <span>[H[2J</span>
-    // </pre>]) {
-    // commandLog = [];
-    // }
+   
     commandLog.push(
       <div className='command-log'>
         <strong
@@ -46,15 +31,9 @@ const Terminal = (props) => {
         >
           $ {el.command}
         </strong>
-        <p>{paredResponse}</p>
+        <>{paredResponse}</>
       </div>
     );
-    if (el.command === `clear`) {
-      while (commandLog.length > 0) {
-        commandLog.pop();
-      }
-      // console.log('commandLog is after:', commandLog);
-    }
   });
 
   return (

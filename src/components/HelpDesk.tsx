@@ -1,27 +1,4 @@
-import * as React from 'react';
-import Button from '@mui/material/Button';
-import SideNav from '../components/Sidebar';
-import Grid from '@mui/system/Unstable_Grid';
-import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
-import Modal from '@mui/material/Modal';
-
-const style = {
-  position: 'absolute',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  width: '90%',
-  height: '90%',
-  bgcolor: '#2c1b63',
-  color: 'white',
-  boxShadow: 24,
-  p: 4,
-  padding: '10px',
-  borderRadius: '5px',
-};
-
-const helpDesk = {};
+const helpDesk : { [key: string]: string }= {};
 
 helpDesk.create = `Create a resource from a file or from stdin.
 
