@@ -47,22 +47,14 @@ ipcMain.on("post_command", (event, arg) => {
   const { command, currDir } = arg;
 
   if (currDir === "NONE SELECTED") {
-    let kubDir = "";
-    for (let i = 0; i < process.env.NVM_DIR.length - 4; i++) {
-      kubDir += process.env.NVM_DIR[i];
-    }
-    console.log("kubdir is", kubDir);
-    //   currDir = process.env.path;
+    let kubDir = process.env.ZDOTDIR;
     exec(` ${command}`, { cwd: kubDir }, (err, stdout, stderr) => {
       // Handle failed command execution
       if (err) {
         let output = err;
-        // dialog.showErrorBox('', `${err}`);
-        // return event.sender.send('post_command', output);
       }
       // Handle successful command execution but returned error (stderr)
       if (stderr) {
-        // dialog.showErrorBox('Success execute, still error:', `${stderr}`);
         return event.sender.send("post_command", stderr);
       }
       // Handle successful command execution with no errors
@@ -73,12 +65,9 @@ ipcMain.on("post_command", (event, arg) => {
       // Handle failed command execution
       if (err) {
         let output = err;
-        // dialog.showErrorBox('', `${err}`);
-        // return event.sender.send('post_command', output);
       }
       // Handle successful command execution but returned error (stderr)
       if (stderr) {
-        // dialog.showErrorBox('Success execute, still error:', `${stderr}`);
         return event.sender.send("post_command", stderr);
       }
       // Handle successful command execution with no errors
