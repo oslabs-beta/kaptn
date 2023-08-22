@@ -272,10 +272,9 @@ function Setup() {
   // Handle the command input submit event
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (currDir === "NONE SELECTED")
+    if (tool === "" && currDir === "NONE SELECTED") {
       return alert("Please choose working directory");
-
-    ipcRenderer.send("post_command", { command, currDir });
+    } else ipcRenderer.send("post_command", { command, currDir });
   };
 
   // Type options
