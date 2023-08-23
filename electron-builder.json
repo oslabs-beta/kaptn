@@ -17,7 +17,7 @@
     "category": "public.app-category.developer-tools"
   },
   "win": {
-    "target": "nsis",
+    "target": "portable",
     "icon": "./public/icon.ico",
     "requestedExecutionLevel": "asInvoker"
   },

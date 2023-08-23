@@ -2,7 +2,7 @@
   "name": "react",
   "productName": "Kaptn",
   "private": true,
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Powerful K8s Development Tool",
   "main": "main.js",
   "scripts": {
@@ -12,6 +12,7 @@
     "build:mwl": "vite build && npm run pack",
     "build64": "vite build && npm run pack64",
     "build:windows": "npm run build && electron-builder --windows --x64",
+    "build:winportable": "npm run build && electron-builder --win portable --x64",
     "build:mac": "npm run build && electron-builder --mac",
     "build:linux": "npm run build && electron-builder --linux --x64",
     "postinstall": "electron-builder install-app-deps",
