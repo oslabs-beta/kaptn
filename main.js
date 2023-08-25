@@ -46,6 +46,7 @@ function createMainWindow() {
 ipcMain.on("post_command", (event, arg) => {
   const { command, currDir } = arg;
 
+  // if kubectl command is entered with no directory chosen, use ZDOTDIR as directory address when calling exec command --- otherwise ("else" on line 64) submit command normally
   if (currDir === "NONE SELECTED") {
     let kubDir = process.env.ZDOTDIR;
     exec(` ${command}`, { cwd: kubDir }, (err, stdout, stderr) => {
@@ -222,6 +223,7 @@ ipcMain.on("retrieve_key", (event, arg) => {
   getAPIKey();
 });
 
+// step 4 - launch metrics analyzer in new browser window
 ipcMain.on("openbrowser", (event, arg) => {
   event.returnValue = "Message received!";
   const now = new Date().getTime();
