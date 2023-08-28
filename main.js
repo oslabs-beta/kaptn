@@ -161,6 +161,7 @@ ipcMain.on("kill_port", (event, arg) => {
   });
 });
 
+// step 4 - retrieve uid and launch metrics analyzer in new browser window 
 ipcMain.on("retrieve_key", (event, arg) => {
   const cacheKey = "api_key";
 
@@ -221,15 +222,6 @@ ipcMain.on("retrieve_key", (event, arg) => {
   };
 
   getAPIKey();
-});
-
-// step 4 - launch metrics analyzer in new browser window
-ipcMain.on("openbrowser", (event, arg) => {
-  event.returnValue = "Message received!";
-  const now = new Date().getTime();
-  const from = new Date(now - 60 * 60 * 1000).getTime();
-  url = `http://localhost:3000/d/${uid}/kubernetes-api-server?orgId=1&refresh=10s&from=${from}&to=${now}&kiosk=true`;
-  require("electron").shell.openExternal(url);
 });
 
 // Load the main window
