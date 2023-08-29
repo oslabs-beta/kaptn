@@ -41,14 +41,40 @@ Kaptn is a fully downloadable desktop application that provides a user-friendly 
 - Troubleshoot any confusion with the Instant Help Desk
 - Follow tutorials and master K8s with our Learning Center
 
+## Updates
+
+Version 1.2.0 -
+
+- Adds ability to use kubectl commands without choosing a working directory.
+
+Version 1.1.0 -
+
+- **_Now available for Mac, Windows, and Linux_**
+
+- **Cluster Metrics Visualizer:**
+  Easily sync your Kaptn workspace to Grafana and Prometheus to allow for clear and real-time visualization of your clusters' health. Utilize our quick set-up if you are not already connected, and consider Kaptn your only stop for working with and monitoring your Kubernetes clusters.
+
+- **Instant Help Desk:**
+  Get help information on demand and at the click of a button with the Instant Help Desk. Now you can get more info about any command or type without leaving the command line, and losing the code you've already written.
+
+- **Kaptn Learning Center:**
+  Inside the Easy Setup page you can now find the Learning Center with resources you need to learn Kubernetes. You can follow tutorials, read articles and documentation, and master Kubernetes faster than ever.
+
+- **Light/Dark Mode:**
+  Whether it's eye strain, or just personal preference, we know engineers can be selective about their work environments. So we created a Light/Dark mode that allows you to work with your favorite color combination. Now you can focus on coding with no distractions to your workflow.
+
+This update also includes various bugs fixes, including:
+
+- Bug where kubectl commands could not be used on some Mac operating systems.
+
+#
+
 ## Getting Started
 
 1. Download the latest release [here](https://github.com/oslabs-beta/kaptn/releases).
 2. Run the installer.
 
 If you get a warning that the app is from an unidentified developer, go to System Preferences > Security & Privacy > General and click "Open Anyway".
-
-\*Please note, login functionality is currently disabled. Instead, please continue as guest to access all features of Kaptn.
 
 ## Usage Guidelines
 
