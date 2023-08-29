@@ -1,15 +1,6 @@
 const path = require("path");
-const {
-  app,
-  BrowserWindow,
-  ipcMain,
-  Menu,
-  MenuItem,
-  globalShortcut,
-} = require("electron");
+const { app, BrowserWindow, ipcMain } = require("electron");
 const { exec, spawnSync, spawn } = require("child_process");
-const { dialog } = require("electron");
-const { clipboard } = require("electron");
 const fixPath = require("fix-path");
 
 const isDev = process.env.NODE_ENV === "development";
@@ -161,7 +152,7 @@ ipcMain.on("kill_port", (event, arg) => {
   });
 });
 
-// step 4 - retrieve uid and launch metrics analyzer in new browser window 
+// step 4 - retrieve uid and launch metrics analyzer in new browser window
 ipcMain.on("retrieve_key", (event, arg) => {
   const cacheKey = "api_key";
 
