@@ -40,6 +40,30 @@ function SideNav(props) {
       }}
     >
       <LightTooltip
+        title="Krane"
+        placement="right"
+        arrow
+        enterDelay={500}
+        leaveDelay={200}
+        enterNextDelay={500}
+        style={{ backgroundColor: "red" }}
+      >
+        <div
+          style={{ height: "20px", paddingLeft: "8px", marginBottom: "20px" }}
+        >
+          <Link to="/krane">
+            <HomeRoundedIcon
+              className="menuIcons"
+              fontSize="medium"
+              style={{
+                color: theme.palette.mode === "dark" ? "#c6bfe2" : "#6466b2",
+              }}
+            />
+          </Link>
+        </div>
+      </LightTooltip>
+
+      <LightTooltip
         title="K8s CLI"
         placement="right"
         arrow
@@ -62,6 +86,7 @@ function SideNav(props) {
           </Link>
         </div>
       </LightTooltip>
+
       <LightTooltip
         title="Easy Setup"
         placement="right"

@@ -135,7 +135,15 @@ function Setup() {
   };
 
   // Flag list options
-  const flagList = ["-o wide", "--force", "-f", "-o default", "-v"];
+  const flagList: string[] = [
+    "-o wide",
+    "--force",
+    "-f",
+    "-o default",
+    "-A",
+    "--all-namespaces",
+    "-v",
+  ];
 
   // Set flag list state
   const handleFlags = (event) => {
