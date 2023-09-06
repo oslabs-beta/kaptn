@@ -16,6 +16,7 @@ import { ColorModeContext } from "../theme.ts";
 import Tooltip, { TooltipProps, tooltipClasses } from "@mui/material/Tooltip";
 import { styled } from "@mui/material/styles";
 import HomeRoundedIcon from "@mui/icons-material/HomeRounded";
+import PrecisionManufacturingIcon from "@mui/icons-material/PrecisionManufacturing";
 
 function SideNav(props) {
   // Color theme is toggled here with the light/dark mode menu item
@@ -52,7 +53,7 @@ function SideNav(props) {
           style={{ height: "20px", paddingLeft: "8px", marginBottom: "20px" }}
         >
           <Link to="/krane">
-            <HomeRoundedIcon
+            <PrecisionManufacturingIcon
               className="menuIcons"
               fontSize="medium"
               style={{
