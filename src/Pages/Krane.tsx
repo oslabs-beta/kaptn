@@ -44,10 +44,6 @@ function Krane() {
 
   const theme = useTheme();
 
-  const [openCommand, setCommandOpen] = React.useState(false);
-  const handleCommandOpen = () => setCommandOpen(true);
-  const handleCommandClose = () => setCommandOpen(false);
-
   let kraneCommand: string = "kubectl get nodes";
   let currDir = "NONE SELECTED";
 
@@ -271,8 +267,8 @@ function Krane() {
 
         //handle if age is 0
         if (arg[i] === "0") {
-          ageOutput = ["0", "d"];
-          i++;
+          ageOutput = [...ageOutput, "0"];
+          
         } else {
           //save age
           while (
@@ -280,6 +276,7 @@ function Krane() {
             arg[i] === "h" ||
             arg[i] === "m" ||
             arg[i] === "s" ||
+            arg[i] === "0" ||
             arg[i] === "1" ||
             arg[i] === "2" ||
             arg[i] === "3" ||
@@ -326,219 +323,118 @@ function Krane() {
     setPodsArr([...filteredPods]);
   }, []);
 
-  console.log("launch2 is", launch);
+  // console.log("launch2 is", launch);
 
-  console.log("podsArr at 2 is", podsArr);
-  console.log("podsArr 0 is", podsArr[0]);
-  console.log("typeof podsArr 0 is", typeof podsArr[0]);
+  // console.log("podsArr at 2 is", podsArr);
+  // console.log("podsArr 0 is", podsArr[0]);
+  // console.log("typeof podsArr 0 is", typeof podsArr[0]);
 
+  // -------------------------------------------------- expand pods section -----------
+
+  const [openCommand, setCommandOpen] = React.useState(false);
+  const [selectedPod, setSelectedPod] = useState([
+    { name: "", ready: "", status: "", restarts: "", lastRestart: "", age: "" },
+  ]);
+
+  const handleCommandOpen = (pod) => {
+    setSelectedPod([pod]);
+    console.log("selected pod is ", pod);
+    setCommandOpen(true);
+    console.log("selected pod is ", pod);
+  };
+  const handleCommandClose = () => {
+    setSelectedPod([
+      {
+        name: "",
+        ready: "",
+        status: "",
+        restarts: "",
+        lastRestart: "",
+        age: "",
+      },
+    ]);
+    setCommandOpen(false);
+  };
+
+  //--------------------------------------------- end of expand pods section ---
   let podsList = [];
   for (let i = 0; i < podsArr.length; i++) {
+    let readyStatusRunning;
+    let numerator = 0;
+    let denominator = "";
+
+    let z = i;
+
+    let current = podsArr[i]["ready"];
+    current = current.split("");
+    console.log("current is", current);
+
+    // let podsArrReadyLength = podsArr[i]["ready"].length;
+
+    let curr;
+    // while (current[j] !== "/") {
+    // curr = current[j];
+
+    //   let numerString = numerator.toString();
+    //   numerator = Number((numerString += curr.concat()));
+    // }
+
+    for (let j = 0; current[j] !== "/"; j++) {
+      curr = current[j];
+      console.log("curr is", curr);
+
+      let numerString = numerator.toString();
+      numerator = Number((numerString += curr.concat()));
+    }
+
+    console.log("numerator is", Number(numerator));
+
+    if (podsArr[i]["status"] === "Running") {
+      readyStatusRunning = "green";
+    } else {
+      readyStatusRunning = "yellow";
+    }
+
     podsList.push(
-      <>
-        <div
+      <div
+        key={i}
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          fontFamily: "Outfit",
+          fontWeight: "400",
+          fontSize: "17px",
+          justifyContent: "flex-start",
+          alignItems: "flex-start",
+          textAlign: "left",
+          width: "auto",
+          margin: "17px 50px 0 20px",
+          padding: "0 0 0px 0",
+          letterSpacing: "1px",
+          color: theme.palette.mode === "dark" ? "#8f85fb" : "#9075ea",
+          textShadow:
+            theme.palette.mode === "dark"
+              ? "1px 1px 2px black"
+              : "1px 1px 1px #00000000",
+        }}
+      >
+        POD {i + 1}
+        <Button
+          key={i}
+          id="podButt"
+          onClick={() => handleCommandOpen(podsArr[i])}
           style={{
             display: "flex",
             flexDirection: "column",
-            fontFamily: "Outfit",
-            fontWeight: "900",
-            fontSize: "17px",
-            justifyContent: "flex-start",
-            alignItems: "flex-start",
+            width: "450px",
+            height: "140px",
+            fontSize: "16px",
+            // border: "1px solid white",
+            justifyContent: "space-between",
             textAlign: "left",
-            width: "auto",
-            margin: "17px 50px 0 20px",
-            padding: "0 0 0px 0",
-            letterSpacing: "1px",
-            color: theme.palette.mode === "dark" ? "#8f85fb" : "#9075ea",
-            textShadow:
-              theme.palette.mode === "dark"
-                ? "1px 1px 2px black"
-                : "1px 1px 1px #00000000",
-          }}
-        >
-          POD {i + 1}
-          <Button
-            key={i}
-            id="podButt"
-            onClick={handleCommandOpen}
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              width: "450px",
-              height: "140px",
-              fontSize: "16px",
-              // border: "1px solid white",
-              justifyContent: "space-between",
-              textAlign: "left",
-              alignItems: "center",
-              margin: "0px 0 0 0",
-              padding: "10px 0px 10px 15px",
-              color: theme.palette.mode === "dark" ? "white" : "grey",
-              border:
-                theme.palette.mode === "dark"
-                  ? "1.5px solid white"
-                  : "1.5px solid #9075ea",
-              borderRadius: "5px",
-              boxShadow:
-                theme.palette.mode === "dark"
-                  ? "10px 9px 2px #00000060"
-                  : "10px 10px 1px #00000020",
-              background: theme.palette.mode === "dark" ? "#0e0727" : "#e6e1fb",
-            }}
-          >
-            {" "}
-            {podsArr[i]["name"].toUpperCase()}
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "row",
-                // border: "1px solid white",
-                justifyContent: "flex-start",
-                textAlign: "left",
-                alignItems: "space-between",
-                // border:"2px solid red"
-              }}
-            >
-              <div
-                id="podsSmallStat"
-                style={{ width: "90px", padding: "0 0 0 0px" }}
-              >
-                Ready: <br />
-                {podsArr[i]["ready"]}
-              </div>
-              <br />
-              <div id="podsSmallStat" style={{ width: "90px" }}>
-                Status: <br /> {podsArr[i]["status"]}
-              </div>
-              <br />
-              <div id="podsSmallStat" style={{ width: "90px" }}>
-                Restarts: <br />
-                {podsArr[i]["restarts"]}
-              </div>
-              <br />
-              <div id="podsSmallStat" style={{ width: "90px" }}>
-                Last Restart: <br /> {podsArr[i]["lastRestart"]}
-              </div>
-              <br />
-              <div id="podsSmallStat" style={{ width: "90px" }}>
-                {" "}
-                Age: <br />
-                {podsArr[i]["age"]}
-              </div>
-            </div>
-            {}
-          </Button>
-          <Modal
-            open={openCommand}
-            onClose={handleCommandClose}
-            style={{ overflow: "scroll", height: "100%" }}
-            aria-labelledby="modal-modal-title"
-            aria-describedby="modal-modal-description"
-          >
-            <Box sx={style}>
-              <Typography
-                id="modal-modal-title"
-                // variant='h6'
-                // component='h2'
-              ></Typography>
-              <Typography
-                id="modal-modal-description"
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  top: "0",
-                  left: "0",
-                  overflow: "auto",
-                  height: "100%",
-                  width: "100%",
-                  paddingLeft: "20px",
-                  zIndex: "1350",
-
-                  // border:"2px solid red"
-                }}
-                sx={{ mt: 0 }}
-              >
-                {"  "}
-                <strong
-                  style={{
-                    fontSize: "28px",
-                    letterSpacing: "1px",
-                    padding: "10px 0 0 0px",
-                  }}
-                >
-                  {podsArr[i]["name"].toUpperCase()}
-                  <br />
-                </strong>
-                <br />
-                READY: {podsArr[i]["ready"].toUpperCase()}
-                <br />
-                STATUS: {podsArr[i]["status"].toUpperCase()}
-                <br />
-                RESTARTS: {podsArr[i]["restarts"].toUpperCase()}
-                <br />
-                LAST RESTART: {podsArr[i]["lastRestart"].toUpperCase()}
-                <br />
-                AGE: {podsArr[i]["age"].toUpperCase()}
-                <pre
-                  style={{
-                    fontSize: "14px",
-                    overflow: "auto",
-                  }}
-                ></pre>
-              </Typography>
-            </Box>
-          </Modal>
-        </div>
-      </>
-    );
-  }
-
-  let mainDiv;
-  if (launch === false) {
-    mainDiv = (
-      <>
-        <Button style={{ fontSize: "18px" }} onClick={handleClick}>
-          CLICK HERE TO LAUNCH YOUR NODES AND PODS
-        </Button>
-      </>
-    );
-  } else {
-    mainDiv = (
-      <>
-        <div
-          style={{
-            display: "flex",
-            fontFamily: "Outfit",
-            fontWeight: "900",
-            fontSize: "17px",
-            height: "auto",
-            justifyContent: "center",
-            alignItems: "center",
-            width: "auto",
-            padding: "0px 10px 4px 20px",
-            letterSpacing: "1px",
-            color: theme.palette.mode === "dark" ? "#8f85fb" : "#9075ea",
-            textShadow:
-              theme.palette.mode === "dark"
-                ? "1px 1px 2px black"
-                : "2px 2px 0px #00000000",
-            // border: "1px solid red",
-          }}
-        >
-          NODE 1
-        </div>
-        <Button
-          id="nodeButt"
-          style={{
-            fontFamily: "Outfit",
-            fontWeight: "400",
-            fontSize: "14px",
-            justifyContent: "center",
-            alignItems: "center",
-            width: "300px",
-            padding: "10px 10px 10px 20px",
-            letterSpacing: "1px",
+            alignItems: "flex-start",
+            margin: "4px 0 0 0",
+            padding: "12px 10px 10px 17px",
             color: theme.palette.mode === "dark" ? "white" : "grey",
             border:
               theme.palette.mode === "dark"
@@ -549,91 +445,403 @@ function Krane() {
               theme.palette.mode === "dark"
                 ? "10px 9px 2px #00000060"
                 : "10px 10px 1px #00000020",
-            backgroundColor:
-              theme.palette.mode === "dark" ? "#0e0727" : "#e6e1fb",
+            background: theme.palette.mode === "dark" ? "#0e0727" : "#e6e1fb",
           }}
         >
+          {" "}
+          <div>{podsArr[i]["name"].toUpperCase()}</div>
           <div
             style={{
-              width: "500px",
+              display: "flex",
+              flexDirection: "row",
               // border: "1px solid white",
-              textAlign: "left",
-              alignItems: "center",
+              justifyContent: "flex-start",
+              textAlign: "center",
+              alignItems: "left",
+              alignContent: "flex-end",
+              // border:"2px solid red"
+              padding: "0px 0px 0px 10px",
             }}
           >
-            Name: {nodesArr[0]}
-            <br /> Status: {statusArr[0]}
-            <br /> Role: {roleArr[0]}
-            <br /> Age: {ageArr[0]}
-            <br /> Version: {versionArr[0]}
+            <br />
+            <div
+              style={{
+                flexDirection: "column",
+                justifyContent: "flex-end",
+                width: "50px",
+                fontSize: "4",
+                padding: "5.5px 0px 0 0px",
+                color: `${readyStatusRunning}`,
+              }}
+            >
+              <div
+                style={{
+                  fontSize: "",
+                  fontWeight: "400",
+
+                  // border: "2px solid red",
+                }}
+              >
+                {podsArr[i]["ready"]}
+              </div>
+              <div
+                style={{
+                  fontSize: "small",
+                  // border: "2px solid red",
+                  color: "white",
+                  fontWeight: "400",
+                }}
+              >
+                Ready
+              </div>
+            </div>
+
+            <div
+              style={{
+                flexDirection: "column",
+                justifyContent: "flex-end",
+                width: "90px",
+                fontSize: "4",
+                padding: "5.5px 0px 0 0px",
+                color: `${readyStatusRunning}`,
+              }}
+            >
+              <div
+                style={{
+                  fontSize: "",
+                  fontWeight: "400",
+
+                  // border: "2px solid red",
+                }}
+              >
+                {podsArr[i]["status"]}
+              </div>
+              <div
+                style={{
+                  fontSize: "small",
+                  // border: "2px solid red",
+                  color: "white",
+                  fontWeight: "400",
+                }}
+              >
+                STATUS
+              </div>
+            </div>
+            <div
+              style={{
+                flexDirection: "column",
+                justifyContent: "flex-end",
+                width: "90px",
+                fontSize: "4",
+                padding: "5.5px 0px 0 0px",
+                fontWeight: "400",
+                // color: `${readyStatusRunning}`,
+              }}
+            >
+              <div
+                style={{
+                  fontSize: "",
+
+                  // border: "2px solid red",
+                }}
+              >
+                {podsArr[i]["restarts"]}
+              </div>
+              <div
+                style={{
+                  fontSize: "small",
+                  // border: "2px solid red",
+                  color: "white",
+                }}
+              >
+                RESTARTS
+              </div>
+            </div>
+
+            <div
+              style={{
+                flexDirection: "column",
+                justifyContent: "flex-end",
+                width: "90px",
+                fontSize: "4",
+                padding: "5.5px 0px 0 0px",
+                margin: "0px 10px 0 10px",
+                fontWeight: "400",
+                // color: `${readyStatusRunning}`,
+              }}
+            >
+              <div
+                style={{
+                  fontSize: "",
+
+                  // border: "2px solid red",
+                }}
+              >
+                {podsArr[i]["lastRestart"]}
+              </div>
+              <div
+                style={{
+                  fontSize: "small",
+                  // border: "2px solid red",
+                  color: "white",
+                }}
+              >
+                LAST RESTART
+              </div>
+            </div>
+
+            <div
+              style={{
+                flexDirection: "column",
+                justifyContent: "flex-end",
+                width: "60px",
+                fontSize: "4",
+                padding: "5.5px 0px 0 0px",
+                fontWeight: "400",
+                // color: `${readyStatusRunning}`,
+              }}
+            >
+              <div
+                style={{
+                  fontSize: "",
+
+                  // border: "2px solid red",
+                }}
+              >
+                {podsArr[i]["age"]}
+              </div>
+              <div
+                style={{
+                  fontSize: "small",
+                  // border: "2px solid red",
+                  color: "white",
+                }}
+              >
+                AGE
+              </div>
+            </div>
           </div>
+          {}
         </Button>
-        <div
-          style={{ display: "flex", flexWrap: "wrap", margin: "0 0 0 50px" }}
+        <Modal
+          open={openCommand}
+          onClose={handleCommandClose}
+          style={{ overflow: "scroll", height: "100%" }}
+          aria-labelledby="modal-modal-title"
+          aria-describedby="modal-modal-description"
         >
-          {podsList}
+          <Box sx={style}>
+            <Typography
+              id="modal-modal-title"
+              // variant='h6'
+              // component='h2'
+            ></Typography>
+            <Typography
+              id="modal-modal-description"
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                top: "0",
+                left: "0",
+                overflow: "auto",
+                height: "100%",
+                width: "100%",
+                paddingLeft: "20px",
+                zIndex: "1350",
+
+                // border:"2px solid red"
+              }}
+              sx={{ mt: 0 }}
+            >
+              {"  "}
+              <strong
+                style={{
+                  fontSize: "28px",
+                  letterSpacing: "1px",
+                  padding: "10px 0 0 0px",
+                  justifyContent: "left",
+                }}
+              >
+                {selectedPod[0]["name"].toUpperCase()}
+                <br />
+              </strong>
+              <br />
+              READY: {selectedPod[0]["ready"].toUpperCase()}
+              <br />
+              STATUS: {selectedPod[0]["status"].toUpperCase()}
+              <br />
+              RESTARTS: {selectedPod[0]["restarts"].toUpperCase()}
+              <br />
+              LAST RESTART: {selectedPod[0]["lastRestart"].toUpperCase()}
+              <br />
+              AGE: {selectedPod[0]["age"].toUpperCase()}
+            </Typography>
+          </Box>
+        </Modal>
+      </div>
+    );
+  }
+
+  let mainDiv;
+  if (launch === false) {
+    mainDiv = (
+      <>
+        <Button
+          style={{
+            border: "1px solid",
+            margin: "50px 0 0 0",
+            padding: "0 20px 0 20px",
+            height: "60px",
+            fontSize: "16px",
+            color: "white",
+            backgroundColor:
+              theme.palette.mode === "dark" ? "#150f2d" : "#8881ce",
+          }}
+          onClick={handleClick}
+        >
+          VIEW YOUR NODES AND PODS
+        </Button>
+      </>
+    );
+  } else {
+    mainDiv = (
+      <>
+        <div style={{ overflow: "hidden" }}>
+          <div
+            style={{
+              display: "flex",
+              fontFamily: "Outfit",
+              fontWeight: "400",
+              fontSize: "17px",
+              height: "auto",
+              justifyContent: "center",
+              overflow: "hidden",
+              alignItems: "center",
+              width: "auto",
+              padding: "0px 10px 4px 20px",
+              letterSpacing: "1px",
+              color: theme.palette.mode === "dark" ? "#8f85fb" : "#9075ea",
+              textShadow:
+                theme.palette.mode === "dark"
+                  ? "1px 1px 2px black"
+                  : "2px 2px 0px #00000000",
+              // border: "1px solid red",
+            }}
+          >
+            NODE 1
+          </div>
+          <Button
+            id="nodeButt"
+            style={{
+              fontFamily: "Outfit",
+              fontWeight: "200",
+              fontSize: "14px",
+              justifyContent: "center",
+              alignItems: "center",
+              width: "300px",
+              padding: "10px 10px 10px 20px",
+              letterSpacing: "1px",
+              color: theme.palette.mode === "dark" ? "white" : "grey",
+              border:
+                theme.palette.mode === "dark"
+                  ? "1.5px solid white"
+                  : "1.5px solid #9075ea",
+              borderRadius: "5px",
+              boxShadow:
+                theme.palette.mode === "dark"
+                  ? "10px 9px 2px #00000060"
+                  : "10px 10px 1px #00000020",
+              backgroundColor:
+                theme.palette.mode === "dark" ? "#0e0727" : "#e6e1fb",
+            }}
+          >
+            <div
+              style={{
+                width: "500px",
+                // border: "1px solid white",
+                textAlign: "left",
+                alignItems: "center",
+              }}
+            >
+              Name: {nodesArr[0]}
+              <br /> Status: {statusArr[0]}
+              <br /> Role: {roleArr[0]}
+              <br /> Age: {ageArr[0]}
+              <br /> Version: {versionArr[0]}
+            </div>
+          </Button>
+          <div
+            style={{ display: "flex", flexWrap: "wrap", margin: "0 0 0 50px" }}
+          >
+            {podsList}
+          </div>
+          <div style={{ height: "35px" }}></div>
         </div>
-        <div style={{height:"35px"}}></div>
       </>
     );
   }
 
+  console.log("selected pod 3 is ", selectedPod);
+
   return (
     <>
-      {/* ----------------SIDE BAR---------------- */}
-      <SideNav />
-      {/* ----------------MAIN CONTENT---------------- */}
+      <div style={{ overflow: "hidden" }}>
+        {/* ----------------SIDE BAR---------------- */}
+        <SideNav />
+        {/* ----------------MAIN CONTENT---------------- */}
 
-      <div
-        data-height="100%"
-        // spacing={1}
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          overflowY: "hidden",
-          alignItems: "center",
-          marginLeft: "0px",
-          marginTop: "5%",
-          textAlign: "center",
-          width: "100%",
-          // border: "1px solid red",
-        }}
-      >
         <div
+          data-height="100%"
+          // spacing={1}
           style={{
-            fontFamily: "Outfit",
-            fontWeight: "800",
-            fontSize: "43px",
-            justifyContent: "flex-start",
-
-            overflowY: "hidden",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            overflow: "hidden",
             alignItems: "center",
+            marginLeft: "0px",
+            marginTop: "50px",
+            marginBottom: "20px",
+            textAlign: "center",
             width: "100%",
-            letterSpacing: "1px",
-            color: theme.palette.mode === "dark" ? "white" : "#6466b2",
-            // border: "1px solid pink",
+            // border: "1px solid red",
           }}
         >
-          KAPTN KRANE
+          <div
+            style={{
+              fontFamily: "Outfit",
+              fontWeight: "800",
+              fontSize: "43px",
+              justifyContent: "flex-start",
+
+              overflowY: "hidden",
+              alignItems: "center",
+              width: "100%",
+              letterSpacing: "1px",
+              color: theme.palette.mode === "dark" ? "white" : "#6466b2",
+              // border: "1px solid pink",
+            }}
+          >
+            KAPTN KRANE
+          </div>
+          <div
+            style={{
+              // fontFamily: 'Outfit',
+              fontWeight: "400",
+              fontSize: "14px",
+              alignItems: "center",
+              justifyContent: "flex-start",
+              marginBottom: "10px",
+              width: "100%",
+              letterSpacing: "1px",
+              color: theme.palette.mode === "dark" ? "white" : "grey",
+              // border: "1px solid green",
+            }}
+          >
+            MANAGE YOUR CLUSTERS AND CONTAINERS
+          </div>
+          <div style={{ overflow: "hidden" }}>{mainDiv}</div>
         </div>
-        <div
-          style={{
-            // fontFamily: 'Outfit',
-            fontWeight: "400",
-            fontSize: "14px",
-            alignItems: "center",
-            justifyContent: "flex-start",
-            marginBottom: "10px",
-            width: "100%",
-            letterSpacing: "1px",
-            color: theme.palette.mode === "dark" ? "white" : "grey",
-            // border: "1px solid green",
-          }}
-        >
-          MANAGE YOUR CLUSTERS AND CONTAINERS
-        </div>
-        <div>{mainDiv}</div>
       </div>
     </>
   );
