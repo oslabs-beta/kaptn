@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&display=swap");
 
 body {
   top: 0px;
@@ -58,7 +58,6 @@ a {
   /* z-index: -1000; */
 }
 
-
 .menuIcons:hover {
   background-color: #8383de70;
   border-radius: 9px;
@@ -67,6 +66,26 @@ a {
 #runButt:hover {
   border: 1.5px solid #685aef !important;
   color: #685aef !important;
+}
+
+#nodeButt:hover {
+  border: 1.5px solid #685aef !important;
+  color: #685aef !important;
+}
+
+#podButt:hover {
+  border: 1.5px solid #685aef !important;
+  color: #685aef !important;
+}
+
+#podsSmallStat {
+  font-size: 10px;
+  justify-content: center !important;
+  text-align: center;
+}
+
+#podsSmallStat:hover {
+  /* color: white !important; */
 }
 
 #subtitle {
