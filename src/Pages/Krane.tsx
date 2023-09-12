@@ -30,6 +30,8 @@ type ArrPodObjs = {
   restarts: string;
   lastRestart: string;
   age: string;
+  CpuPercent: number;
+  memoryPercent: number;
 };
 
 let filteredPods: any = [];
@@ -126,11 +128,11 @@ function Krane() {
       }
       setVersionArr([versionOutput]);
 
-      console.log("arg is", arg);
+      // console.log("arg is", arg);
     });
   }, []);
 
-  // ----------------------------------------- get pods section ------------
+  // ----------------------------------------- get pods info section ------------
 
   let podsCommand = "kubectl get pods";
   const [podsArr, setPodsArr] = useState([]);
@@ -138,12 +140,12 @@ function Krane() {
   function handleClick(event) {
     setLaunch(true);
     setPodsArr(filteredPods);
-    console.log("launch is", launch);
-    console.log("podsArr is", podsArr);
+    // console.log("launch is", launch);
+    // console.log("podsArr IN HANDLECLICK FOR LAUNCH is", podsArr);
   }
 
   useEffect(() => {
-    //send krane command to get all nodes
+    //---------------------------------------- get all pods o wide info section -
     ipcRenderer.send("getPods_command", {
       podsCommand,
       currDir,
@@ -155,7 +157,7 @@ function Krane() {
     ipcRenderer.on("got_pods", (event, arg) => {
       let argArr = arg.split("");
 
-      console.log("argArr length is", argArr.length);
+      // console.log("argArr length is", argArr.length);
 
       let i: number = 0;
 
@@ -268,7 +270,6 @@ function Krane() {
         //handle if age is 0
         if (arg[i] === "0") {
           ageOutput = [...ageOutput, "0"];
-          
         } else {
           //save age
           while (
@@ -299,6 +300,10 @@ function Krane() {
           restarts: restartsOutput.join(""),
           lastRestart: lastRestartOutput.join(""),
           age: ageOutput.join(""),
+          podCpuUsed: "",
+          podMemoryUsed: "",
+          podCpuLimit: "",
+          podMemoryLimit: "",
         };
 
         // pod.name = nameOutput.join("");
@@ -315,13 +320,357 @@ function Krane() {
         (ele: any, ind: number) =>
           ind === podsArrOutput.findIndex((elem) => elem.name === ele.name)
       );
-      console.log("filteredPods is", filteredPods);
+      // console.log("filteredPods is", filteredPods);
       setPodsArr([...filteredPods]);
-      console.log("podsArr is", podsArr);
+      // console.log("podsArr is", podsArr);
+    }); // end of ipc render
+
+    //---------------------------------------- end of get all pods o wide info section -
+
+    //---------------------------------------- beginnging get all pods cpu and memory usage section -
+    let CpuUsedCommand = `kubectl top pods`;
+    ipcRenderer.send("getCpuUsed_command", {
+      CpuUsedCommand,
+      currDir,
     });
+
+    //Listen to "get cpuUsed" return event
+    ipcRenderer.on("got_cpuUsed", (event, arg) => {
+      // console.log("ARG ISSSSSS", arg);
+      let argArr = arg.split("");
+      console.log("arg arr is", argArr);
+      let podUsageArray = [];
+
+      let pod = {};
+
+      let i: number = 0;
+
+      //skips "name"
+      while (argArr[i] !== " ") {
+        i++;
+      }
+
+      //skips spaces
+      while (argArr[i] === " ") {
+        i++;
+      }
+      //skips "CPU(cores)"
+      while (argArr[i] !== " ") {
+        i++;
+      }
+      //skips spaces
+      while (argArr[i] === " ") {
+        i++;
+      }
+
+      //skips "memoery(bytes)"
+      while (argArr[i] !== " ") {
+        i++;
+      }
+      i += 4;
+      // //for loop to put all pods in array of objects
+      for (let j = 0; i < argArr.length; i++) {
+        let podCpuUsedArr = [];
+        let podMemoryUsedArr = [];
+
+        //saves name because array order is same for both outputs
+        while (argArr[i] !== " ") {
+          i++;
+        }
+        //skip spaces
+        while (argArr[i] === " ") {
+          i++;
+        }
+        //   // //save cpu(cores) to array to parse at end of loops
+        // console.log("ARG ARR at i is", argArr[i]);
+        while (
+          argArr[i] === "1" ||
+          argArr[i] === "2" ||
+          argArr[i] === "3" ||
+          argArr[i] === "4" ||
+          argArr[i] === "5" ||
+          argArr[i] === "6" ||
+          argArr[i] === "7" ||
+          argArr[i] === "8" ||
+          argArr[i] === "9" ||
+          argArr[i] === "0"
+        ) {
+          podCpuUsedArr.push(argArr[i]);
+          i++;
+        }
+        i++;
+
+        //skip spaces after number of cores
+        while (arg[i] !== " ") {
+          i++;
+        }
+
+        //skip spaces
+        while (arg[i] === " ") {
+          i++;
+        }
+
+        //save memory used before unit of measure
+        while (
+          argArr[i] === "1" ||
+          argArr[i] === "2" ||
+          argArr[i] === "3" ||
+          argArr[i] === "4" ||
+          argArr[i] === "5" ||
+          argArr[i] === "6" ||
+          argArr[i] === "7" ||
+          argArr[i] === "8" ||
+          argArr[i] === "9" ||
+          argArr[i] === "0"
+        ) {
+          podMemoryUsedArr.push(arg[i]);
+          i++;
+        }
+        if (argArr[i] === "G") {
+          podMemoryUsedArr.push("0");
+          podMemoryUsedArr.push("0");
+          podMemoryUsedArr.push("0");
+          podMemoryUsedArr.push("0");
+          podMemoryUsedArr.push("0");
+          podMemoryUsedArr.push("0");
+        } else if (argArr[i] === "M") {
+          podMemoryUsedArr.push("0");
+          podMemoryUsedArr.push("0");
+          podMemoryUsedArr.push("0");
+        }
+        i += 2;
+
+        //skip spaces
+        while (arg[i] === " ") {
+          i++;
+        }
+        i++;
+        // console.log(" podCpuUsedArr is ", podCpuUsedArr);
+        // console.log(" podMemoryUsedArr is ", podMemoryUsedArr);
+        //join used values and add them to object
+        pod = {
+          podCpuUsed: podCpuUsedArr.join(""),
+          podMemoryUsed: podMemoryUsedArr.join(""),
+        };
+
+        j++;
+        // console.log("after used values i is", i, "and arg i is", arg[i]);
+        // console.log(" POD IS ", pod);
+        podUsageArray.push(pod);
+      } //end of for loop
+
+      let finalPodUsageArr = podUsageArray.filter(
+        (ele: any, ind: number) =>
+          ind ===
+          podUsageArray.findIndex(
+            (elem) =>
+              elem.podCpuUsed === ele.podCpuUsed &&
+              elem.podMemoryUsed === ele.podMemoryUsed
+          )
+      );
+
+      setPodsArr([...filteredPods]);
+      console.log("FINALPODSARR ISis", finalPodUsageArr);
+
+      for (let j = 0; j < finalPodUsageArr.length; j++) {
+        filteredPods[j]["podCpuUsed"] = finalPodUsageArr[j]["podCpuUsed"];
+        filteredPods[j]["podMemoryUsed"] = finalPodUsageArr[j]["podMemoryUsed"];
+      }
+      console.log("filtered pods is", filteredPods);
+    }); // end of ipc render function
+
+    //---------------------------------------- end of get all pods cpu and memory usage section -
+
+    // ----------------------------------------------- Beginning of get podcpu and memory limits section
+
+    let cpuLimitsCommand = `kubectl get po -o custom-columns="Name:metadata.name,CPU-limit:spec.containers[*].resources.limits.cpu",Memory-limit:"spec.containers[*].resources.limits.memory"`;
+    ipcRenderer.send("getCpuLimits_command", {
+      cpuLimitsCommand,
+      currDir,
+    });
+
+    //Listen to "get cpuUsed" return event
+    ipcRenderer.on("got_cpuLimits", (event, arg) => {
+      // console.log("ARG ISSSSSS", arg);
+      let argArr = arg.split("");
+      // console.log("arg arr is", argArr);
+      let podLimitsArray = [];
+
+      let pod = {};
+
+      let i: number = 0;
+
+      //skips "name"
+      while (argArr[i] !== " ") {
+        i++;
+      }
+
+      //skips spaces
+      while (argArr[i] === " ") {
+        i++;
+      }
+      //skips "CPU-limits"
+      while (argArr[i] !== " ") {
+        i++;
+      }
+      //skips spaces
+      while (argArr[i] === " ") {
+        i++;
+      }
+
+      //skips "memory-limits"
+      i += 13;
+
+      // //for loop to put all pods in array of objects
+      for (let j = 0; i < argArr.length; i++) {
+        let podCpuLimitsArr = [];
+        let podMemoryLimitsArr = [];
+        let podNameArr = [];
+
+        //take name because maybe be duplicate values]
+        while (argArr[i] !== " ") {
+          podNameArr.push(argArr[i]);
+          i++;
+        }
+        //skip spaces
+        while (argArr[i] === " ") {
+          i++;
+        }
+
+        // console.log("I IS:", i, " .... ARG ARRAY AT I IS:", argArr[i]);
+        if (argArr[i] === "<") {
+          podCpuLimitsArr = ["N", "O", "N", "E"];
+          i += 7;
+        } else {
+          //   //   // //save cpu-limits to array to parse at end of loops
+          //   console.log("ARG ARR at i is", argArr[i]);
+          while (
+            argArr[i] === "1" ||
+            argArr[i] === "2" ||
+            argArr[i] === "3" ||
+            argArr[i] === "4" ||
+            argArr[i] === "5" ||
+            argArr[i] === "6" ||
+            argArr[i] === "7" ||
+            argArr[i] === "8" ||
+            argArr[i] === "9" ||
+            argArr[i] === "0"
+          ) {
+            podCpuLimitsArr.push(argArr[i]);
+            i++;
+          }
+          // console.log("podCpuLimitsArr is", podCpuLimitsArr);
+          // i++;
+        }
+
+        //skip spaces after cpu limt value
+        while (arg[i] !== " ") {
+          i++;
+        }
+
+        //skip spaces
+        while (arg[i] === " ") {
+          i++;
+        }
+
+        if (argArr[i] === "<") {
+          podMemoryLimitsArr = ["N", "O", "N", "E"];
+          i += 6;
+        } else {
+          //save memory limit before unit of measure
+          while (
+            argArr[i] === "1" ||
+            argArr[i] === "2" ||
+            argArr[i] === "3" ||
+            argArr[i] === "4" ||
+            argArr[i] === "5" ||
+            argArr[i] === "6" ||
+            argArr[i] === "7" ||
+            argArr[i] === "8" ||
+            argArr[i] === "9" ||
+            argArr[i] === "0"
+          ) {
+            podMemoryLimitsArr.push(arg[i]);
+            i++;
+          }
+          if (argArr[i] === "G") {
+            podMemoryLimitsArr.push("0");
+            podMemoryLimitsArr.push("0");
+            podMemoryLimitsArr.push("0");
+            podMemoryLimitsArr.push("0");
+            podMemoryLimitsArr.push("0");
+            podMemoryLimitsArr.push("0");
+          } else if (argArr[i] === "M") {
+            podMemoryLimitsArr.push("0");
+            podMemoryLimitsArr.push("0");
+            podMemoryLimitsArr.push("0");
+          }
+
+          i += 3;
+          // console.log("podMemoryLimitsArr is", podMemoryLimitsArr);
+        }
+
+        //   //join used values and add them to object
+        pod = {
+          podName: podNameArr.join(""),
+          podCpuLimit: podCpuLimitsArr.join(""),
+          podMemoryLimit: podMemoryLimitsArr.join(""),
+        };
+
+        j++;
+        //   // console.log("after used values i is", i, "and arg i is", arg[i]);
+        // console.log(" POD IS ", pod);
+        podLimitsArray.push(pod);
+        pod = {};
+      } //end of for loop
+
+      let lastPodsArr = podLimitsArray.filter(
+        (ele: any, ind: number) =>
+          ind ===
+          podLimitsArray.findIndex((elem) => elem.podName === ele.podName)
+      );
+
+      setPodsArr([...filteredPods]);
+      console.log("LAST PODS ARR IS", lastPodsArr);
+
+      for (let j = 0; j < lastPodsArr.length; j++) {
+        filteredPods[j]["podCpuLimit"] = lastPodsArr[j]["podCpuLimit"];
+        filteredPods[j]["podMemoryLimit"] = lastPodsArr[j]["podMemoryLimit"];
+
+        if (filteredPods[j]["podCpuLimit"] === "NONE") {
+          filteredPods[j]["podCpuPercent"] = "N/A";
+        } else {
+          filteredPods[j]["podCpuPercent"] > 1
+            ? (filteredPods[j]["podCpuPercent"] = 100)
+            : (filteredPods[j]["podCpuPercent"] =
+                Number(filteredPods[j]["podCpuUsed"]) /
+                Number(filteredPods[j]["podCpuLimit"]));
+        }
+
+        filteredPods[j]["podMemoryPercent"] =
+          Number(filteredPods[j]["podMemoryUsed"]) /
+          Number(filteredPods[j]["podMemoryLimit"]);
+
+        if (filteredPods[j]["podMemoryLimit"] === "NONE") {
+          filteredPods[j]["podMemoryPercent"] = "N/A";
+        } else {
+          filteredPods[j]["podMemoryPercent"] > 1
+            ? (filteredPods[j]["podMemoryPercent"] = 100)
+            : (filteredPods[j]["podMemoryPercent"] =
+                Number(filteredPods[j]["podMemoryUsed"]) /
+                Number(filteredPods[j]["podMemoryLimit"]));
+        }
+      }
+    }); // end of ipc render function
+
+    // ----------------------------------------------- end of get podcpu and memory limits section
+
+    //final set of state
     setPodsArr([...filteredPods]);
     setPodsArr([...filteredPods]);
-  }, []);
+  }, []); // end of use effect
+
+  //------------------------------------------------------------- END OF GET ALL POD INFO SECTION ---
 
   // console.log("launch2 is", launch);
 
@@ -329,18 +678,33 @@ function Krane() {
   // console.log("podsArr 0 is", podsArr[0]);
   // console.log("typeof podsArr 0 is", typeof podsArr[0]);
 
-  // -------------------------------------------------- expand pods section -----------
+  console.log("filteredPods final is", filteredPods);
+  console.log("final pods array is", podsArr);
+  // -------------------------------------------------- beginning of expand pods section -----------
 
   const [openCommand, setCommandOpen] = React.useState(false);
   const [selectedPod, setSelectedPod] = useState([
-    { name: "", ready: "", status: "", restarts: "", lastRestart: "", age: "" },
+    {
+      name: "",
+      ready: "",
+      status: "",
+      restarts: "",
+      lastRestart: "",
+      age: "",
+      podCpuUsed: "",
+      podCpuLimit: "",
+      podCpuPercent: "",
+      podMemoryUsed: "",
+      podMemoryLimit: "",
+      podMemoryPercent: "",
+    },
   ]);
 
   const handleCommandOpen = (pod) => {
     setSelectedPod([pod]);
-    console.log("selected pod is ", pod);
+    // console.log("selected pod is ", pod);
     setCommandOpen(true);
-    console.log("selected pod is ", pod);
+    // console.log("selected pod is ", pod);
   };
   const handleCommandClose = () => {
     setSelectedPod([
@@ -351,23 +715,33 @@ function Krane() {
         restarts: "",
         lastRestart: "",
         age: "",
+        podCpuUsed: "",
+        podCpuLimit: "",
+        podCpuPercent: "",
+        podMemoryUsed: "",
+        podMemoryLimit: "",
+        podMemoryPercent: "",
       },
     ]);
     setCommandOpen(false);
   };
 
   //--------------------------------------------- end of expand pods section ---
+
+  // ---------------------------------------------------------- START OF FOR LOOP TO CREATE EACH POD"S JSX --------
   let podsList = [];
   for (let i = 0; i < podsArr.length; i++) {
     let readyStatusRunning;
+    let PodCpuPercentColor;
+    let PodMemoryPercentColor;
     let numerator = 0;
     let denominator = "";
 
-    let z = i;
+    // let z = i;
 
     let current = podsArr[i]["ready"];
     current = current.split("");
-    console.log("current is", current);
+    // console.log("current is", current);
 
     // let podsArrReadyLength = podsArr[i]["ready"].length;
 
@@ -381,18 +755,36 @@ function Krane() {
 
     for (let j = 0; current[j] !== "/"; j++) {
       curr = current[j];
-      console.log("curr is", curr);
+      // console.log("curr is", curr);
 
       let numerString = numerator.toString();
       numerator = Number((numerString += curr.concat()));
     }
 
-    console.log("numerator is", Number(numerator));
+    // console.log("numerator is", Number(numerator));
 
     if (podsArr[i]["status"] === "Running") {
-      readyStatusRunning = "green";
+      readyStatusRunning = "#2fc665";
     } else {
       readyStatusRunning = "yellow";
+    }
+
+    if (
+      podsArr[i]["podCpuPercent"] > 90 ||
+      typeof podsArr[i]["podCpuLimit"] !== "number"
+    ) {
+      PodCpuPercentColor = "#2fc665";
+    } else {
+      PodCpuPercentColor = "yellow";
+    }
+
+    if (
+      podsArr[i]["podMemoryPercent"] < 90 ||
+      typeof podsArr[i]["podMemoryPercent"] !== "number"
+    ) {
+      PodMemoryPercentColor = "#2fc665";
+    } else {
+      PodMemoryPercentColor = "yellow";
     }
 
     podsList.push(
@@ -438,8 +830,8 @@ function Krane() {
             color: theme.palette.mode === "dark" ? "white" : "grey",
             border:
               theme.palette.mode === "dark"
-                ? "1.5px solid white"
-                : "1.5px solid #9075ea",
+                ? "1.3px solid white"
+                : "1.3px solid grey",
             borderRadius: "5px",
             boxShadow:
               theme.palette.mode === "dark"
@@ -448,19 +840,18 @@ function Krane() {
             background: theme.palette.mode === "dark" ? "#0e0727" : "#e6e1fb",
           }}
         >
-          {" "}
           <div>{podsArr[i]["name"].toUpperCase()}</div>
           <div
             style={{
               display: "flex",
               flexDirection: "row",
               // border: "1px solid white",
-              justifyContent: "flex-start",
               textAlign: "center",
-              alignItems: "left",
-              alignContent: "flex-end",
+              alignItems: "center",
+              // alignContent: "flex-end",
               // border:"2px solid red"
-              padding: "0px 0px 0px 10px",
+              padding: "0px 0px 0px 0px",
+              fontSize: "15px",
             }}
           >
             <br />
@@ -470,14 +861,14 @@ function Krane() {
                 justifyContent: "flex-end",
                 width: "50px",
                 fontSize: "4",
-                padding: "5.5px 0px 0 0px",
+                padding: "9.5px 10px 0 0px",
                 color: `${readyStatusRunning}`,
               }}
             >
               <div
                 style={{
-                  fontSize: "",
-                  fontWeight: "400",
+                  fontSize: "16px",
+                  fontWeight: "500",
 
                   // border: "2px solid red",
                 }}
@@ -486,13 +877,13 @@ function Krane() {
               </div>
               <div
                 style={{
-                  fontSize: "small",
+                  fontSize: "10px",
                   // border: "2px solid red",
                   color: "white",
                   fontWeight: "400",
                 }}
               >
-                Ready
+                READY
               </div>
             </div>
 
@@ -500,16 +891,16 @@ function Krane() {
               style={{
                 flexDirection: "column",
                 justifyContent: "flex-end",
-                width: "90px",
+                width: "70px",
                 fontSize: "4",
-                padding: "5.5px 0px 0 0px",
+                padding: "9.5px 0px 0 0px",
                 color: `${readyStatusRunning}`,
               }}
             >
               <div
                 style={{
-                  fontSize: "",
-                  fontWeight: "400",
+                  fontSize: "16px",
+                  fontWeight: "500",
 
                   // border: "2px solid red",
                 }}
@@ -518,7 +909,7 @@ function Krane() {
               </div>
               <div
                 style={{
-                  fontSize: "small",
+                  fontSize: "10px",
                   // border: "2px solid red",
                   color: "white",
                   fontWeight: "400",
@@ -531,17 +922,17 @@ function Krane() {
               style={{
                 flexDirection: "column",
                 justifyContent: "flex-end",
-                width: "90px",
+                width: "60px",
                 fontSize: "4",
-                padding: "5.5px 0px 0 0px",
+                padding: "9.5px 0px 0 0px",
                 fontWeight: "400",
                 // color: `${readyStatusRunning}`,
               }}
             >
               <div
                 style={{
-                  fontSize: "",
-
+                  fontSize: "16px",
+                  fontWeight: "500",
                   // border: "2px solid red",
                 }}
               >
@@ -549,7 +940,7 @@ function Krane() {
               </div>
               <div
                 style={{
-                  fontSize: "small",
+                  fontSize: "10px",
                   // border: "2px solid red",
                   color: "white",
                 }}
@@ -564,24 +955,23 @@ function Krane() {
                 justifyContent: "flex-end",
                 width: "90px",
                 fontSize: "4",
-                padding: "5.5px 0px 0 0px",
-                margin: "0px 10px 0 10px",
+                padding: "9px 0px 0 0px",
+                margin: "0px 0px 0 0px",
                 fontWeight: "400",
                 // color: `${readyStatusRunning}`,
               }}
             >
               <div
                 style={{
-                  fontSize: "",
-
-                  // border: "2px solid red",
+                  fontSize: "16px",
+                  fontWeight: "500",
                 }}
               >
                 {podsArr[i]["lastRestart"]}
               </div>
               <div
                 style={{
-                  fontSize: "small",
+                  fontSize: "10px",
                   // border: "2px solid red",
                   color: "white",
                 }}
@@ -594,17 +984,17 @@ function Krane() {
               style={{
                 flexDirection: "column",
                 justifyContent: "flex-end",
-                width: "60px",
+                width: "40px",
                 fontSize: "4",
-                padding: "5.5px 0px 0 0px",
+                padding: "9px 0px 0 0px",
                 fontWeight: "400",
                 // color: `${readyStatusRunning}`,
               }}
             >
               <div
                 style={{
-                  fontSize: "",
-
+                  fontSize: "16px",
+                  fontWeight: "500",
                   // border: "2px solid red",
                 }}
               >
@@ -612,12 +1002,80 @@ function Krane() {
               </div>
               <div
                 style={{
-                  fontSize: "small",
+                  fontSize: "10px",
                   // border: "2px solid red",
                   color: "white",
                 }}
               >
                 AGE
+              </div>
+            </div>
+
+            <div
+              style={{
+                flexDirection: "column",
+                justifyContent: "flex-end",
+                width: "60px",
+                fontSize: "4",
+                padding: "9px 0px 0 0px",
+                fontWeight: "400",
+                // color: `${readyStatusRunning}`,
+              }}
+            >
+              <div
+                style={{
+                  fontSize: "16px",
+                  fontWeight: "500",
+                  // border: "2px solid red",
+                  color: `${PodCpuPercentColor}`,
+                }}
+              >
+                {typeof podsArr[i]["podCpuPercent"] === "number"
+                  ? `${podsArr[i]["podCpuPercent"]}%`
+                  : "N/A"}
+              </div>
+              <div
+                style={{
+                  fontSize: "10px",
+                  // border: "2px solid red",
+                  color: "white",
+                }}
+              >
+                CPU %
+              </div>
+            </div>
+
+            <div
+              style={{
+                flexDirection: "column",
+                justifyContent: "flex-end",
+                width: "60px",
+                fontSize: "4",
+                padding: "9px 0px 0 0px",
+                fontWeight: "400",
+                // color: `${readyStatusRunning}`,
+              }}
+            >
+              <div
+                style={{
+                  fontSize: "16px",
+                  fontWeight: "500",
+                  // border: "2px solid red",
+                  color: `${PodMemoryPercentColor}`,
+                }}
+              >
+                {typeof podsArr[i]["podMemoryPercent"] === "number"
+                  ? `${podsArr[i]["podMemoryPercent"]}%`
+                  : "N/A"}
+              </div>
+              <div
+                style={{
+                  fontSize: "10px",
+                  // border: "2px solid red",
+                  color: "white",
+                }}
+              >
+                MEMORY %
               </div>
             </div>
           </div>
@@ -631,27 +1089,13 @@ function Krane() {
           aria-describedby="modal-modal-description"
         >
           <Box sx={style}>
-            <Typography
-              id="modal-modal-title"
-              // variant='h6'
-              // component='h2'
-            ></Typography>
-            <Typography
-              id="modal-modal-description"
+            <div
               style={{
                 display: "flex",
-                flexDirection: "column",
-                top: "0",
-                left: "0",
-                overflow: "auto",
-                height: "100%",
-                width: "100%",
-                paddingLeft: "20px",
-                zIndex: "1350",
-
-                // border:"2px solid red"
+                flexDirection: "row",
+                justifyContent: "space-between",
+                border: "1px solid ",
               }}
-              sx={{ mt: 0 }}
             >
               {"  "}
               <strong
@@ -659,31 +1103,80 @@ function Krane() {
                   fontSize: "28px",
                   letterSpacing: "1px",
                   padding: "10px 0 0 0px",
-                  justifyContent: "left",
+                  justifyContent: "space-between",
+                  width: "100%",
+                  border: "1px solid red",
                 }}
               >
                 {selectedPod[0]["name"].toUpperCase()}
                 <br />
               </strong>
-              <br />
-              READY: {selectedPod[0]["ready"].toUpperCase()}
-              <br />
-              STATUS: {selectedPod[0]["status"].toUpperCase()}
-              <br />
-              RESTARTS: {selectedPod[0]["restarts"].toUpperCase()}
-              <br />
-              LAST RESTART: {selectedPod[0]["lastRestart"].toUpperCase()}
-              <br />
-              AGE: {selectedPod[0]["age"].toUpperCase()}
-            </Typography>
+              <div style={{ border: "1px solid yellow", width: "500px" }}>
+                <CircularProgress
+                  variant="determinate"
+                  value={100 * 0.72}
+                  style={{
+                    marginTop: "200px",
+                    marginLeft: "150px",
+                    rotate: "-130deg",
+                    color: "green",
+
+                    width: "200px",
+                    border: "1px solid red",
+                    filter: "drop-shadow(10px 10px 10px #000000)",
+                  }}
+                />
+              </div>
+              <div
+                style={{
+                  position: "relative",
+                  bottom: "-120px",
+                  left: "-21.5%",
+                  fontSize: "45px",
+                  color: "green",
+                  letterSpacing: "-2px",
+                  fontFamily: "Roboto",
+                  fontWeight: "900",
+                  fontStyle: "normal",
+                  filter: "drop-shadow(10px 10px 10px #000000)",
+                }}
+              >
+                100%
+              </div>
+            </div>
+            <br />
+            READY: {selectedPod[0]["ready"].toUpperCase()}
+            <br />
+            STATUS: {selectedPod[0]["status"].toUpperCase()}
+            <br />
+            RESTARTS: {selectedPod[0]["restarts"].toUpperCase()}
+            <br />
+            LAST RESTART: {selectedPod[0]["lastRestart"].toUpperCase()}
+            <br />
+            AGE: {selectedPod[0]["age"].toUpperCase()}
+            <br />
+            CPU USED: {selectedPod[0]["podCpuUsed"].toUpperCase()}m
+            <br />
+            CPU LIMIT: {selectedPod[0]["podCpuLimit"].toUpperCase()}m
+            <br />
+            CPU PERCENTAGE: {selectedPod[0]["podCpuPercent"]}
+            %
+            <br />
+            MEMORY USED: {selectedPod[0]["podMemoryUsed"].toUpperCase()}Mi
+            <br />
+            MEMORY LIMIT: {selectedPod[0]["podMemoryLimit"].toUpperCase()}Mi
+            <br />
+            MEMORY PERCENTAGE:{selectedPod[0]["podMemoryPercent"]}%
           </Box>
         </Modal>
       </div>
     );
-  }
+  } // end of for loop
+  // ---------------------------------------------------------- END OF FOR LOOP TO CREATE EACH POD"S JSX --------
 
+  // ---------------------------------------------------------- START OF IF CONDITION TO DETERMINE MAIN DIV'S JSX --------
   let mainDiv;
-  if (launch === false) {
+  if (launch !== true) {
     mainDiv = (
       <>
         <Button
@@ -744,8 +1237,8 @@ function Krane() {
               color: theme.palette.mode === "dark" ? "white" : "grey",
               border:
                 theme.palette.mode === "dark"
-                  ? "1.5px solid white"
-                  : "1.5px solid #9075ea",
+                  ? "1.2px solid white"
+                  : "1.2px solid #9075ea",
               borderRadius: "5px",
               boxShadow:
                 theme.palette.mode === "dark"
@@ -781,7 +1274,7 @@ function Krane() {
     );
   }
 
-  console.log("selected pod 3 is ", selectedPod);
+  // console.log("selected pod 3 is ", selectedPod);
 
   return (
     <>

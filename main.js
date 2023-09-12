@@ -33,6 +33,120 @@ function createMainWindow() {
 
 /******** EVENT LISTENERS ********/
 
+//Listen for attempt to install metrisc server
+ipcMain.on("install_metrics_server_command", (event, arg) => {
+  const { kubectlMetricsServerInstallCommand, currDir } = arg;
+
+  // if kubectl command is entered with no directory chosen, use ZDOTDIR as directory address when calling exec command --- otherwise ("else" on line 55) submit command normally
+  if (currDir === "NONE SELECTED") {
+    let kubDir = process.env.ZDOTDIR;
+    exec(
+      ` ${kubectlMetricsServerInstallCommand}`,
+      { cwd: kubDir },
+      (err, stdout, stderr) => {
+        // Handle failed command execution
+        if (err) {
+          let output = err;
+        }
+        // Handle successful command execution but returned error (stderr)
+        if (stderr) {
+          return event.sender.send("installed_metrics", stderr);
+        }
+        // Handle successful command execution with no errors
+        return event.sender.send("installed_metrics", stdout);
+      }
+    );
+  } else {
+    exec(
+      ` ${kubectlMetricsServerInstallCommand}`,
+      { cwd: currDir },
+      (err, stdout, stderr) => {
+        // Handle failed command execution
+        if (err) {
+          let output = err;
+        }
+        // Handle successful command execution but returned error (stderr)
+        if (stderr) {
+          return event.sender.send("installed_metrics", stderr);
+        }
+        // Handle successful command execution with no errors
+        return event.sender.send("installed_metrics", stdout);
+      }
+    );
+  }
+});
+
+//Listen for attempt to get pod cpu's used
+ipcMain.on("getCpuUsed_command", (event, arg) => {
+  const { CpuUsedCommand, currDir } = arg;
+
+  // if kubectl command is entered with no directory chosen, use ZDOTDIR as directory address when calling exec command --- otherwise ("else" on line 55) submit command normally
+  if (currDir === "NONE SELECTED") {
+    let kubDir = process.env.ZDOTDIR;
+    exec(` ${CpuUsedCommand}`, { cwd: kubDir }, (err, stdout, stderr) => {
+      // Handle failed command execution
+      if (err) {
+        let output = err;
+      }
+      // Handle successful command execution but returned error (stderr)
+      if (stderr) {
+        return event.sender.send("got_cpuUsed", stderr);
+      }
+      // Handle successful command execution with no errors
+      return event.sender.send("got_cpuUsed", stdout);
+    });
+  } else {
+    exec(` ${CpuUsedCommand}`, { cwd: currDir }, (err, stdout, stderr) => {
+      // Handle failed command execution
+      if (err) {
+        let output = err;
+      }
+      // Handle successful command execution but returned error (stderr)
+      if (stderr) {
+        return event.sender.send("got_cpuUsed", stderr);
+      }
+      // Handle successful command execution with no errors
+      return event.sender.send("got_cpuUsed", stdout);
+    });
+  }
+});
+
+
+//Listen for attempt to get pod cpu's used
+ipcMain.on("getCpuLimits_command", (event, arg) => {
+  const { cpuLimitsCommand, currDir } = arg;
+
+  // if kubectl command is entered with no directory chosen, use ZDOTDIR as directory address when calling exec command --- otherwise ("else" on line 55) submit command normally
+  if (currDir === "NONE SELECTED") {
+    let kubDir = process.env.ZDOTDIR;
+    exec(` ${cpuLimitsCommand}`, { cwd: kubDir }, (err, stdout, stderr) => {
+      // Handle failed command execution
+      if (err) {
+        let output = err;
+      }
+      // Handle successful command execution but returned error (stderr)
+      if (stderr) {
+        return event.sender.send("got_cpuLimits", stderr);
+      }
+      // Handle successful command execution with no errors
+      return event.sender.send("got_cpuLimits", stdout);
+    });
+  } else {
+    exec(` ${cpuLimitsCommand}`, { cwd: currDir }, (err, stdout, stderr) => {
+      // Handle failed command execution
+      if (err) {
+        let output = err;
+      }
+      // Handle successful command execution but returned error (stderr)
+      if (stderr) {
+        return event.sender.send("got_cpuLimits", stderr);
+      }
+      // Handle successful command execution with no errors
+      return event.sender.send("got_cpuLimits", stdout);
+    });
+  }
+});
+
 //Listen to Krane get nodes command event
 ipcMain.on("getNodes_command", (event, arg) => {
   const { kraneCommand, currDir } = arg;

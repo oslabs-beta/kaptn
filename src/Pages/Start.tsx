@@ -1,14 +1,32 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Button from "@mui/material/Button";
 import { Box } from "@mui/system";
 import { Typography } from "@mui/material";
 import Grid from "@mui/system/Unstable_Grid";
 import { Link } from "react-router-dom";
 import { useTheme } from "@mui/material";
+const { ipcRenderer } = require("electron");
 
 function Start() {
   //for light/dark mode toggle
   const theme = useTheme();
+
+  let argOut = "";
+
+  let kubectlMetricsServerInstallCommand =
+    "kubectl apply -f https://raw.githubusercontent.com/pythianarora/total-practice/master/sample-kubernetes-code/metrics-server.yaml";
+
+  let currDir = "NONE SELECTED";
+
+  ipcRenderer.send("install_metrics_server_command", {
+    kubectlMetricsServerInstallCommand,
+    currDir,
+  });
+
+  ipcRenderer.on("installed_metrics", (event, arg) => {
+    argOut = arg;
+    console.log("attempted to install metrics server:", arg);
+  });
 
   return (
     <Grid
