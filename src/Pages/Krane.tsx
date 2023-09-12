@@ -824,9 +824,9 @@ function Krane() {
             // border: "1px solid white",
             justifyContent: "space-between",
             textAlign: "left",
-            alignItems: "flex-start",
-            margin: "4px 0 0 0",
-            padding: "12px 10px 10px 17px",
+            alignItems: "space-between",
+            margin: "2px 0 0 0",
+            padding: "10px 0px 10px 0px",
             color: theme.palette.mode === "dark" ? "white" : "grey",
             border:
               theme.palette.mode === "dark"
@@ -840,14 +840,64 @@ function Krane() {
             background: theme.palette.mode === "dark" ? "#0e0727" : "#e6e1fb",
           }}
         >
-          <div>{podsArr[i]["name"].toUpperCase()}</div>
+          {" "}
+          <div style={{ display: "flex", flexDirection: "row" }}>
+            <img
+              style={{ width: "40px", marginLeft: "0px" }}
+              src="../../public/pod.svg"
+            ></img>
+            <span
+              style={{
+                margin: "5px 0 0 15px",
+                width: "320px",
+                lineHeight: "23px",
+              }}
+            >
+              {podsArr[i]["name"].toUpperCase()}
+            </span>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                textAlign: "right",
+                alignItems: "flex-end",
+                justifyContent: "right",
+                margin: "2px 0 0 0",
+              }}
+            >
+              <div
+                style={{
+                  width: "12px",
+                  height: "12px",
+                  borderRadius: "15px",
+                  backgroundColor: " #2fc665",
+                  justifyContent: "right",
+                  margin: "4px 0 2px 0",
+                  // border: ".5px solid white",
+                }}
+              ></div>
+              <div style={{ fontSize: "10px", color: `${readyStatusRunning}` }}>
+                {podsArr[i]["ready"]}
+              </div>
+              <div
+                style={{
+                  fontSize: "10px",
+                  margin: "-4px 0 0 0",
+                  color: `${readyStatusRunning}`,
+                }}
+              >
+                {podsArr[i]["status"]}
+              </div>
+            </div>
+          </div>
           <div
             style={{
               display: "flex",
               flexDirection: "row",
               // border: "1px solid white",
               textAlign: "center",
-              alignItems: "center",
+              justifyContent: "space-between",
+              width: "400px",
               // alignContent: "flex-end",
               // border:"2px solid red"
               padding: "0px 0px 0px 0px",
@@ -855,7 +905,7 @@ function Krane() {
             }}
           >
             <br />
-            <div
+            {/* <div
               style={{
                 flexDirection: "column",
                 justifyContent: "flex-end",
@@ -885,9 +935,9 @@ function Krane() {
               >
                 READY
               </div>
-            </div>
+            </div> */}
 
-            <div
+            {/* <div
               style={{
                 flexDirection: "column",
                 justifyContent: "flex-end",
@@ -917,7 +967,7 @@ function Krane() {
               >
                 STATUS
               </div>
-            </div>
+            </div> */}
             <div
               style={{
                 flexDirection: "column",
@@ -1014,7 +1064,8 @@ function Krane() {
             <div
               style={{
                 flexDirection: "column",
-                justifyContent: "flex-end",
+                justifyContent: "center",
+                textAlign: "center",
                 width: "60px",
                 fontSize: "4",
                 padding: "9px 0px 0 0px",
