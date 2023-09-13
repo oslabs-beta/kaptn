@@ -631,40 +631,78 @@ function Krane() {
       );
 
       setPodsArr([...filteredPods]);
-      console.log("LAST PODS ARR IS", lastPodsArr);
+      // console.log("LAST PODS ARR LENGTH IS", lastPodsArr.length);
 
       for (let j = 0; j < lastPodsArr.length; j++) {
-        filteredPods[j]["podCpuLimit"] = lastPodsArr[j]["podCpuLimit"];
-        filteredPods[j]["podMemoryLimit"] = lastPodsArr[j]["podMemoryLimit"];
+        let currentCpu = lastPodsArr[j]["podCpuLimit"];
+        let currentMemory = lastPodsArr[j]["podMemoryLimit"];
+        filteredPods[j]["podCpuLimit"] = currentCpu;
+        filteredPods[j]["podMemoryLimit"] = currentMemory;
 
-        if (filteredPods[j]["podCpuLimit"] === "NONE") {
+        filteredPods[j]["podCpuPercent"] = currentCpu;
+
+        // let log = Number(filteredPods[j]["podCpuUsed"]);
+        console.log("filterd cpu limit is ", filteredPods[j]["podCpuLimit"]);
+        console.log(
+          "filterd memory limit is ",
+          filteredPods[j]["podMemoryLimit"]
+        );
+
+        if (currentCpu === "NONE") {
           filteredPods[j]["podCpuPercent"] = "N/A";
         } else {
-          filteredPods[j]["podCpuPercent"] > 1
-            ? (filteredPods[j]["podCpuPercent"] = 100)
-            : (filteredPods[j]["podCpuPercent"] =
-                Number(filteredPods[j]["podCpuUsed"]) /
-                Number(filteredPods[j]["podCpuLimit"]));
+          let cpuUsed = Number(filteredPods[j]["podCpuUsed"]);
+          filteredPods[j]["podCpuPercent"] = cpuUsed / currentCpu;
+          if (filteredPods[j]["podCpuPercent"] >= 1) {
+            filteredPods[j]["podCpuPercent"] = 100;
+          } else {
+            filteredPods[j]["podCpuPercent"] =
+              filteredPods[j]["podCpuPercent"] * 100;
+          }
         }
 
-        filteredPods[j]["podMemoryPercent"] =
-          Number(filteredPods[j]["podMemoryUsed"]) /
-          Number(filteredPods[j]["podMemoryLimit"]);
-
-        if (filteredPods[j]["podMemoryLimit"] === "NONE") {
+        if (currentMemory === "NONE") {
           filteredPods[j]["podMemoryPercent"] = "N/A";
         } else {
-          filteredPods[j]["podMemoryPercent"] > 1
-            ? (filteredPods[j]["podMemoryPercent"] = 100)
-            : (filteredPods[j]["podMemoryPercent"] =
-                Number(filteredPods[j]["podMemoryUsed"]) /
-                Number(filteredPods[j]["podMemoryLimit"]));
+          let memoryUsed = Number(filteredPods[j]["podMemoryUsed"]);
+          filteredPods[j]["podMemoryPercent"] = memoryUsed / currentMemory;
+          if (filteredPods[j]["podMemoryPercent"] >= 1) {
+            filteredPods[j]["podMemoryPercent"] = ">100";
+          } else {
+            filteredPods[j]["podMemoryPercent"] =
+              filteredPods[j]["podMemoryPercent"] * 100;
+          }
         }
+
+        // // filteredPods[j]["podMemoryPercent"] =
+        // //   Number(filteredPods[j]["podMemoryUsed"]) /
+        // //   Number(filteredPods[j]["podMemoryLimit"]);
+
+        // let percent = 0;
+
+        // if (filteredPods[j]["podMemoryLimit"] === "NONE") {
+        //   filteredPods[j]["podMemoryPercent"] = "N/A";
+        // } else if (filteredPods[j]["podMemoryPercent"] >= 1) {
+        //   filteredPods[j]["podMemoryPercent"] = 100;
+        // } else
+        //   filteredPods[j]["podMemoryPercent"] =
+        //     Number(filteredPods[j]["podMemoryUsed"]) /
+        //     Number(filteredPods[j]["podMemoryLimit"]);
       }
     }); // end of ipc render function
 
     // ----------------------------------------------- end of get podcpu and memory limits section
 
+    // for (let i = 0; i < filteredPods.length; i++) {
+    //   if (filteredPods[i]["podMemoryLimit"] === "NONE") {
+    //     filteredPods[i]["podMemoryPercent"] = "N/A";
+    //   } else if (filteredPods[i]["podMemoryPercent"] >= 1) {
+    //     filteredPods[i]["podMemoryPercent"] = 100;
+    //   } else
+    //     filteredPods[i]["podMemoryPercent"] =
+    //       Number(filteredPods[i]["podMemoryUsed"]) /
+    //       Number(filteredPods[i]["podMemoryLimit"]);
+    // }
     //final set of state
     setPodsArr([...filteredPods]);
     setPodsArr([...filteredPods]);
@@ -680,6 +718,7 @@ function Krane() {
 
   console.log("filteredPods final is", filteredPods);
   console.log("final pods array is", podsArr);
+
   // -------------------------------------------------- beginning of expand pods section -----------
 
   const [openCommand, setCommandOpen] = React.useState(false);
@@ -780,7 +819,7 @@ function Krane() {
 
     if (
       podsArr[i]["podMemoryPercent"] < 90 ||
-      typeof podsArr[i]["podMemoryPercent"] !== "number"
+      podsArr[i]["podMemoryPercent"] === "N/A"
     ) {
       PodMemoryPercentColor = "#2fc665";
     } else {
@@ -1081,9 +1120,9 @@ function Krane() {
                   color: `${PodCpuPercentColor}`,
                 }}
               >
-                {typeof podsArr[i]["podCpuPercent"] === "number"
-                  ? `${podsArr[i]["podCpuPercent"]}%`
-                  : "N/A"}
+                {podsArr[i]["podCpuPercent"] === "N/A"
+                  ? `N/A`
+                  : `${podsArr[i]["podCpuPercent"]}%`}
               </div>
               <div
                 style={{
@@ -1115,9 +1154,9 @@ function Krane() {
                   color: `${PodMemoryPercentColor}`,
                 }}
               >
-                {typeof podsArr[i]["podMemoryPercent"] === "number"
-                  ? `${podsArr[i]["podMemoryPercent"]}%`
-                  : "N/A"}
+                {podsArr[i]["podMemoryPercent"] === "N/A"
+                  ? `N/A`
+                  : `${podsArr[i]["podMemoryPercent"]}%`}
               </div>
               <div
                 style={{
