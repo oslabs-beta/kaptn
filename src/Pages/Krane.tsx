@@ -667,7 +667,7 @@ function Krane() {
           let memoryUsed = Number(filteredPods[j]["podMemoryUsed"]);
           filteredPods[j]["podMemoryPercent"] = memoryUsed / currentMemory;
           if (filteredPods[j]["podMemoryPercent"] >= 1) {
-            filteredPods[j]["podMemoryPercent"] = ">100";
+            filteredPods[j]["podMemoryPercent"] = "100";
           } else {
             filteredPods[j]["podMemoryPercent"] =
               filteredPods[j]["podMemoryPercent"] * 100;
@@ -805,25 +805,23 @@ function Krane() {
     if (podsArr[i]["status"] === "Running") {
       readyStatusRunning = "#2fc665";
     } else {
-      readyStatusRunning = "yellow";
+      readyStatusRunning = "rgba(210, 223, 61)";
     }
 
-    if (
-      podsArr[i]["podCpuPercent"] > 90 ||
-      typeof podsArr[i]["podCpuLimit"] !== "number"
-    ) {
+    if (podsArr[i]["podCpuPercent"] === "N/A") {
+      PodCpuPercentColor = "#ffffff80";
+    } else if (podsArr[i]["podCpuPercent"] < 90) {
       PodCpuPercentColor = "#2fc665";
     } else {
-      PodCpuPercentColor = "yellow";
+      PodCpuPercentColor = "#cf4848";
     }
 
-    if (
-      podsArr[i]["podMemoryPercent"] < 90 ||
-      podsArr[i]["podMemoryPercent"] === "N/A"
-    ) {
+    if (podsArr[i]["podMemoryPercent"] === "N/A") {
+      PodMemoryPercentColor = "#ffffff80";
+    } else if (podsArr[i]["podMemoryPercent"] < 90) {
       PodMemoryPercentColor = "#2fc665";
     } else {
-      PodMemoryPercentColor = "yellow";
+      PodMemoryPercentColor = "#cf4848";
     }
 
     podsList.push(
@@ -858,14 +856,14 @@ function Krane() {
             display: "flex",
             flexDirection: "column",
             width: "450px",
-            height: "140px",
+            height: "145px",
             fontSize: "16px",
             // border: "1px solid white",
-            justifyContent: "space-between",
+            justifyContent: "space-around",
             textAlign: "left",
             alignItems: "space-between",
             margin: "2px 0 0 0",
-            padding: "10px 0px 10px 0px",
+            padding: "35px 0px 0px 0px",
             color: theme.palette.mode === "dark" ? "white" : "grey",
             border:
               theme.palette.mode === "dark"
@@ -909,9 +907,9 @@ function Krane() {
                   width: "12px",
                   height: "12px",
                   borderRadius: "15px",
-                  backgroundColor: " #2fc665",
+                  backgroundColor: "#2fc665",
                   justifyContent: "right",
-                  margin: "4px 0 2px 0",
+                  margin: "5px 0 2px 0",
                   // border: ".5px solid white",
                 }}
               ></div>
@@ -929,174 +927,152 @@ function Krane() {
               </div>
             </div>
           </div>
-          <div
+          {/*---------------------------------------------------------- */}
+          {/*                  beginng of row of stats below pod name   */}
+          {/*---------------------------------------------------------- */}
+          <span
             style={{
               display: "flex",
               flexDirection: "row",
-              // border: "1px solid white",
+              // border: "1px solid green",
               textAlign: "center",
-              justifyContent: "space-between",
-              width: "400px",
+              justifyContent: "left",
+              alignItems: "flex-start",
+              width: "100%",
               // alignContent: "flex-end",
-              // border:"2px solid red"
-              padding: "0px 0px 0px 0px",
+              // border: "2px solid red",
+              padding: "0px 0px 0px 70px",
+              margin: "5px 0px 0px 0px",
               fontSize: "15px",
             }}
           >
             <br />
-            {/* <div
+            <div
               style={{
                 flexDirection: "column",
-                justifyContent: "flex-end",
-                width: "50px",
-                fontSize: "4",
-                padding: "9.5px 10px 0 0px",
-                color: `${readyStatusRunning}`,
+                justifyContent: "left",
+                textAlign: "left",
+                width: "200px",
+                fontSize: "11.5px",
+                padding: "0px 0px 0 0px",
+                fontWeight: "400",
+                marginTop: "0px",
+                // border: "1px solid blue",
+                lineHeight: "16px",
+                opacity: ".5",
+                // color: `${readyStatusRunning}`,
               }}
             >
-              <div
-                style={{
-                  fontSize: "16px",
-                  fontWeight: "500",
+              CPU USAGE:{" "}
+              {podsArr[i]["podCpuLimit"] === "NONE" ||
+              podsArr[i]["podCpuLimit"] === ""
+                ? `${podsArr[i]["podCpuUsed"]}m`
+                : `${podsArr[i]["podCpuUsed"]}m / ${podsArr[i]["podCpuLimit"]}m`}
+              <br />
+              MEMORY USAGE:{" "}
+              {podsArr[i]["podMemoryLimit"] === "NONE" ||
+              podsArr[i]["podMemoryLimit"] === ""
+                ? `${podsArr[i]["podMemoryUsed"]}`
+                : `${podsArr[i]["podMemoryUsed"]} / ${podsArr[i]["podMemoryLimit"]}`}
+              <br />
+              RESTARTS: {podsArr[i]["restarts"]}
+              <br />
+              LAST RESTART: {podsArr[i]["lastRestart"]}
+            </div>
 
-                  // border: "2px solid red",
-                }}
-              >
-                {podsArr[i]["ready"]}
-              </div>
-              <div
-                style={{
-                  fontSize: "10px",
-                  // border: "2px solid red",
-                  color: "white",
-                  fontWeight: "400",
-                }}
-              >
-                READY
-              </div>
-            </div> */}
-
-            {/* <div
+            <div
               style={{
                 flexDirection: "column",
-                justifyContent: "flex-end",
+                justifyContent: "center",
+                textAlign: "center",
+                alignItems: "center",
                 width: "70px",
                 fontSize: "4",
-                padding: "9.5px 0px 0 0px",
-                color: `${readyStatusRunning}`,
-              }}
-            >
-              <div
-                style={{
-                  fontSize: "16px",
-                  fontWeight: "500",
-
-                  // border: "2px solid red",
-                }}
-              >
-                {podsArr[i]["status"]}
-              </div>
-              <div
-                style={{
-                  fontSize: "10px",
-                  // border: "2px solid red",
-                  color: "white",
-                  fontWeight: "400",
-                }}
-              >
-                STATUS
-              </div>
-            </div> */}
-            <div
-              style={{
-                flexDirection: "column",
-                justifyContent: "flex-end",
-                width: "60px",
-                fontSize: "4",
-                padding: "9.5px 0px 0 0px",
+                padding: "6px 0px 0 0px",
                 fontWeight: "400",
+                marginRight: "18px",
+                marginTop: "3px",
+                // border: "1px solid red",
                 // color: `${readyStatusRunning}`,
               }}
             >
               <div
-                style={{
-                  fontSize: "16px",
-                  fontWeight: "500",
-                  // border: "2px solid red",
-                }}
+                style={
+                  {
+                    // border: "1px solid yellow"
+                  }
+                }
               >
-                {podsArr[i]["restarts"]}
-              </div>
-              <div
-                style={{
-                  fontSize: "10px",
-                  // border: "2px solid red",
-                  color: "white",
-                }}
-              >
-                RESTARTS
-              </div>
-            </div>
+                <CircularProgress
+                  variant="determinate"
+                  // @ts-nocheck
+                  thickness={1.35}
+                  value={100 * 0.73}
+                  style={{
+                    marginTop: "18px",
+                    marginLeft: "10.5px",
+                    rotate: "-131deg",
+                    color: "#ffffff40",
 
-            <div
-              style={{
-                flexDirection: "column",
-                justifyContent: "flex-end",
-                width: "90px",
-                fontSize: "4",
-                padding: "9px 0px 0 0px",
-                margin: "0px 0px 0 0px",
-                fontWeight: "400",
-                // color: `${readyStatusRunning}`,
-              }}
-            >
-              <div
-                style={{
-                  fontSize: "16px",
-                  fontWeight: "500",
-                }}
-              >
-                {podsArr[i]["lastRestart"]}
-              </div>
-              <div
-                style={{
-                  fontSize: "10px",
-                  // border: "2px solid red",
-                  color: "white",
-                }}
-              >
-                LAST RESTART
-              </div>
-            </div>
+                    width: "68px",
+                    // border: "1px solid red",
+                    filter: "drop-shadow(10px 10px 10px #000000)",
+                  }}
+                />
+                <CircularProgress
+                  variant="determinate"
+                  // @ts-nocheck
+                  thickness={1.35}
+                  value={
+                    podsArr[i]["podCpuLimit"] === "NONE"
+                      ? 0
+                      : Number(`${podsArr[i]["podCpuPercent"]}`) * 0.73
+                  }
+                  style={{
+                    position: "relative",
+                    top: "-48px",
+                    left: "9.5px",
+                    rotate: "-131deg",
+                    color: `${PodCpuPercentColor}`,
 
-            <div
-              style={{
-                flexDirection: "column",
-                justifyContent: "flex-end",
-                width: "40px",
-                fontSize: "4",
-                padding: "9px 0px 0 0px",
-                fontWeight: "400",
-                // color: `${readyStatusRunning}`,
-              }}
-            >
+                    width: "68px",
+                    // border: "1px solid red",
+                    filter: "drop-shadow(10px 10px 10px #000000)",
+                  }}
+                />
+              </div>
               <div
                 style={{
+                  position: "relative",
+                  top: "-48px",
+                  left: "5px",
                   fontSize: "16px",
                   fontWeight: "500",
+                  marginTop: "-60px",
+                  marginLeft: "-8px",
                   // border: "2px solid red",
+                  color: `${PodCpuPercentColor}`,
                 }}
               >
-                {podsArr[i]["age"]}
+                {podsArr[i]["podCpuLimit"] === "NONE"
+                  ? `no max`
+                  : `${podsArr[i]["podCpuPercent"]}%`}
               </div>
               <div
                 style={{
                   fontSize: "10px",
-                  // border: "2px solid red",
-                  color: "white",
+                  position: "relative",
+                  top: "-48px",
+                  left: "-1.5px",
+                  // border: "1px solid red",
+
+                  marginRight: "-2px",
+                  fontWeight: "500",
+                  marginTop: "-8px",
+                  color: `${PodCpuPercentColor}`,
                 }}
               >
-                AGE
+                CPU
               </div>
             </div>
 
@@ -1105,70 +1081,97 @@ function Krane() {
                 flexDirection: "column",
                 justifyContent: "center",
                 textAlign: "center",
-                width: "60px",
+                alignItems: "center",
+                width: "70px",
                 fontSize: "4",
-                padding: "9px 0px 0 0px",
+                padding: "6px 0px 0 0px",
                 fontWeight: "400",
+                marginRight: "18px",
+                marginTop: "3px",
+                // border: "1px solid red",
                 // color: `${readyStatusRunning}`,
               }}
             >
               <div
-                style={{
-                  fontSize: "16px",
-                  fontWeight: "500",
-                  // border: "2px solid red",
-                  color: `${PodCpuPercentColor}`,
-                }}
+                style={
+                  {
+                    // border: "1px solid yellow"
+                  }
+                }
               >
-                {podsArr[i]["podCpuPercent"] === "N/A"
-                  ? `N/A`
-                  : `${podsArr[i]["podCpuPercent"]}%`}
-              </div>
-              <div
-                style={{
-                  fontSize: "10px",
-                  // border: "2px solid red",
-                  color: "white",
-                }}
-              >
-                CPU %
-              </div>
-            </div>
+                <CircularProgress
+                  variant="determinate"
+                  // @ts-nocheck
+                  thickness={1.35}
+                  value={100 * 0.73}
+                  style={{
+                    marginTop: "18px",
+                    marginLeft: "9.5px",
+                    rotate: "-131deg",
+                    color: "#ffffff40",
 
-            <div
-              style={{
-                flexDirection: "column",
-                justifyContent: "flex-end",
-                width: "60px",
-                fontSize: "4",
-                padding: "9px 0px 0 0px",
-                fontWeight: "400",
-                // color: `${readyStatusRunning}`,
-              }}
-            >
+                    width: "68px",
+                    // border: "1px solid red",
+                    filter: "drop-shadow(10px 10px 10px #000000)",
+                  }}
+                />
+                <CircularProgress
+                  variant="determinate"
+                  // @ts-nocheck
+                  thickness={1.35}
+                  value={
+                    podsArr[i]["podMemoryLimit"] === "NONE"
+                      ? 0
+                      : Number(`${podsArr[i]["podMemoryPercent"]}`) * 0.73
+                  }
+                  style={{
+                    position: "relative",
+                    top: "-48px",
+                    left: "8.5px",
+                    rotate: "-131deg",
+                    color: `${PodMemoryPercentColor}`,
+
+                    width: "68px",
+                    // border: "1px solid red",
+                    filter: "drop-shadow(10px 10px 10px #000000)",
+                  }}
+                />
+              </div>
               <div
                 style={{
+                  position: "relative",
+                  top: "-48px",
+                  left: "5px",
                   fontSize: "16px",
                   fontWeight: "500",
+                  marginTop: "-60px",
+                  marginLeft: "-10px",
                   // border: "2px solid red",
                   color: `${PodMemoryPercentColor}`,
                 }}
               >
                 {podsArr[i]["podMemoryPercent"] === "N/A"
-                  ? `N/A`
+                  ? `no max`
                   : `${podsArr[i]["podMemoryPercent"]}%`}
               </div>
               <div
                 style={{
                   fontSize: "10px",
-                  // border: "2px solid red",
-                  color: "white",
+                  position: "relative",
+                  top: "-48px",
+                  left: "-.5px",
+                  // border: "1px solid red",
+
+                  marginRight: "-2px",
+                  fontWeight: "500",
+                  marginTop: "-8px",
+                  color: `${PodMemoryPercentColor}`,
                 }}
               >
-                MEMORY %
+                MEMORY
               </div>
             </div>
-          </div>
+          </span>
           {}
         </Button>
         <Modal
@@ -1179,84 +1182,337 @@ function Krane() {
           aria-describedby="modal-modal-description"
         >
           <Box sx={style}>
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "row",
-                justifyContent: "space-between",
-                border: "1px solid ",
-              }}
-            >
-              {"  "}
-              <strong
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              <div
                 style={{
-                  fontSize: "28px",
-                  letterSpacing: "1px",
-                  padding: "10px 0 0 0px",
-                  justifyContent: "space-between",
-                  width: "100%",
-                  border: "1px solid red",
+                  display: "flex",
+                  flexDirection: "row",
+                  // border: "1px solid white",
                 }}
               >
-                {selectedPod[0]["name"].toUpperCase()}
-                <br />
-              </strong>
-              <div style={{ border: "1px solid yellow", width: "500px" }}>
-                <CircularProgress
-                  variant="determinate"
-                  value={100 * 0.72}
+                <div style={{ width: "140px" }}>
+                  <img
+                    style={{ width: "100px", margin: "15px 25px 0 20px" }}
+                    src="../../public/pod.svg"
+                  ></img>
+                </div>
+                {"  "}
+                <div
                   style={{
-                    marginTop: "200px",
-                    marginLeft: "150px",
-                    rotate: "-130deg",
-                    color: "green",
-
-                    width: "200px",
-                    border: "1px solid red",
-                    filter: "drop-shadow(10px 10px 10px #000000)",
+                    fontSize: "32px",
+                    fontWeight: "800",
+                    letterSpacing: "1px",
+                    padding: "10px 0 10px 10px",
+                    // border: "1px solid yellow",
+                    width: "900px",
                   }}
-                />
+                >
+                  {selectedPod[0]["name"].toUpperCase()}
+                </div>
+
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    textAlign: "right",
+                    alignItems: "flex-end",
+                    justifyContent: "right",
+                    margin: "15px 15px 0 100px",
+                    // border:"1px solid green",
+                    // width:"200px"
+                  }}
+                >
+                  <div
+                    style={{
+                      width: "24px",
+                      height: "24px",
+                      borderRadius: "15px",
+                      backgroundColor: "#2fc665",
+                      justifyContent: "right",
+                      margin: "0px 0 2px 0",
+                      // border: "5px solid white",
+                    }}
+                  ></div>
+                  <div
+                    style={{
+                      fontSize: "20px",
+                      fontWeight: "500",
+                      color: `${readyStatusRunning}`,
+                    }}
+                  >
+                    {podsArr[i]["ready"].toUpperCase()}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: "20px",
+                      fontWeight: "500",
+                      margin: "-4px 0 0 0",
+                      color: `${readyStatusRunning}`,
+                    }}
+                  >
+                    {podsArr[i]["status"].toUpperCase()}
+                  </div>
+                </div>
               </div>
               <div
                 style={{
-                  position: "relative",
-                  bottom: "-120px",
-                  left: "-21.5%",
-                  fontSize: "45px",
-                  color: "green",
-                  letterSpacing: "-2px",
-                  fontFamily: "Roboto",
-                  fontWeight: "900",
-                  fontStyle: "normal",
-                  filter: "drop-shadow(10px 10px 10px #000000)",
+                  display: "flex",
+                  flexDirection: "row",
+                  // border: "1px solid pink",
+                  width: "100%",
                 }}
               >
-                100%
+                <div style={{ flexDirection: "column", width: "250px" }}>
+                  <div style={{ paddingLeft: "40px", color: "#ffffff99" }}>
+                    <br />
+                    CPU USED: {selectedPod[0]["podCpuUsed"].toUpperCase()}m
+                    <br />
+                    CPU LIMIT: {selectedPod[0]["podCpuLimit"].toUpperCase()}m
+                    <br />
+                    CPU PERCENTAGE: {selectedPod[0]["podCpuPercent"]}%
+                    <br />
+                    MEMORY USED: {selectedPod[0]["podMemoryUsed"].toUpperCase()}
+                    Mi
+                    <br />
+                    MEMORY LIMIT:
+                    {selectedPod[0]["podMemoryLimit"].toUpperCase()}Mi
+                    <br />
+                    MEMORY PERCENTAGE:{selectedPod[0]["podMemoryPercent"]}%
+                  </div>{" "}
+                </div>
+                <div
+                  style={{
+                    flexDirection: "column",
+                    width: "200px",
+                    color: "#ffffff99",
+                    // border: "2px solid green",
+                  }}
+                >
+                  <div style={{ paddingLeft: "20px" }}>
+                    <br />
+                    RESTARTS: {selectedPod[0]["restarts"].toUpperCase()}
+                    <br />
+                    LAST RESTART: {selectedPod[0]["lastRestart"].toUpperCase()}
+                    <br />
+                    AGE: {selectedPod[0]["age"].toUpperCase()}
+                    <br />
+                    IP ADDRESS: 1.05.456.156
+                    {/* {selectedPod[0]["ready"].toUpperCase()} */}
+                    <br />
+                    IP ADDRESS 2: 1.80.204.156
+                    {/* {selectedPod[0]["status"].toUpperCase()} */}
+                    <br />
+                  </div>
+                </div>
+
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    // border: "1px solid yellow",
+                  }}
+                >
+                  <CircularProgress
+                    variant="determinate"
+                    // @ts-nocheck
+                    thickness={1.35}
+                    value={100 * 0.73}
+                    style={{
+                      marginTop: "130px",
+                      marginLeft: "95.5px",
+                      rotate: "-131deg",
+                      color: "#ffffff40",
+
+                      width: "180px",
+                      // border: "1px solid red",
+                      filter: "drop-shadow(10px 10px 10px #000000)",
+                    }}
+                  />
+                  <CircularProgress
+                    variant="determinate"
+                    // @ts-nocheck
+                    thickness={1.37}
+                    value={
+                      2 *
+                      // podsArr[i]["podCpuLimit"] === "NONE"
+                      //   ? 0
+                      //   : Number(`${selectedPod[0]["podCpuPercent"]}`)
+                      0.73
+                    }
+                    style={{
+                      position: "relative",
+                      top: "-40px",
+                      left: "48px",
+                      rotate: "-131deg",
+                      color: "green", //`${PodCpuPercentColor}`,
+
+                      width: "180px",
+                      // border: "1px solid red",
+                      filter: "drop-shadow(10px 10px 10px #000000)",
+                    }}
+                  />
+                  <div
+                    style={{
+                      position: "relative",
+                      top: "-100px",
+                      left: "0px",
+                      fontSize: "38px",
+                      fontWeight: "800",
+                      marginTop: "-60px",
+                      marginLeft: "5px",
+                      // border: "2px solid blue",
+                      color: "green", //`${PodMemoryPercentColor}`,
+                    }}
+                  >
+                    {selectedPod[0]["podCpuPercent"] === "N/A"
+                      ? `no max`
+                      : `${selectedPod[0]["podCpuPercent"]}%`}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: "16px",
+                      position: "relative",
+                      top: "-104px",
+                      left: "0px",
+                      // border: "1px solid red",
+
+                      marginRight: "-2px",
+                      fontWeight: "400",
+                      marginTop: "-8px",
+                      color: "green", //"#cf4848", //`${PodMemoryPercentColor}`,
+                    }}
+                  >
+                    CPU
+                  </div>
+                </div>
+
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    // border: "1px solid yellow",
+                  }}
+                >
+                  <CircularProgress
+                    variant="determinate"
+                    // @ts-nocheck
+                    thickness={1.35}
+                    value={100 * 0.73}
+                    style={{
+                      marginTop: "130px",
+                      marginLeft: "50.5px",
+                      rotate: "-131deg",
+                      color: "#ffffff40",
+
+                      width: "180px",
+                      // border: "1px solid red",
+                      filter: "drop-shadow(10px 10px 10px #000000)",
+                    }}
+                  />
+                  <CircularProgress
+                    variant="determinate"
+                    // @ts-nocheck
+                    thickness={1.35}
+                    value={
+                      95 *
+                      // podsArr[i]["podMemoryLimit"] === "NONE"
+                      //   ? 0
+                      //   : Number(`${selectedPod[0]["podMemoryPercent"]}`)
+                      0.73
+                    }
+                    style={{
+                      position: "relative",
+                      top: "-40.2px",
+                      left: "25px",
+                      rotate: "-131deg",
+                      color: `#cf4848`,
+
+                      width: "180px",
+                      // border: "1px solid red",
+                      filter: "drop-shadow(10px 10px 10px #000000)",
+                    }}
+                  />
+                  <div
+                    style={{
+                      position: "relative",
+                      top: "-100px",
+                      left: "-15px",
+                      fontSize: "38px",
+                      fontWeight: "800",
+                      marginTop: "-60px",
+                      marginLeft: "-10px",
+                      // border: "2px solid red",
+                      color: "#cf4848", //`${PodMemoryPercentColor}`,
+                    }}
+                  >95%
+                    {/* {selectedPod[0]["podMemoryPercent"] === "N/A"
+                      ? `no max`
+                      : `${selectedPod[0]["podMemoryPercent"]}%`} */}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: "16px",
+                      position: "relative",
+                      top: "-104px",
+                      left: "-20px",
+                      // border: "1px solid red",
+
+                      marginRight: "-2px",
+                      fontWeight: "400",
+                      marginTop: "-8px",
+                      color: "#cf4848", //`${PodMemoryPercentColor}`,
+                    }}
+                  >
+                    MEMORY
+                  </div>
+                </div>
+              </div>
+              <div style={{ flexDirection: "row", margin: "0 0 0 40px" }}>
+                <Button
+                  style={{
+                    width: "200px",
+                    border: "1px solid white",
+                    fontSize: "14px",
+                  }}
+                >
+                  DELETE & RESTART POD
+                </Button>
+                <Button
+                  style={{
+                    width: "200px",
+                    border: "1px solid white",
+                    fontSize: "14px",
+                    margin: "0 10px 0 30px",
+                  }}
+                >
+                  CHANGE NAMESPACE
+                </Button>
+                <Button
+                  style={{
+                    width: "200px",
+                    border: "1px solid white",
+                    fontSize: "14px",
+                    margin: "0 10px 0 10px",
+                  }}
+                >
+                  VIEW LOGS
+                </Button>
+                <Button
+                  style={{
+                    width: "200px",
+                    border: "1px solid white",
+                    fontSize: "14px",
+                    margin: "0 20px 0 10px",
+                  }}
+                >
+                  CHANGE LIMITS
+                </Button>
               </div>
             </div>
-            <br />
-            READY: {selectedPod[0]["ready"].toUpperCase()}
-            <br />
-            STATUS: {selectedPod[0]["status"].toUpperCase()}
-            <br />
-            RESTARTS: {selectedPod[0]["restarts"].toUpperCase()}
-            <br />
-            LAST RESTART: {selectedPod[0]["lastRestart"].toUpperCase()}
-            <br />
-            AGE: {selectedPod[0]["age"].toUpperCase()}
-            <br />
-            CPU USED: {selectedPod[0]["podCpuUsed"].toUpperCase()}m
-            <br />
-            CPU LIMIT: {selectedPod[0]["podCpuLimit"].toUpperCase()}m
-            <br />
-            CPU PERCENTAGE: {selectedPod[0]["podCpuPercent"]}
-            %
-            <br />
-            MEMORY USED: {selectedPod[0]["podMemoryUsed"].toUpperCase()}Mi
-            <br />
-            MEMORY LIMIT: {selectedPod[0]["podMemoryLimit"].toUpperCase()}Mi
-            <br />
-            MEMORY PERCENTAGE:{selectedPod[0]["podMemoryPercent"]}%
           </Box>
         </Modal>
       </div>
