@@ -151,8 +151,12 @@ function Dashboard(): JSX.Element {
   // Clear the input box
   const handleClear = (e) => {
     e.preventDefault();
-    setVerb("");
-    setUserInput("");
+
+    setUserInput('');
+    setVerb('');
+    setType('');
+    setName('');
+    setFlags([]);
   };
 
   // handle kubectl on off switch
