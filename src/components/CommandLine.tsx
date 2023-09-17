@@ -1,5 +1,5 @@
+import React from 'react';
 import { InputAdornment, Button, TextField, useTheme } from "@mui/material";
-// import { clipboard } from 'electron';
 
 const CommandLine = (props) => {
   const theme = useTheme();
