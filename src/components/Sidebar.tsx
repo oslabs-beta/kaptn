@@ -1,3 +1,4 @@
+import React from "react";
 import { Sidebar, Menu, MenuItem } from "react-pro-sidebar";
 import { useState, useContext } from "react";
 import { Box, IconButton, useTheme } from "@mui/material";
@@ -12,7 +13,7 @@ import {
   BorderColor,
 } from "@mui/icons-material";
 import Grid from "@mui/system/Unstable_Grid";
-import { ColorModeContext } from "../theme.ts";
+import { ColorModeContext } from "../theme";
 import Tooltip, { TooltipProps, tooltipClasses } from "@mui/material/Tooltip";
 import { styled } from "@mui/material/styles";
 import HomeRoundedIcon from "@mui/icons-material/HomeRounded";

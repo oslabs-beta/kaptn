@@ -1,5 +1,5 @@
+import React from "react";
 import { InputAdornment, Button, TextField, useTheme } from "@mui/material";
-// import { clipboard } from 'electron';
 
 const CommandLine = (props) => {
   const theme = useTheme();
@@ -16,26 +16,6 @@ const CommandLine = (props) => {
     }
     props.setUserInput(newUserInput);
   };
-
-  const handleClear = (e) => {
-    let userInput2 = "";
-
-    props.setUserInput(userInput2);
-    props.setVerb(userInput2);
-    props.setType(userInput2);
-    props.setName(userInput2);
-    props.setFlags([]);
-  };
-
-  // const handlePaste = (event) => {
-  //   let userInput = event.clipboardData.items[0].getAsString();
-  //   //   console.log(userInput);
-  //   props.setUserInput(userInput);
-  //   //   props.setVerb(userInput);
-  //   //   props.setType(userInput);
-  //   //   props.setName(userInput);
-  //   //   props.setFlags([]);
-  // };
 
   return (
     <div
@@ -102,9 +82,7 @@ const CommandLine = (props) => {
         <Button
           id="clear-button"
           variant="contained"
-          onClick={(e) => {
-            handleClear(e);
-          }}
+          onClick={props.handleClear}
           style={{
             margin: "1px 0px 0 3px",
             justifyContent: "center",

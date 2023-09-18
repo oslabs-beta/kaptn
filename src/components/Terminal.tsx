@@ -7,6 +7,7 @@ const Terminal = (props) => {
 
   // Create a div for each command/response in the current session
   let commandLog: JSX.Element[] = [];
+  let key = 1;
 
   // Format the shell response for line breaks and spacing
   // The <pre> tag here ensures proper spacing
@@ -20,9 +21,8 @@ const Terminal = (props) => {
           </pre>
         );
       });
-   
     commandLog.push(
-      <div className='command-log'>
+      <div className='command-log' key={key}>
         <strong
           style={{
             color:
@@ -34,6 +34,7 @@ const Terminal = (props) => {
         <>{paredResponse}</>
       </div>
     );
+    key++;
   });
 
   return (

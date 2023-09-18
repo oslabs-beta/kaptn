@@ -15,14 +15,14 @@ import {
   Typography,
 } from "@mui/material";
 import Grid from "@mui/system/Unstable_Grid";
-import SideNav from "../components/Sidebar.jsx";
-import CommandLine from "../components/CommandLine.jsx";
-import Terminal from "../components/Terminal.jsx";
+import SideNav from "../components/Sidebar";
+import CommandLine from "../components/CommandLine";
+import Terminal from "../components/Terminal";
 const { ipcRenderer } = require("electron");
-import commands from "../components/commands.js";
+import commands from "../components/commands";
 import { Box, lighten, darken } from "@mui/system";
 import BoltIcon from "@mui/icons-material/Bolt";
-import helpDesk from "../components/HelpDesk.jsx";
+import helpDesk from "../components/HelpDesk";
 import React from "react";
 import Switch from "@mui/material/Switch";
 import Tooltip, { TooltipProps, tooltipClasses } from "@mui/material/Tooltip";
@@ -151,8 +151,12 @@ function Dashboard(): JSX.Element {
   // Clear the input box
   const handleClear = (e) => {
     e.preventDefault();
-    setVerb("");
-    setUserInput("");
+
+    setUserInput('');
+    setVerb('');
+    setType('');
+    setName('');
+    setFlags([]);
   };
 
   // handle kubectl on off switch
