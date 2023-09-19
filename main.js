@@ -33,6 +33,53 @@ function createMainWindow() {
 
 /******** EVENT LISTENERS ********/
 
+//************************************************************ */
+//***               Start Page ipc methods                 *** */
+//************************************************************ */
+
+//Listen for attempt to install metrisc server
+ipcMain.on("check_kubectl_installed", (event, arg) => {
+  const { kubectlCheckKubectlInstallCommand, currDir } = arg;
+
+  // if kubectl command is entered with no directory chosen, use ZDOTDIR as directory address when calling exec command --- otherwise ("else" on line 55) submit command normally
+  if (currDir === "NONE SELECTED") {
+    let kubDir = process.env.ZDOTDIR;
+    exec(
+      ` ${kubectlCheckKubectlInstallCommand}`,
+      { cwd: kubDir },
+      (err, stdout, stderr) => {
+        // Handle failed command execution
+        if (err) {
+          let output = err;
+        }
+        // Handle successful command execution but returned error (stderr)
+        if (stderr) {
+          return event.sender.send("checked_kubectl_installed", stderr);
+        }
+        // Handle successful command execution with no errors
+        return event.sender.send("checked_kubectl_installed", stdout);
+      }
+    );
+  } else {
+    exec(
+      ` ${kubectlMetricsServerInstallCommand}`,
+      { cwd: currDir },
+      (err, stdout, stderr) => {
+        // Handle failed command execution
+        if (err) {
+          let output = err;
+        }
+        // Handle successful command execution but returned error (stderr)
+        if (stderr) {
+          return event.sender.send("installed_metrics", stderr);
+        }
+        // Handle successful command execution with no errors
+        return event.sender.send("installed_metrics", stdout);
+      }
+    );
+  }
+});
+
 //Listen for attempt to install metrisc server
 ipcMain.on("install_metrics_server_command", (event, arg) => {
   const { kubectlMetricsServerInstallCommand, currDir } = arg;
@@ -76,6 +123,10 @@ ipcMain.on("install_metrics_server_command", (event, arg) => {
   }
 });
 
+//************************************************************ */
+//***               KRANE PAGE ipc methods                 *** */
+//************************************************************ */
+
 //Listen for attempt to get pod cpu's used
 ipcMain.on("getCpuUsed_command", (event, arg) => {
   const { CpuUsedCommand, currDir } = arg;
@@ -110,7 +161,6 @@ ipcMain.on("getCpuUsed_command", (event, arg) => {
     });
   }
 });
-
 
 //Listen for attempt to get pod cpu's used
 ipcMain.on("getCpuLimits_command", (event, arg) => {

@@ -41,7 +41,7 @@ function SideNav(props) {
       }}
     >
       <LightTooltip
-        title="Krane"
+        title="Kluster Manager"
         placement="right"
         arrow
         enterDelay={500}
@@ -60,6 +60,15 @@ function SideNav(props) {
                 color: theme.palette.mode === "dark" ? "#c6bfe2" : "#6466b2",
               }}
             />
+            {/* <img
+              src="../../Artboard-1.png"
+              className="menuIcons"
+              fontSize="medium"
+              style={{
+                width: "28px",
+                color: theme.palette.mode === "dark" ? "#c6bfe2" : "#6466b2",
+              }}
+            /> */}
           </Link>
         </div>
       </LightTooltip>

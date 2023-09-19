@@ -3,7 +3,7 @@ import Start from "./Pages/Start.jsx";
 import Cluster from "./Pages/Cluster.jsx";
 import { HashRouter, Route, Routes } from "react-router-dom";
 import Dashboard from "./Pages/Dashboard.tsx";
-import Krane from "./Pages/Krane.tsx";
+import Krane from "./Pages/Klusters.tsx";
 import Topbar from "./components/Topbar.js";
 import Setup from "./Pages/Setup.js";
 import { ColorModeContext, useMode } from "./theme.js";

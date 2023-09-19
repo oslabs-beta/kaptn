@@ -38,7 +38,7 @@ type ArrPodObjs = {
 
 let filteredPods: any = [];
 
-function Krane() {
+function Klusters() {
   const [launch, setLaunch] = useState<boolean>(false);
   const [podsArr, setPodsArr] = useState([]);
 
@@ -144,7 +144,7 @@ function Krane() {
               // border: "1px solid pink",
             }}
           >
-            KAPTN KRANE
+            KAPTN KLUSTER MANAGER
           </div>
           <div
             style={{
@@ -169,4 +169,4 @@ function Krane() {
   );
 }
 
-export default Krane;
+export default Klusters;
