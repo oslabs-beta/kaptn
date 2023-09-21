@@ -37,17 +37,13 @@ type ArrPodObjs = {
 // let filteredPods: any = [];
 
 function KraneNodeList() {
-  const [launch, setLaunch] = useState<boolean>(false);
-  const [nodesArr, setnodesArr] = useState<Array<string>>([]);
-  const [statusArr, setStatusArr] = useState<Array<string>>([]);
-  const [roleArr, setRoleArr] = useState<Array<string>>([]);
-  const [ageArr, setAgeArr] = useState<Array<string>>([]);
-  const [versionArr, setVersionArr] = useState<Array<string>>([]);
+  const [nodesArr, setNodesArr] = useState([]);
 
   const theme = useTheme();
 
-  let kraneCommand: string = "kubectl get nodes";
+  let kraneCommand: string = "kubectl get nodes -o wide";
   let currDir = "NONE SELECTED";
+  let filteredNodes = [];
 
   const style = {
     position: "absolute",
@@ -66,37 +62,34 @@ function KraneNodeList() {
     borderRadius: "10px",
   };
 
-  useEffect(() => {
-    // ----------------------------------------- get NODES section ------------
+  //Listen to "get nodes" return event
+  ipcRenderer.on("got_nodes", (event, arg) => {
+    let nameOutput: any = [];
+    let statusOutput: any = [];
+    let roleOutput: any = [];
+    let ageOutput: any = [];
+    let versionOutput: any = [];
+    let internalIpOutput: any = [];
+    let externalIpOutput: any = [];
+    let osImageOutput: any = [];
+    let kernalOutput: any = [];
+    let containerRuntimeOutput: any = [];
 
-    //send krane command to get all nodes
-    ipcRenderer.send("getNodes_command", {
-      kraneCommand,
-      currDir,
-    });
-
-    //Listen to "get nodes" return event
-    ipcRenderer.on("got_nodes", (event, arg) => {
-      let output: any = [];
-      let statusOutput: any = [];
-      let roleOutput: any = [];
-      let ageOutput: any = [];
-      let versionOutput: any = [];
-
-      let i: number = 57;
-      let argArr = arg.split();
-
+    let i: number = 145;
+    let argArr = arg.split("");
+    for (let j = 0; i < argArr.length; i++) {
       while (arg[i] !== " ") {
-        output.push(arg[i]);
+        nameOutput.push(arg[i]);
         i++;
       }
-      setnodesArr([output]);
-      i += 3;
+      while (arg[i] === " ") {
+        i++;
+      }
+
       while (arg[i] !== " ") {
         statusOutput.push(arg[i]);
         i++;
       }
-      setStatusArr([statusOutput]);
 
       while (arg[i] === " ") {
         i++;
@@ -106,7 +99,6 @@ function KraneNodeList() {
         roleOutput.push(arg[i]);
         i++;
       }
-      setRoleArr([roleOutput]);
 
       while (arg[i] === " ") {
         i++;
@@ -116,92 +108,955 @@ function KraneNodeList() {
         ageOutput.push(arg[i]);
         i++;
       }
-      setAgeArr([ageOutput]);
 
       while (arg[i] === " ") {
         i++;
       }
 
-      while (arg[i] !== " " && i < arg.length) {
+      while (arg[i] !== " ") {
         versionOutput.push(arg[i]);
         i++;
       }
-      setVersionArr([versionOutput]);
 
-      // console.log("arg is", arg);
+      while (arg[i] === " ") {
+        i++;
+      }
+
+      while (arg[i] !== " ") {
+        internalIpOutput.push(arg[i]);
+        i++;
+      }
+
+      while (arg[i] === " ") {
+        i++;
+      }
+
+      while (arg[i] !== " ") {
+        externalIpOutput.push(arg[i]);
+        i++;
+      }
+
+      while (arg[i] === " ") {
+        i++;
+      }
+
+      while (arg[i] !== " ") {
+        // if (arg[i] !== " " && arg[i + 1] !== " ") {
+        osImageOutput.push(arg[i]);
+        // }
+        i++;
+      }
+
+      while (arg[i] === " ") {
+        osImageOutput.push(arg[i]);
+        i++;
+      }
+
+      while (arg[i] !== " ") {
+        // if (arg[i] !== " " && arg[i + 1] !== " ") {
+        osImageOutput.push(arg[i]);
+        // }
+        i++;
+      }
+
+      while (arg[i] === " ") {
+        i++;
+      }
+
+      while (arg[i] !== " ") {
+        kernalOutput.push(arg[i]);
+        i++;
+      }
+
+      while (arg[i] === " ") {
+        i++;
+      }
+
+      while (arg[i] !== "\n") {
+        containerRuntimeOutput.push(arg[i]);
+        // console.log("kernalOutput is", containerRuntimeOutput);
+        i++;
+      }
+      let node = {
+        name: nameOutput.join(""),
+        status: statusOutput.join(""),
+        role: roleOutput.join(""),
+        age: ageOutput.join(""),
+        version: versionOutput.join(""),
+        internalIp: internalIpOutput.join(""),
+        externalIp: externalIpOutput.join(""),
+        osImage: osImageOutput.join(""),
+        kernal: kernalOutput.join(""),
+        containerRuntime: containerRuntimeOutput.join(""),
+        nodeCpuUsed: "",
+        nodeCpuLimit: "",
+        nodeCpuPercent: "",
+        nodeMemoryUsed: "",
+        nodeMemoryLimit: "",
+        nodeMemoryPercent: "",
+      };
+
+      filteredNodes.push(node);
+      // console.log("arg Arr is", argArr);
+    } // ---------- end of for loop
+
+    let finalNodesInfoArr = filteredNodes.filter(
+      (ele: any, ind: number) =>
+        ind ===
+        filteredNodes.findIndex(
+          (elem) =>
+            elem.podCpuUsed === ele.podCpuUsed &&
+            elem.podMemoryUsed === ele.podMemoryUsed
+        )
+    );
+    filteredNodes = finalNodesInfoArr;
+    setNodesArr(filteredNodes);
+    // console.log(" Nodes Arr is", nodesArr);
+  }); // ------------------------------------------ end of ipc render for get nodes command
+
+  //Listen to "get cpuUsed" return event
+  ipcRenderer.on("got_nodesCpuUsed", (event, arg) => {
+    // console.log("ARG ISSSSSS", arg);
+    let argArr = arg.split("");
+    // console.log("arg arr is", argArr);
+
+    let nodeUsageArray = [];
+
+    let i: number = 0;
+
+    //skips "name"
+    while (argArr[i] !== " ") {
+      i++;
+    }
+
+    //skips spaces
+    while (argArr[i] === " ") {
+      i++;
+    }
+    //skips "CPU(cores)"
+    while (argArr[i] !== " ") {
+      i++;
+    }
+    //skips spaces
+    while (argArr[i] === " ") {
+      i++;
+    }
+    //skips "CPU%"
+    while (argArr[i] !== " ") {
+      i++;
+    }
+    //skips spaces
+    while (argArr[i] === " ") {
+      i++;
+    }
+
+    //skips "memory(bytes)"
+    while (argArr[i] !== " ") {
+      i++;
+    }
+    //skips spaces
+    while (argArr[i] === " ") {
+      i++;
+    }
+    //skips "Memory%"
+    while (argArr[i] !== "\n") {
+      i++;
+    }
+    i++;
+    // console.log("arg Arr is", argArr);
+
+    // //for loop to put all pods in array of objects
+    for (let j = 0; i < argArr.length; i++) {
+      let nodeNameArr = [];
+      let nodeCpuUsedArr = [];
+      let nodeCpuPercentArr = [];
+      let nodeMemoryUsedArr = [];
+      let nodeMemoryPercentArr = [];
+
+      //saves name because array order is same for both outputs
+      while (argArr[i] !== " ") {
+        nodeNameArr.push(arg[i]);
+        i++;
+      }
+      //skip spaces
+      while (argArr[i] === " ") {
+        i++;
+      }
+      //   // //save cpu(cores) to array to parse at end of loops
+      // console.log("ARG ARR at i is", argArr[i]);
+      while (
+        argArr[i] === "1" ||
+        argArr[i] === "2" ||
+        argArr[i] === "3" ||
+        argArr[i] === "4" ||
+        argArr[i] === "5" ||
+        argArr[i] === "6" ||
+        argArr[i] === "7" ||
+        argArr[i] === "8" ||
+        argArr[i] === "9" ||
+        argArr[i] === "0"
+      ) {
+        nodeCpuUsedArr.push(argArr[i]);
+        i++;
+      }
+      i++;
+
+      //skip spaces after number of cores
+      while (arg[i] === " ") {
+        i++;
+      }
+      //saves cpu percent
+      while (argArr[i] !== " ") {
+        nodeCpuPercentArr.push(arg[i]);
+        i++;
+      }
+
+      //skip spaces
+      while (arg[i] === " ") {
+        i++;
+      }
+
+      //save memory used before unit of measure
+      while (
+        argArr[i] === "1" ||
+        argArr[i] === "2" ||
+        argArr[i] === "3" ||
+        argArr[i] === "4" ||
+        argArr[i] === "5" ||
+        argArr[i] === "6" ||
+        argArr[i] === "7" ||
+        argArr[i] === "8" ||
+        argArr[i] === "9" ||
+        argArr[i] === "0"
+      ) {
+        nodeMemoryUsedArr.push(arg[i]);
+        i++;
+      }
+      if (argArr[i] === "G") {
+        nodeMemoryUsedArr.push("0");
+        nodeMemoryUsedArr.push("0");
+        nodeMemoryUsedArr.push("0");
+        nodeMemoryUsedArr.push("0");
+        nodeMemoryUsedArr.push("0");
+        nodeMemoryUsedArr.push("0");
+      } else if (argArr[i] === "M") {
+        nodeMemoryUsedArr.push("0");
+        nodeMemoryUsedArr.push("0");
+        nodeMemoryUsedArr.push("0");
+      }
+      i += 2;
+
+      //skip spaces
+      while (arg[i] === " ") {
+        i++;
+      }
+
+      //saves memory percent
+      while (argArr[i] !== " ") {
+        nodeMemoryPercentArr.push(arg[i]);
+        i++;
+      }
+
+      //skip spaces
+      while (arg[i] === " ") {
+        i++;
+      }
+
+      // console.log(" podCpuUsedArr is ", podCpuUsedArr);
+      // console.log(" podMemoryUsedArr is ", podMemoryUsedArr);
+      //join used values and add them to object
+      let node = {
+        nodeName: nodeNameArr.join(""),
+        nodeCpuUsed: nodeCpuUsedArr.join(""),
+        nodeCpuPercent: nodeCpuPercentArr.join(""),
+        nodeMemoryUsed: nodeMemoryUsedArr.join(""),
+        nodeMemoryPercent: nodeMemoryPercentArr.join(""),
+      };
+
+      i++;
+      // console.log("arg at i is", arg[i]);
+      // console.log("I is", i);
+      // console.log("node cpu is", nodeMemoryUsedArr.join(""));
+      // console.log("after used values i is", i, "and arg i is", arg[i]);
+      // console.log(" NODE IS ", node);
+      nodeUsageArray.push(node);
+
+      // console.log(" NODE USAGE ARR IS ", nodeUsageArray);
+    } //end of for loop
+
+    let finalNodeUsageArr = nodeUsageArray.filter(
+      (ele: any, ind: number) =>
+        ind ===
+        nodeUsageArray.findIndex((elem) => elem.nodeName === ele.nodeName)
+    );
+
+    for (let j = 0; j < finalNodeUsageArr.length; j++) {
+      filteredNodes[j]["nodeCpuUsed"] = finalNodeUsageArr[j]["nodeCpuUsed"];
+      filteredNodes[j]["nodeCpuPercent"] =
+        finalNodeUsageArr[j]["nodeCpuPercent"];
+      filteredNodes[j]["nodeMemoryUsed"] =
+        finalNodeUsageArr[j]["nodeMemoryUsed"];
+      filteredNodes[j]["nodeMemoryPercent"] =
+        finalNodeUsageArr[j]["nodeMemoryPercent"];
+    }
+    // console.log(" FILTERD Nodes AFTER USAGE FETCH IS ", filteredNodes);
+
+    setNodesArr([...filteredNodes]);
+  });
+
+  //
+  //Listen to "get nodeCpuUsed" return event
+  ipcRenderer.on("got_nodesCpuLimits", (event, arg) => {
+    // console.log("ARG ISSSSSS", arg);
+    let argArr = arg.split("");
+    // console.log("arg arr is", argArr);
+    let nodeLimitsArray = [];
+
+    let node = {};
+
+    let i: number = 0;
+
+    //skips "name"
+    while (argArr[i] !== " ") {
+      i++;
+    }
+
+    //skips spaces
+    while (argArr[i] === " ") {
+      i++;
+    }
+    //skips "CPU-limits"
+    while (argArr[i] !== " ") {
+      i++;
+    }
+    //skips spaces
+    while (argArr[i] === " ") {
+      i++;
+    }
+
+    //skips "memory-limits"
+    i += 13;
+
+    // //for loop to put all pods in array of objects
+    for (let j = 0; i < argArr.length; i++) {
+      let nodeCpuLimitsArr = [];
+      let nodeMemoryLimitsArr = [];
+      let nodeNameArr = [];
+
+      //take name because maybe be duplicate values]
+      while (argArr[i] !== " ") {
+        nodeNameArr.push(argArr[i]);
+        i++;
+      }
+      //skip spaces
+      while (argArr[i] === " ") {
+        i++;
+      }
+
+      // console.log("I IS:", i, " .... ARG ARRAY AT I IS:", argArr[i]);
+      if (argArr[i] === "<") {
+        nodeCpuLimitsArr = ["N", "O", "N", "E"];
+        i += 7;
+      } else {
+        //   //   // //save cpu-limits to array to parse at end of loops
+        //   console.log("ARG ARR at i is", argArr[i]);
+        while (
+          argArr[i] === "1" ||
+          argArr[i] === "2" ||
+          argArr[i] === "3" ||
+          argArr[i] === "4" ||
+          argArr[i] === "5" ||
+          argArr[i] === "6" ||
+          argArr[i] === "7" ||
+          argArr[i] === "8" ||
+          argArr[i] === "9" ||
+          argArr[i] === "0"
+        ) {
+          nodeCpuLimitsArr.push(argArr[i]);
+          i++;
+        }
+        // console.log("podCpuLimitsArr is", podCpuLimitsArr);
+        // i++;
+      }
+
+      //skip spaces after cpu limt value
+      while (arg[i] !== " ") {
+        i++;
+      }
+
+      //skip spaces
+      while (arg[i] === " ") {
+        i++;
+      }
+
+      if (argArr[i] === "<") {
+        nodeMemoryLimitsArr = ["N", "O", "N", "E"];
+        i += 6;
+      } else {
+        //save memory limit before unit of measure
+        while (
+          argArr[i] === "1" ||
+          argArr[i] === "2" ||
+          argArr[i] === "3" ||
+          argArr[i] === "4" ||
+          argArr[i] === "5" ||
+          argArr[i] === "6" ||
+          argArr[i] === "7" ||
+          argArr[i] === "8" ||
+          argArr[i] === "9" ||
+          argArr[i] === "0"
+        ) {
+          nodeMemoryLimitsArr.push(arg[i]);
+          i++;
+        }
+        if (argArr[i] === "G") {
+          nodeMemoryLimitsArr.push("0");
+          nodeMemoryLimitsArr.push("0");
+          nodeMemoryLimitsArr.push("0");
+          nodeMemoryLimitsArr.push("0");
+          nodeMemoryLimitsArr.push("0");
+          nodeMemoryLimitsArr.push("0");
+        } else if (argArr[i] === "M") {
+          nodeMemoryLimitsArr.push("0");
+          nodeMemoryLimitsArr.push("0");
+          nodeMemoryLimitsArr.push("0");
+        }
+
+        i += 3;
+        // console.log("podMemoryLimitsArr is", podMemoryLimitsArr);
+      }
+
+      //   //join used values and add them to object
+      node = {
+        nodeName: nodeNameArr.join(""),
+        nodeCpuLimit: nodeCpuLimitsArr.join(""),
+        nodeMemoryLimit: nodeMemoryLimitsArr.join(""),
+      };
+
+      j++;
+      //   // console.log("after used values i is", i, "and arg i is", arg[i]);
+      // console.log(" POD IS ", pod);
+      nodeLimitsArray.push(node);
+
+      // console.log("NODE FROM LIMITS is", node);
+      node = {};
+      // console.log("arg arr is", argArr);
+      // console.log("arg at i is", arg[i]);
+      // console.log("i is", i);
+    } //end of for loop
+
+    let lastNodesArr = nodeLimitsArray.filter(
+      (ele: any, ind: number) =>
+        ind ===
+        nodeLimitsArray.findIndex((elem) => elem.nodeName === ele.nodeName)
+    );
+
+    for (let j = 0; j < lastNodesArr.length; j++) {
+      filteredNodes[j]["nodeCpuLimit"] = lastNodesArr[j]["nodeCpuLimit"];
+      filteredNodes[j]["nodeMemoryLimit"] = lastNodesArr[j]["nodeMemoryLimit"];
+    }
+
+    setNodesArr([...filteredNodes]);
+  });
+
+  useEffect(() => {
+    // ----------------------------------------- get NODES section ------------
+
+    //send krane command to get all nodes
+    ipcRenderer.send("getNodes_command", {
+      kraneCommand,
+      currDir,
     });
+
+    //---------------------------------------- get all nodes cpu and memory usage -
+    let nodesCpuUsedCommand = `kubectl top nodes`;
+    setTimeout(() => {
+      ipcRenderer.send("getNodesCpuUsed_command", {
+        nodesCpuUsedCommand,
+        currDir,
+      });
+    }, 100);
+
+    let nodesCpuLimitsCommand = `kubectl get nodes -o custom-columns="Name:metadata.name,CPU-limit:spec.containers[*].resources.limits.cpu,Memory-limit:spec.containers[*].resources.limits.cpu"`;
+    setTimeout(() => {
+      ipcRenderer.send("getNodesCpuLimits_command", {
+        nodesCpuLimitsCommand,
+        currDir,
+      });
+    }, 100);
   }, []);
+
+
 
   // ---------------------------------------------------------- START OF IF CONDITION TO DETERMINE MAIN DIV'S JSX --------
   let nodeListDiv = (
     <>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          justifyContent: "space-between",
+          margin: "0 0 0 20px",
+        }}
+      >
         <div
           style={{
-            display: "flex",
             fontFamily: "Outfit",
-            fontWeight: "400",
-            fontSize: "17px",
-            height: "auto",
-            justifyContent: "center",
-            overflow: "hidden",
-            alignItems: "center",
-            width: "auto",
-            padding: "0px 10px 4px 20px",
-            letterSpacing: "1px",
-            color: theme.palette.mode === "dark" ? "#8f85fb" : "#9075ea",
-            textShadow:
-              theme.palette.mode === "dark"
-                ? "1px 1px 2px black"
-                : "2px 2px 0px #00000000",
-            // border: "1px solid red",
+            fontSize: "24px",
+            fontWeight: "900",
+            letterSpacing: "3px",
+            // border: "1px solid white",
+            textAlign: "left",
+            // color: "#ffffff",
+            paddingTop: "10px",
           }}
         >
-          NODE 1
+          NODES
+          <Button
+            style={{
+              // fontFamily: "Outfit",
+              fontSize: "9px",
+              fontWeight: "900",
+              letterSpacing: "2px",
+              // border: "1px solid white",
+              height: "5px",
+              textAlign: "left",
+              // color: "#ffffff99",
+              marginTop: "5px",
+              marginLeft: "10px",
+            }}
+          >
+            SORT BY {}
+          </Button>
         </div>
-        <Button
-          id="nodeButt"
+        <div
           style={{
-            fontFamily: "Outfit",
-            fontWeight: "200",
-            fontSize: "14px",
-            justifyContent: "center",
-            alignItems: "center",
-            width: "300px",
-            padding: "10px 10px 10px 20px",
+            // fontFamily: "Outfit",
+            display: "flex",
+            flexDirection: "row",
+            width: "265px",
+            height: "30px",
+            fontSize: "9px",
+            fontWeight: "400",
             letterSpacing: "1px",
-            color: theme.palette.mode === "dark" ? "white" : "grey",
-            border:
-              theme.palette.mode === "dark"
-                ? "1.2px solid white"
-                : "1.2px solid #9075ea",
-            borderRadius: "5px",
-            boxShadow:
-              theme.palette.mode === "dark"
-                ? "10px 9px 2px #00000060"
-                : "10px 10px 1px #00000020",
-            backgroundColor:
-              theme.palette.mode === "dark" ? "#0e0727" : "#e6e1fb",
+            lineHeight: "12px",
+            // border: "1px solid white",
+            paddingBottom: "0px",
+            textAlign: "right",
+            color: "#ffffff99",
+            // marginRight: "50px",
+            marginTop: "10px",
+            justifyContent: "flex-end",
+            // paddingTop: "50px",
           }}
         >
           <div
             style={{
-              width: "500px",
-              // border: "1px solid white",
-              textAlign: "left",
-              alignItems: "center",
+              marginTop: "5px",
             }}
           >
-            Name: {nodesArr[0]}
-            <br /> Status: {statusArr[0]}
-            <br /> Role: {roleArr[0]}
-            <br /> Age: {ageArr[0]}
-            <br /> Version: {versionArr[0]}
+            <i> STATS AUTOMATICALLY REFRESH EVERY 30 SECONDS</i>
           </div>
-        </Button>
+          <Button
+            style={{
+              marginLeft: "10px",
+              marginTop: "4px",
+              letterSpacing: ".8px",
+              // padding:"0 0 0 0",
+              border: "1px solid #ffffff99",
+              fontSize: "9px",
+              width: "160px",
+              // height:"100px",
+
+              color: "#ffffff99",
+            }}
+            // onClick={handleClick}
+          >
+            Refresh now
+          </Button>
+        </div>
+      </div>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          justifyContent: "flex-start",
+          margin: "0 0 0 20px",
+        }}
+      >
+        <div
+          style={{
+            height: "1px",
+            width: "975px",
+            backgroundColor: "#ffffff99",
+            // border: "1px solid white",
+            // marginRight: "50px",
+            marginTop: "0px",
+          }}
+        ></div>
+      </div>
+      <div style={{ display: "flex", flexWrap: "wrap", margin: "0 0 0 50px" }}>
+        {/* {podsList} */}
+      </div>
+      <div style={{ height: "35px" }}></div>
     </>
+
+    // <>
+    //     <div
+    //       style={{
+    //         display: "flex",
+    //         fontFamily: "Outfit",
+    //         fontWeight: "400",
+    //         fontSize: "17px",
+    //         height: "auto",
+    //         justifyContent: "center",
+    //         overflow: "hidden",
+    //         alignItems: "center",
+    //         width: "auto",
+    //         padding: "0px 10px 4px 20px",
+    //         letterSpacing: "1px",
+    //         color: theme.palette.mode === "dark" ? "#8f85fb" : "#9075ea",
+    //         textShadow:
+    //           theme.palette.mode === "dark"
+    //             ? "1px 1px 2px black"
+    //             : "2px 2px 0px #00000000",
+    //         // border: "1px solid red",
+    //       }}
+    //     >
+    //       NODE 1
+    //     </div>
+    //     <Button
+    //       id="nodeButt"
+    //       style={{
+    //         fontFamily: "Outfit",
+    //         fontWeight: "200",
+    //         fontSize: "14px",
+    //         justifyContent: "center",
+    //         alignItems: "center",
+    //         width: "300px",
+    //         padding: "10px 10px 10px 20px",
+    //         letterSpacing: "1px",
+    //         color: theme.palette.mode === "dark" ? "white" : "grey",
+    //         border:
+    //           theme.palette.mode === "dark"
+    //             ? "1.2px solid white"
+    //             : "1.2px solid #9075ea",
+    //         borderRadius: "5px",
+    //         boxShadow:
+    //           theme.palette.mode === "dark"
+    //             ? "10px 9px 2px #00000060"
+    //             : "10px 10px 1px #00000020",
+    //         backgroundColor:
+    //           theme.palette.mode === "dark" ? "#0e0727" : "#e6e1fb",
+    //       }}
+    //     >
+    //       <div
+    //         style={{
+    //           width: "500px",
+    //           // border: "1px solid white",
+    //           textAlign: "left",
+    //           alignItems: "center",
+    //         }}
+    //       >
+    //         Name: {nodesArr[0]}
+    //         <br /> Status: {statusArr[0]}
+    //         <br /> Role: {roleArr[0]}
+    //         <br /> Age: {ageArr[0]}
+    //         <br /> Version: {versionArr[0]}
+    //       </div>
+    //     </Button>
+    // </>
+    //
+
+    //{
+    // "apiVersion": "v1",
+    // "kind": "Node",
+    // "metadata": {
+    //     "annotations": {
+    //         "kubeadm.alpha.kubernetes.io/cri-socket": "unix:///var/run/cri-dockerd.sock",
+    //         "node.alpha.kubernetes.io/ttl": "0",
+    //         "volumes.kubernetes.io/controller-managed-attach-detach": "true"
+    //     },
+    //     "creationTimestamp": "2023-05-01T18:47:55Z",
+    //     "labels": {
+    //         "beta.kubernetes.io/arch": "arm64",
+    //         "beta.kubernetes.io/os": "linux",
+    //         "kubernetes.io/arch": "arm64",
+    //         "kubernetes.io/hostname": "docker-desktop",
+    //         "kubernetes.io/os": "linux",
+    //         "node-role.kubernetes.io/control-plane": "",
+    //         "node.kubernetes.io/exclude-from-external-load-balancers": ""
+    //     },
+    //     "name": "docker-desktop",
+    //     "resourceVersion": "1171992",
+    //     "uid": "2a49ff81-3780-4a1c-a9ca-e85be82b254f"
+    // },
+    // "spec": {},
+    // "status": {
+    //     "addresses": [
+    //         {
+    //             "address": "192.168.65.4",
+    //             "type": "InternalIP"
+    //         },
+    //         {
+    //             "address": "docker-desktop",
+    //             "type": "Hostname"
+    //         }
+    //     ],
+    //     "allocatable": {
+    //         "cpu": "4",
+    //         "ephemeral-storage": "56403987978",
+    //         "hugepages-1Gi": "0",
+    //         "hugepages-2Mi": "0",
+    //         "hugepages-32Mi": "0",
+    //         "hugepages-64Ki": "0",
+    //         "memory": "7937592Ki",
+    //         "pods": "110"
+    //     },
+    //     "capacity": {
+    //         "cpu": "4",
+    //         "ephemeral-storage": "61202244Ki",
+    //         "hugepages-1Gi": "0",
+    //         "hugepages-2Mi": "0",
+    //         "hugepages-32Mi": "0",
+    //         "hugepages-64Ki": "0",
+    //         "memory": "8039992Ki",
+    //         "pods": "110"
+    //     },
+    //     "conditions": [
+    //         {
+    //             "lastHeartbeatTime": "2023-09-20T22:01:10Z",
+    //             "lastTransitionTime": "2023-05-01T18:47:53Z",
+    //             "message": "kubelet has sufficient memory available",
+    //             "reason": "KubeletHasSufficientMemory",
+    //             "status": "False",
+    //             "type": "MemoryPressure"
+    //         },
+    //         {
+    //             "lastHeartbeatTime": "2023-09-20T22:01:10Z",
+    //             "lastTransitionTime": "2023-05-01T18:47:53Z",
+    //             "message": "kubelet has no disk pressure",
+    //             "reason": "KubeletHasNoDiskPressure",
+    //             "status": "False",
+    //             "type": "DiskPressure"
+    //         },
+    //         {
+    //             "lastHeartbeatTime": "2023-09-20T22:01:10Z",
+    //             "lastTransitionTime": "2023-05-01T18:47:53Z",
+    //             "message": "kubelet has sufficient PID available",
+    //             "reason": "KubeletHasSufficientPID",
+    //             "status": "False",
+    //             "type": "PIDPressure"
+    //         },
+    //         {
+    //             "lastHeartbeatTime": "2023-09-20T22:01:10Z",
+    //             "lastTransitionTime": "2023-05-01T18:48:26Z",
+    //             "message": "kubelet is posting ready status",
+    //             "reason": "KubeletReady",
+    //             "status": "True",
+    //             "type": "Ready"
+    //         }
+    //     ],
+    //     "daemonEndpoints": {
+    //         "kubeletEndpoint": {
+    //             "Port": 10250
+    //         }
+    //     },
+    //     "images": [
+    //         {
+    //             "names": [
+    //                 "hubproxy.docker.internal:5555/docker/desktop-kubernetes@sha256:f1573ffb14599a41a50fc9bd6f15c0f4060ed6ade929e9f2c458e5e3cc36cf68",
+    //                 "hubproxy.docker.internal:5555/docker/desktop-kubernetes:kubernetes-v1.25.9-cni-v1.1.1-critools-v1.25.0-cri-dockerd-v0.2.6-1-debian"
+    //             ],
+    //             "sizeBytes": 385396541
+    //         },
+    //         {
+    //             "names": [
+    //                 "grafana/grafana@sha256:00a4d2889c2b32f86c50673b1a82cb5b45349f1c24b0a882d11a53518e2ecae4",
+    //                 "grafana/grafana:9.5.1"
+    //             ],
+    //             "sizeBytes": 297448929
+    //         },
+    //         {
+    //             "names": [
+    //                 "quay.io/prometheus/prometheus@sha256:d2ab0a27783fd4ad96a8853e2847b99a0be0043687b8a5d1ebfb2dd3fa4fd1b8",
+    //                 "quay.io/prometheus/prometheus:v2.42.0"
+    //             ],
+    //             "sizeBytes": 225839649
+    //         },
+    //         {
+    //             "names": [
+    //                 "registry.k8s.io/etcd:3.5.6-0"
+    //             ],
+    //             "sizeBytes": 180688846
+    //         },
+    //         {
+    //             "names": [
+    //                 "registry.k8s.io/etcd:3.5.5-0"
+    //             ],
+    //             "sizeBytes": 178899047
+    //         },
+    //         {
+    //             "names": [
+    //                 "registry.k8s.io/kube-apiserver:v1.25.9"
+    //             ],
+    //             "sizeBytes": 123299566
+    //         },
+    //         {
+    //             "names": [
+    //                 "registry.k8s.io/kube-apiserver:v1.25.4"
+    //             ],
+    //             "sizeBytes": 123202762
+    //         },
+    //         {
+    //             "names": [
+    //                 "registry.k8s.io/kube-controller-manager:v1.25.9"
+    //             ],
+    //             "sizeBytes": 112814099
+    //         },
+    //         {
+    //             "names": [
+    //                 "registry.k8s.io/kube-controller-manager:v1.25.4"
+    //             ],
+    //             "sizeBytes": 112651759
+    //         },
+    //         {
+    //             "names": [
+    //                 "quay.io/kiwigrid/k8s-sidecar@sha256:eaa478cdd0b8e1be7a4813bc1b01948b838e2feaa6d999e60c997dc823013824",
+    //                 "quay.io/kiwigrid/k8s-sidecar:1.22.0"
+    //             ],
+    //             "sizeBytes": 77954382
+    //         },
+    //         {
+    //             "names": [
+    //                 "registry.k8s.io/metrics-server/metrics-server@sha256:ee4304963fb035239bb5c5e8c10f2f38ee80efc16ecbdb9feb7213c17ae2e86e",
+    //                 "registry.k8s.io/metrics-server/metrics-server:v0.6.4"
+    //             ],
+    //             "sizeBytes": 66906490
+    //         },
+    //         {
+    //             "names": [
+    //                 "quay.io/prometheus/alertmanager@sha256:fd4d9a3dd1fd0125108417be21be917f19cc76262347086509a0d43f29b80e98",
+    //                 "quay.io/prometheus/alertmanager:v0.25.0"
+    //             ],
+    //             "sizeBytes": 63233000
+    //         },
+    //         {
+    //             "names": [
+    //                 "k8s.gcr.io/metrics-server/metrics-server@sha256:6c5603956c0aed6b4087a8716afce8eb22f664b13162346ee852b4fab305ca15",
+    //                 "k8s.gcr.io/metrics-server/metrics-server:v0.5.0"
+    //             ],
+    //             "sizeBytes": 60016245
+    //         },
+    //         {
+    //             "names": [
+    //                 "registry.k8s.io/kube-proxy:v1.25.9"
+    //             ],
+    //             "sizeBytes": 58056002
+    //         },
+    //         {
+    //             "names": [
+    //                 "registry.k8s.io/kube-proxy:v1.25.4"
+    //             ],
+    //             "sizeBytes": 57990466
+    //         },
+    //         {
+    //             "names": [
+    //                 "k8s.gcr.io/metrics-server/metrics-server@sha256:78035f05bcf7e0f9b401bae1ac62b5a505f95f9c2122b80cff73dcc04d58497e",
+    //                 "k8s.gcr.io/metrics-server/metrics-server:v0.4.1"
+    //             ],
+    //             "sizeBytes": 57796983
+    //         },
+    //         {
+    //             "names": [
+    //                 "quay.io/prometheus-operator/prometheus-operator@sha256:be4fbe0cfcad639e7a9ce40274917e1e30a3cae045ae27cde35ac84739fdef40",
+    //                 "quay.io/prometheus-operator/prometheus-operator:v0.63.0"
+    //             ],
+    //             "sizeBytes": 53228029
+    //         },
+    //         {
+    //             "names": [
+    //                 "registry.k8s.io/kube-scheduler:v1.25.9"
+    //             ],
+    //             "sizeBytes": 49441087
+    //         },
+    //         {
+    //             "names": [
+    //                 "registry.k8s.io/kube-scheduler:v1.25.4"
+    //             ],
+    //             "sizeBytes": 49278447
+    //         },
+    //         {
+    //             "names": [
+    //                 "registry.k8s.io/coredns/coredns:v1.9.3"
+    //             ],
+    //             "sizeBytes": 47660771
+    //         },
+    //         {
+    //             "names": [
+    //                 "registry.k8s.io/kube-state-metrics/kube-state-metrics@sha256:ec5732e28f151de3847df60f48c5a570aacdb692ff1ce949d97105ae5e5a6722",
+    //                 "registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.8.2"
+    //             ],
+    //             "sizeBytes": 40442314
+    //         },
+    //         {
+    //             "names": [
+    //                 "docker/desktop-storage-provisioner:v2.0"
+    //             ],
+    //             "sizeBytes": 39816902
+    //         },
+    //         {
+    //             "names": [
+    //                 "docker/desktop-vpnkit-controller:dc331cb22850be0cdd97c84a9cfecaf44a1afb6e"
+    //             ],
+    //             "sizeBytes": 34992760
+    //         },
+    //         {
+    //             "names": [
+    //                 "quay.io/prometheus/node-exporter@sha256:39c642b2b337e38c18e80266fb14383754178202f40103646337722a594d984c",
+    //                 "quay.io/prometheus/node-exporter:v1.5.0"
+    //             ],
+    //             "sizeBytes": 21845668
+    //         },
+    //         {
+    //             "names": [
+    //                 "docker/desktop-vpnkit-controller:v2.0"
+    //             ],
+    //             "sizeBytes": 19178584
+    //         },
+    //         {
+    //             "names": [
+    //                 "quay.io/prometheus-operator/prometheus-config-reloader@sha256:3f976422884ec7744f69084da7736927eb634914a0c035d5a865cf6a6b8eb1b0",
+    //                 "quay.io/prometheus-operator/prometheus-config-reloader:v0.63.0"
+    //             ],
+    //             "sizeBytes": 12333565
+    //         },
+    //         {
+    //             "names": [
+    //                 "registry.k8s.io/pause:3.8"
+    //             ],
+    //             "sizeBytes": 514000
+    //         }
+    //     ],
+    //     "nodeInfo": {
+    //         "architecture": "arm64",
+    //         "bootID": "09ba70b6-5aaf-484f-9189-5c5c85ec7200",
+    //         "containerRuntimeVersion": "docker://24.0.2",
+    //         "kernelVersion": "5.15.49-linuxkit-pr",
+    //         "kubeProxyVersion": "v1.25.4",
+    //         "kubeletVersion": "v1.25.4",
+    //         "machineID": "08187e84-990c-459e-a1c3-18edd2c5ee23",
+    //         "operatingSystem": "linux",
+    //         "osImage": "Docker Desktop",
+    //         "systemUUID": "08187e84-990c-459e-a1c3-18edd2c5ee23"
+    //     }
+    // }
+    //
   );
 
   // console.log("selected pod 3 is ", selectedPod);
+
+  // console.log(" NODES ARR AT END IS ", nodesArr);
 
   return (
     <>

@@ -8,6 +8,7 @@ import { useTheme } from "@mui/material";
 const { ipcRenderer } = require("electron");
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CheckIcon from "@mui/icons-material/Check";
+import LinearProgress from "@mui/material/LinearProgress";
 
 function Start() {
   //for light/dark mode toggle
@@ -15,53 +16,134 @@ function Start() {
 
   // CHECK KUBECTL VERSION SECTION
   const [kubectlCheckStatus, setKubectlCheckStatus] = useState("checking");
-  const [kubectlClient, setKubectlClient] = useState("");
-  const [kubectlServer, setKubectlServer] = useState("");
+  const [kubectlClientVersion, setKubectlClientVersion] = useState("");
+  const [kubectlServerVersion, setKubectlServerVersion] = useState("");
+
+  const [metricsCheckStatus, setMetricsCheckStatus] = useState("checking");
+  const [metricsVersion, setMetricsVersion] = useState("");
+
+  const [promGrafCheckStatus, setPromGrafCheckStatus] = useState("checking");
+  const [grafVersion, setGrafVersion] = useState("");
+  const [promVersion, setPromVersion] = useState("");
 
   let argOut = "";
 
+  // command for check if metrics server installed is: kubectl get pods --all-namespaces | grep metrics-server
+  // if result is empty string, nothing installed, else it is installed.
+  let kubectlCheckMetricsInstallCommand =
+    "kubectl get pods --all-namespaces | grep metrics-server";
+
+  ipcRenderer.on("checked_promgraf_installed", (event, arg) => {
+    console.log("attempted to check if promgraf installed:", arg);
+    for (let i = 0; i < arg.length; i++) {
+      if (
+        arg[i] === "g" &&
+        arg[i + 1] === "r" &&
+        arg[i + 2] === "a" &&
+        arg[i + 3] === "f" &&
+        arg[i + 4] === "a" &&
+        arg[i + 5] === "n" &&
+        arg[i + 6] === "a"
+      ) {
+        setGrafVersion("installed");
+        //metrics not installed, save metrics status as not installed
+      }
+      if (
+        arg[i] === "p" &&
+        arg[i + 1] === "r" &&
+        arg[i + 2] === "o" &&
+        arg[i + 3] === "m" &&
+        arg[i + 4] === "e" &&
+        arg[i + 5] === "t" &&
+        arg[i + 6] === "h" &&
+        arg[i + 7] === "e" &&
+        arg[i + 8] === "u" &&
+        arg[i + 9] === "s"
+      ) {
+        setPromVersion("installed");
+        //metrics not installed, save metrics status as not installed
+      }
+    }
+    if (promVersion === "installed" && grafVersion === "installed") {
+      setTimeout(() => {
+        setPromGrafCheckStatus("installed");
+      }, 2400);
+    } else {
+      setTimeout(() => {
+        setPromGrafCheckStatus("not_installed");
+      }, 2400);
+    }
+  });
+
+  ipcRenderer.on("checked_metrics_installed", (event, arg) => {
+    // console.log("attempted to check if metrics installed:", arg);
+    if (!arg.length) {
+      //metrics not installed, save metrics status as not installed
+    } else {
+      setTimeout(() => {
+        setMetricsVersion("installed");
+        setMetricsCheckStatus("installed");
+      }, 1500);
+    }
+  });
+
   ipcRenderer.on("checked_kubectl_installed", (event, arg) => {
     argOut = arg;
-    let kubectlClientVersion = [];
-    let kubectlServerVersion = [];
-    console.log("attempted to check if kubectl installed:", arg);
+    let kubectlClientVersionArr = [];
+    let kubectlServerVersionArr = [];
     //if first letter is "W" you are getting version warning, so this parses version warning output
     if (arg[0] === "W") {
       let i = 44;
       while (arg[i] !== ")") {
-        kubectlClientVersion.push(arg[i]);
+        kubectlClientVersionArr.push(arg[i]);
         i++;
       }
       i += 14;
       while (arg[i] !== ")") {
-        kubectlServerVersion.push(arg[i]);
+        kubectlServerVersionArr.push(arg[i]);
         i++;
       }
-      setKubectlClient(`${kubectlClientVersion.join("")}`);
-      console.log("kubectl client is:", kubectlClient);
+      setKubectlClientVersion(`${kubectlClientVersionArr.join("")}`);
+      console.log("kubectl client is:", kubectlClientVersion);
 
-      setKubectlServer(`${kubectlServerVersion.join("")}`);
-      console.log("kubectl server is:", kubectlServer);
+      setKubectlServerVersion(`${kubectlServerVersionArr.join("")}`);
+      console.log("kubectl server is:", kubectlServerVersion);
+
       setTimeout(() => {
         setKubectlCheckStatus("Installed");
       }, 800);
     }
-    //need to parse json object below this line and save client and server versions for when you dont have warning (like i currently do).
+    //need to parse json object below this line and save client and server versions for when you dont have version +-1 sync warning (like i currently do).
     else if (typeof arg === "object") {
       //parse json object
     }
   });
 
   let kubectlCheckKubectlInstallCommand = "kubectl version --output=json";
+  let kubectlCheckPromGrafInstallCommand = "kubectl get services -o wide";
 
   let currDir = "NONE SELECTED";
   useEffect(() => {
+    // send check if kubectl commands installed
     ipcRenderer.send("check_kubectl_installed", {
       kubectlCheckKubectlInstallCommand,
       currDir,
     });
+
+    // send check metrics installed command
+    ipcRenderer.send("check_metrics_installed", {
+      kubectlCheckMetricsInstallCommand,
+      currDir,
+    });
+
+    // send check prom anf graf installed command
+    ipcRenderer.send("check_promgraf_installed", {
+      kubectlCheckPromGrafInstallCommand,
+      currDir,
+    });
   }, []);
 
+  //set the kubectl install div based on its check status
   let kubectlInstalledDiv;
   if (kubectlCheckStatus === "Installed") {
     kubectlInstalledDiv = (
@@ -73,8 +155,8 @@ function Start() {
           flexDirection: "row",
         }}
       >
-        kubectl client version v{kubectlClient} and server version v
-        {kubectlServer} found
+        kubectl client v{kubectlClientVersion} and server v
+        {kubectlServerVersion} found
         <CheckIcon
           fontSize="small"
           style={{ margin: "-1px 0 0 5px", color: "lightgreen" }}
@@ -91,15 +173,160 @@ function Start() {
           flexDirection: "row",
         }}
       >
-        checking if kubectl commands are installed ...
+        ... checking if kubectl commands are installed ...
       </div>
     );
   }
 
-  // END OF CHECK KUBECTL INSTALLED SECTION
+  let metricsInstalledDiv;
+  if (metricsCheckStatus === "installed") {
+    metricsInstalledDiv = (
+      <div
+        style={{
+          fontSize: "11px",
+          // border: "1px solid green",
+          display: "flex",
+          flexDirection: "row",
+        }}
+      >
+        metrics server found{" "}
+        <CheckIcon
+          fontSize="small"
+          style={{ margin: "-1px 0 0 5px", color: "lightgreen" }}
+        />
+      </div>
+    );
+  } else if (metricsCheckStatus === "not_installed") {
+    metricsInstalledDiv = (
+      <div
+        style={{
+          fontSize: "11px",
+          // border: "1px solid green",
+          display: "flex",
+          flexDirection: "row",
+        }}
+      >
+        Metrics server not installed. Kluster Manager requires metrics.{" "}
+        <a href="" style={{ marginLeft: "2px", color: "lightgreen" }}>
+          Install metrics server now
+        </a>
+      </div>
+    );
+  } else if (metricsCheckStatus === "checking") {
+    metricsInstalledDiv = (
+      <div
+        style={{
+          fontSize: "11px",
+          // border: "1px solid green",
+          display: "flex",
+          flexDirection: "row",
+        }}
+      >
+        ... checking if metrics server is installed ...
+      </div>
+    );
+  }
 
-  // command for check if metrics server installed is: kubectl get pods --all-namespaces | grep metrics-server
-  // if result is empty string, nothing installed, else it is installed.
+  let promGrafInstallDiv;
+  if (promGrafCheckStatus === "not_installed") {
+    promGrafInstallDiv = (
+      <div
+        style={{
+          fontSize: "11px",
+          // border: "1px solid green",
+          display: "flex",
+          flexDirection: "row",
+        }}
+      >
+        prometheus and grafana not found. Install on the Metrics Visualizer
+        page.
+      </div>
+    );
+  } else if (promGrafCheckStatus === "installed") {
+    promGrafInstallDiv = (
+      <div
+        style={{
+          fontSize: "11px",
+          // border: "1px solid green",
+          display: "flex",
+          flexDirection: "row",
+        }}
+      >
+        grafana and prometheus found{" "}
+        <CheckIcon
+          fontSize="small"
+          style={{ margin: "-1px 0 0 5px", color: "lightgreen" }}
+        />
+      </div>
+    );
+  } else if (promGrafCheckStatus === "checking") {
+    promGrafInstallDiv = (
+      <div
+        style={{
+          fontSize: "11px",
+          // border: "1px solid green",
+          display: "flex",
+          flexDirection: "row",
+        }}
+      >
+        ... checking if prometheus and grafana are installed ...
+      </div>
+    );
+  }
+
+  let loadingStatusDiv;
+  if (
+    promGrafCheckStatus !== "checking" &&
+    kubectlCheckStatus !== "checking" &&
+    metricsCheckStatus !== "checking"
+  ) {
+    loadingStatusDiv = (
+      <Box
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          width: "55px",
+          height: "20px",
+          // border: "1px solid yellow",
+          margin: "0px 0px 10px 0",
+        }}
+      >
+        {" "}
+        <div
+          style={{
+            height: "2px",
+            width: "55px",
+            // border: "1px solid yellow"
+          }}
+        ></div>
+        {}
+      </Box>
+    );
+  } else {
+    loadingStatusDiv = (
+      <Box
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          width: "55px",
+          height: "20px",
+          margin: "0px 0px 10px 0",
+          // border: "1px solid yellow",
+        }}
+      >
+        <LinearProgress
+          color="primary"
+          value={10}
+          style={{ height: "2px", width: "55px" }}
+        />
+        {}
+      </Box>
+    );
+  }
+
+  // END OF CHECK KUBECTL INSTALLED SECTION
 
   // let argOut = "";
 
@@ -157,7 +384,7 @@ function Start() {
             <Box
               src="./kaptn4ico.png"
               sx={{
-                margin: "80px 0 40px 0",
+                margin: "80px 0 10px 0",
                 height: "270px",
                 width: "270px",
                 justifyContent: "center",
@@ -167,6 +394,8 @@ function Start() {
               component="img"
               width="50%"
             ></Box>
+
+            {loadingStatusDiv}
 
             {kubectlInstalledDiv}
             {/* <div
@@ -183,7 +412,7 @@ function Start() {
                 style={{ margin: "-1px 0 0 5px", color: "lightgreen" }}
               />
             </div> */}
-
+            {/* 
             <div
               style={{
                 fontSize: "11px",
@@ -192,13 +421,13 @@ function Start() {
                 flexDirection: "row",
               }}
             >
-              kubectl metrics server not installed.{" "}
+              Metrics server not installed. Kluster Manager requires metrics.{" "}
               <a href="" style={{ marginLeft: "2px", color: "lightgreen" }}>
-                Install now
+                Install metrics server now
               </a>
-            </div>
-
-            <div
+            </div> */}
+            {metricsInstalledDiv}
+            {/* <div
               style={{
                 fontSize: "11px",
                 // border: "1px solid green",
@@ -211,7 +440,8 @@ function Start() {
                 fontSize="small"
                 style={{ margin: "-1px 0 0 5px", color: "lightgreen" }}
               />
-            </div>
+            </div> */}
+            {promGrafInstallDiv}
           </div>
           <div
             style={{
@@ -646,106 +876,6 @@ function Start() {
         </div>
       </div>
     </>
-
-    // <Grid
-    //   id="login-content"
-    //   container
-    //   alignContent="center"
-    //   alignItems="center"
-    //   justifyContent="center"
-    //   width={"100%"}
-    //   // height={'95vh'}
-    //   style={{
-    //     marginTop: "32px",
-    //     height: "100%",
-    //   }}
-    // >
-    //   <Grid
-    //     id="main-content-center"
-    //     container
-    //     flexDirection="column"
-    //     alignItems="center"
-    //     justifyContent="space-evenly"
-    //     sx={{
-    //       textAlign: "center",
-    //       width: "100%",
-    //       backgroundColor: theme.palette.mode === "dark" ? "" : "#c8c8fc",
-    //     }}
-    //     height={"96vh"}
-    //   >
-    //     <Box
-    //       src="./kaptn4ico.png"
-    //       sx={{
-    //         marginTop: "40px",
-    //         height: "270px",
-    //         width: "270px",
-    //       }}
-    //       component="img"
-    //       width="100%"
-    //     ></Box>
-    //     <Box id="subtitle">
-    //       <Typography
-    //         variant="h2"
-    //         // alignText='center'
-    //         sx={{ fontWeight: "bold", fontFamily: "Outfit", fontSize: "42px" }}
-    //         style={{
-    //           color: theme.palette.mode === "dark" ? "white" : "#3c3c9a",
-    //           textShadow:
-    //             theme.palette.mode === "dark"
-    //               ? "1px 1px 5px rgb(0, 0, 0, 0.3)"
-    //               : "1px 1px 5px rgb(0, 0, 0, 0.0)",
-    //         }}
-    //       >
-    //         Take command of Kubernetes.
-    //       </Typography>
-    //     </Box>
-
-    //     <Link to="/welcome">
-    //       <Button
-    //         variant="contained"
-    //         type="submit"
-    //         size="large"
-    //         sx={{
-    //           display: "flex",
-    //           flexDirection: "column",
-    //           alignItems: "start",
-    //           fontSize: "20px",
-    //           fontFamily: "Outfit",
-    //           padding: "7px 30px 7px 30px",
-    //           transitionProperty: "background-image",
-    //           transition: "all 2s",
-    //           mozTransition: "all 2s",
-    //           webkitTransition: "all 2s",
-    //           oTransition: "all 2s",
-    //           border:
-    //             theme.palette.mode === "dark"
-    //               ? "1px solid #68617f"
-    //               : "3px solid #9621f9",
-    //           letterSpacing: "3.5px",
-    //           backgroundColor:
-    //             theme.palette.mode === "dark" ? "#22145a" : "#3c3c9a",
-    //           // mt: 2,
-    //           // mb: 3,
-    //           ":hover": {
-    //             backgroundColor:
-    //               theme.palette.mode === "dark" ? "#a021f9" : "#8e77ec",
-    //             backgroundImage:
-    //               theme.palette.mode === "dark"
-    //                 ? "linear-gradient(to right top, #dc44e3, #c53fe0, #ac3add, #9237d9, #7634d5, #6c33d6, #6132d8, #5432d9, #5f32e1, #6933e9, #7433f0, #7f32f8)"
-    //                 : "linear-gradient(to right bottom, #5d2aed, #7329e7, #8529e1, #932adc, #9f2cd6, #a12dd7, #a32ed8, #a52fd9, #9e2fe0, #952fe8, #8b30f0, #7f32f8);",
-    //             border:
-    //               theme.palette.mode === "dark"
-    //                 ? "1px solid #af21f9"
-    //                 : "3px solid #9621f9",
-    //           },
-    //         }}
-    //       >
-    //         CONTINUE
-    //       </Button>
-    //     </Link>
-    //     <Typography variant="caption">Copyright © Kaptn 2023. </Typography>
-    //   </Grid>
-    // </Grid>
   );
 }
 export default Start;

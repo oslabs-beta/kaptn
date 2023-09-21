@@ -60,7 +60,6 @@ function KranePodList(props) {
 
   // ----------------------------------------- get pods info section ------------
 
-  let podsCommand = "kubectl get pods";
   const [podsArr, setPodsArr] = useState([]);
 
   function handleClick(event) {
@@ -69,554 +68,742 @@ function KranePodList(props) {
     // console.log("podsArr IN HANDLECLICK FOR LAUNCH is", podsArr);
   }
 
+  let podsArrOutput: any = [];
+
+  //Listen to "get pods" return event and set pods array
+  ipcRenderer.on("got_pods", (event, arg) => {
+    let argArr = arg.split("");
+    console.log("arg arr is", argArr);
+
+    // console.log("argArr length is", argArr.length);
+
+    let i: number = 0;
+
+    //skips "namespace"
+    while (arg[i] !== " ") {
+      i++;
+    }
+    //skips spaces
+    while (arg[i] === " ") {
+      i++;
+    }
+
+    //skips "name"
+    while (arg[i] !== " ") {
+      i++;
+    }
+
+    //skips spaces
+    while (arg[i] === " ") {
+      i++;
+    }
+    //skips "ready"
+    while (arg[i] !== " ") {
+      i++;
+    }
+    //skips spaces
+    while (arg[i] === " ") {
+      i++;
+    }
+
+    //skips "status"
+    while (arg[i] !== " ") {
+      i++;
+    }
+    //skips spaces
+    while (arg[i] === " ") {
+      i++;
+    }
+
+    //skips "restarts"
+    while (arg[i] !== " ") {
+      i++;
+    }
+
+    //skips spaces
+    while (arg[i] === " ") {
+      i++;
+    }
+
+    //skips age
+    while (arg[i] !== " ") {
+      i++;
+    }
+
+    //skips spaces
+    while (arg[i] === " ") {
+      i++;
+    }
+
+    //skips ip
+    while (arg[i] !== " ") {
+      i++;
+    }
+    //skips spaces
+    while (arg[i] === " ") {
+      i++;
+    }
+
+    //skips address
+    while (arg[i] !== " ") {
+      i++;
+    }
+    //skips spaces
+    while (arg[i] === " ") {
+      i++;
+    }
+    //skips node
+    while (arg[i] !== " ") {
+      i++;
+    }
+
+    //skips spaces
+    while (arg[i] === " ") {
+      i++;
+    }
+
+    //skips nominated
+    while (arg[i] !== " ") {
+      i++;
+    }
+
+    //skips spaces
+    while (arg[i] === " ") {
+      i++;
+    }
+    //skips node
+    while (arg[i] !== " ") {
+      i++;
+    }
+
+    //skips spaces
+    while (arg[i] === " ") {
+      i++;
+    }
+
+    //skips gates
+    while (arg[i] !== "\n") {
+      i++;
+    }
+    i++;
+    // console.log("arg at i is", arg[i]);
+    // console.log("i is", i);
+
+    //for loop to put all pods in array of objects
+    for (let j = 0; i < argArr.length; i++) {
+      let namespaceOutput: any = [];
+      let nameOutput: any = [];
+      let readyOutput: any = [];
+      let statusOutput: any = [];
+      let restartsOutput: any = [];
+      let lastRestartOutput: any = [];
+      let ageOutput: any = [];
+      let ipOutput: any = [];
+      let nodeOutput: any = [];
+      let nominatedOutput: any = [];
+      let readinessOutput: any = [];
+
+      //saves namespaces
+      while (arg[i] !== " ") {
+        namespaceOutput.push(arg[i]);
+        i++;
+      }
+      //skips spaces
+      while (arg[i] === " ") {
+        i++;
+      }
+
+      //saves name
+      while (arg[i] !== " ") {
+        nameOutput.push(arg[i]);
+        i++;
+      }
+      //skips spaces
+      while (arg[i] === " ") {
+        i++;
+      }
+      //saves ready status
+      while (arg[i] !== " ") {
+        readyOutput.push(arg[i]);
+        i++;
+      }
+
+      //skips spaces
+      while (arg[i] === " ") {
+        i++;
+      }
+
+      //saves status
+      while (arg[i] !== " ") {
+        statusOutput.push(arg[i]);
+        i++;
+      }
+
+      //skip spaces
+      while (arg[i] === " ") {
+        i++;
+      }
+
+      // handle if no restarts then no last restart
+      if (arg[i] === "0") {
+        restartsOutput = ["0"];
+        lastRestartOutput = ["N", "/", "A"];
+        i++;
+      } else {
+        //save first part of "restarts"
+        while (arg[i] !== " ") {
+          restartsOutput.push(arg[i]);
+          i++;
+        }
+
+        //skip spaces in middle of restarts
+        i += 2;
+
+        // save last restart
+        while (arg[i] !== ")") {
+          lastRestartOutput.push(arg[i]);
+          i++;
+        }
+        i++;
+      }
+
+      //skip spaces
+      while (arg[i] === " ") {
+        i++;
+      }
+
+      //handle if age is 0
+      if (arg[i] === "0") {
+        ageOutput = [...ageOutput, "0"];
+      } else {
+        //save age
+        while (
+          arg[i] === "d" ||
+          arg[i] === "h" ||
+          arg[i] === "m" ||
+          arg[i] === "s" ||
+          arg[i] === "0" ||
+          arg[i] === "1" ||
+          arg[i] === "2" ||
+          arg[i] === "3" ||
+          arg[i] === "4" ||
+          arg[i] === "5" ||
+          arg[i] === "6" ||
+          arg[i] === "7" ||
+          arg[i] === "8" ||
+          (arg[i] === "9" && i < arg.length)
+        ) {
+          ageOutput.push(arg[i]);
+          i++;
+        }
+      }
+      //skip spaces after age before IP address
+      while (arg[i] === " ") {
+        i++;
+      }
+
+      //save ip address
+      while (arg[i] !== " ") {
+        ipOutput.push(arg[i]);
+        i++;
+      }
+
+      //skip spaces after IP address before node
+      while (arg[i] === " ") {
+        i++;
+      }
+
+      //save node
+      while (arg[i] !== " ") {
+        nodeOutput.push(arg[i]);
+        i++;
+      }
+
+      //skip spaces after node before nominated node
+      while (arg[i] === " ") {
+        i++;
+      }
+
+      //save nominated node
+      while (arg[i] !== " ") {
+        nominatedOutput.push(arg[i]);
+        i++;
+      }
+
+      //skip spaces after nominated node before readiness gates
+      while (arg[i] === " ") {
+        i++;
+      }
+      //save readiness gates
+      while (
+        arg[i] === "n" ||
+        arg[i] === "o" ||
+        arg[i] === "e" ||
+        arg[i] === "<" ||
+        arg[i] === ">" ||
+        arg[i] === "0" ||
+        arg[i] === "1" ||
+        arg[i] === "2" ||
+        arg[i] === "3" ||
+        arg[i] === "4" ||
+        arg[i] === "5" ||
+        arg[i] === "6" ||
+        arg[i] === "7" ||
+        arg[i] === "8" ||
+        arg[i] === "9"
+      ) {
+        readinessOutput.push(arg[i]);
+        i++;
+      }
+      // console.log("name output is", nameOutput.join(""));
+      // console.log("ip output is", ipOutput.join(""));
+      // console.log("node output is", nodeOutput.join(""));
+      // console.log("nominated output is", nominatedOutput.join(""));
+      // console.log("readiness output is", readinessOutput.join(""));
+
+      // console.log(" i is", i);
+
+      let pod: any = {
+        namespace: namespaceOutput.join(""),
+        name: nameOutput.join(""),
+        ready: readyOutput.join(""),
+        status: statusOutput.join(""),
+        restarts: restartsOutput.join(""),
+        lastRestart: lastRestartOutput.join(""),
+        age: ageOutput.join(""),
+        podCpuUsed: "",
+        podMemoryUsed: "",
+        podCpuLimit: "",
+        podMemoryLimit: "",
+        ipAddress: ipOutput.join(""),
+        node: nodeOutput.join(""),
+        nominatedNode: nominatedOutput.join(""),
+        readinessGates: readinessOutput.join(""),
+      };
+
+      // console.log(" POD is", pod);
+
+      // pod.name = nameOutput.join("");
+      // pod.ready = readyOutput.join("");
+      // pod.status = statusOutput.join("");
+      // pod.restarts = restartsOutput.join("");
+      // pod.lastRestart = lastRestartOutput.join("");
+      // pod.age = ageOutput.join("");
+
+      podsArrOutput.push(pod);
+    } // ---------  end of for loop
+
+    filteredPods = podsArrOutput.filter(
+      (ele: any, ind: number) =>
+        ind === podsArrOutput.findIndex((elem) => elem.name === ele.name)
+    );
+    // console.log("filteredPods is", filteredPods);
+    setPodsArr([...filteredPods]);
+    // console.log("podsArr is", podsArr);
+  }); // --------------------------end of ipc render to get all pods o wide info  -
+
+  // ----------------------------------- Listen to "get cpuUsed" return event
+  ipcRenderer.on("got_cpuUsed", (event, arg) => {
+    // console.log("ARG ISSSSSS", arg);
+    let argArr = arg.split("");
+    // console.log("arg arr is", argArr);
+    let podUsageArray = [];
+
+    let pod = {};
+
+    let i: number = 0;
+
+    //skips "namespace"
+    while (argArr[i] !== " ") {
+      i++;
+    }
+
+    //skips spaces
+    while (argArr[i] === " ") {
+      i++;
+    }
+
+    //skips "name"
+    while (argArr[i] !== " ") {
+      i++;
+    }
+
+    //skips spaces
+    while (argArr[i] === " ") {
+      i++;
+    }
+    //skips "CPU(cores)"
+    while (argArr[i] !== " ") {
+      i++;
+    }
+    //skips spaces
+    while (argArr[i] === " ") {
+      i++;
+    }
+
+    //skips "memoery(bytes)"
+    while (argArr[i] !== " ") {
+      i++;
+    }
+    i += 4;
+    // //for loop to put all pods in array of objects
+    for (let j = 0; i < argArr.length; i++) {
+      let podCpuUsedArr = [];
+      let podMemoryUsedArr = [];
+
+      //skips namespace because array order is same for both outputs
+      while (argArr[i] !== " ") {
+        i++;
+      }
+
+      //skip spaces
+      while (argArr[i] === " ") {
+        i++;
+      }
+
+      //skips name because array order is same for both outputs
+      while (argArr[i] !== " ") {
+        i++;
+      }
+
+      //skip spaces
+      while (argArr[i] === " ") {
+        i++;
+      }
+
+      //   // //save cpu(cores) to array to parse at end of loops
+      // console.log("ARG ARR at i is", argArr[i]);
+      while (
+        argArr[i] === "1" ||
+        argArr[i] === "2" ||
+        argArr[i] === "3" ||
+        argArr[i] === "4" ||
+        argArr[i] === "5" ||
+        argArr[i] === "6" ||
+        argArr[i] === "7" ||
+        argArr[i] === "8" ||
+        argArr[i] === "9" ||
+        argArr[i] === "0"
+      ) {
+        podCpuUsedArr.push(argArr[i]);
+        i++;
+      }
+      i++;
+
+      //skip spaces after number of cores
+      while (arg[i] !== " ") {
+        i++;
+      }
+
+      //skip spaces
+      while (arg[i] === " ") {
+        i++;
+      }
+
+      //save memory used before unit of measure
+      while (
+        argArr[i] === "1" ||
+        argArr[i] === "2" ||
+        argArr[i] === "3" ||
+        argArr[i] === "4" ||
+        argArr[i] === "5" ||
+        argArr[i] === "6" ||
+        argArr[i] === "7" ||
+        argArr[i] === "8" ||
+        argArr[i] === "9" ||
+        argArr[i] === "0"
+      ) {
+        podMemoryUsedArr.push(arg[i]);
+        i++;
+      }
+      if (argArr[i] === "G") {
+        podMemoryUsedArr.push("0");
+        podMemoryUsedArr.push("0");
+        podMemoryUsedArr.push("0");
+        podMemoryUsedArr.push("0");
+        podMemoryUsedArr.push("0");
+        podMemoryUsedArr.push("0");
+      } else if (argArr[i] === "M") {
+        podMemoryUsedArr.push("0");
+        podMemoryUsedArr.push("0");
+        podMemoryUsedArr.push("0");
+      }
+      i += 2;
+
+      //skip spaces
+      while (arg[i] === " ") {
+        i++;
+      }
+      i++;
+      // console.log(" podCpuUsedArr is ", podCpuUsedArr);
+      // console.log(" podMemoryUsedArr is ", podMemoryUsedArr);
+      //join used values and add them to object
+      pod = {
+        podCpuUsed: podCpuUsedArr.join(""),
+        podMemoryUsed: podMemoryUsedArr.join(""),
+      };
+
+      j++;
+      // console.log("after used values i is", i, "and arg i is", arg[i]);
+      // console.log(" POD IS ", pod);
+      podUsageArray.push(pod);
+    } //end of for loop
+
+    let finalPodUsageArr = podUsageArray.filter(
+      (ele: any, ind: number) =>
+        ind ===
+        podUsageArray.findIndex(
+          (elem) =>
+            elem.podCpuUsed === ele.podCpuUsed &&
+            elem.podMemoryUsed === ele.podMemoryUsed
+        )
+    );
+
+    setPodsArr([...filteredPods]);
+    // console.log("FINALPODSARR ISis", finalPodUsageArr);
+
+    for (let j = 0; j < finalPodUsageArr.length; j++) {
+      filteredPods[j]["podCpuUsed"] = finalPodUsageArr[j]["podCpuUsed"];
+      filteredPods[j]["podMemoryUsed"] = finalPodUsageArr[j]["podMemoryUsed"];
+    }
+    // console.log("filtered pods is", filteredPods);
+  }); // -------------------- end of ipc render function for get pods cpu used
+
+  //Listen to "get cpuUsed" return event
+  ipcRenderer.on("got_cpuLimits", (event, arg) => {
+    // console.log("ARG ISSSSSS", arg);
+    let argArr = arg.split("");
+    // console.log("arg arr is", argArr);
+    let podLimitsArray = [];
+
+    let pod = {};
+
+    let i: number = 0;
+
+    //skips "name"
+    while (argArr[i] !== " ") {
+      i++;
+    }
+
+    //skips spaces
+    while (argArr[i] === " ") {
+      i++;
+    }
+    //skips "CPU-limits"
+    while (argArr[i] !== " ") {
+      i++;
+    }
+    //skips spaces
+    while (argArr[i] === " ") {
+      i++;
+    }
+
+    //skips "memory-limits"
+    i += 13;
+
+    // //for loop to put all pods in array of objects
+    for (let j = 0; i < argArr.length; i++) {
+      let podCpuLimitsArr = [];
+      let podMemoryLimitsArr = [];
+      let podNameArr = [];
+
+      //take name because maybe be duplicate values]
+      while (argArr[i] !== " ") {
+        podNameArr.push(argArr[i]);
+        i++;
+      }
+      //skip spaces
+      while (argArr[i] === " ") {
+        i++;
+      }
+
+      // console.log("I IS:", i, " .... ARG ARRAY AT I IS:", argArr[i]);
+      if (argArr[i] === "<") {
+        podCpuLimitsArr = ["N", "O", "N", "E"];
+        i += 7;
+      } else {
+        //   //   // //save cpu-limits to array to parse at end of loops
+        //   console.log("ARG ARR at i is", argArr[i]);
+        while (
+          argArr[i] === "1" ||
+          argArr[i] === "2" ||
+          argArr[i] === "3" ||
+          argArr[i] === "4" ||
+          argArr[i] === "5" ||
+          argArr[i] === "6" ||
+          argArr[i] === "7" ||
+          argArr[i] === "8" ||
+          argArr[i] === "9" ||
+          argArr[i] === "0"
+        ) {
+          podCpuLimitsArr.push(argArr[i]);
+          i++;
+        }
+        // console.log("podCpuLimitsArr is", podCpuLimitsArr);
+        // i++;
+      }
+
+      //skip spaces after cpu limt value
+      while (arg[i] !== " ") {
+        i++;
+      }
+
+      //skip spaces
+      while (arg[i] === " ") {
+        i++;
+      }
+
+      if (argArr[i] === "<") {
+        podMemoryLimitsArr = ["N", "O", "N", "E"];
+        i += 6;
+      } else {
+        //save memory limit before unit of measure
+        while (
+          argArr[i] === "1" ||
+          argArr[i] === "2" ||
+          argArr[i] === "3" ||
+          argArr[i] === "4" ||
+          argArr[i] === "5" ||
+          argArr[i] === "6" ||
+          argArr[i] === "7" ||
+          argArr[i] === "8" ||
+          argArr[i] === "9" ||
+          argArr[i] === "0"
+        ) {
+          podMemoryLimitsArr.push(arg[i]);
+          i++;
+        }
+        if (argArr[i] === "G") {
+          podMemoryLimitsArr.push("0");
+          podMemoryLimitsArr.push("0");
+          podMemoryLimitsArr.push("0");
+          podMemoryLimitsArr.push("0");
+          podMemoryLimitsArr.push("0");
+          podMemoryLimitsArr.push("0");
+        } else if (argArr[i] === "M") {
+          podMemoryLimitsArr.push("0");
+          podMemoryLimitsArr.push("0");
+          podMemoryLimitsArr.push("0");
+        }
+
+        i += 3;
+        // console.log("podMemoryLimitsArr is", podMemoryLimitsArr);
+      }
+
+      //   //join used values and add them to object
+      pod = {
+        podName: podNameArr.join(""),
+        podCpuLimit: podCpuLimitsArr.join(""),
+        podMemoryLimit: podMemoryLimitsArr.join(""),
+      };
+
+      j++;
+      //   // console.log("after used values i is", i, "and arg i is", arg[i]);
+      // console.log(" POD IS ", pod);
+      podLimitsArray.push(pod);
+      pod = {};
+    } //end of for loop
+
+    let lastPodsArr = podLimitsArray.filter(
+      (ele: any, ind: number) =>
+        ind === podLimitsArray.findIndex((elem) => elem.podName === ele.podName)
+    );
+
+    setPodsArr([...filteredPods]);
+    // console.log("LAST PODS ARR LENGTH IS", lastPodsArr.length);
+
+    for (let j = 0; j < lastPodsArr.length; j++) {
+      let currentCpu = lastPodsArr[j]["podCpuLimit"];
+      let currentMemory = lastPodsArr[j]["podMemoryLimit"];
+      filteredPods[j]["podCpuLimit"] = currentCpu;
+      filteredPods[j]["podMemoryLimit"] = currentMemory;
+
+      filteredPods[j]["podCpuPercent"] = currentCpu;
+
+      // let log = Number(filteredPods[j]["podCpuUsed"]);
+      // console.log("filterd cpu limit is ", filteredPods[j]["podCpuLimit"]);
+      // console.log(
+      //   "filterd memory limit is ",
+      //   filteredPods[j]["podMemoryLimit"]
+      // );
+
+      if (currentCpu === "NONE") {
+        filteredPods[j]["podCpuPercent"] = "N/A";
+      } else {
+        let cpuUsed = Number(filteredPods[j]["podCpuUsed"]);
+        filteredPods[j]["podCpuPercent"] = cpuUsed / currentCpu;
+        if (filteredPods[j]["podCpuPercent"] >= 1) {
+          filteredPods[j]["podCpuPercent"] = 100;
+        } else {
+          filteredPods[j]["podCpuPercent"] =
+            filteredPods[j]["podCpuPercent"] * 100;
+          if (filteredPods[j]["podCpuPercent"] % 1 !== 0) {
+            let temp = filteredPods[j]["podCpuPercent"].toFixed(1);
+            filteredPods[j]["podCpuPercent"] = temp;
+          }
+        }
+      }
+
+      if (currentMemory === "NONE") {
+        filteredPods[j]["podMemoryPercent"] = "N/A";
+      } else {
+        let memoryUsed = Number(filteredPods[j]["podMemoryUsed"]);
+        filteredPods[j]["podMemoryPercent"] = memoryUsed / currentMemory;
+        if (filteredPods[j]["podMemoryPercent"] >= 1) {
+          filteredPods[j]["podMemoryPercent"] = "100";
+        } else {
+          filteredPods[j]["podMemoryPercent"] =
+            filteredPods[j]["podMemoryPercent"] * 100;
+          if (filteredPods[j]["podMemoryPercent"] % 1 !== 0) {
+            let temp = filteredPods[j]["podMemoryPercent"].toFixed(1);
+            filteredPods[j]["podMemoryPercent"] = temp;
+          }
+        }
+      }
+
+      // // filteredPods[j]["podMemoryPercent"] =
+      // //   Number(filteredPods[j]["podMemoryUsed"]) /
+      // //   Number(filteredPods[j]["podMemoryLimit"]);
+
+      // let percent = 0;
+
+      // if (filteredPods[j]["podMemoryLimit"] === "NONE") {
+      //   filteredPods[j]["podMemoryPercent"] = "N/A";
+      // } else if (filteredPods[j]["podMemoryPercent"] >= 1) {
+      //   filteredPods[j]["podMemoryPercent"] = 100;
+      // } else
+      //   filteredPods[j]["podMemoryPercent"] =
+      //     Number(filteredPods[j]["podMemoryUsed"]) /
+      //     Number(filteredPods[j]["podMemoryLimit"]);
+    }
+  }); //-------------------   end of ipc render function to get podcpu and memory limits
+
   useEffect(() => {
-    //---------------------------------------- get all pods o wide info section -
+    let podsCommand = "kubectl get pods --all-namespaces -o wide";
+    //send get pods o wide info commands
     ipcRenderer.send("getPods_command", {
       podsCommand,
       currDir,
     });
 
-    let podsArrOutput: any = [];
-
-    //Listen to "get nodes" return event
-    ipcRenderer.on("got_pods", (event, arg) => {
-      let argArr = arg.split("");
-
-      // console.log("argArr length is", argArr.length);
-
-      let i: number = 0;
-
-      //skips "name"
-      while (arg[i] !== " ") {
-        i++;
-      }
-
-      //skips spaces
-      while (arg[i] === " ") {
-        i++;
-      }
-      //skips "ready"
-      while (arg[i] !== " ") {
-        i++;
-      }
-      //skips spaces
-      while (arg[i] === " ") {
-        i++;
-      }
-
-      //skips "status"
-      while (arg[i] !== " ") {
-        i++;
-      }
-      //skips spaces
-      while (arg[i] === " ") {
-        i++;
-      }
-
-      //skips "restarts"
-      while (arg[i] !== " ") {
-        i++;
-      }
-      //skips spaces
-      while (arg[i] === " ") {
-        i++;
-      }
-      //skips age
-      i += 4;
-
-      //for loop to put all pods in array of objects
-      for (let j = 0; i < argArr.length; i++) {
-        let nameOutput: any = [];
-        let readyOutput: any = [];
-        let statusOutput: any = [];
-        let restartsOutput: any = [];
-        let lastRestartOutput: any = [];
-        let ageOutput: any = [];
-
-        //saves name
-        while (arg[i] !== " ") {
-          nameOutput.push(arg[i]);
-          i++;
-        }
-        //skips spaces
-        while (arg[i] === " ") {
-          i++;
-        }
-        //saves ready status
-        while (arg[i] !== " ") {
-          readyOutput.push(arg[i]);
-          i++;
-        }
-
-        //skips spaces
-        while (arg[i] === " ") {
-          i++;
-        }
-
-        //saves status
-        while (arg[i] !== " ") {
-          statusOutput.push(arg[i]);
-          i++;
-        }
-
-        //skip spaces
-        while (arg[i] === " ") {
-          i++;
-        }
-
-        // handle if no restarts then no last restart
-        if (arg[i] === "0") {
-          restartsOutput = ["0"];
-          lastRestartOutput = ["N", "/", "A"];
-          i++;
-        } else {
-          //save first part of "restarts"
-          while (arg[i] !== " ") {
-            restartsOutput.push(arg[i]);
-            i++;
-          }
-
-          //skip spaces in middle of restarts
-          i += 2;
-
-          // save last restart
-          while (arg[i] !== ")") {
-            lastRestartOutput.push(arg[i]);
-            i++;
-          }
-          i++;
-        }
-
-        //skip spaces
-        while (arg[i] === " ") {
-          i++;
-        }
-
-        //handle if age is 0
-        if (arg[i] === "0") {
-          ageOutput = [...ageOutput, "0"];
-        } else {
-          //save age
-          while (
-            arg[i] === "d" ||
-            arg[i] === "h" ||
-            arg[i] === "m" ||
-            arg[i] === "s" ||
-            arg[i] === "0" ||
-            arg[i] === "1" ||
-            arg[i] === "2" ||
-            arg[i] === "3" ||
-            arg[i] === "4" ||
-            arg[i] === "5" ||
-            arg[i] === "6" ||
-            arg[i] === "7" ||
-            arg[i] === "8" ||
-            (arg[i] === "9" && i < arg.length)
-          ) {
-            ageOutput.push(arg[i]);
-            i++;
-          }
-        }
-
-        let pod: any = {
-          name: nameOutput.join(""),
-          ready: readyOutput.join(""),
-          status: statusOutput.join(""),
-          restarts: restartsOutput.join(""),
-          lastRestart: lastRestartOutput.join(""),
-          age: ageOutput.join(""),
-          podCpuUsed: "",
-          podMemoryUsed: "",
-          podCpuLimit: "",
-          podMemoryLimit: "",
-        };
-
-        // pod.name = nameOutput.join("");
-        // pod.ready = readyOutput.join("");
-        // pod.status = statusOutput.join("");
-        // pod.restarts = restartsOutput.join("");
-        // pod.lastRestart = lastRestartOutput.join("");
-        // pod.age = ageOutput.join("");
-
-        podsArrOutput.push(pod);
-      }
-
-      filteredPods = podsArrOutput.filter(
-        (ele: any, ind: number) =>
-          ind === podsArrOutput.findIndex((elem) => elem.name === ele.name)
-      );
-      // console.log("filteredPods is", filteredPods);
-      setPodsArr([...filteredPods]);
-      // console.log("podsArr is", podsArr);
-    }); // end of ipc render
-
-    //---------------------------------------- end of get all pods o wide info section -
-
     //---------------------------------------- beginnging get all pods cpu and memory usage section -
-    let CpuUsedCommand = `kubectl top pods`;
-    ipcRenderer.send("getCpuUsed_command", {
-      CpuUsedCommand,
-      currDir,
-    });
-
-    //Listen to "get cpuUsed" return event
-    ipcRenderer.on("got_cpuUsed", (event, arg) => {
-      // console.log("ARG ISSSSSS", arg);
-      let argArr = arg.split("");
-      console.log("arg arr is", argArr);
-      let podUsageArray = [];
-
-      let pod = {};
-
-      let i: number = 0;
-
-      //skips "name"
-      while (argArr[i] !== " ") {
-        i++;
-      }
-
-      //skips spaces
-      while (argArr[i] === " ") {
-        i++;
-      }
-      //skips "CPU(cores)"
-      while (argArr[i] !== " ") {
-        i++;
-      }
-      //skips spaces
-      while (argArr[i] === " ") {
-        i++;
-      }
-
-      //skips "memoery(bytes)"
-      while (argArr[i] !== " ") {
-        i++;
-      }
-      i += 4;
-      // //for loop to put all pods in array of objects
-      for (let j = 0; i < argArr.length; i++) {
-        let podCpuUsedArr = [];
-        let podMemoryUsedArr = [];
-
-        //saves name because array order is same for both outputs
-        while (argArr[i] !== " ") {
-          i++;
-        }
-        //skip spaces
-        while (argArr[i] === " ") {
-          i++;
-        }
-        //   // //save cpu(cores) to array to parse at end of loops
-        // console.log("ARG ARR at i is", argArr[i]);
-        while (
-          argArr[i] === "1" ||
-          argArr[i] === "2" ||
-          argArr[i] === "3" ||
-          argArr[i] === "4" ||
-          argArr[i] === "5" ||
-          argArr[i] === "6" ||
-          argArr[i] === "7" ||
-          argArr[i] === "8" ||
-          argArr[i] === "9" ||
-          argArr[i] === "0"
-        ) {
-          podCpuUsedArr.push(argArr[i]);
-          i++;
-        }
-        i++;
-
-        //skip spaces after number of cores
-        while (arg[i] !== " ") {
-          i++;
-        }
-
-        //skip spaces
-        while (arg[i] === " ") {
-          i++;
-        }
-
-        //save memory used before unit of measure
-        while (
-          argArr[i] === "1" ||
-          argArr[i] === "2" ||
-          argArr[i] === "3" ||
-          argArr[i] === "4" ||
-          argArr[i] === "5" ||
-          argArr[i] === "6" ||
-          argArr[i] === "7" ||
-          argArr[i] === "8" ||
-          argArr[i] === "9" ||
-          argArr[i] === "0"
-        ) {
-          podMemoryUsedArr.push(arg[i]);
-          i++;
-        }
-        if (argArr[i] === "G") {
-          podMemoryUsedArr.push("0");
-          podMemoryUsedArr.push("0");
-          podMemoryUsedArr.push("0");
-          podMemoryUsedArr.push("0");
-          podMemoryUsedArr.push("0");
-          podMemoryUsedArr.push("0");
-        } else if (argArr[i] === "M") {
-          podMemoryUsedArr.push("0");
-          podMemoryUsedArr.push("0");
-          podMemoryUsedArr.push("0");
-        }
-        i += 2;
-
-        //skip spaces
-        while (arg[i] === " ") {
-          i++;
-        }
-        i++;
-        // console.log(" podCpuUsedArr is ", podCpuUsedArr);
-        // console.log(" podMemoryUsedArr is ", podMemoryUsedArr);
-        //join used values and add them to object
-        pod = {
-          podCpuUsed: podCpuUsedArr.join(""),
-          podMemoryUsed: podMemoryUsedArr.join(""),
-        };
-
-        j++;
-        // console.log("after used values i is", i, "and arg i is", arg[i]);
-        // console.log(" POD IS ", pod);
-        podUsageArray.push(pod);
-      } //end of for loop
-
-      let finalPodUsageArr = podUsageArray.filter(
-        (ele: any, ind: number) =>
-          ind ===
-          podUsageArray.findIndex(
-            (elem) =>
-              elem.podCpuUsed === ele.podCpuUsed &&
-              elem.podMemoryUsed === ele.podMemoryUsed
-          )
-      );
-
-      setPodsArr([...filteredPods]);
-      console.log("FINALPODSARR ISis", finalPodUsageArr);
-
-      for (let j = 0; j < finalPodUsageArr.length; j++) {
-        filteredPods[j]["podCpuUsed"] = finalPodUsageArr[j]["podCpuUsed"];
-        filteredPods[j]["podMemoryUsed"] = finalPodUsageArr[j]["podMemoryUsed"];
-      }
-      console.log("filtered pods is", filteredPods);
-    }); // end of ipc render function
-
-    //---------------------------------------- end of get all pods cpu and memory usage section -
+    let CpuUsedCommand = `kubectl top pods --all-namespaces`;
+    setTimeout(() => {
+      ipcRenderer.send("getCpuUsed_command", {
+        CpuUsedCommand,
+        currDir,
+      });
+    }, 500);
 
     // ----------------------------------------------- Beginning of get pod cpu and memory limits section
 
-    let cpuLimitsCommand = `kubectl get po -o custom-columns="Name:metadata.name,CPU-limit:spec.containers[*].resources.limits.cpu",Memory-limit:"spec.containers[*].resources.limits.memory"`;
-    ipcRenderer.send("getCpuLimits_command", {
-      cpuLimitsCommand,
-      currDir,
-    });
-
-    //Listen to "get cpuUsed" return event
-    ipcRenderer.on("got_cpuLimits", (event, arg) => {
-      // console.log("ARG ISSSSSS", arg);
-      let argArr = arg.split("");
-      // console.log("arg arr is", argArr);
-      let podLimitsArray = [];
-
-      let pod = {};
-
-      let i: number = 0;
-
-      //skips "name"
-      while (argArr[i] !== " ") {
-        i++;
-      }
-
-      //skips spaces
-      while (argArr[i] === " ") {
-        i++;
-      }
-      //skips "CPU-limits"
-      while (argArr[i] !== " ") {
-        i++;
-      }
-      //skips spaces
-      while (argArr[i] === " ") {
-        i++;
-      }
-
-      //skips "memory-limits"
-      i += 13;
-
-      // //for loop to put all pods in array of objects
-      for (let j = 0; i < argArr.length; i++) {
-        let podCpuLimitsArr = [];
-        let podMemoryLimitsArr = [];
-        let podNameArr = [];
-
-        //take name because maybe be duplicate values]
-        while (argArr[i] !== " ") {
-          podNameArr.push(argArr[i]);
-          i++;
-        }
-        //skip spaces
-        while (argArr[i] === " ") {
-          i++;
-        }
-
-        // console.log("I IS:", i, " .... ARG ARRAY AT I IS:", argArr[i]);
-        if (argArr[i] === "<") {
-          podCpuLimitsArr = ["N", "O", "N", "E"];
-          i += 7;
-        } else {
-          //   //   // //save cpu-limits to array to parse at end of loops
-          //   console.log("ARG ARR at i is", argArr[i]);
-          while (
-            argArr[i] === "1" ||
-            argArr[i] === "2" ||
-            argArr[i] === "3" ||
-            argArr[i] === "4" ||
-            argArr[i] === "5" ||
-            argArr[i] === "6" ||
-            argArr[i] === "7" ||
-            argArr[i] === "8" ||
-            argArr[i] === "9" ||
-            argArr[i] === "0"
-          ) {
-            podCpuLimitsArr.push(argArr[i]);
-            i++;
-          }
-          // console.log("podCpuLimitsArr is", podCpuLimitsArr);
-          // i++;
-        }
-
-        //skip spaces after cpu limt value
-        while (arg[i] !== " ") {
-          i++;
-        }
-
-        //skip spaces
-        while (arg[i] === " ") {
-          i++;
-        }
-
-        if (argArr[i] === "<") {
-          podMemoryLimitsArr = ["N", "O", "N", "E"];
-          i += 6;
-        } else {
-          //save memory limit before unit of measure
-          while (
-            argArr[i] === "1" ||
-            argArr[i] === "2" ||
-            argArr[i] === "3" ||
-            argArr[i] === "4" ||
-            argArr[i] === "5" ||
-            argArr[i] === "6" ||
-            argArr[i] === "7" ||
-            argArr[i] === "8" ||
-            argArr[i] === "9" ||
-            argArr[i] === "0"
-          ) {
-            podMemoryLimitsArr.push(arg[i]);
-            i++;
-          }
-          if (argArr[i] === "G") {
-            podMemoryLimitsArr.push("0");
-            podMemoryLimitsArr.push("0");
-            podMemoryLimitsArr.push("0");
-            podMemoryLimitsArr.push("0");
-            podMemoryLimitsArr.push("0");
-            podMemoryLimitsArr.push("0");
-          } else if (argArr[i] === "M") {
-            podMemoryLimitsArr.push("0");
-            podMemoryLimitsArr.push("0");
-            podMemoryLimitsArr.push("0");
-          }
-
-          i += 3;
-          // console.log("podMemoryLimitsArr is", podMemoryLimitsArr);
-        }
-
-        //   //join used values and add them to object
-        pod = {
-          podName: podNameArr.join(""),
-          podCpuLimit: podCpuLimitsArr.join(""),
-          podMemoryLimit: podMemoryLimitsArr.join(""),
-        };
-
-        j++;
-        //   // console.log("after used values i is", i, "and arg i is", arg[i]);
-        // console.log(" POD IS ", pod);
-        podLimitsArray.push(pod);
-        pod = {};
-      } //end of for loop
-
-      let lastPodsArr = podLimitsArray.filter(
-        (ele: any, ind: number) =>
-          ind ===
-          podLimitsArray.findIndex((elem) => elem.podName === ele.podName)
-      );
-
-      setPodsArr([...filteredPods]);
-      // console.log("LAST PODS ARR LENGTH IS", lastPodsArr.length);
-
-      for (let j = 0; j < lastPodsArr.length; j++) {
-        let currentCpu = lastPodsArr[j]["podCpuLimit"];
-        let currentMemory = lastPodsArr[j]["podMemoryLimit"];
-        filteredPods[j]["podCpuLimit"] = currentCpu;
-        filteredPods[j]["podMemoryLimit"] = currentMemory;
-
-        filteredPods[j]["podCpuPercent"] = currentCpu;
-
-        // let log = Number(filteredPods[j]["podCpuUsed"]);
-        console.log("filterd cpu limit is ", filteredPods[j]["podCpuLimit"]);
-        console.log(
-          "filterd memory limit is ",
-          filteredPods[j]["podMemoryLimit"]
-        );
-
-        if (currentCpu === "NONE") {
-          filteredPods[j]["podCpuPercent"] = "N/A";
-        } else {
-          let cpuUsed = Number(filteredPods[j]["podCpuUsed"]);
-          filteredPods[j]["podCpuPercent"] = cpuUsed / currentCpu;
-          if (filteredPods[j]["podCpuPercent"] >= 1) {
-            filteredPods[j]["podCpuPercent"] = 100;
-          } else {
-            filteredPods[j]["podCpuPercent"] =
-              filteredPods[j]["podCpuPercent"] * 100;
-          }
-        }
-
-        if (currentMemory === "NONE") {
-          filteredPods[j]["podMemoryPercent"] = "N/A";
-        } else {
-          let memoryUsed = Number(filteredPods[j]["podMemoryUsed"]);
-          filteredPods[j]["podMemoryPercent"] = memoryUsed / currentMemory;
-          if (filteredPods[j]["podMemoryPercent"] >= 1) {
-            filteredPods[j]["podMemoryPercent"] = "100";
-          } else {
-            filteredPods[j]["podMemoryPercent"] =
-              filteredPods[j]["podMemoryPercent"] * 100;
-          }
-        }
-
-        // // filteredPods[j]["podMemoryPercent"] =
-        // //   Number(filteredPods[j]["podMemoryUsed"]) /
-        // //   Number(filteredPods[j]["podMemoryLimit"]);
-
-        // let percent = 0;
-
-        // if (filteredPods[j]["podMemoryLimit"] === "NONE") {
-        //   filteredPods[j]["podMemoryPercent"] = "N/A";
-        // } else if (filteredPods[j]["podMemoryPercent"] >= 1) {
-        //   filteredPods[j]["podMemoryPercent"] = 100;
-        // } else
-        //   filteredPods[j]["podMemoryPercent"] =
-        //     Number(filteredPods[j]["podMemoryUsed"]) /
-        //     Number(filteredPods[j]["podMemoryLimit"]);
-      }
-    }); // end of ipc render function
-
-    // ----------------------------------------------- end of get podcpu and memory limits section
+    let cpuLimitsCommand = `kubectl get po --all-namespaces -o custom-columns="Name:metadata.name,CPU-limit:spec.containers[*].resources.limits.cpu",Memory-limit:"spec.containers[*].resources.limits.memory"`;
+    setTimeout(() => {
+      ipcRenderer.send("getCpuLimits_command", {
+        cpuLimitsCommand,
+        currDir,
+      });
+    }, 1000);
 
     // for (let i = 0; i < filteredPods.length; i++) {
     //   if (filteredPods[i]["podMemoryLimit"] === "NONE") {
@@ -629,8 +816,8 @@ function KranePodList(props) {
     //       Number(filteredPods[i]["podMemoryLimit"]);
     // }
     //final set of state
-    setPodsArr([...filteredPods]);
-    setPodsArr([...filteredPods]);
+    // setPodsArr([...filteredPods]);
+    // setPodsArr([...filteredPods]);
   }, []); // end of use effect
 
   //------------------------------------------------------------- END OF GET ALL POD INFO SECTION ---
@@ -641,12 +828,14 @@ function KranePodList(props) {
   // console.log("podsArr 0 is", podsArr[0]);
   // console.log("typeof podsArr 0 is", typeof podsArr[0]);
 
-  console.log("filteredPods final is", filteredPods);
-  console.log("final pods array is", podsArr);
+  // console.log("filteredPods FINAL is", filteredPods);
+  // console.log("final pods array is", podsArr);
 
   // -------------------------------------------------- beginning of expand pods section -----------
 
-  const [openCommand, setCommandOpen] = React.useState(false);
+  const [openPod, setOpenPod] = React.useState(false);
+  const [selectedPodCPUColor, setSelectedPodCPUColor] = useState("");
+  const [selectedPodMemoryColor, setSelectedPodMemoryColor] = useState("");
   const [selectedPod, setSelectedPod] = useState([
     {
       name: "",
@@ -661,15 +850,36 @@ function KranePodList(props) {
       podMemoryUsed: "",
       podMemoryLimit: "",
       podMemoryPercent: "",
+      ipAddress: "",
+      node: "",
+      nominatedNode: "",
+      readinessGates: "",
     },
   ]);
 
   const handleCommandOpen = (pod) => {
     setSelectedPod([pod]);
     // console.log("selected pod is ", pod);
-    setCommandOpen(true);
+    setOpenPod(true);
     // console.log("selected pod is ", pod);
+
+    // console.log(
+    //   `selectedPod[0]["podCpuPercent"] is`,
+    //   selectedPod[0]["podCpuPercent"]
+    // );
+    if (typeof selectedPod[0]["podCpuPercent"] === "string") {
+      if (selectedPod[0]["podCpuPercent"] === "N/A") {
+        setSelectedPodCPUColor("#ffffff80");
+      }
+    } else if (selectedPod[0]["podCpuPercent"] < 90) {
+      setSelectedPodCPUColor("#2fc665");
+    } else {
+      setSelectedPodCPUColor("#cf4848");
+    }
+
+    // console.log("selectedPodCpuColor is", selectedPodCPUColor);
   };
+
   const handleCommandClose = () => {
     setSelectedPod([
       {
@@ -685,9 +895,13 @@ function KranePodList(props) {
         podMemoryUsed: "",
         podMemoryLimit: "",
         podMemoryPercent: "",
+        ipAddress: "",
+        node: "",
+        nominatedNode: "",
+        readinessGates: "",
       },
     ]);
-    setCommandOpen(false);
+    setOpenPod(false);
   };
 
   //--------------------------------------------- end of expand pods section ---
@@ -884,6 +1098,7 @@ function KranePodList(props) {
                 marginTop: "0px",
                 // border: "1px solid blue",
                 lineHeight: "16px",
+                textTransform: "none",
                 opacity: ".5",
                 // color: `${readyStatusRunning}`,
               }}
@@ -971,9 +1186,11 @@ function KranePodList(props) {
                   position: "relative",
                   top: "-48px",
                   left: "5px",
-                  fontSize: "16px",
+                  fontSize:
+                    podsArr[i]["podCpuLimit"] === "NONE" ? "13px" : "16px",
                   fontWeight: "500",
-                  marginTop: "-60px",
+                  marginTop:
+                    podsArr[i]["podCpuLimit"] === "NONE" ? "-55px" : "-60px",
                   marginLeft: "-8px",
                   // border: "2px solid red",
                   color: `${PodCpuPercentColor}`,
@@ -1067,10 +1284,12 @@ function KranePodList(props) {
                   position: "relative",
                   top: "-48px",
                   left: "5px",
-                  fontSize: "16px",
                   fontWeight: "500",
-                  marginTop: "-60px",
                   marginLeft: "-10px",
+                  fontSize:
+                    podsArr[i]["podMemoryLimit"] === "NONE" ? "13px" : "16px",
+                  marginTop:
+                    podsArr[i]["podMemoryLimit"] === "NONE" ? "-55px" : "-60px",
                   // border: "2px solid red",
                   color: `${PodMemoryPercentColor}`,
                 }}
@@ -1100,7 +1319,7 @@ function KranePodList(props) {
           {}
         </Button>
         <Modal
-          open={openCommand}
+          open={openPod}
           onClose={handleCommandClose}
           style={{ overflow: "scroll", height: "100%" }}
           aria-labelledby="modal-modal-title"
@@ -1165,7 +1384,7 @@ function KranePodList(props) {
                       color: `${readyStatusRunning}`,
                     }}
                   >
-                    {podsArr[i]["ready"].toUpperCase()}
+                    {selectedPod[0]["ready"].toUpperCase()}
                   </div>
                   <div
                     style={{
@@ -1175,10 +1394,11 @@ function KranePodList(props) {
                       color: `${readyStatusRunning}`,
                     }}
                   >
-                    {podsArr[i]["status"].toUpperCase()}
+                    {selectedPod[0]["status"].toUpperCase()}
                   </div>
                 </div>
               </div>
+
               <div
                 style={{
                   display: "flex",
@@ -1187,8 +1407,37 @@ function KranePodList(props) {
                   width: "100%",
                 }}
               >
-                <div style={{ flexDirection: "column", width: "250px" }}>
-                  <div style={{ paddingLeft: "40px", color: "#ffffff99" }}>
+                <div
+                  style={{
+                    flexDirection: "column",
+                    width: "250px",
+                    color: "#ffffff99",
+                    // border: "2px solid green",
+                  }}
+                >
+                  <div style={{ paddingLeft: "40px" }}>
+                    <br />
+                    RESTARTS: {selectedPod[0]["restarts"].toUpperCase()}
+                    <br />
+                    LAST RESTART: {selectedPod[0]["lastRestart"].toUpperCase()}
+                    <br />
+                    AGE: {selectedPod[0]["age"].toUpperCase()}
+                    <br />
+                    IP ADDRESS:
+                    {" " + selectedPod[0]["ipAddress"]}
+                    <br />
+                    NODE:
+                    {" " + selectedPod[0]["node"]}
+                    <br />
+                    NOMINATED NODE:
+                    {" " + selectedPod[0]["nominatedNode"]}
+                    <br />
+                    READINESS GATES:
+                    {" " + selectedPod[0]["readinessGates"]}
+                  </div>
+                </div>
+                <div style={{ flexDirection: "column", width: "220px" }}>
+                  <div style={{ paddingLeft: "20px", color: "#ffffff99" }}>
                     <br />
                     CPU USED: {selectedPod[0]["podCpuUsed"].toUpperCase()}m
                     <br />
@@ -1204,30 +1453,6 @@ function KranePodList(props) {
                     <br />
                     MEMORY PERCENTAGE:{selectedPod[0]["podMemoryPercent"]}%
                   </div>{" "}
-                </div>
-                <div
-                  style={{
-                    flexDirection: "column",
-                    width: "200px",
-                    color: "#ffffff99",
-                    // border: "2px solid green",
-                  }}
-                >
-                  <div style={{ paddingLeft: "20px" }}>
-                    <br />
-                    RESTARTS: {selectedPod[0]["restarts"].toUpperCase()}
-                    <br />
-                    LAST RESTART: {selectedPod[0]["lastRestart"].toUpperCase()}
-                    <br />
-                    AGE: {selectedPod[0]["age"].toUpperCase()}
-                    <br />
-                    IP ADDRESS: 1.05.456.156
-                    {/* {selectedPod[0]["ready"].toUpperCase()} */}
-                    <br />
-                    IP ADDRESS 2: 1.80.204.156
-                    {/* {selectedPod[0]["status"].toUpperCase()} */}
-                    <br />
-                  </div>
                 </div>
 
                 <div
@@ -1260,20 +1485,26 @@ function KranePodList(props) {
                     // @ts-nocheck
                     thickness={1.37}
                     value={
-                      2 *
-                      // podsArr[i]["podCpuLimit"] === "NONE"
-                      //   ? 0
-                      //   : Number(`${selectedPod[0]["podCpuPercent"]}`)
-                      0.73
+                      // 2 *
+                      selectedPod[0]["podCpuLimit"] === "NONE"
+                        ? 0
+                        : Number(`${selectedPod[0]["podCpuPercent"]}`) * 0.73
                     }
                     style={{
                       position: "relative",
                       top: "-40px",
                       left: "48px",
                       rotate: "-131deg",
-                      color: "green", //`${PodCpuPercentColor}`,
-
+                      color:
+                        selectedPod[0]["podCpuPercent"] === "N/A"
+                          ? "#ffffff80"
+                          : Number(selectedPod[0]["podCpuPercent"]) < 90
+                          ? `#2fc665`
+                          : Number(selectedPod[0]["podCpuPercent"]) > 90
+                          ? "#cf4848"
+                          : "yellow",
                       width: "180px",
+
                       // border: "1px solid red",
                       filter: "drop-shadow(10px 10px 10px #000000)",
                     }}
@@ -1288,7 +1519,14 @@ function KranePodList(props) {
                       marginTop: "-60px",
                       marginLeft: "5px",
                       // border: "2px solid blue",
-                      color: "green", //`${PodMemoryPercentColor}`,
+                      color:
+                        selectedPod[0]["podCpuPercent"] === "N/A"
+                          ? "#ffffff80"
+                          : Number(selectedPod[0]["podCpuPercent"]) < 90
+                          ? `#2fc665`
+                          : Number(selectedPod[0]["podCpuPercent"]) > 90
+                          ? "#cf4848"
+                          : "yellow", //`${PodMemoryPercentColor}`,
                     }}
                   >
                     {selectedPod[0]["podCpuPercent"] === "N/A"
@@ -1306,7 +1544,14 @@ function KranePodList(props) {
                       marginRight: "-2px",
                       fontWeight: "400",
                       marginTop: "-8px",
-                      color: "green", //"#cf4848", //`${PodMemoryPercentColor}`,
+                      color:
+                        selectedPod[0]["podCpuPercent"] === "N/A"
+                          ? "#ffffff80"
+                          : Number(selectedPod[0]["podCpuPercent"]) < 90
+                          ? `#2fc665`
+                          : Number(selectedPod[0]["podCpuPercent"]) > 90
+                          ? "#cf4848"
+                          : "yellow", //"#cf4848", //`${PodMemoryPercentColor}`,
                     }}
                   >
                     CPU
@@ -1343,18 +1588,24 @@ function KranePodList(props) {
                     // @ts-nocheck
                     thickness={1.35}
                     value={
-                      95 *
-                      // podsArr[i]["podMemoryLimit"] === "NONE"
-                      //   ? 0
-                      //   : Number(`${selectedPod[0]["podMemoryPercent"]}`)
-                      0.73
+                      // 95 *
+                      selectedPod[0]["podMemoryLimit"] === "NONE"
+                        ? 0
+                        : Number(`${selectedPod[0]["podMemoryPercent"]}`) * 0.73
                     }
                     style={{
                       position: "relative",
                       top: "-40.2px",
                       left: "25px",
                       rotate: "-131deg",
-                      color: `#cf4848`,
+                      color:
+                        selectedPod[0]["podMemoryPercent"] === "N/A"
+                          ? "#ffffff80"
+                          : Number(selectedPod[0]["podMemoryPercent"]) < 90
+                          ? `#2fc665`
+                          : Number(selectedPod[0]["podMemoryPercent"]) > 90
+                          ? "#cf4848"
+                          : "yellow",
 
                       width: "180px",
                       // border: "1px solid red",
@@ -1371,13 +1622,20 @@ function KranePodList(props) {
                       marginTop: "-60px",
                       marginLeft: "-10px",
                       // border: "2px solid red",
-                      color: "#cf4848", //`${PodMemoryPercentColor}`,
+                      color:
+                        selectedPod[0]["podMemoryPercent"] === "N/A"
+                          ? "#ffffff80"
+                          : Number(selectedPod[0]["podMemoryPercent"]) < 90
+                          ? `#2fc665`
+                          : Number(selectedPod[0]["podMemoryPercent"]) > 90
+                          ? "#cf4848"
+                          : "yellow", //`${PodMemoryPercentColor}`,
                     }}
                   >
-                    95%
-                    {/* {selectedPod[0]["podMemoryPercent"] === "N/A"
+                    {/* 95% */}
+                    {selectedPod[0]["podMemoryPercent"] === "N/A"
                       ? `no max`
-                      : `${selectedPod[0]["podMemoryPercent"]}%`} */}
+                      : `${selectedPod[0]["podMemoryPercent"]}%`}
                   </div>
                   <div
                     style={{
@@ -1390,7 +1648,14 @@ function KranePodList(props) {
                       marginRight: "-2px",
                       fontWeight: "400",
                       marginTop: "-8px",
-                      color: "#cf4848", //`${PodMemoryPercentColor}`,
+                      color:
+                        selectedPod[0]["podMemoryPercent"] === "N/A"
+                          ? "#ffffff80"
+                          : Number(selectedPod[0]["podMemoryPercent"]) < 90
+                          ? `#2fc665`
+                          : Number(selectedPod[0]["podMemoryPercent"]) > 90
+                          ? "#cf4848"
+                          : "yellow", //`${PodMemoryPercentColor}`,
                     }}
                   >
                     MEMORY
@@ -1447,118 +1712,123 @@ function KranePodList(props) {
   // ---------------------------------------------------------- END OF FOR LOOP TO CREATE EACH POD"S JSX --------
 
   // ---------------------------------------------------------- START OF IF CONDITION TO DETERMINE MAIN DIV'S JSX --------
-  let podListDiv = (
-    <>
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "row",
-          justifyContent: "space-between",
-          margin: "0 0 0 68px",
-        }}
-      >
+  let podListDiv;
+  if (podsArr[0]) {
+    podListDiv = (
+      <>
         <div
           style={{
-            fontFamily: "Outfit",
-            fontSize: "24px",
-            fontWeight: "900",
-            letterSpacing: "3px",
-            // border: "1px solid white",
-            textAlign: "left",
-            // color: "#ffffff",
-            paddingTop: "10px",
-          }}
-        >
-          PODS
-          <Button
-            style={{
-              // fontFamily: "Outfit",
-              fontSize: "9px",
-              fontWeight: "900",
-              letterSpacing: "2px",
-              // border: "1px solid white",
-              height: "5px",
-              textAlign: "left",
-              // color: "#ffffff99",
-              marginTop: "5px",
-              marginLeft: "10px",
-            }}
-          >
-            SORT BY {}
-          </Button>
-        </div>
-        <div
-          style={{
-            // fontFamily: "Outfit",
             display: "flex",
             flexDirection: "row",
-            width: "265px",
-            height: "30px",
-            fontSize: "9px",
-            fontWeight: "400",
-            letterSpacing: "1px",
-            lineHeight: "12px",
-            // border: "1px solid white",
-            paddingBottom: "0px",
-            textAlign: "right",
-            color: "#ffffff99",
-            marginRight: "50px",
-            marginTop: "10px",
-            justifyContent: "flex-end",
-            // paddingTop: "50px",
+            justifyContent: "space-between",
+            margin: "0 0 0 68px",
           }}
         >
           <div
             style={{
-              marginTop: "5px",
+              fontFamily: "Outfit",
+              fontSize: "24px",
+              fontWeight: "900",
+              letterSpacing: "3px",
+              // border: "1px solid white",
+              textAlign: "left",
+              // color: "#ffffff",
+              paddingTop: "10px",
             }}
           >
-           <i> STATS AUTOMATICALLY REFRESH EVERY 30 SECONDS</i>
+            PODS
+            <Button
+              style={{
+                // fontFamily: "Outfit",
+                fontSize: "9px",
+                fontWeight: "900",
+                letterSpacing: "2px",
+                // border: "1px solid white",
+                height: "5px",
+                textAlign: "left",
+                // color: "#ffffff99",
+                marginTop: "5px",
+                marginLeft: "10px",
+              }}
+            >
+              SORT BY {}
+            </Button>
           </div>
-          <Button
+          <div
             style={{
-              marginLeft: "10px",
-              marginTop: "4px",
-              letterSpacing: ".8px",
-              // padding:"0 0 0 0",
-              border: "1px solid #ffffff99",
+              // fontFamily: "Outfit",
+              display: "flex",
+              flexDirection: "row",
+              width: "265px",
+              height: "30px",
               fontSize: "9px",
-              width: "160px",
-              // height:"100px",
-
+              fontWeight: "400",
+              letterSpacing: "1px",
+              lineHeight: "12px",
+              // border: "1px solid white",
+              paddingBottom: "0px",
+              textAlign: "right",
               color: "#ffffff99",
+              marginRight: "50px",
+              marginTop: "10px",
+              justifyContent: "flex-end",
+              // paddingTop: "50px",
             }}
-            onClick={handleClick}
           >
-            Refresh now
-          </Button>
+            <div
+              style={{
+                marginTop: "5px",
+              }}
+            >
+              <i> STATS AUTOMATICALLY REFRESH EVERY 30 SECONDS</i>
+            </div>
+            <Button
+              style={{
+                marginLeft: "10px",
+                marginTop: "4px",
+                letterSpacing: ".8px",
+                // padding:"0 0 0 0",
+                border: "1px solid #ffffff99",
+                fontSize: "9px",
+                width: "160px",
+                // height:"100px",
+
+                color: "#ffffff99",
+              }}
+              onClick={handleClick}
+            >
+              Refresh now
+            </Button>
+          </div>
         </div>
-      </div>
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "row",
-          justifyContent: "flex-start",
-          margin: "0 0 0 68px",
-        }}
-      >
         <div
           style={{
-            height: "1px",
-            width: "975px",
-            backgroundColor: "#ffffff99",
-            // border: "1px solid white",
-            // marginRight: "50px",
-            marginTop: "0px",
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "flex-start",
+            margin: "0 0 0 68px",
           }}
-        ></div>
-      </div>
-      <div style={{ display: "flex", flexWrap: "wrap", margin: "0 0 0 50px" }}>
-        {podsList}
-      </div>
-      <div style={{ height: "35px" }}></div>
-    </>
-  );
+        >
+          <div
+            style={{
+              height: "1px",
+              width: "975px",
+              backgroundColor: "#ffffff99",
+              // border: "1px solid white",
+              // marginRight: "50px",
+              marginTop: "0px",
+            }}
+          ></div>
+        </div>
+        <div
+          style={{ display: "flex", flexWrap: "wrap", margin: "0 0 0 50px" }}
+        >
+          {podsList}
+        </div>
+        <div style={{ height: "35px" }}></div>
+      </>
+    );
+  }
 
   // console.log("selected pod 3 is ", selectedPod);
 

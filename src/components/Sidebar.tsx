@@ -17,6 +17,8 @@ import Tooltip, { TooltipProps, tooltipClasses } from "@mui/material/Tooltip";
 import { styled } from "@mui/material/styles";
 import HomeRoundedIcon from "@mui/icons-material/HomeRounded";
 import PrecisionManufacturingIcon from "@mui/icons-material/PrecisionManufacturing";
+import ScatterPlotIcon from "@mui/icons-material/ScatterPlot";
+import LensBlurIcon from "@mui/icons-material/LensBlur";
 
 function SideNav(props) {
   // Color theme is toggled here with the light/dark mode menu item
