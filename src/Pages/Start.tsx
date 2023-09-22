@@ -612,9 +612,10 @@ function Start() {
                       display: "flex",
                       margin: "10px 20px 0 20px",
                       flexDirection: "column",
+                      letterSpacing: "1px",
                     }}
                   >
-                    <div>KAPTN KLUSTER MANAGER</div>
+                    <div>KLUSTER MANAGER</div>
 
                     <div
                       style={{
@@ -622,6 +623,8 @@ function Start() {
                         fontSize: "14px",
                         fontWeight: "400",
                         lineHeight: "16px",
+
+                        letterSpacing: ".2px",
                       }}
                     >
                       Manage your clusters, delete and scale resources, view
@@ -686,9 +689,11 @@ function Start() {
                       display: "flex",
                       margin: "10px 20px 0 20px",
                       flexDirection: "column",
+
+                      letterSpacing: "1px",
                     }}
                   >
-                    <div>KAPTN SUPERCHARGED CLI</div>
+                    <div>SUPERCHARGED CLI</div>
 
                     <div
                       style={{
@@ -696,6 +701,7 @@ function Start() {
                         fontSize: "14px",
                         fontWeight: "400",
                         lineHeight: "16px",
+                        letterSpacing: ".2px",
                       }}
                     >
                       Use our custom Command-Builder, and get instant help to
@@ -775,9 +781,10 @@ function Start() {
                       display: "flex",
                       margin: "10px 20px 0 20px",
                       flexDirection: "column",
+                      letterSpacing: "1px",
                     }}
                   >
-                    <div>KAPTN EASY SETUP</div>
+                    <div>EASY SETUP & LEARNING</div>
 
                     <div
                       style={{
@@ -785,6 +792,7 @@ function Start() {
                         fontSize: "14px",
                         fontWeight: "400",
                         lineHeight: "16px",
+                        letterSpacing: ".2px",
                       }}
                     >
                       Get instant help, follow tutorials, docu-mentation, and
@@ -853,9 +861,10 @@ function Start() {
                       display: "flex",
                       margin: "10px 20px 0 20px",
                       flexDirection: "column",
+                      letterSpacing: "1px",
                     }}
                   >
-                    <div>KAPTN METRICS VISUALIZER</div>
+                    <div>METRICS VISUALIZER</div>
 
                     <div
                       style={{
@@ -863,6 +872,7 @@ function Start() {
                         fontSize: "14px",
                         fontWeight: "400",
                         lineHeight: "16px",
+                        letterSpacing: ".2px",
                       }}
                     >
                       Sync with Grafana and Prometheus for real-time

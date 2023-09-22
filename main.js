@@ -22,7 +22,7 @@ function createMainWindow() {
 
   if (isDev) {
     mainWindow.loadURL("http://localhost:4444/");
-    mainWindow.webContents.openDevTools();
+    // mainWindow.webContents.openDevTools();
   } else {
     //in production, fix env.PATH for correct CLI use
     fixPath();
@@ -41,7 +41,7 @@ function createMainWindow() {
 ipcMain.on("check_promgraf_installed", (event, arg) => {
   const { kubectlCheckPromGrafInstallCommand, currDir } = arg;
 
-  // if kubectl command is entered with no directory chosen, use ZDOTDIR as directory address when calling exec command --- otherwise ("else" on line 55) submit command normally
+  // if kubectl command is entered with no directory chosen, use ZDOTDIR as directory address when calling exec command --- otherwise ("else" on line further down) submit command normally
   if (currDir === "NONE SELECTED") {
     let kubDir = process.env.ZDOTDIR;
     exec(

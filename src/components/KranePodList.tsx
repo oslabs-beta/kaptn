@@ -1318,394 +1318,6 @@ function KranePodList(props) {
           </span>
           {}
         </Button>
-        <Modal
-          open={openPod}
-          onClose={handleCommandClose}
-          style={{ overflow: "scroll", height: "100%" }}
-          aria-labelledby="modal-modal-title"
-          aria-describedby="modal-modal-description"
-        >
-          <Box sx={style}>
-            <div style={{ display: "flex", flexDirection: "column" }}>
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "row",
-                  // border: "1px solid white",
-                }}
-              >
-                <div style={{ width: "140px" }}>
-                  <img
-                    style={{ width: "100px", margin: "15px 25px 0 20px" }}
-                    src="../../public/pod.svg"
-                  ></img>
-                </div>
-                {"  "}
-                <div
-                  style={{
-                    fontSize: "32px",
-                    fontWeight: "800",
-                    letterSpacing: "1px",
-                    padding: "10px 0 10px 10px",
-                    // border: "1px solid yellow",
-                    width: "900px",
-                  }}
-                >
-                  {selectedPod[0]["name"].toUpperCase()}
-                </div>
-
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    textAlign: "right",
-                    alignItems: "flex-end",
-                    justifyContent: "right",
-                    margin: "15px 15px 0 100px",
-                    // border:"1px solid green",
-                    // width:"200px"
-                  }}
-                >
-                  <div
-                    style={{
-                      width: "24px",
-                      height: "24px",
-                      borderRadius: "15px",
-                      backgroundColor: "#2fc665",
-                      justifyContent: "right",
-                      margin: "0px 0 2px 0",
-                      // border: "5px solid white",
-                    }}
-                  ></div>
-                  <div
-                    style={{
-                      fontSize: "20px",
-                      fontWeight: "500",
-                      color: `${readyStatusRunning}`,
-                    }}
-                  >
-                    {selectedPod[0]["ready"].toUpperCase()}
-                  </div>
-                  <div
-                    style={{
-                      fontSize: "20px",
-                      fontWeight: "500",
-                      margin: "-4px 0 0 0",
-                      color: `${readyStatusRunning}`,
-                    }}
-                  >
-                    {selectedPod[0]["status"].toUpperCase()}
-                  </div>
-                </div>
-              </div>
-
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "row",
-                  // border: "1px solid pink",
-                  width: "100%",
-                }}
-              >
-                <div
-                  style={{
-                    flexDirection: "column",
-                    width: "250px",
-                    color: "#ffffff99",
-                    // border: "2px solid green",
-                  }}
-                >
-                  <div style={{ paddingLeft: "40px" }}>
-                    <br />
-                    RESTARTS: {selectedPod[0]["restarts"].toUpperCase()}
-                    <br />
-                    LAST RESTART: {selectedPod[0]["lastRestart"].toUpperCase()}
-                    <br />
-                    AGE: {selectedPod[0]["age"].toUpperCase()}
-                    <br />
-                    IP ADDRESS:
-                    {" " + selectedPod[0]["ipAddress"]}
-                    <br />
-                    NODE:
-                    {" " + selectedPod[0]["node"]}
-                    <br />
-                    NOMINATED NODE:
-                    {" " + selectedPod[0]["nominatedNode"]}
-                    <br />
-                    READINESS GATES:
-                    {" " + selectedPod[0]["readinessGates"]}
-                  </div>
-                </div>
-                <div style={{ flexDirection: "column", width: "220px" }}>
-                  <div style={{ paddingLeft: "20px", color: "#ffffff99" }}>
-                    <br />
-                    CPU USED: {selectedPod[0]["podCpuUsed"].toUpperCase()}m
-                    <br />
-                    CPU LIMIT: {selectedPod[0]["podCpuLimit"].toUpperCase()}m
-                    <br />
-                    CPU PERCENTAGE: {selectedPod[0]["podCpuPercent"]}%
-                    <br />
-                    MEMORY USED: {selectedPod[0]["podMemoryUsed"].toUpperCase()}
-                    Mi
-                    <br />
-                    MEMORY LIMIT:
-                    {selectedPod[0]["podMemoryLimit"].toUpperCase()}Mi
-                    <br />
-                    MEMORY PERCENTAGE:{selectedPod[0]["podMemoryPercent"]}%
-                  </div>{" "}
-                </div>
-
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    // border: "1px solid yellow",
-                  }}
-                >
-                  <CircularProgress
-                    variant="determinate"
-                    // @ts-nocheck
-                    thickness={1.35}
-                    value={100 * 0.73}
-                    style={{
-                      marginTop: "130px",
-                      marginLeft: "95.5px",
-                      rotate: "-131deg",
-                      color: "#ffffff40",
-
-                      width: "180px",
-                      // border: "1px solid red",
-                      filter: "drop-shadow(10px 10px 10px #000000)",
-                    }}
-                  />
-                  <CircularProgress
-                    variant="determinate"
-                    // @ts-nocheck
-                    thickness={1.37}
-                    value={
-                      // 2 *
-                      selectedPod[0]["podCpuLimit"] === "NONE"
-                        ? 0
-                        : Number(`${selectedPod[0]["podCpuPercent"]}`) * 0.73
-                    }
-                    style={{
-                      position: "relative",
-                      top: "-40px",
-                      left: "48px",
-                      rotate: "-131deg",
-                      color:
-                        selectedPod[0]["podCpuPercent"] === "N/A"
-                          ? "#ffffff80"
-                          : Number(selectedPod[0]["podCpuPercent"]) < 90
-                          ? `#2fc665`
-                          : Number(selectedPod[0]["podCpuPercent"]) > 90
-                          ? "#cf4848"
-                          : "yellow",
-                      width: "180px",
-
-                      // border: "1px solid red",
-                      filter: "drop-shadow(10px 10px 10px #000000)",
-                    }}
-                  />
-                  <div
-                    style={{
-                      position: "relative",
-                      top: "-100px",
-                      left: "0px",
-                      fontSize: "38px",
-                      fontWeight: "800",
-                      marginTop: "-60px",
-                      marginLeft: "5px",
-                      // border: "2px solid blue",
-                      color:
-                        selectedPod[0]["podCpuPercent"] === "N/A"
-                          ? "#ffffff80"
-                          : Number(selectedPod[0]["podCpuPercent"]) < 90
-                          ? `#2fc665`
-                          : Number(selectedPod[0]["podCpuPercent"]) > 90
-                          ? "#cf4848"
-                          : "yellow", //`${PodMemoryPercentColor}`,
-                    }}
-                  >
-                    {selectedPod[0]["podCpuPercent"] === "N/A"
-                      ? `no max`
-                      : `${selectedPod[0]["podCpuPercent"]}%`}
-                  </div>
-                  <div
-                    style={{
-                      fontSize: "16px",
-                      position: "relative",
-                      top: "-104px",
-                      left: "0px",
-                      // border: "1px solid red",
-
-                      marginRight: "-2px",
-                      fontWeight: "400",
-                      marginTop: "-8px",
-                      color:
-                        selectedPod[0]["podCpuPercent"] === "N/A"
-                          ? "#ffffff80"
-                          : Number(selectedPod[0]["podCpuPercent"]) < 90
-                          ? `#2fc665`
-                          : Number(selectedPod[0]["podCpuPercent"]) > 90
-                          ? "#cf4848"
-                          : "yellow", //"#cf4848", //`${PodMemoryPercentColor}`,
-                    }}
-                  >
-                    CPU
-                  </div>
-                </div>
-
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    // border: "1px solid yellow",
-                  }}
-                >
-                  <CircularProgress
-                    variant="determinate"
-                    // @ts-nocheck
-                    thickness={1.35}
-                    value={100 * 0.73}
-                    style={{
-                      marginTop: "130px",
-                      marginLeft: "50.5px",
-                      rotate: "-131deg",
-                      color: "#ffffff40",
-
-                      width: "180px",
-                      // border: "1px solid red",
-                      filter: "drop-shadow(10px 10px 10px #000000)",
-                    }}
-                  />
-                  <CircularProgress
-                    variant="determinate"
-                    // @ts-nocheck
-                    thickness={1.35}
-                    value={
-                      // 95 *
-                      selectedPod[0]["podMemoryLimit"] === "NONE"
-                        ? 0
-                        : Number(`${selectedPod[0]["podMemoryPercent"]}`) * 0.73
-                    }
-                    style={{
-                      position: "relative",
-                      top: "-40.2px",
-                      left: "25px",
-                      rotate: "-131deg",
-                      color:
-                        selectedPod[0]["podMemoryPercent"] === "N/A"
-                          ? "#ffffff80"
-                          : Number(selectedPod[0]["podMemoryPercent"]) < 90
-                          ? `#2fc665`
-                          : Number(selectedPod[0]["podMemoryPercent"]) > 90
-                          ? "#cf4848"
-                          : "yellow",
-
-                      width: "180px",
-                      // border: "1px solid red",
-                      filter: "drop-shadow(10px 10px 10px #000000)",
-                    }}
-                  />
-                  <div
-                    style={{
-                      position: "relative",
-                      top: "-100px",
-                      left: "-15px",
-                      fontSize: "38px",
-                      fontWeight: "800",
-                      marginTop: "-60px",
-                      marginLeft: "-10px",
-                      // border: "2px solid red",
-                      color:
-                        selectedPod[0]["podMemoryPercent"] === "N/A"
-                          ? "#ffffff80"
-                          : Number(selectedPod[0]["podMemoryPercent"]) < 90
-                          ? `#2fc665`
-                          : Number(selectedPod[0]["podMemoryPercent"]) > 90
-                          ? "#cf4848"
-                          : "yellow", //`${PodMemoryPercentColor}`,
-                    }}
-                  >
-                    {/* 95% */}
-                    {selectedPod[0]["podMemoryPercent"] === "N/A"
-                      ? `no max`
-                      : `${selectedPod[0]["podMemoryPercent"]}%`}
-                  </div>
-                  <div
-                    style={{
-                      fontSize: "16px",
-                      position: "relative",
-                      top: "-104px",
-                      left: "-20px",
-                      // border: "1px solid red",
-
-                      marginRight: "-2px",
-                      fontWeight: "400",
-                      marginTop: "-8px",
-                      color:
-                        selectedPod[0]["podMemoryPercent"] === "N/A"
-                          ? "#ffffff80"
-                          : Number(selectedPod[0]["podMemoryPercent"]) < 90
-                          ? `#2fc665`
-                          : Number(selectedPod[0]["podMemoryPercent"]) > 90
-                          ? "#cf4848"
-                          : "yellow", //`${PodMemoryPercentColor}`,
-                    }}
-                  >
-                    MEMORY
-                  </div>
-                </div>
-              </div>
-              <div style={{ flexDirection: "row", margin: "0 0 0 40px" }}>
-                <Button
-                  style={{
-                    width: "200px",
-                    border: "1px solid white",
-                    fontSize: "14px",
-                  }}
-                >
-                  DELETE & RESTART POD
-                </Button>
-                <Button
-                  style={{
-                    width: "200px",
-                    border: "1px solid white",
-                    fontSize: "14px",
-                    margin: "0 10px 0 30px",
-                  }}
-                >
-                  CHANGE NAMESPACE
-                </Button>
-                <Button
-                  style={{
-                    width: "200px",
-                    border: "1px solid white",
-                    fontSize: "14px",
-                    margin: "0 10px 0 10px",
-                  }}
-                >
-                  VIEW LOGS
-                </Button>
-                <Button
-                  style={{
-                    width: "200px",
-                    border: "1px solid white",
-                    fontSize: "14px",
-                    margin: "0 20px 0 10px",
-                  }}
-                >
-                  CHANGE LIMITS
-                </Button>
-              </div>
-            </div>
-          </Box>
-        </Modal>
       </div>
     );
   } // end of for loop
@@ -1824,6 +1436,397 @@ function KranePodList(props) {
           style={{ display: "flex", flexWrap: "wrap", margin: "0 0 0 50px" }}
         >
           {podsList}
+          <Modal
+            open={openPod}
+            onClose={handleCommandClose}
+            style={{ overflow: "scroll", height: "100%" }}
+            aria-labelledby="modal-modal-title"
+            aria-describedby="modal-modal-description"
+          >
+            <Box sx={style}>
+              <div style={{ display: "flex", flexDirection: "column" }}>
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "row",
+                    // border: "1px solid white",
+                  }}
+                >
+                  <div style={{ width: "140px" }}>
+                    <img
+                      style={{ width: "100px", margin: "15px 25px 0 20px" }}
+                      src="../../public/pod.svg"
+                    ></img>
+                  </div>
+                  {"  "}
+                  <div
+                    style={{
+                      fontSize: "32px",
+                      fontWeight: "800",
+                      letterSpacing: "1px",
+                      padding: "10px 0 10px 10px",
+                      // border: "1px solid yellow",
+                      width: "900px",
+                    }}
+                  >
+                    {selectedPod[0]["name"].toUpperCase()}
+                  </div>
+
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      textAlign: "right",
+                      alignItems: "flex-end",
+                      justifyContent: "right",
+                      margin: "15px 15px 0 100px",
+                      // border:"1px solid green",
+                      // width:"200px"
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: "24px",
+                        height: "24px",
+                        borderRadius: "15px",
+                        backgroundColor: "#2fc665",
+                        justifyContent: "right",
+                        margin: "0px 0 2px 0",
+                        // border: "5px solid white",
+                      }}
+                    ></div>
+                    <div
+                      style={{
+                        fontSize: "20px",
+                        fontWeight: "500",
+                        // color: `${readyStatusRunning}`,
+                      }}
+                    >
+                      {selectedPod[0]["ready"].toUpperCase()}
+                    </div>
+                    <div
+                      style={{
+                        fontSize: "20px",
+                        fontWeight: "500",
+                        margin: "-4px 0 0 0",
+                        // color: `${readyStatusRunning}`,
+                      }}
+                    >
+                      {selectedPod[0]["status"].toUpperCase()}
+                    </div>
+                  </div>
+                </div>
+
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "row",
+                    // border: "1px solid pink",
+                    width: "100%",
+                  }}
+                >
+                  <div
+                    style={{
+                      flexDirection: "column",
+                      width: "250px",
+                      color: "#ffffff99",
+                      // border: "2px solid green",
+                    }}
+                  >
+                    <div style={{ paddingLeft: "40px" }}>
+                      <br />
+                      RESTARTS: {selectedPod[0]["restarts"].toUpperCase()}
+                      <br />
+                      LAST RESTART:{" "}
+                      {selectedPod[0]["lastRestart"].toUpperCase()}
+                      <br />
+                      AGE: {selectedPod[0]["age"].toUpperCase()}
+                      <br />
+                      IP ADDRESS:
+                      {" " + selectedPod[0]["ipAddress"]}
+                      <br />
+                      NODE:
+                      {" " + selectedPod[0]["node"]}
+                      <br />
+                      NOMINATED NODE:
+                      {" " + selectedPod[0]["nominatedNode"]}
+                      <br />
+                      READINESS GATES:
+                      {" " + selectedPod[0]["readinessGates"]}
+                    </div>
+                  </div>
+                  <div style={{ flexDirection: "column", width: "220px" }}>
+                    <div style={{ paddingLeft: "20px", color: "#ffffff99" }}>
+                      <br />
+                      CPU USED: {selectedPod[0]["podCpuUsed"].toUpperCase()}m
+                      <br />
+                      CPU LIMIT: {selectedPod[0]["podCpuLimit"].toUpperCase()}m
+                      <br />
+                      CPU PERCENTAGE: {selectedPod[0]["podCpuPercent"]}%
+                      <br />
+                      MEMORY USED:{" "}
+                      {selectedPod[0]["podMemoryUsed"].toUpperCase()}
+                      Mi
+                      <br />
+                      MEMORY LIMIT:
+                      {selectedPod[0]["podMemoryLimit"].toUpperCase()}Mi
+                      <br />
+                      MEMORY PERCENTAGE:{selectedPod[0]["podMemoryPercent"]}%
+                    </div>{" "}
+                  </div>
+
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      // border: "1px solid yellow",
+                    }}
+                  >
+                    <CircularProgress
+                      variant="determinate"
+                      // @ts-nocheck
+                      thickness={1.35}
+                      value={100 * 0.73}
+                      style={{
+                        marginTop: "130px",
+                        marginLeft: "95.5px",
+                        rotate: "-131deg",
+                        color: "#ffffff40",
+
+                        width: "180px",
+                        // border: "1px solid red",
+                        filter: "drop-shadow(10px 10px 10px #000000)",
+                      }}
+                    />
+                    <CircularProgress
+                      variant="determinate"
+                      // @ts-nocheck
+                      thickness={1.37}
+                      value={
+                        // 2 *
+                        selectedPod[0]["podCpuLimit"] === "NONE"
+                          ? 0
+                          : Number(`${selectedPod[0]["podCpuPercent"]}`) * 0.73
+                      }
+                      style={{
+                        position: "relative",
+                        top: "-40px",
+                        left: "48px",
+                        rotate: "-131deg",
+                        color:
+                          selectedPod[0]["podCpuPercent"] === "N/A"
+                            ? "#ffffff80"
+                            : Number(selectedPod[0]["podCpuPercent"]) < 90
+                            ? `#2fc665`
+                            : Number(selectedPod[0]["podCpuPercent"]) > 90
+                            ? "#cf4848"
+                            : "yellow",
+                        width: "180px",
+
+                        // border: "1px solid red",
+                        filter: "drop-shadow(10px 10px 10px #000000)",
+                      }}
+                    />
+                    <div
+                      style={{
+                        position: "relative",
+                        top: "-100px",
+                        left: "0px",
+                        fontSize: "38px",
+                        fontWeight: "800",
+                        marginTop: "-60px",
+                        marginLeft: "5px",
+                        // border: "2px solid blue",
+                        color:
+                          selectedPod[0]["podCpuPercent"] === "N/A"
+                            ? "#ffffff80"
+                            : Number(selectedPod[0]["podCpuPercent"]) < 90
+                            ? `#2fc665`
+                            : Number(selectedPod[0]["podCpuPercent"]) > 90
+                            ? "#cf4848"
+                            : "yellow", //`${PodMemoryPercentColor}`,
+                      }}
+                    >
+                      {selectedPod[0]["podCpuPercent"] === "N/A"
+                        ? `no max`
+                        : `${selectedPod[0]["podCpuPercent"]}%`}
+                    </div>
+                    <div
+                      style={{
+                        fontSize: "16px",
+                        position: "relative",
+                        top: "-104px",
+                        left: "0px",
+                        // border: "1px solid red",
+
+                        marginRight: "-2px",
+                        fontWeight: "400",
+                        marginTop: "-8px",
+                        color:
+                          selectedPod[0]["podCpuPercent"] === "N/A"
+                            ? "#ffffff80"
+                            : Number(selectedPod[0]["podCpuPercent"]) < 90
+                            ? `#2fc665`
+                            : Number(selectedPod[0]["podCpuPercent"]) > 90
+                            ? "#cf4848"
+                            : "yellow", //"#cf4848", //`${PodMemoryPercentColor}`,
+                      }}
+                    >
+                      CPU
+                    </div>
+                  </div>
+
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      // border: "1px solid yellow",
+                    }}
+                  >
+                    <CircularProgress
+                      variant="determinate"
+                      // @ts-nocheck
+                      thickness={1.35}
+                      value={100 * 0.73}
+                      style={{
+                        marginTop: "130px",
+                        marginLeft: "50.5px",
+                        rotate: "-131deg",
+                        color: "#ffffff40",
+
+                        width: "180px",
+                        // border: "1px solid red",
+                        filter: "drop-shadow(10px 10px 10px #000000)",
+                      }}
+                    />
+                    <CircularProgress
+                      variant="determinate"
+                      // @ts-nocheck
+                      thickness={1.35}
+                      value={
+                        // 95 *
+                        selectedPod[0]["podMemoryLimit"] === "NONE"
+                          ? 0
+                          : Number(`${selectedPod[0]["podMemoryPercent"]}`) *
+                            0.73
+                      }
+                      style={{
+                        position: "relative",
+                        top: "-40.2px",
+                        left: "25px",
+                        rotate: "-131deg",
+                        color:
+                          selectedPod[0]["podMemoryPercent"] === "N/A"
+                            ? "#ffffff80"
+                            : Number(selectedPod[0]["podMemoryPercent"]) < 90
+                            ? `#2fc665`
+                            : Number(selectedPod[0]["podMemoryPercent"]) > 90
+                            ? "#cf4848"
+                            : "yellow",
+
+                        width: "180px",
+                        // border: "1px solid red",
+                        filter: "drop-shadow(10px 10px 10px #000000)",
+                      }}
+                    />
+                    <div
+                      style={{
+                        position: "relative",
+                        top: "-100px",
+                        left: "-15px",
+                        fontSize: "38px",
+                        fontWeight: "800",
+                        marginTop: "-60px",
+                        marginLeft: "-10px",
+                        // border: "2px solid red",
+                        color:
+                          selectedPod[0]["podMemoryPercent"] === "N/A"
+                            ? "#ffffff80"
+                            : Number(selectedPod[0]["podMemoryPercent"]) < 90
+                            ? `#2fc665`
+                            : Number(selectedPod[0]["podMemoryPercent"]) > 90
+                            ? "#cf4848"
+                            : "yellow", //`${PodMemoryPercentColor}`,
+                      }}
+                    >
+                      {/* 95% */}
+                      {selectedPod[0]["podMemoryPercent"] === "N/A"
+                        ? `no max`
+                        : `${selectedPod[0]["podMemoryPercent"]}%`}
+                    </div>
+                    <div
+                      style={{
+                        fontSize: "16px",
+                        position: "relative",
+                        top: "-104px",
+                        left: "-20px",
+                        // border: "1px solid red",
+
+                        marginRight: "-2px",
+                        fontWeight: "400",
+                        marginTop: "-8px",
+                        color:
+                          selectedPod[0]["podMemoryPercent"] === "N/A"
+                            ? "#ffffff80"
+                            : Number(selectedPod[0]["podMemoryPercent"]) < 90
+                            ? `#2fc665`
+                            : Number(selectedPod[0]["podMemoryPercent"]) > 90
+                            ? "#cf4848"
+                            : "yellow", //`${PodMemoryPercentColor}`,
+                      }}
+                    >
+                      MEMORY
+                    </div>
+                  </div>
+                </div>
+                <div style={{ flexDirection: "row", margin: "0 0 0 40px" }}>
+                  <Button
+                    style={{
+                      width: "200px",
+                      border: "1px solid white",
+                      fontSize: "14px",
+                    }}
+                  >
+                    DELETE & RESTART POD
+                  </Button>
+                  <Button
+                    style={{
+                      width: "200px",
+                      border: "1px solid white",
+                      fontSize: "14px",
+                      margin: "0 10px 0 30px",
+                    }}
+                  >
+                    CHANGE NAMESPACE
+                  </Button>
+                  <Button
+                    style={{
+                      width: "200px",
+                      border: "1px solid white",
+                      fontSize: "14px",
+                      margin: "0 10px 0 10px",
+                    }}
+                  >
+                    VIEW LOGS
+                  </Button>
+                  <Button
+                    style={{
+                      width: "200px",
+                      border: "1px solid white",
+                      fontSize: "14px",
+                      margin: "0 20px 0 10px",
+                    }}
+                  >
+                    CHANGE LIMITS
+                  </Button>
+                </div>
+              </div>
+            </Box>
+          </Modal>
         </div>
         <div style={{ height: "35px" }}></div>
       </>

@@ -586,7 +586,392 @@ function KraneNodeList() {
     }, 100);
   }, []);
 
+  //-----------------------------------------------------------START OF FOR LOOP TO PUSH NODE LIST JSX
 
+  let nodeList = [];
+  for (let i = 0; i < nodesArr.length; i++) {
+    nodeList.push(
+      <div
+        key={i}
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          fontFamily: "Outfit",
+          fontWeight: "400",
+          fontSize: "17px",
+          justifyContent: "flex-start",
+          alignItems: "flex-start",
+          textAlign: "left",
+          width: "auto",
+          margin: "17px 50px 0 20px",
+          padding: "0 0 0px 0",
+          letterSpacing: "1px",
+          color: theme.palette.mode === "dark" ? "#8f85fb" : "#9075ea",
+          textShadow:
+            theme.palette.mode === "dark"
+              ? "1px 1px 2px black"
+              : "1px 1px 1px #00000000",
+        }}
+      >
+        NODE {i + 1}
+        <Button
+          key={i}
+          id="podButt"
+          // onClick={() => handleCommandOpen(nodesArr[i])}
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            width: "450px",
+            height: "145px",
+            fontSize: "16px",
+            // border: "1px solid white",
+            justifyContent: "space-around",
+            textAlign: "left",
+            alignItems: "space-between",
+            margin: "2px 0 0 0",
+            padding: "35px 0px 0px 0px",
+            color: theme.palette.mode === "dark" ? "white" : "grey",
+            border:
+              theme.palette.mode === "dark"
+                ? "1.3px solid white"
+                : "1.3px solid grey",
+            borderRadius: "5px",
+            boxShadow:
+              theme.palette.mode === "dark"
+                ? "10px 9px 2px #00000060"
+                : "10px 10px 1px #00000020",
+            background: theme.palette.mode === "dark" ? "#0e0727" : "#e6e1fb",
+          }}
+        >
+          {" "}
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              width: "440px",
+              justifyContent: "space-between",
+              // border: "1px solid green",
+            }}
+          >
+            <img
+              style={{
+                width: "40px",
+                marginRight: "0px",
+                marginLeft: "12px",
+                // border: "1px solid blue",
+              }}
+              src="../../node.svg"
+            ></img>
+            <span
+              style={{
+                margin: "5px 0 0 0px",
+                width: "320px",
+                lineHeight: "23px",
+                fontSize: "17px",
+              }}
+            >
+              {nodesArr[i]["name"].toUpperCase()}
+            </span>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                textAlign: "right",
+                alignItems: "flex-end",
+                justifyContent: "right",
+                margin: "2px 10px 0 0",
+
+                // border: "1px solid blue",
+              }}
+            >
+              <div
+                style={{
+                  width: "12px",
+                  height: "12px",
+                  borderRadius: "15px",
+                  backgroundColor: "#2fc665",
+                  justifyContent: "right",
+                  margin: "5px 0 2px 0",
+                  // border: ".5px solid white",
+                }}
+              ></div>
+              <div
+                style={{
+                  fontSize: "10px",
+                  // color: `${readyStatusRunning}`
+                }}
+              >
+                {nodesArr[i]["ready"]}
+              </div>
+              <div
+                style={{
+                  fontSize: "10px",
+                  margin: "-4px 0 0 0",
+                  color: "#2fc665",
+                  // color: `${readyStatusRunning}`,
+                }}
+              >
+                {nodesArr[i]["status"]}
+              </div>
+            </div>
+          </div>
+          {/*---------------------------------------------------------- */}
+          {/*                  beginng of row of stats below pod name   */}
+          {/*---------------------------------------------------------- */}
+          <span
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              // border: "1px solid green",
+              textAlign: "center",
+              justifyContent: "left",
+              alignItems: "flex-start",
+              width: "100%",
+              // alignContent: "flex-end",
+              // border: "2px solid red",
+              padding: "0px 0px 0px 70px",
+              margin: "5px 0px 0px 0px",
+              fontSize: "15px",
+            }}
+          >
+            <br />
+            <div
+              style={{
+                flexDirection: "column",
+                justifyContent: "left",
+                textAlign: "left",
+                width: "200px",
+                fontSize: "11.5px",
+                padding: "0px 0px 0 0px",
+                fontWeight: "400",
+                marginTop: "0px",
+                // border: "1px solid blue",
+                lineHeight: "16px",
+                textTransform: "none",
+                opacity: ".5",
+                // color: `${readyStatusRunning}`,
+              }}
+            >
+              CPU USAGE:{" "}
+              {nodesArr[i]["nodeCpuLimit"] === "NONE" ||
+              nodesArr[i]["nodeCpuLimit"] === ""
+                ? `${nodesArr[i]["nodeCpuUsed"]}m`
+                : `${nodesArr[i]["nodeCpuUsed"]}m / ${nodesArr[i]["nodeCpuLimit"]}m`}
+              <br />
+              CPU PERCENT: {nodesArr[i]["nodeCpuPercent"]}
+              <br />
+              MEMORY USAGE:{" "}
+              {nodesArr[i]["nodeMemoryLimit"] === "NONE" ||
+              nodesArr[i]["nodeMemoryLimit"] === ""
+                ? `${nodesArr[i]["nodeMemoryUsed"]}`
+                : `${nodesArr[i]["nodeMemoryUsed"]} / ${nodesArr[i]["nodeMemoryLimit"]}`}
+              <br />
+              MEMORY PERCENT: {nodesArr[i]["nodeMemoryPercent"]}
+            </div>
+
+            <div
+              style={{
+                flexDirection: "column",
+                justifyContent: "center",
+                textAlign: "center",
+                alignItems: "center",
+                width: "70px",
+                fontSize: "4",
+                padding: "6px 0px 0 0px",
+                fontWeight: "400",
+                marginRight: "18px",
+                marginTop: "3px",
+                // border: "1px solid red",
+                // color: `${readyStatusRunning}`,
+              }}
+            >
+              <div
+                style={
+                  {
+                    // border: "1px solid yellow"
+                  }
+                }
+              >
+                <CircularProgress
+                  variant="determinate"
+                  // @ts-nocheck
+                  thickness={1.35}
+                  value={100 * 0.73}
+                  style={{
+                    marginTop: "18px",
+                    marginLeft: "10.5px",
+                    rotate: "-131deg",
+                    color: "#ffffff40",
+
+                    width: "68px",
+                    // border: "1px solid red",
+                    filter: "drop-shadow(10px 10px 10px #000000)",
+                  }}
+                />
+                <CircularProgress
+                  variant="determinate"
+                  // @ts-nocheck
+                  thickness={1.35}
+                  value={
+                    // nodesArr[i]["nodeCpuLimit"] === "NONE"
+                    //   ? 0
+                    //   : Number(`${nodesArr[i]["nodeCpuPercent"]}`)
+                    11 * 0.73
+                  }
+                  style={{
+                    position: "relative",
+                    top: "-48px",
+                    left: "9.5px",
+                    rotate: "-131deg",
+                    // color: `${PodCpuPercentColor}`,
+
+                    width: "68px",
+                    // border: "1px solid red",
+                    filter: "drop-shadow(10px 10px 10px #000000)",
+                  }}
+                />
+              </div>
+              <div
+                style={{
+                  position: "relative",
+                  top: "-48px",
+                  left: "5px",
+                  fontSize:
+                    nodesArr[i]["nodeCpuLimit"] === "NONE" ? "13px" : "16px",
+                  fontWeight: "500",
+                  marginTop:
+                    nodesArr[i]["nodeCpuLimit"] === "NONE" ? "-55px" : "-60px",
+                  marginLeft: "-8px",
+                  // border: "2px solid red",
+                  // color: `${PodCpuPercentColor}`,
+                }}
+              >
+                {`${nodesArr[i]["nodeCpuPercent"]}`}
+              </div>
+              <div
+                style={{
+                  fontSize: "10px",
+                  position: "relative",
+                  top: "-48px",
+                  left: "-1.5px",
+                  // border: "1px solid red",
+
+                  marginRight: "-2px",
+                  fontWeight: "500",
+                  marginTop: "-8px",
+                  // color: `${PodCpuPercentColor}`,
+                }}
+              >
+                CPU
+              </div>
+            </div>
+
+            <div
+              style={{
+                flexDirection: "column",
+                justifyContent: "center",
+                textAlign: "center",
+                alignItems: "center",
+                width: "70px",
+                fontSize: "4",
+                padding: "6px 0px 0 0px",
+                fontWeight: "400",
+                marginRight: "18px",
+                marginTop: "3px",
+                // border: "1px solid red",
+                // color: `${readyStatusRunning}`,
+              }}
+            >
+              <div
+                style={
+                  {
+                    // border: "1px solid yellow"
+                  }
+                }
+              >
+                <CircularProgress
+                  variant="determinate"
+                  // @ts-nocheck
+                  thickness={1.35}
+                  value={100 * 0.73}
+                  style={{
+                    marginTop: "18px",
+                    marginLeft: "9.5px",
+                    rotate: "-131deg",
+                    color: "#ffffff40",
+
+                    width: "68px",
+                    // border: "1px solid red",
+                    filter: "drop-shadow(10px 10px 10px #000000)",
+                  }}
+                />
+                <CircularProgress
+                  variant="determinate"
+                  // @ts-nocheck
+                  thickness={1.35}
+                  value={
+                    // nodesArr[i]["nodeMemoryLimit"] === "NONE"
+                    //   ? 0
+                    //   : Number(`${nodesArr[i]["nodeMemoryPercent"]}`) 
+                      49 * 0.73
+                  }
+                  style={{
+                    position: "relative",
+                    top: "-48px",
+                    left: "8.5px",
+                    rotate: "-131deg",
+                    // color: `${PodMemoryPercentColor}`,
+
+                    width: "68px",
+                    // border: "1px solid red",
+                    filter: "drop-shadow(10px 10px 10px #000000)",
+                  }}
+                />
+              </div>
+              <div
+                style={{
+                  position: "relative",
+                  top: "-48px",
+                  left: "5px",
+                  fontWeight: "500",
+                  marginLeft: "-10px",
+                  fontSize:
+                    nodesArr[i]["nodeMemoryLimit"] === "NONE" ? "13px" : "16px",
+                  marginTop:
+                    nodesArr[i]["nodeMemoryLimit"] === "NONE"
+                      ? "-55px"
+                      : "-60px",
+                  // border: "2px solid red",
+                  // color: `${PodMemoryPercentColor}`,
+                }}
+              >
+                {nodesArr[i]["nodeMemoryPercent"] === "N/A"
+                  ? `no max`
+                  : `${nodesArr[i]["nodeMemoryPercent"]}`}
+              </div>
+              <div
+                style={{
+                  fontSize: "10px",
+                  position: "relative",
+                  top: "-48px",
+                  left: "-.5px",
+                  // border: "1px solid red",
+
+                  marginRight: "-2px",
+                  fontWeight: "500",
+                  marginTop: "-8px",
+                  // color: `${PodMemoryPercentColor}`,
+                }}
+              >
+                MEMORY
+              </div>
+            </div>
+          </span>
+          {}
+        </Button>
+      </div>
+    );
+  }
 
   // ---------------------------------------------------------- START OF IF CONDITION TO DETERMINE MAIN DIV'S JSX --------
   let nodeListDiv = (
@@ -695,10 +1080,10 @@ function KraneNodeList() {
           }}
         ></div>
       </div>
-      <div style={{ display: "flex", flexWrap: "wrap", margin: "0 0 0 50px" }}>
-        {/* {podsList} */}
+      <div style={{ display: "flex", flexWrap: "wrap", margin: "0 0 0 0px" }}>
+        {nodeList}
       </div>
-      <div style={{ height: "35px" }}></div>
+      <div style={{ height: "20px" }}></div>
     </>
 
     // <>
@@ -1072,7 +1457,7 @@ function KraneNodeList() {
           overflow: "hidden",
           alignItems: "center",
           marginLeft: "0px",
-          marginTop: "10px",
+          marginTop: "0px",
           marginBottom: "20px",
           textAlign: "center",
           width: "100%",
