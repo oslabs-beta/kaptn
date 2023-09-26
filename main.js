@@ -37,6 +37,42 @@ function createMainWindow() {
 //***               START PAGE - IPC methods                 *** */
 //************************************************************** */
 
+//deletePod_command
+//Listen for check if prometheus and grafana are installed
+ipcMain.on("deletePod_command", (event, arg) => {
+  const { podDeleteCommand, currDir } = arg;
+
+  // if kubectl command is entered with no directory chosen, use ZDOTDIR as directory address when calling exec command --- otherwise ("else" on line further down) submit command normally
+  if (currDir === "NONE SELECTED") {
+    let kubDir = process.env.ZDOTDIR;
+    exec(` ${podDeleteCommand}`, { cwd: kubDir }, (err, stdout, stderr) => {
+      // Handle failed command execution
+      if (err) {
+        let output = err;
+      }
+      // Handle successful command execution but returned error (stderr)
+      if (stderr) {
+        return event.sender.send("deleted_pod", stderr);
+      }
+      // Handle successful command execution with no errors
+      return event.sender.send("deleted_pod", stdout);
+    });
+  } else {
+    exec(` ${podDeleteCommand}`, { cwd: currDir }, (err, stdout, stderr) => {
+      // Handle failed command execution
+      if (err) {
+        let output = err;
+      }
+      // Handle successful command execution but returned error (stderr)
+      if (stderr) {
+        return event.sender.send("deleted_pod", stderr);
+      }
+      // Handle successful command execution with no errors
+      return event.sender.send("deleted_pod", stdout);
+    });
+  }
+});
+
 //Listen for check if prometheus and grafana are installed
 ipcMain.on("check_promgraf_installed", (event, arg) => {
   const { kubectlCheckPromGrafInstallCommand, currDir } = arg;
@@ -71,10 +107,10 @@ ipcMain.on("check_promgraf_installed", (event, arg) => {
         }
         // Handle successful command execution but returned error (stderr)
         if (stderr) {
-          return event.sender.send("installed_metrics", stderr);
+          return event.sender.send("checked_promgraf_installed", stderr);
         }
         // Handle successful command execution with no errors
-        return event.sender.send("installed_metrics", stdout);
+        return event.sender.send("checked_promgraf_installed", stdout);
       }
     );
   }
@@ -114,10 +150,10 @@ ipcMain.on("check_metrics_installed", (event, arg) => {
         }
         // Handle successful command execution but returned error (stderr)
         if (stderr) {
-          return event.sender.send("installed_metrics", stderr);
+          return event.sender.send("checked_metrics_installed", stderr);
         }
         // Handle successful command execution with no errors
-        return event.sender.send("installed_metrics", stdout);
+        return event.sender.send("checked_metrics_installed", stdout);
       }
     );
   }
@@ -157,10 +193,10 @@ ipcMain.on("check_kubectl_installed", (event, arg) => {
         }
         // Handle successful command execution but returned error (stderr)
         if (stderr) {
-          return event.sender.send("installed_metrics", stderr);
+          return event.sender.send("checked_kubectl_installed", stderr);
         }
         // Handle successful command execution with no errors
-        return event.sender.send("installed_metrics", stdout);
+        return event.sender.send("checked_kubectl_installed", stdout);
       }
     );
   }

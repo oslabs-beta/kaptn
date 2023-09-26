@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useReducer } from "react";
 import Button from "@mui/material/Button";
 import { Typography, useTheme, Box, Modal } from "@mui/material";
 const { ipcRenderer } = require("electron");
@@ -48,6 +48,24 @@ function KranePodList(props) {
     transform: "translate(-50%, -50%)",
     width: "90%",
     height: "90%",
+    background: theme.palette.mode === "dark" ? "#0e0727" : "#e6e1fb",
+    color: theme.palette.mode === "dark" ? "white" : "#47456e",
+    boxShadow: 24,
+    p: 4,
+    padding: "10px",
+    border:
+      theme.palette.mode === "dark" ? "1px solid white" : "2px solid #9075ea",
+    borderRadius: "10px",
+  };
+
+  const podDeleteStyle = {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    width: "36%",
+    height: "26%",
+    justifyContent: "center",
     background: theme.palette.mode === "dark" ? "#0e0727" : "#e6e1fb",
     color: theme.palette.mode === "dark" ? "white" : "#47456e",
     boxShadow: 24,
@@ -237,6 +255,25 @@ function KranePodList(props) {
       while (arg[i] !== " ") {
         statusOutput.push(arg[i]);
         i++;
+      }
+
+      //check if status is "CONTAINERCREATING" and shorten for display
+      if (statusOutput.length === 17) {
+        statusOutput = ["C", "R", "E", "A", "T", "I", "N", "G"];
+      }
+
+      //check if status is "PODINITIALIZING" and shorten for display
+      if (statusOutput.length === 15) {
+        statusOutput = ["C", "R", "E", "A", "T", "I", "N", "G"];
+      }
+
+      //check if status is "ERROR" and change to avoid concern during pod deletion
+      if (
+        statusOutput[0] === "E" &&
+        statusOutput[1] === "r" &&
+        statusOutput[2] === "r"
+      ) {
+        statusOutput = ["C", "R", "E", "A", "T", "I", "N", "G"];
       }
 
       //skip spaces
@@ -687,7 +724,7 @@ function KranePodList(props) {
         }
 
         i += 3;
-        // console.log("podMemoryLimitsArr is", podMemoryLimitsArr);
+        console.log("podMemoryLimitsArr is", podMemoryLimitsArr);
       }
 
       //   //join used values and add them to object
@@ -699,7 +736,7 @@ function KranePodList(props) {
 
       j++;
       //   // console.log("after used values i is", i, "and arg i is", arg[i]);
-      // console.log(" POD IS ", pod);
+      console.log(" POD IS ", pod);
       podLimitsArray.push(pod);
       pod = {};
     } //end of for loop
@@ -834,6 +871,9 @@ function KranePodList(props) {
   // -------------------------------------------------- beginning of expand pods section -----------
 
   const [openPod, setOpenPod] = React.useState(false);
+  const [openPodDelete, setOpenPodDelete] = React.useState(false);
+
+  const [selectedPodStatusColor, setSelectedPodStatusColor] = useState("");
   const [selectedPodCPUColor, setSelectedPodCPUColor] = useState("");
   const [selectedPodMemoryColor, setSelectedPodMemoryColor] = useState("");
   const [selectedPod, setSelectedPod] = useState([
@@ -857,10 +897,13 @@ function KranePodList(props) {
     },
   ]);
 
-  const handleCommandOpen = (pod) => {
+  const handlePodOpen = (pod) => {
+    if (pod["status"] === "Running") {
+      setSelectedPodStatusColor("#2fc665");
+    } else {
+      setSelectedPodStatusColor("rgba(210, 223, 61)");
+    }
     setSelectedPod([pod]);
-    // console.log("selected pod is ", pod);
-    setOpenPod(true);
     // console.log("selected pod is ", pod);
 
     // console.log(
@@ -876,11 +919,21 @@ function KranePodList(props) {
     } else {
       setSelectedPodCPUColor("#cf4848");
     }
+    // console.log(pod);
+
+    // console.log(selectedPodStatusColor);
+    // if (podsArr[i]["status"] === "Running") {
+    //   readyStatusRunning = "#2fc665";
+    // } else {
+    //   readyStatusRunning = "rgba(210, 223, 61)";
+    // }
+
+    setOpenPod(true);
 
     // console.log("selectedPodCpuColor is", selectedPodCPUColor);
   };
 
-  const handleCommandClose = () => {
+  const handlePodClose = () => {
     setSelectedPod([
       {
         name: "",
@@ -902,6 +955,77 @@ function KranePodList(props) {
       },
     ]);
     setOpenPod(false);
+  };
+
+  const handlePodDeleteOpen = (pod) => {
+    setOpenPodDelete(true);
+  };
+
+  const handlePodDeleteClose = () => {
+    setOpenPodDelete(false);
+  };
+
+  const handlePodDelete = () => {
+    //listen for pods deleted
+    ipcRenderer.on("deleted_pod", (event, arg) => {
+      // console.log("ARG ISSSSSS", arg);
+      let argArr = arg.split("");
+      console.log("arg arr is", argArr);
+      let podUsageArray = [];
+
+      let pod = {};
+
+      let i: number = 0;
+
+      //parse response to check if successful and if so, close modals and refresh list
+
+      // setPodsArr(filteredPods)
+      // window.location.reload(false);
+      //need to refresh/get nodes list again
+      // event.preventDefault = true
+
+      // const [, forceUpdate] = useReducer((x) => x + 1, 0);
+      // forceUpdate();
+      // () => {};
+
+      let podsCommand = "kubectl get pods --all-namespaces -o wide";
+      //send get pods o wide info commands
+      setTimeout(() => {
+        ipcRenderer.send("getPods_command", {
+          podsCommand,
+          currDir,
+        });
+      }, 1000);
+
+      //---------------------------------------- beginnging get all pods cpu and memory usage section -
+      let CpuUsedCommand = `kubectl top pods --all-namespaces`;
+      setTimeout(() => {
+        ipcRenderer.send("getCpuUsed_command", {
+          CpuUsedCommand,
+          currDir,
+        });
+      }, 1500);
+
+      // ----------------------------------------------- Beginning of get pod cpu and memory limits section
+
+      let cpuLimitsCommand = `kubectl get po --all-namespaces -o custom-columns="Name:metadata.name,CPU-limit:spec.containers[*].resources.limits.cpu",Memory-limit:"spec.containers[*].resources.limits.memory"`;
+      setTimeout(() => {
+        ipcRenderer.send("getCpuLimits_command", {
+          cpuLimitsCommand,
+          currDir,
+        });
+      }, 2000);
+
+      setOpenPodDelete(false);
+      setOpenPod(false);
+    });
+
+    let podDeleteCommand = `kubectl delete pod ${selectedPod[0]["name"]}`;
+    //send get pods o wide info commands
+    ipcRenderer.send("deletePod_command", {
+      podDeleteCommand,
+      currDir,
+    });
   };
 
   //--------------------------------------------- end of expand pods section ---
@@ -990,7 +1114,7 @@ function KranePodList(props) {
         <Button
           key={i}
           id="podButt"
-          onClick={() => handleCommandOpen(podsArr[i])}
+          onClick={() => handlePodOpen(podsArr[i])}
           style={{
             display: "flex",
             flexDirection: "column",
@@ -1046,7 +1170,7 @@ function KranePodList(props) {
                   width: "12px",
                   height: "12px",
                   borderRadius: "15px",
-                  backgroundColor: "#2fc665",
+                  backgroundColor: `${readyStatusRunning}`,
                   justifyContent: "right",
                   margin: "5px 0 2px 0",
                   // border: ".5px solid white",
@@ -1186,8 +1310,9 @@ function KranePodList(props) {
                   position: "relative",
                   top: "-48px",
                   left: "5px",
-                  fontSize:
-                    podsArr[i]["podCpuLimit"] === "NONE" ? "13px" : "16px",
+                  fontSize: podsArr[i]["podCpuLimit"] === "NONE"
+                    ? "13px"
+                    : "16px",
                   fontWeight: "500",
                   marginTop:
                     podsArr[i]["podCpuLimit"] === "NONE" ? "-55px" : "-60px",
@@ -1196,9 +1321,14 @@ function KranePodList(props) {
                   color: `${PodCpuPercentColor}`,
                 }}
               >
-                {podsArr[i]["podCpuLimit"] === "NONE"
+                {!podsArr[i]["podCpuLimit"]
+                  ? "loading"
+                  : podsArr[i]["podCpuLimit"] === "NONE"
                   ? `no max`
                   : `${podsArr[i]["podCpuPercent"]}%`}
+                {/* {podsArr[i]["podCpuLimit"] === "NONE"
+                  ? `no max`
+                  : `${podsArr[i]["podCpuPercent"]}%`} */}
               </div>
               <div
                 style={{
@@ -1286,15 +1416,18 @@ function KranePodList(props) {
                   left: "5px",
                   fontWeight: "500",
                   marginLeft: "-10px",
-                  fontSize:
-                    podsArr[i]["podMemoryLimit"] === "NONE" ? "13px" : "16px",
+                  fontSize:podsArr[i]["podMemoryLimit"] === "NONE"
+                    ? "13px"
+                    : "16px",
                   marginTop:
                     podsArr[i]["podMemoryLimit"] === "NONE" ? "-55px" : "-60px",
                   // border: "2px solid red",
                   color: `${PodMemoryPercentColor}`,
                 }}
               >
-                {podsArr[i]["podMemoryPercent"] === "N/A"
+                {!podsArr[i]["podMemoryLimit"]
+                  ? "loading"
+                  : podsArr[i]["podMemoryPercent"] === "N/A"
                   ? `no max`
                   : `${podsArr[i]["podMemoryPercent"]}%`}
               </div>
@@ -1438,7 +1571,7 @@ function KranePodList(props) {
           {podsList}
           <Modal
             open={openPod}
-            onClose={handleCommandClose}
+            onClose={handlePodClose}
             style={{ overflow: "scroll", height: "100%" }}
             aria-labelledby="modal-modal-title"
             aria-describedby="modal-modal-description"
@@ -1455,7 +1588,7 @@ function KranePodList(props) {
                   <div style={{ width: "140px" }}>
                     <img
                       style={{ width: "100px", margin: "15px 25px 0 20px" }}
-                      src="../../public/pod.svg"
+                      src="../../pod.svg"
                     ></img>
                   </div>
                   {"  "}
@@ -1489,7 +1622,7 @@ function KranePodList(props) {
                         width: "24px",
                         height: "24px",
                         borderRadius: "15px",
-                        backgroundColor: "#2fc665",
+                        backgroundColor: `${selectedPodStatusColor}`,
                         justifyContent: "right",
                         margin: "0px 0 2px 0",
                         // border: "5px solid white",
@@ -1499,7 +1632,7 @@ function KranePodList(props) {
                       style={{
                         fontSize: "20px",
                         fontWeight: "500",
-                        // color: `${readyStatusRunning}`,
+                        color: `${selectedPodStatusColor}`,
                       }}
                     >
                       {selectedPod[0]["ready"].toUpperCase()}
@@ -1509,7 +1642,7 @@ function KranePodList(props) {
                         fontSize: "20px",
                         fontWeight: "500",
                         margin: "-4px 0 0 0",
-                        // color: `${readyStatusRunning}`,
+                        color: `${selectedPodStatusColor}`,
                       }}
                     >
                       {selectedPod[0]["status"].toUpperCase()}
@@ -1783,22 +1916,94 @@ function KranePodList(props) {
                     </div>
                   </div>
                 </div>
-                <div style={{ flexDirection: "row", margin: "0 0 0 40px" }}>
+                <div
+                  style={{
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                    margin: "0 0 0 40px",
+                    // border:"1px solid red"
+                  }}
+                >
                   <Button
+                    onClick={handlePodDeleteOpen}
                     style={{
                       width: "200px",
                       border: "1px solid white",
                       fontSize: "14px",
                     }}
                   >
-                    DELETE & RESTART POD
+                    DELETE / RESTART POD
                   </Button>
+                  <Modal
+                    open={openPodDelete}
+                    onClose={handlePodDeleteClose}
+                    style={{ overflow: "scroll", height: "100%" }}
+                  >
+                    <Box sx={podDeleteStyle}>
+                      <div
+                        style={{
+                          textAlign: "center",
+                          fontSize: "18px",
+                          fontWeight: "900",
+                          paddingTop: "20px",
+                        }}
+                      >
+                        ARE YOU SURE YOU WANT DELETE?
+                      </div>
+                      <div
+                        style={{
+                          padding: "10px 40px 0 40px",
+                          textAlign: "center",
+                          fontSize: "12px",
+                        }}
+                      >
+                        Please note: if this pod is scheduled to be running,
+                        then a new version will replace it after termination.
+                      </div>
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "row",
+                          marginTop: "30px",
+                          justifyContent: "center",
+                        }}
+                      >
+                        <Button
+                          onClick={handlePodDelete}
+                          style={{
+                            fontSize: "16px",
+                            margin: "0 10px 0 0",
+                            padding: "5px 15px 5px 15px",
+                            border:
+                              theme.palette.mode === "dark"
+                                ? "1px solid #8f85fb"
+                                : "1px solid #68617f",
+                            color: "white",
+                          }}
+                        >
+                          DELETE POD
+                        </Button>
+                        <Button
+                          onClick={handlePodDeleteClose}
+                          style={{
+                            opacity: "50%",
+                            fontSize: "15px",
+                            margin: "0 0 0 10px",
+                            padding: "5px 10px 5px 10px",
+                            border: "1px solid #ffffff89",
+                          }}
+                        >
+                          CANCEL
+                        </Button>
+                      </div>
+                    </Box>
+                  </Modal>
                   <Button
                     style={{
                       width: "200px",
                       border: "1px solid white",
                       fontSize: "14px",
-                      margin: "0 10px 0 30px",
+                      margin: "0 10px 0 25px",
                     }}
                   >
                     CHANGE NAMESPACE
@@ -1808,7 +2013,7 @@ function KranePodList(props) {
                       width: "200px",
                       border: "1px solid white",
                       fontSize: "14px",
-                      margin: "0 10px 0 10px",
+                      margin: "0 10px 0 15px",
                     }}
                   >
                     VIEW LOGS
@@ -1818,7 +2023,7 @@ function KranePodList(props) {
                       width: "200px",
                       border: "1px solid white",
                       fontSize: "14px",
-                      margin: "0 20px 0 10px",
+                      margin: "0 20px 0 15px",
                     }}
                   >
                     CHANGE LIMITS
