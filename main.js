@@ -37,8 +37,77 @@ function createMainWindow() {
 //***               START PAGE - IPC methods                 *** */
 //************************************************************** */
 
-//deletePod_command
-//Listen for check if prometheus and grafana are installed
+//Listen for command to delete/restart a pod
+ipcMain.on("podLogs_command", (event, arg) => {
+  const { podLogsCommand, currDir } = arg;
+
+  // if kubectl command is entered with no directory chosen, use ZDOTDIR as directory address when calling exec command --- otherwise ("else" on line further down) submit command normally
+  if (currDir === "NONE SELECTED") {
+    let kubDir = process.env.ZDOTDIR;
+    exec(` ${podLogsCommand}`, { cwd: kubDir }, (err, stdout, stderr) => {
+      // Handle failed command execution
+      if (err) {
+        let output = err;
+      }
+      // Handle successful command execution but returned error (stderr)
+      if (stderr) {
+        return event.sender.send("podLogsRetrieved", stderr);
+      }
+      // Handle successful command execution with no errors
+      return event.sender.send("podLogsRetrieved", stdout);
+    });
+  } else {
+    exec(` ${podLogsCommand}`, { cwd: currDir }, (err, stdout, stderr) => {
+      // Handle failed command execution
+      if (err) {
+        let output = err;
+      }
+      // Handle successful command execution but returned error (stderr)
+      if (stderr) {
+        return event.sender.send("podLogsRetrieved", stderr);
+      }
+      // Handle successful command execution with no errors
+      return event.sender.send("podLogsRetrieved", stdout);
+    });
+  }
+});
+
+//Listen for command to delete/restart a pod
+ipcMain.on("podYaml_command", (event, arg) => {
+  const { podYamlCommand, currDir } = arg;
+
+  // if kubectl command is entered with no directory chosen, use ZDOTDIR as directory address when calling exec command --- otherwise ("else" on line further down) submit command normally
+  if (currDir === "NONE SELECTED") {
+    let kubDir = process.env.ZDOTDIR;
+    exec(` ${podYamlCommand}`, { cwd: kubDir }, (err, stdout, stderr) => {
+      // Handle failed command execution
+      if (err) {
+        let output = err;
+      }
+      // Handle successful command execution but returned error (stderr)
+      if (stderr) {
+        return event.sender.send("podYamlRetrieved", stderr);
+      }
+      // Handle successful command execution with no errors
+      return event.sender.send("podYamlRetrieved", stdout);
+    });
+  } else {
+    exec(` ${podYamlCommand}`, { cwd: currDir }, (err, stdout, stderr) => {
+      // Handle failed command execution
+      if (err) {
+        let output = err;
+      }
+      // Handle successful command execution but returned error (stderr)
+      if (stderr) {
+        return event.sender.send("podYamlRetrieved", stderr);
+      }
+      // Handle successful command execution with no errors
+      return event.sender.send("podYamlRetrieved", stdout);
+    });
+  }
+});
+
+//Listen for command to delete/restart a pod
 ipcMain.on("deletePod_command", (event, arg) => {
   const { podDeleteCommand, currDir } = arg;
 
