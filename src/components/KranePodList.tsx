@@ -74,6 +74,7 @@ function KranePodList(props) {
     border:
       theme.palette.mode === "dark" ? "1px solid white" : "2px solid #9075ea",
     borderRadius: "10px",
+    overflow: "scroll",
   };
 
   const logStyle = {
@@ -127,7 +128,7 @@ function KranePodList(props) {
   //Listen to "get pods" return event and set pods array
   ipcRenderer.on("got_pods", (event, arg) => {
     let argArr = arg.split("");
-    console.log("arg arr is", argArr);
+    // console.log("arg arr is", argArr);
 
     // console.log("argArr length is", argArr.length);
 
@@ -760,7 +761,7 @@ function KranePodList(props) {
         }
 
         i += 3;
-        console.log("podMemoryLimitsArr is", podMemoryLimitsArr);
+        // console.log("podMemoryLimitsArr is", podMemoryLimitsArr);
       }
 
       //   //join used values and add them to object
@@ -772,7 +773,7 @@ function KranePodList(props) {
 
       j++;
       //   // console.log("after used values i is", i, "and arg i is", arg[i]);
-      console.log(" POD IS ", pod);
+      // console.log(" POD IS ", pod);
       podLimitsArray.push(pod);
       pod = {};
     } //end of for loop
@@ -938,7 +939,107 @@ function KranePodList(props) {
     },
   ]);
 
+  const [selectedPodContainers, setSelectedPodContainers] = useState([]);
+
   const handlePodOpen = (pod) => {
+    //handle returned pod container info
+    ipcRenderer.on("podContainersRetrieved", (event, arg) => {
+      let argArr = arg.split("");
+      let output = [];
+
+      let i = 0;
+      //skips all column titles
+      while (argArr[i] !== "\n") {
+        i++;
+      }
+      i++;
+
+      console.log("ARG SPLIT ISSSSSS", argArr);
+
+      for (let j = 0; i < argArr.length; i++) {
+        let podName = "";
+        let name = "";
+        let cpuUsage = "";
+        let memoryUsage = "";
+
+        //saves pod name
+        while (argArr[i] !== " ") {
+          podName += argArr[i];
+          i++;
+        }
+
+        //skips spaces
+        while (argArr[i] === " ") {
+          i++;
+        }
+
+        //saves container name
+        while (argArr[i] !== " ") {
+          name += argArr[i];
+          i++;
+        }
+
+        //skips spaces
+        while (argArr[i] === " ") {
+          i++;
+        }
+
+        //saves cpu usage
+        while (argArr[i] !== " ") {
+          cpuUsage += argArr[i];
+          i++;
+        }
+
+        //skips spaces
+        while (argArr[i] === " ") {
+          i++;
+        }
+
+        //saves memory usage
+        while (argArr[i] !== " ") {
+          memoryUsage += argArr[i];
+          i++;
+        }
+
+        //skips spaces
+        while (argArr[i] !== "\n") {
+          i++;
+        }
+
+        let memoryUsageMath = "";
+        if (memoryUsage.slice(-2, -1) === "G") {
+          let temp = memoryUsage.slice(0, -2);
+          temp += "000000";
+          memoryUsageMath = temp;
+        } else if (memoryUsage.slice(-2, -1) === "M") {
+          let temp = memoryUsage.slice(0, -2);
+          temp += "000";
+          memoryUsageMath = temp;
+        }
+
+        let container = {
+          podName: podName,
+          name: name,
+          cpuUsage: cpuUsage,
+          memoryUsage: memoryUsage,
+          memoryUsageMath: memoryUsageMath,
+        };
+
+        output.push(container);
+        console.log("output is: ", output);
+      } //end of for loop over containers
+
+      setSelectedPodContainers(output);
+    });
+
+    // send command to get selected pods containers info
+    let podContainersCommand = `kubectl top pod ${pod["name"]} --containers`;
+    //send get pods o wide info commands
+    ipcRenderer.send("podContainers_command", {
+      podContainersCommand,
+      currDir,
+    });
+
     if (pod["status"] === "Running") {
       setSelectedPodStatusColor("#2fc665");
     } else {
@@ -1003,13 +1104,13 @@ function KranePodList(props) {
       let argArr = arg.split("");
       let temp = "";
       let output = [];
-      console.log("ARG SPLIT ISSSSSS", argArr);
+      // console.log("ARG SPLIT ISSSSSS", argArr);
       for (let i = 0; i < argArr.length; i++) {
         while (argArr[i] !== "\n") {
           temp += argArr[i];
           i++;
         }
-        console.log("temp is", temp);
+        // console.log("temp is", temp);
         output.push(<p>{temp}</p>);
       }
       setPodLogs(output);
@@ -1033,7 +1134,7 @@ function KranePodList(props) {
     ipcRenderer.on("podYamlRetrieved", (event, arg) => {
       let argArr = arg.split("/n");
       let output = [];
-      console.log("ARG SPLIT ISSSSSS", argArr);
+      // console.log("ARG SPLIT ISSSSSS", argArr);
       for (let i = 0; i < argArr.length; i++) {
         output.push(
           <pre>
@@ -1041,23 +1142,6 @@ function KranePodList(props) {
           </pre>
         );
       }
-
-      // argArr.forEach((el) => {
-      //   const paredResponse: JSX.Element[] = el.map(function (item: string) {
-      //     return (
-      //       <pre>
-      //         <span>{item}</span>
-      //       </pre>
-      //     );
-      //   });
-
-      //   output.push(
-      //     <div className="command-log">
-      //       <>{paredResponse}</>
-      //     </div>
-      //   );
-      // });
-
       setPodYaml(output);
     });
 
@@ -1089,7 +1173,7 @@ function KranePodList(props) {
     ipcRenderer.on("deleted_pod", (event, arg) => {
       // console.log("ARG ISSSSSS", arg);
       let argArr = arg.split("");
-      console.log("arg arr is", argArr);
+      // console.log("arg arr is", argArr);
       let podUsageArray = [];
 
       let pod = {};
@@ -1155,18 +1239,18 @@ function KranePodList(props) {
     let readyStatusRunning;
     let PodCpuPercentColor;
     let PodMemoryPercentColor;
-    let numerator = 0;
-    let denominator = "";
+    // let numerator = 0;
+    // let denominator = "";
 
     // let z = i;
 
-    let current = podsArr[i]["ready"];
-    current = current.split("");
+    // let current = podsArr[i]["ready"];
+    // current = current.split("");
     // console.log("current is", current);
 
     // let podsArrReadyLength = podsArr[i]["ready"].length;
 
-    let curr;
+    // let curr;
     // while (current[j] !== "/") {
     // curr = current[j];
 
@@ -1174,13 +1258,13 @@ function KranePodList(props) {
     //   numerator = Number((numerString += curr.concat()));
     // }
 
-    for (let j = 0; current[j] !== "/"; j++) {
-      curr = current[j];
-      // console.log("curr is", curr);
+    // for (let j = 0; current[j] !== "/"; j++) {
+    //   curr = current[j];
+    //   // console.log("curr is", curr);
 
-      let numerString = numerator.toString();
-      numerator = Number((numerString += curr.concat()));
-    }
+    //   let numerString = numerator.toString();
+    //   numerator = Number((numerString += curr.concat()));
+    // }
 
     // console.log("numerator is", Number(numerator));
 
@@ -1245,7 +1329,7 @@ function KranePodList(props) {
             textAlign: "left",
             alignItems: "space-between",
             margin: "2px 0 0 0",
-            padding: "35px 0px 0px 0px",
+            padding: "32px 0px 0px 0px",
             color: theme.palette.mode === "dark" ? "white" : "grey",
             border:
               theme.palette.mode === "dark"
@@ -1260,19 +1344,21 @@ function KranePodList(props) {
           }}
         >
           {" "}
-          <div style={{ display: "flex", flexDirection: "row" }}>
+          <div style={{ display: "flex", flexDirection: "row", alignItems:"center" }}>
             <img
               style={{ width: "40px", marginLeft: "0px" }}
               src="../../pod.svg"
             ></img>
             <span
               style={{
-                margin: "5px 0 0 15px",
+                margin: "0px 0 0 15px",
                 width: "320px",
-                lineHeight: "23px",
+                lineHeight: "22px",
+                textTransform:"none",
+                fontSize:"17px"
               }}
             >
-              {podsArr[i]["name"].toUpperCase()}
+              {podsArr[i]["name"]}
             </span>
             <div
               style={{
@@ -1335,17 +1421,20 @@ function KranePodList(props) {
                 justifyContent: "left",
                 textAlign: "left",
                 width: "200px",
-                fontSize: "11.5px",
+                fontSize: "10.5px",
                 padding: "0px 0px 0 0px",
                 fontWeight: "400",
-                marginTop: "0px",
+                marginTop: "-2px",
                 // border: "1px solid blue",
-                lineHeight: "16px",
+                lineHeight: "13.5px",
                 textTransform: "none",
                 opacity: ".5",
                 // color: `${readyStatusRunning}`,
               }}
-            >
+            > NODE: {podsArr[i]["node"]} 
+            <br/>
+            NAMESPACE: {podsArr[i]["namespace"]} 
+            <br/>
               CPU USAGE:{" "}
               {podsArr[i]["podCpuLimit"] === "NONE" ||
               podsArr[i]["podCpuLimit"] === ""
@@ -1358,9 +1447,7 @@ function KranePodList(props) {
                 ? `${podsArr[i]["podMemoryUsed"]}`
                 : `${podsArr[i]["podMemoryUsed"]} / ${podsArr[i]["podMemoryLimit"]}`}
               <br />
-              RESTARTS: {podsArr[i]["restarts"]}
-              <br />
-              LAST RESTART: {podsArr[i]["lastRestart"]}
+              RESTARTS/LAST: {podsArr[i]["restarts"]} ({podsArr[i]["lastRestart"]})
             </div>
 
             <div
@@ -1572,6 +1659,403 @@ function KranePodList(props) {
     );
   } // end of for loop
   // ---------------------------------------------------------- END OF FOR LOOP TO CREATE EACH POD"S JSX --------
+
+  let podContainerList = [];
+  for (let i = 0; i < selectedPodContainers.length; i++) {
+    let containerStatusColor;
+    let containerCpuPercentColor;
+    let containerMemoryColor;
+
+    podContainerList.push(
+      <div
+        key={i}
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          fontFamily: "Outfit",
+          fontWeight: "400",
+          fontSize: "17px",
+          justifyContent: "flex-start",
+          alignItems: "flex-start",
+          textAlign: "left",
+          width: "auto",
+          margin: "17px 0px 0px 0px",
+          padding: "0 30px 0px 0",
+          letterSpacing: "1px",
+          color: theme.palette.mode === "dark" ? "#8f85fb" : "#9075ea",
+          textShadow:
+            theme.palette.mode === "dark"
+              ? "1px 1px 2px black"
+              : "1px 1px 1px #00000000",
+          // border: "2px solid red",
+        }}
+      >
+        CONTAINER {i + 1}
+        <Button
+          key={i}
+          id="podButt"
+          // onClick={() => handlePodOpen(podsArr[i])}
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            width: "380px",
+            height: "115px",
+            fontSize: "16px",
+            // border: "1px solid white",
+            justifyContent: "center",
+            textAlign: "left",
+            alignItems: "space-between",
+            margin: "2px 0 0 0",
+            padding: "5px 0px 0px 0px",
+            color: theme.palette.mode === "dark" ? "white" : "grey",
+            border:
+              theme.palette.mode === "dark"
+                ? "1.3px solid white"
+                : "1.3px solid grey",
+            borderRadius: "5px",
+            boxShadow:
+              theme.palette.mode === "dark"
+                ? "10px 9px 2px #00000060"
+                : "10px 10px 1px #00000020",
+            background: theme.palette.mode === "dark" ? "#0e0727" : "#e6e1fb",
+          }}
+        >
+          {" "}
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              justifyContent: "flex-start",
+              // border: "1px solid yellow",
+              width: "350px",
+              margin: "30px 0 0 0",
+            }}
+          >
+            <img
+              style={{ width: "45px", marginLeft: "0px" }}
+              src="../../container.png"
+            ></img>
+            <span
+              style={{
+                margin: "5px 0 0 15px",
+                width: "250px",
+                lineHeight: "23px",
+                textTransform:"none",
+                fontSize:"19px"
+              }}
+            >
+              {selectedPodContainers[i]["name"]}
+            </span>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                textAlign: "right",
+                alignItems: "flex-end",
+                justifyContent: "right",
+                margin: "2px 0 0 0",
+              }}
+            >
+              <div
+                style={{
+                  width: "12px",
+                  height: "12px",
+                  borderRadius: "15px",
+                  backgroundColor: `${containerStatusColor}`,
+                  justifyContent: "right",
+                  margin: "5px 0 2px 0",
+                  // border: ".5px solid white",
+                }}
+              ></div>
+            </div>
+          </div>
+          {/*---------------------------------------------------------- */}
+          {/*                  beginng of row of stats below pod name   */}
+          {/*---------------------------------------------------------- */}
+          <span
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              // border: "1px solid green",
+              textAlign: "center",
+              justifyContent: "left",
+              alignItems: "flex-start",
+              width: "100%",
+              // height:"100px",
+              alignContent: "flex-end",
+              // border: "2px solid red",
+              padding: "0px 0px 0px 70px",
+              margin: "5px 0px 0px 0px",
+              fontSize: "15px",
+            }}
+          >
+            <br />
+            <div
+              style={{
+                flexDirection: "column",
+                justifyContent: "left",
+                textAlign: "left",
+                width: "200px",
+                fontSize: "11.5px",
+                padding: "0px 0px 0 0px",
+                fontWeight: "400",
+                marginTop: "0px",
+                // border: "1px solid blue",
+                lineHeight: "16px",
+                textTransform: "none",
+                opacity: ".5",
+                // color: `${readyStatusRunning}`,
+              }}
+            >
+              CPU USAGE: {selectedPodContainers[i]["cpuUsage"]}
+              <br />
+              MEMORY USAGE: {selectedPodContainers[i]["memoryUsage"]}
+            </div>
+
+            <div
+              style={{
+                flexDirection: "column",
+                justifyContent: "center",
+                textAlign: "center",
+                alignItems: "center",
+                width: "70px",
+                height: "70px",
+                fontSize: "4",
+                padding: "0px 0px 0px 0px",
+                fontWeight: "400",
+                marginRight: "18px",
+                marginTop: "3px",
+                marginBottom: "0px",
+                // border: "1px solid red",
+                // color: `${readyStatusRunning}`,
+              }}
+            >
+              <div
+                style={
+                  {
+                    // border: "1px solid yellow"
+                  }
+                }
+              >
+                <CircularProgress
+                  variant="determinate"
+                  // @ts-nocheck
+                  thickness={1.35}
+                  value={100 * 0.73}
+                  style={{
+                    marginTop: "0px",
+                    marginLeft: "10.5px",
+                    rotate: "-131deg",
+                    color: "#ffffff40",
+
+                    width: "60px",
+                    // border: "1px solid red",
+                    filter: "drop-shadow(10px 10px 10px #000000)",
+                  }}
+                />
+                <CircularProgress
+                  variant="determinate"
+                  // @ts-nocheck
+                  thickness={1.35}
+                  value={
+                    selectedPod[0]["podCpuLimit"] === "NONE"
+                      ? 0
+                      : ((100 *
+                          Number(
+                            selectedPodContainers[i]["cpuUsage"].slice(0, -1)
+                          )) /
+                          Number(`${selectedPod[0]["podCpuLimit"]}`)) *
+                        0.73
+                  }
+                  //Number(`${podsArr[i]["podCpuLimit"]}`)
+
+                  // Number(
+                  //   selectedPodContainers[i]["cpuUsage"].slice(0, -1)
+                  // )  / Number(`${podsArr[i]["podCpuLimit"]}`)
+                  style={{
+                    position: "relative",
+                    top: "-48px",
+                    left: "5.5px",
+                    rotate: "-131deg",
+                    color: `${containerCpuPercentColor}`,
+
+                    width: "60px",
+                    // border: "1px solid red",
+                    filter: "drop-shadow(10px 10px 10px #000000)",
+                  }}
+                />
+              </div>
+              <div
+                style={{
+                  position: "relative",
+                  top: "-43px",
+                  left: "5px",
+                  fontSize:
+                    podsArr[i]["podCpuLimit"] === "NONE" ? "13px" : "16px",
+                  fontWeight: "500",
+                  marginTop:
+                    podsArr[i]["podCpuLimit"] === "NONE" ? "-55px" : "-60px",
+                  marginLeft: "-8px",
+                  // border: "2px solid red",
+                  color: `${containerCpuPercentColor}`,
+                }}
+              >
+                {selectedPod[0]["podCpuLimit"] === "NONE"
+                  ? `no max`
+                  : `${
+                      100 *
+                      (Number(
+                        selectedPodContainers[i]["cpuUsage"].slice(0, -1)
+                      ) /
+                        Number(selectedPod[0]["podCpuLimit"]))
+                    }%`}
+              </div>
+              <div
+                style={{
+                  fontSize: "9px",
+                  position: "relative",
+                  top: "-43px",
+                  left: "-1.5px",
+                  // border: "1px solid red",
+
+                  marginRight: "-2px",
+                  fontWeight: "500",
+                  marginTop: "-8px",
+                  color: `${containerCpuPercentColor}`,
+                }}
+              >
+                CPU
+              </div>
+            </div>
+
+            <div
+              style={{
+                flexDirection: "column",
+                justifyContent: "center",
+                textAlign: "center",
+                alignItems: "center",
+                width: "70px",
+                height: "40px",
+                fontSize: "4",
+                padding: "0px 0px 0 0px",
+                fontWeight: "400",
+                marginRight: "18px",
+                marginTop: "3px",
+                // border: "1px solid red",
+                // color: `${readyStatusRunning}`,
+              }}
+            >
+              <div
+                style={
+                  {
+                    // border: "1px solid yellow"
+                  }
+                }
+              >
+                <CircularProgress
+                  variant="determinate"
+                  // @ts-nocheck
+                  thickness={1.35}
+                  value={100 * 0.73}
+                  style={{
+                    marginTop: "0px",
+                    marginLeft: "9.5px",
+                    rotate: "-131deg",
+                    color: "#ffffff40",
+
+                    width: "60px",
+                    // border: "1px solid red",
+                    filter: "drop-shadow(10px 10px 10px #000000)",
+                  }}
+                />
+                <CircularProgress
+                  variant="determinate"
+                  // @ts-nocheck
+                  thickness={1.35}
+                  value={
+                    selectedPod[0]["podMemoryLimit"] === "NONE"
+                      ? 0
+                      : Math.min(
+                          73,
+                          (73 *
+                            Number(
+                              selectedPodContainers[i]["memoryUsageMath"]
+                            )) /
+                            Number(`${selectedPod[0]["podMemoryLimit"]}`)
+                        )
+                  }
+                  // selectedPod[0]["podCpuLimit"] === "NONE"
+                  // ? 0
+                  // : ((100 *
+                  //     Number(
+                  //       selectedPodContainers[i]["memoryUsageMath"]
+                  //     )) /
+                  //     Number(`${selectedPod[0]["podMemoryLimit"]}`)) *
+                  //   0.73
+                  style={{
+                    position: "relative",
+                    top: "-48px",
+                    left: "4.8px",
+                    rotate: "-131deg",
+                    color: `${containerMemoryColor}`,
+
+                    width: "60px",
+                    // border: "1px solid red",
+                    filter: "drop-shadow(10px 10px 10px #000000)",
+                  }}
+                />
+              </div>
+              <div
+                style={{
+                  position: "relative",
+                  top: "-43px",
+                  left: "5px",
+                  fontWeight: "500",
+                  marginLeft: "-11px",
+                  fontSize:
+                    podsArr[i]["podMemoryLimit"] === "NONE" ? "13px" : "16px",
+                  marginTop:
+                    podsArr[i]["podMemoryLimit"] === "NONE" ? "-55px" : "-60px",
+                  // border: "2px solid red",
+                  color: `${containerMemoryColor}`,
+                }}
+              >
+                {selectedPod[0]["podMemoryLimit"] === "NONE"
+                  ? `no max`
+                  : `${Math.min(
+                      Math.round(
+                        100 *
+                          (Number(selectedPodContainers[i]["memoryUsageMath"]) /
+                            Number(selectedPod[0]["podMemoryLimit"])) *
+                          10
+                      ) / 10,
+
+                      100
+                    )}%`}
+              </div>
+              <div
+                style={{
+                  fontSize: "9px",
+                  position: "relative",
+                  top: "-43px",
+                  left: "-2.5px",
+                  // border: "1px solid red",
+
+                  marginRight: "-2px",
+                  fontWeight: "500",
+                  marginTop: "-8px",
+                  color: `${containerMemoryColor}`,
+                }}
+              >
+                MEMORY
+              </div>
+            </div>
+          </span>
+          {}
+        </Button>
+      </div>
+    );
+  }
 
   // ---------------------------------------------------------- START OF IF CONDITION TO DETERMINE MAIN DIV'S JSX --------
   let podListDiv;
@@ -2282,6 +2766,67 @@ function KranePodList(props) {
                           </div>
                         </Box>
                       </Modal>
+                    </div>
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "row",
+                        justifyContent: "flex-start",
+                        alignItems: "flex-end",
+                        margin: "50px 0 0 0px",
+                      }}
+                    >
+                      <div
+                        style={{
+                          fontFamily: "Outfit",
+                          fontSize: "20px",
+                          fontWeight: "900",
+                          letterSpacing: "3px",
+                          // border: "1px solid white",
+                          textAlign: "left",
+                          // color: "#ffffff",
+                          paddingTop: "10px",
+                        }}
+                      >
+                        POD'S CONTAINERS
+                      </div>
+                      <div
+                        style={{
+                          margin: "0px 0 2px 10px",
+                          color: `${selectedPodStatusColor}`,
+                        }}
+                      >
+                        ({selectedPod[0]["ready"]} {selectedPod[0]["status"]})
+                      </div>
+                    </div>
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "row",
+                        justifyContent: "flex-start",
+                        margin: "0 0 0 0px",
+                      }}
+                    >
+                      <div
+                        style={{
+                          height: "1px",
+                          width: "100%",
+                          backgroundColor: "#ffffff99",
+                          // border: "1px solid white",
+                          // marginRight: "50px",
+                          marginRight: "20px",
+                          marginTop: "5px",
+                        }}
+                      ></div>
+                    </div>
+                    <div
+                      style={{
+                        display: "flex",
+                        flexWrap: "wrap",
+                        margin: "0 0 0 0px",
+                      }}
+                    >
+                      {podContainerList}
                     </div>
                   </div>
                 </div>
