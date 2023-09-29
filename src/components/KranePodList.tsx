@@ -465,6 +465,7 @@ function KranePodList(props) {
       // console.log(" i is", i);
 
       let pod: any = {
+        index: j,
         namespace: namespaceOutput.join(""),
         name: nameOutput.join(""),
         ready: readyOutput.join(""),
@@ -481,6 +482,9 @@ function KranePodList(props) {
         nominatedNode: nominatedOutput.join(""),
         readinessGates: readinessOutput.join(""),
       };
+
+      //increment j for index value
+      j++;
 
       // console.log(" POD is", pod);
 
@@ -841,7 +845,7 @@ function KranePodList(props) {
             filteredPods[j]["podCpuPercent"] * 100;
           if (filteredPods[j]["podCpuPercent"] % 1 !== 0) {
             let temp = filteredPods[j]["podCpuPercent"].toFixed(1);
-            filteredPods[j]["podCpuPercent"] = temp;
+            filteredPods[j]["podCpuPercent"] = Number(temp);
           }
         }
       }
@@ -852,13 +856,13 @@ function KranePodList(props) {
         let memoryUsed = Number(filteredPods[j]["podMemoryUsed"]);
         filteredPods[j]["podMemoryPercent"] = memoryUsed / currentMemory;
         if (filteredPods[j]["podMemoryPercent"] >= 1) {
-          filteredPods[j]["podMemoryPercent"] = "100";
+          filteredPods[j]["podMemoryPercent"] = 100;
         } else {
           filteredPods[j]["podMemoryPercent"] =
             filteredPods[j]["podMemoryPercent"] * 100;
           if (filteredPods[j]["podMemoryPercent"] % 1 !== 0) {
             let temp = filteredPods[j]["podMemoryPercent"].toFixed(1);
-            filteredPods[j]["podMemoryPercent"] = temp;
+            filteredPods[j]["podMemoryPercent"] = Number(temp);
           }
         }
       }
@@ -948,6 +952,7 @@ function KranePodList(props) {
   const [selectedPodMemoryColor, setSelectedPodMemoryColor] = useState("");
   const [selectedPod, setSelectedPod] = useState([
     {
+      index: "",
       name: "",
       ready: "",
       status: "",
@@ -967,10 +972,11 @@ function KranePodList(props) {
     },
   ]);
 
-  const [sortedBy, setSortedBy] = useState("namespace");
-  const [sortedByDisplay, setSortedByDisplay] = useState("namespace");
+  const [sortedBy, setSortedBy] = useState("index");
+  const [sortedByDisplay, setSortedByDisplay] = useState("index");
 
   const sortedByArray = [
+    "index",
     "namespace",
     "node",
     "podCpuPercent",
@@ -978,6 +984,7 @@ function KranePodList(props) {
     "name",
   ];
   const sortedByDisplayArray = [
+    "index",
     "namespace",
     "node",
     "max cpu",
@@ -986,29 +993,110 @@ function KranePodList(props) {
   ];
 
   function handleSort(event) {
-    sortIncrement++;
-    console.log("sort increment is", sortIncrement);
-    let index = sortIncrement % 5;
-    setSortedBy(sortedByArray[index]);
+    let tempPods = [...podsArr];
+    sortIncrement += 1;
+    // console.log("sort increment is", sortIncrement);
+    let thisIndex = sortIncrement % 6;
+    setSortedBy(sortedByArray[thisIndex]);
+    setSortedByDisplay(sortedByDisplayArray[thisIndex]);
+    console.log(
+      "sortedByDisplayArray[index] is: ",
+      sortedByDisplayArray[thisIndex]
+    );
+    console.log("sortedByArray[index] is: ", sortedByArray[thisIndex]);
+    console.log("index is: ", thisIndex);
 
-    function compare(a, b) {
-    //   if (sortedBy === "podCpuPercent" || sortedBy === "podMemoryPercent"){
+    if (sortedByDisplayArray[thisIndex] === "index") {
+      tempPods.sort((a, b) => a.index - b.index);
+    } else if (sortedByDisplayArray[thisIndex] === "max cpu") {
+      //reset to sorted by index
+      tempPods.sort((a, b) => a.index - b.index);
 
-    //   }
-      
-      
-      if (a[sortedBy] < b[sortedBy]) {
-        return -1;
+      let numberArr = [];
+      let stringArr = [];
+      for (let k = 0; k < podsArr.length; k++) {
+        console.log(
+          `typeof podsArr[k]["podCpuPercent"] === "number" is: `,
+          typeof podsArr[k]["podCpuPercent"]
+        );
+        if (typeof podsArr[k]["podCpuPercent"] === "number") {
+          numberArr.push(podsArr[k]);
+        } else stringArr.push(podsArr[k]);
       }
-      if (a[sortedBy] < b[sortedBy]) {
-        return 1;
+      numberArr.sort((a, b) => a["podCpuPercent"] - b["podCpuPercent"]);
+      tempPods = [...stringArr, ...numberArr];
+      tempPods.reverse();
+    } else if (sortedByDisplayArray[thisIndex] === "max memory") {
+      //reset to sorted by index
+      tempPods.sort((a, b) => a.index - b.index);
+      let numberArr = [];
+      let stringArr = [];
+      for (let k = 0; k < podsArr.length; k++) {
+        console.log(
+          `typeof podsArr[k]["podMemoryPercent"] === "number" is: `,
+          typeof podsArr[k]["podMemoryPercent"]
+        );
+        if (typeof podsArr[k]["podMemoryPercent"] === "number") {
+          numberArr.push(podsArr[k]);
+        } else stringArr.push(podsArr[k]);
       }
-      return 0;
+      numberArr.sort((a, b) => a["podMemoryPercent"] - b["podMemoryPercent"]);
+      tempPods = [...stringArr, ...numberArr];
+      tempPods.reverse();
+      // //reset to sorted by index
+      // tempPods.sort((a, b) => a.name.localeCompare(b.name));
+      // //sort by highest memory percent
+      // tempPods.sort((a, b) => {
+      //   const aIsNumber = !isNaN(a.podMemoryPercent); // isNaN = is Not a Number
+      //   const bIsNumber = !isNaN(b.podMemoryPercent);
+
+      //   if (
+      //     typeof a.podMemoryPercent === "number" &&
+      //     typeof b.podMemoryPercent === "string"
+      //   ) {
+      //     return -1; // numbers should be sorted before letters
+      //   } else if (
+      //     typeof a.podMemoryPercent === "string" &&
+      //     typeof b.podMemoryPercent === "number"
+      //   ) {
+      //     return 1; // letters should be sorted after numbers
+      //   } else if (
+      //     typeof a.podMemoryPercent === "number" &&
+      //     typeof b.podMemoryPercent === "number"
+      //   ) {
+      //     return a + b; // sort numbers reverse numerically
+      //   } else {
+      //     return a.podMemoryPercent.localeCompare(b.podMemoryPercent); // sort letters alphabetically
+      //   }
+      // });
+      // // tempPods.reverse();
+    } else {
+      //reset to sorted by index
+      tempPods.sort((a, b) => a.index - b.index);
+      //sort by whatever other propery name alphabeticcaly
+      tempPods.sort((a, b) =>
+        a[sortedByArray[thisIndex]].localeCompare(b[sortedByArray[thisIndex]])
+      );
     }
+    console.log("TEMP PODS ARR IS: ", tempPods);
+    setPodsArr([...tempPods]);
+    console.log("PODS ARR IS: ", podsArr);
+    console.log("sortedBy is: ", sortedBy);
+    // function compare(a, b) {
+    //   //   if (sortedBy === "podCpuPercent" || sortedBy === "podMemoryPercent"){
 
-    podsArr.sort(compare);
+    //   //   }
 
-    setSortedByDisplay(sortedByDisplayArray[index]);
+    //   if (a[sortedBy] < b[sortedBy]) {
+    //     return -1;
+    //   }
+    //   if (a[sortedBy] < b[sortedBy]) {
+    //     return 1;
+    //   }
+    //   return 0;
+    // }
+
+    // podsArr.sort(compare);
   }
 
   const [selectedPodContainers, setSelectedPodContainers] = useState([]);
@@ -1150,6 +1238,7 @@ function KranePodList(props) {
   const handlePodClose = () => {
     setSelectedPod([
       {
+        index: "",
         name: "",
         ready: "",
         status: "",
