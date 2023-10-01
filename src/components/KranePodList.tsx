@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useReducer } from "react";
 import Button from "@mui/material/Button";
-import { Typography, useTheme, Box, Modal } from "@mui/material";
+import { Typography, useTheme, Box, Modal, Checkbox } from "@mui/material";
 const { ipcRenderer } = require("electron");
 import SideNav from "../components/Sidebar.js";
 import LaunchIcon from "@mui/icons-material/Launch";
@@ -114,6 +114,9 @@ function KranePodList(props) {
       theme.palette.mode === "dark" ? "1px solid white" : "2px solid #9075ea",
     borderRadius: "10px",
   };
+
+  const [kubeSystemCheck, setKubeSystemCheck] = React.useState(false);
+  const [kubeSystemPods, setKubeSystemPods] = React.useState([]);
 
   // ----------------------------------------- get pods info section ------------
 
@@ -881,6 +884,14 @@ function KranePodList(props) {
       //   filteredPods[j]["podMemoryPercent"] =
       //     Number(filteredPods[j]["podMemoryUsed"]) /
       //     Number(filteredPods[j]["podMemoryLimit"]);
+      let kubePods = filteredPods.filter(
+        (pod) => pod.namespace === "kube-system"
+      );
+      setKubeSystemPods([...kubePods]);
+      let kubeFilteredPods = filteredPods.filter(
+        (pod) => pod.namespace !== "kube-system"
+      );
+      setPodsArr([...kubeFilteredPods]);
     }
   }); //-------------------   end of ipc render function to get podcpu and memory limits
 
@@ -1391,6 +1402,27 @@ function KranePodList(props) {
       currDir,
     });
   };
+
+  function handleKubeSystemChange() {
+    // podsArrOutput.filter(
+    //   (ele: any, ind: number) =>
+    //     ind === podsArrOutput.findIndex((elem) => elem.name === ele.name)
+    if (kubeSystemCheck === false) {
+      let tempPods = [...podsArr, ...kubeSystemPods];
+      tempPods.sort((a, b) => a.index - b.index);
+      // let tempPods = podsArr.filter((pod) => pod.namespace !== "kube-system");
+      // console.log(podsList)
+      setPodsArr([...tempPods]);
+      // setPodsArr([...tempPods]);
+    } else {
+      let kubePods = podsArr.filter((pod) => pod.namespace === "kube-system");
+      setKubeSystemPods([...kubePods]);
+      let tempPods = podsArr.filter((pod) => pod.namespace !== "kube-system");
+      setPodsArr([...tempPods]);
+    }
+    setKubeSystemCheck(!kubeSystemCheck);
+    setSortedByDisplay(sortedByDisplayArray[0]);
+  }
 
   //--------------------------------------------- end of expand pods section ---
 
@@ -2412,12 +2444,13 @@ function KranePodList(props) {
                 marginTop: "8px",
                 letterSpacing: ".8px",
                 // padding:"0 0 0 0",
-                border: "1px solid #ffffff99",
+                // border: "1px solid #ffffff99",
+                border: "1px solid",
                 fontSize: "9px",
                 width: "98px",
                 height: "20px",
 
-                color: "#ffffff99",
+                // color: "#ffffff99",
               }}
               onClick={handleClick}
             >
@@ -2445,7 +2478,36 @@ function KranePodList(props) {
           ></div>
         </div>
         <div
-          style={{ display: "flex", flexWrap: "wrap", margin: "0 0 0 50px" }}
+          style={{
+            display: "flex",
+            justifyContent: "flex-end",
+            margin: "-4px 40px 0px 0px",
+          }}
+        >
+          {" "}
+          <div
+            style={{
+              fontSize: "10px",
+              margin: "8px 0 0 0",
+              color: "#ffffff99",
+            }}
+          >
+            show kube-system
+          </div>
+          <Checkbox
+            //@ts-ignore
+            size="smaller"
+            value="start"
+            checked={kubeSystemCheck}
+            onChange={handleKubeSystemChange}
+          />
+        </div>
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            margin: "-20px 0 0 50px",
+          }}
         >
           {podsList}
           <Modal
@@ -3124,6 +3186,7 @@ function KranePodList(props) {
   }
 
   // console.log("selected pod 3 is ", selectedPod);
+  console.log(kubeSystemPods);
 
   return (
     <>
