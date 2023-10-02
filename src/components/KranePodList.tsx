@@ -870,24 +870,11 @@ function KranePodList(props) {
         }
       }
 
-      // // filteredPods[j]["podMemoryPercent"] =
-      // //   Number(filteredPods[j]["podMemoryUsed"]) /
-      // //   Number(filteredPods[j]["podMemoryLimit"]);
-
-      // let percent = 0;
-
-      // if (filteredPods[j]["podMemoryLimit"] === "NONE") {
-      //   filteredPods[j]["podMemoryPercent"] = "N/A";
-      // } else if (filteredPods[j]["podMemoryPercent"] >= 1) {
-      //   filteredPods[j]["podMemoryPercent"] = 100;
-      // } else
-      //   filteredPods[j]["podMemoryPercent"] =
-      //     Number(filteredPods[j]["podMemoryUsed"]) /
-      //     Number(filteredPods[j]["podMemoryLimit"]);
       let kubePods = filteredPods.filter(
         (pod) => pod.namespace === "kube-system"
       );
       setKubeSystemPods([...kubePods]);
+
       let kubeFilteredPods = filteredPods.filter(
         (pod) => pod.namespace !== "kube-system"
       );
@@ -921,32 +908,9 @@ function KranePodList(props) {
         currDir,
       });
     }, 1000);
-
-    // for (let i = 0; i < filteredPods.length; i++) {
-    //   if (filteredPods[i]["podMemoryLimit"] === "NONE") {
-    //     filteredPods[i]["podMemoryPercent"] = "N/A";
-    //   } else if (filteredPods[i]["podMemoryPercent"] >= 1) {
-    //     filteredPods[i]["podMemoryPercent"] = 100;
-    //   } else
-    //     filteredPods[i]["podMemoryPercent"] =
-    //       Number(filteredPods[i]["podMemoryUsed"]) /
-    //       Number(filteredPods[i]["podMemoryLimit"]);
-    // }
-    //final set of state
-    // setPodsArr([...filteredPods]);
-    // setPodsArr([...filteredPods]);
-  }, []); // end of use effect
+  }, []); // end of use effect to get pods info on page open
 
   //------------------------------------------------------------- END OF GET ALL POD INFO SECTION ---
-
-  // console.log("launch2 is", launch);
-
-  // console.log("podsArr at 2 is", podsArr);
-  // console.log("podsArr 0 is", podsArr[0]);
-  // console.log("typeof podsArr 0 is", typeof podsArr[0]);
-
-  // console.log("filteredPods FINAL is", filteredPods);
-  // console.log("final pods array is", podsArr);
 
   // -------------------------------------------------- beginning of expand pods section -----------
 
@@ -1010,12 +974,12 @@ function KranePodList(props) {
     let thisIndex = sortIncrement % 6;
     setSortedBy(sortedByArray[thisIndex]);
     setSortedByDisplay(sortedByDisplayArray[thisIndex]);
-    console.log(
-      "sortedByDisplayArray[index] is: ",
-      sortedByDisplayArray[thisIndex]
-    );
-    console.log("sortedByArray[index] is: ", sortedByArray[thisIndex]);
-    console.log("index is: ", thisIndex);
+    // console.log(
+    //   "sortedByDisplayArray[index] is: ",
+    //   sortedByDisplayArray[thisIndex]
+    // );
+    // console.log("sortedByArray[index] is: ", sortedByArray[thisIndex]);
+    // console.log("index is: ", thisIndex);
 
     if (sortedByDisplayArray[thisIndex] === "index") {
       tempPods.sort((a, b) => a.index - b.index);
@@ -1026,10 +990,10 @@ function KranePodList(props) {
       let numberArr = [];
       let stringArr = [];
       for (let k = 0; k < podsArr.length; k++) {
-        console.log(
-          `typeof podsArr[k]["podCpuPercent"] === "number" is: `,
-          typeof podsArr[k]["podCpuPercent"]
-        );
+        // console.log(
+        //   `typeof podsArr[k]["podCpuPercent"] === "number" is: `,
+        //   typeof podsArr[k]["podCpuPercent"]
+        // );
         if (typeof podsArr[k]["podCpuPercent"] === "number") {
           numberArr.push(podsArr[k]);
         } else stringArr.push(podsArr[k]);
@@ -1043,10 +1007,10 @@ function KranePodList(props) {
       let numberArr = [];
       let stringArr = [];
       for (let k = 0; k < podsArr.length; k++) {
-        console.log(
-          `typeof podsArr[k]["podMemoryPercent"] === "number" is: `,
-          typeof podsArr[k]["podMemoryPercent"]
-        );
+        // console.log(
+        //   `typeof podsArr[k]["podMemoryPercent"] === "number" is: `,
+        //   typeof podsArr[k]["podMemoryPercent"]
+        // );
         if (typeof podsArr[k]["podMemoryPercent"] === "number") {
           numberArr.push(podsArr[k]);
         } else stringArr.push(podsArr[k]);
@@ -1089,10 +1053,10 @@ function KranePodList(props) {
         a[sortedByArray[thisIndex]].localeCompare(b[sortedByArray[thisIndex]])
       );
     }
-    console.log("TEMP PODS ARR IS: ", tempPods);
+    // console.log("TEMP PODS ARR IS: ", tempPods);
     setPodsArr([...tempPods]);
-    console.log("PODS ARR IS: ", podsArr);
-    console.log("sortedBy is: ", sortedBy);
+    // console.log("PODS ARR IS: ", podsArr);
+    // console.log("sortedBy is: ", sortedBy);
     // function compare(a, b) {
     //   //   if (sortedBy === "podCpuPercent" || sortedBy === "podMemoryPercent"){
 
@@ -1343,25 +1307,7 @@ function KranePodList(props) {
   const handlePodDelete = () => {
     //listen for pods deleted
     ipcRenderer.on("deleted_pod", (event, arg) => {
-      // console.log("ARG ISSSSSS", arg);
-      let argArr = arg.split("");
-      // console.log("arg arr is", argArr);
-      let podUsageArray = [];
-
-      let pod = {};
-
-      let i: number = 0;
-
       //parse response to check if successful and if so, close modals and refresh list
-
-      // setPodsArr(filteredPods)
-      // window.location.reload(false);
-      //need to refresh/get nodes list again
-      // event.preventDefault = true
-
-      // const [, forceUpdate] = useReducer((x) => x + 1, 0);
-      // forceUpdate();
-      // () => {};
 
       let podsCommand = "kubectl get pods --all-namespaces -o wide";
       //send get pods o wide info commands
@@ -1396,7 +1342,7 @@ function KranePodList(props) {
     });
 
     let podDeleteCommand = `kubectl delete pod ${selectedPod[0]["name"]}`;
-    //send get pods o wide info commands
+    //send get delete pod command
     ipcRenderer.send("deletePod_command", {
       podDeleteCommand,
       currDir,
@@ -1411,7 +1357,50 @@ function KranePodList(props) {
       let tempPods = [...podsArr, ...kubeSystemPods];
       tempPods.sort((a, b) => a.index - b.index);
       // let tempPods = podsArr.filter((pod) => pod.namespace !== "kube-system");
-      // console.log(podsList)
+
+      if (sortedByDisplayArray[sortIncrement % 6] === "index") {
+        tempPods.sort((a, b) => a.index - b.index);
+      } else if (sortedByDisplayArray[sortIncrement % 6] === "max cpu") {
+        //reset to sorted by index
+        tempPods.sort((a, b) => a.index - b.index);
+
+        let numberArr = [];
+        let stringArr = [];
+        for (let k = 0; k < tempPods.length; k++) {
+         
+          if (typeof tempPods[k]["podCpuPercent"] === "number") {
+            numberArr.push(tempPods[k]);
+          } else stringArr.push(tempPods[k]);
+        }
+        numberArr.sort((a, b) => a["podCpuPercent"] - b["podCpuPercent"]);
+        tempPods = [...stringArr, ...numberArr];
+        tempPods.reverse();
+      } else if (sortedByDisplayArray[sortIncrement % 6] === "max memory") {
+        //reset to sorted by index
+        tempPods.sort((a, b) => a.index - b.index);
+        let numberArr = [];
+        let stringArr = [];
+        for (let k = 0; k < tempPods.length; k++) {
+       
+          if (typeof tempPods[k]["podMemoryPercent"] === "number") {
+            numberArr.push(tempPods[k]);
+          } else stringArr.push(tempPods[k]);
+        }
+        numberArr.sort((a, b) => a["podMemoryPercent"] - b["podMemoryPercent"]);
+        tempPods = [...stringArr, ...numberArr];
+        tempPods.reverse();
+       
+      } else {
+        //reset to sorted by index
+        tempPods.sort((a, b) => a.index - b.index);
+        //sort by whatever other propery name alphabeticcaly
+        tempPods.sort((a, b) =>
+          a[sortedByArray[sortIncrement % 6]].localeCompare(
+            b[sortedByArray[sortIncrement % 6]]
+          )
+        );
+      }
+
       setPodsArr([...tempPods]);
       // setPodsArr([...tempPods]);
     } else {
@@ -1421,7 +1410,7 @@ function KranePodList(props) {
       setPodsArr([...tempPods]);
     }
     setKubeSystemCheck(!kubeSystemCheck);
-    setSortedByDisplay(sortedByDisplayArray[0]);
+    // setSortedByDisplay(sortedByDisplayArray[0]);
   }
 
   //--------------------------------------------- end of expand pods section ---
