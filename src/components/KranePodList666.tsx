@@ -157,14 +157,15 @@ function KranePodList(props) {
 
   //Listen to "get pods" return event and set pods array
   ipcRenderer.on("got_pods", (event, arg) => {
-    console.log("ARG is", arg);
-    let argArr = arg.split("");
+    console.log("3", arg);
+    let argArr = arg[0].split("");
+    console.log("arg arr is", argArr);
     // console.log("argArr length is", argArr.length);
 
     let i: number = 0;
 
     //skip row of column titles
-    while (arg[i] !== "\n") {
+    while (argArr[i] !== "\n") {
       i++;
     }
     i++;
@@ -184,38 +185,38 @@ function KranePodList(props) {
       let readinessOutput: any = [];
 
       //saves namespaces
-      while (arg[i] !== " ") {
-        namespaceOutput.push(arg[i]);
+      while (argArr[i] !== " ") {
+        namespaceOutput.push(argArr[i]);
         i++;
       }
       //skips spaces
-      while (arg[i] === " ") {
+      while (argArr[i] === " ") {
         i++;
       }
 
       //saves name
-      while (arg[i] !== " ") {
-        nameOutput.push(arg[i]);
+      while (argArr[i] !== " ") {
+        nameOutput.push(argArr[i]);
         i++;
       }
       //skips spaces
-      while (arg[i] === " ") {
+      while (argArr[i] === " ") {
         i++;
       }
       //saves ready status
-      while (arg[i] !== " ") {
-        readyOutput.push(arg[i]);
+      while (argArr[i] !== " ") {
+        readyOutput.push(argArr[i]);
         i++;
       }
 
       //skips spaces
-      while (arg[i] === " ") {
+      while (argArr[i] === " ") {
         i++;
       }
 
       //saves status
-      while (arg[i] !== " ") {
-        statusOutput.push(arg[i]);
+      while (argArr[i] !== " ") {
+        statusOutput.push(argArr[i]);
         i++;
       }
 
@@ -230,19 +231,19 @@ function KranePodList(props) {
       }
 
       //skip spaces
-      while (arg[i] === " ") {
+      while (argArr[i] === " ") {
         i++;
       }
 
       // handle if no restarts then no last restart
-      if (arg[i] === "0") {
+      if (argArr[i] === "0") {
         restartsOutput = ["0"];
         lastRestartOutput = ["N", "/", "A"];
         i++;
       } else {
         //save first part of "restarts"
-        while (arg[i] !== " ") {
-          restartsOutput.push(arg[i]);
+        while (argArr[i] !== " ") {
+          restartsOutput.push(argArr[i]);
           i++;
         }
 
@@ -250,99 +251,99 @@ function KranePodList(props) {
         i += 2;
 
         // save last restart
-        while (arg[i] !== ")") {
-          lastRestartOutput.push(arg[i]);
+        while (argArr[i] !== ")") {
+          lastRestartOutput.push(argArr[i]);
           i++;
         }
         i++;
       }
 
       //skip spaces
-      while (arg[i] === " ") {
+      while (argArr[i] === " ") {
         i++;
       }
 
       //handle if age is 0
-      if (arg[i] === "0") {
+      if (argArr[i] === "0") {
         ageOutput = [...ageOutput, "0"];
       } else {
         //save age
         while (
-          arg[i] === "d" ||
-          arg[i] === "h" ||
-          arg[i] === "m" ||
-          arg[i] === "s" ||
-          arg[i] === "0" ||
-          arg[i] === "1" ||
-          arg[i] === "2" ||
-          arg[i] === "3" ||
-          arg[i] === "4" ||
-          arg[i] === "5" ||
-          arg[i] === "6" ||
-          arg[i] === "7" ||
-          arg[i] === "8" ||
-          (arg[i] === "9" && i < arg.length)
+          argArr[i] === "d" ||
+          argArr[i] === "h" ||
+          argArr[i] === "m" ||
+          argArr[i] === "s" ||
+          argArr[i] === "0" ||
+          argArr[i] === "1" ||
+          argArr[i] === "2" ||
+          argArr[i] === "3" ||
+          argArr[i] === "4" ||
+          argArr[i] === "5" ||
+          argArr[i] === "6" ||
+          argArr[i] === "7" ||
+          argArr[i] === "8" ||
+          (arg[i] === "9" && i < argArr.length)
         ) {
-          ageOutput.push(arg[i]);
+          ageOutput.push(argArr[i]);
           i++;
         }
       }
       //skip spaces after age before IP address
-      while (arg[i] === " ") {
+      while (argArr[i] === " ") {
         i++;
       }
 
       //save ip address
-      while (arg[i] !== " ") {
-        ipOutput.push(arg[i]);
+      while (argArr[i] !== " ") {
+        ipOutput.push(argArr[i]);
         i++;
       }
 
       //skip spaces after IP address before node
-      while (arg[i] === " ") {
+      while (argArr[i] === " ") {
         i++;
       }
 
       //save node
-      while (arg[i] !== " ") {
-        nodeOutput.push(arg[i]);
+      while (argArr[i] !== " ") {
+        nodeOutput.push(argArr[i]);
         i++;
       }
 
       //skip spaces after node before nominated node
-      while (arg[i] === " ") {
+      while (argArr[i] === " ") {
         i++;
       }
 
       //save nominated node
-      while (arg[i] !== " ") {
-        nominatedOutput.push(arg[i]);
+      while (argArr[i] !== " ") {
+        nominatedOutput.push(argArr[i]);
         i++;
       }
 
       //skip spaces after nominated node before readiness gates
-      while (arg[i] === " ") {
+      while (argArr[i] === " ") {
         i++;
       }
       //save readiness gates
       while (
-        arg[i] === "n" ||
-        arg[i] === "o" ||
-        arg[i] === "e" ||
-        arg[i] === "<" ||
-        arg[i] === ">" ||
-        arg[i] === "0" ||
-        arg[i] === "1" ||
-        arg[i] === "2" ||
-        arg[i] === "3" ||
-        arg[i] === "4" ||
-        arg[i] === "5" ||
-        arg[i] === "6" ||
-        arg[i] === "7" ||
-        arg[i] === "8" ||
-        arg[i] === "9"
+        argArr[i] === "n" ||
+        argArr[i] === "o" ||
+        argArr[i] === "e" ||
+        argArr[i] === "<" ||
+        argArr[i] === ">" ||
+        argArr[i] === "0" ||
+        argArr[i] === "1" ||
+        argArr[i] === "2" ||
+        argArr[i] === "3" ||
+        argArr[i] === "4" ||
+        argArr[i] === "5" ||
+        argArr[i] === "6" ||
+        argArr[i] === "7" ||
+        argArr[i] === "8" ||
+        argArr[i] === "9"
       ) {
-        readinessOutput.push(arg[i]);
+        readinessOutput.push(argArr[i]);
         i++;
       }
 
@@ -369,7 +370,7 @@ function KranePodList(props) {
       j++;
 
       podsArrOutput.push(pod);
-    } // ---------  end of for loop
+    } // ---------  end of for loop for arg1
 
     filteredPods = podsArrOutput.filter(
       (ele: any, ind: number) =>
@@ -377,105 +378,102 @@ function KranePodList(props) {
     );
 
     // console.log("filteredPods is", filteredPods);
-    setPodsArr([...filteredPods]);
-    // console.log("podsArr is", podsArr);
-  }); // --------------------------end of ipc render to get all pods o wide info  -
 
-  // ----------------------------------- Listen to "get cpuUsed" return event
-  ipcRenderer.on("got_cpuUsed", (event, arg) => {
-    // console.log("ARG ISSSSSS", arg);
-    let argArr = arg.split("");
+    // setPodsArr([...filteredPods]);
+
+    // --- BEGnning of arg2 / pod cpu usage parsing *************
+    let argArr2 = arg[1].split("");
     // console.log("arg arr is", argArr);
     let podUsageArray = [];
 
     let pod = {};
 
-    let i: number = 0;
+    i: 0;
 
     //skips row of column titles
-    while (argArr[i] !== "\n") {
+    while (argArr2[i] !== "\n") {
       i++;
     }
     i++;
 
     // //for loop to put all pods in array of objects
-    for (let j = 0; i < argArr.length; i++) {
+    for (let j = 0; i < argArr2.length; i++) {
       let podCpuUsedArr = [];
       let podMemoryUsedArr = [];
 
       //skips namespace because array order is same for both outputs
-      while (argArr[i] !== " ") {
+      while (argArr2[i] !== " ") {
         i++;
       }
 
       //skip spaces
-      while (argArr[i] === " ") {
+      while (argArr2[i] === " ") {
         i++;
       }
 
       //skips name because array order is same for both outputs
-      while (argArr[i] !== " ") {
+      while (argArr2[i] !== " ") {
         i++;
       }
 
       //skip spaces
-      while (argArr[i] === " ") {
+      while (argArr2[i] === " ") {
         i++;
       }
 
       //   // //save cpu(cores) to array to parse at end of loops
       // console.log("ARG ARR at i is", argArr[i]);
       while (
-        argArr[i] === "1" ||
-        argArr[i] === "2" ||
-        argArr[i] === "3" ||
-        argArr[i] === "4" ||
-        argArr[i] === "5" ||
-        argArr[i] === "6" ||
-        argArr[i] === "7" ||
-        argArr[i] === "8" ||
-        argArr[i] === "9" ||
-        argArr[i] === "0"
+        argArr2[i] === "1" ||
+        argArr2[i] === "2" ||
+        argArr2[i] === "3" ||
+        argArr2[i] === "4" ||
+        argArr2[i] === "5" ||
+        argArr2[i] === "6" ||
+        argArr2[i] === "7" ||
+        argArr2[i] === "8" ||
+        argArr2[i] === "9" ||
+        argArr2[i] === "0"
       ) {
-        podCpuUsedArr.push(argArr[i]);
+        podCpuUsedArr.push(argArr2[i]);
         i++;
       }
       i++;
 
       //skip spaces after number of cores
-      while (arg[i] !== " ") {
+      while (argArr2[i] !== " ") {
         i++;
       }
 
       //skip spaces
-      while (arg[i] === " ") {
+      while (argArr2[i] === " ") {
         i++;
       }
 
       //save memory used before unit of measure
       while (
-        argArr[i] === "1" ||
-        argArr[i] === "2" ||
-        argArr[i] === "3" ||
-        argArr[i] === "4" ||
-        argArr[i] === "5" ||
-        argArr[i] === "6" ||
-        argArr[i] === "7" ||
-        argArr[i] === "8" ||
-        argArr[i] === "9" ||
-        argArr[i] === "0"
+        argArr2[i] === "1" ||
+        argArr2[i] === "2" ||
+        argArr2[i] === "3" ||
+        argArr2[i] === "4" ||
+        argArr2[i] === "5" ||
+        argArr2[i] === "6" ||
+        argArr2[i] === "7" ||
+        argArr2[i] === "8" ||
+        argArr2[i] === "9" ||
+        argArr2[i] === "0"
       ) {
-        podMemoryUsedArr.push(arg[i]);
+        podMemoryUsedArr.push(argArr2[i]);
         i++;
       }
-      if (argArr[i] === "G") {
+      if (argArr2[i] === "G") {
         podMemoryUsedArr.push("0");
         podMemoryUsedArr.push("0");
         podMemoryUsedArr.push("0");
         podMemoryUsedArr.push("0");
         podMemoryUsedArr.push("0");
         podMemoryUsedArr.push("0");
-      } else if (argArr[i] === "M") {
+      } else if (argArr2[i] === "M") {
         podMemoryUsedArr.push("0");
         podMemoryUsedArr.push("0");
         podMemoryUsedArr.push("0");
@@ -483,7 +481,7 @@ function KranePodList(props) {
       i += 2;
 
       //skip spaces
-      while (arg[i] === " ") {
+      while (argArr2[i] === " ") {
         i++;
       }
       i++;
@@ -511,68 +509,64 @@ function KranePodList(props) {
         )
     );
 
-    setPodsArr([...filteredPods]);
+    // setPodsArr([...filteredPods]); ----- MAYBE KEEP?????????
 
     for (let j = 0; j < finalPodUsageArr.length; j++) {
       filteredPods[j]["podCpuUsed"] = finalPodUsageArr[j]["podCpuUsed"];
       filteredPods[j]["podMemoryUsed"] = finalPodUsageArr[j]["podMemoryUsed"];
     }
-    // console.log("filtered pods is", filteredPods);
-  }); // -------------------- end of ipc render function for get pods cpu used
 
-  //Listen to "get cpuUsed" return event
-  ipcRenderer.on("got_cpuLimits", (event, arg) => {
-    // console.log("ARG ISSSSSS", arg);
-    let argArr = arg.split("");
+    // BEGINNING OF arg3 / pod limits parsing **********************
+    let argArr3 = arg[2].split("");
     // console.log("arg arr is", argArr);
     let podLimitsArray = [];
 
-    let pod = {};
+    pod = {};
 
-    let i: number = 0;
+    i: 0;
 
     //skips row of column titles
-    while (argArr[i] !== "\n") {
+    while (argArr3[i] !== "\n") {
       i++;
     }
     i++;
 
     // //for loop to put all pods in array of objects
-    for (let j = 0; i < argArr.length; i++) {
+    for (let j = 0; i < argArr3.length; i++) {
       let podCpuLimitsArr = [];
       let podMemoryLimitsArr = [];
       let podNameArr = [];
 
       //take name because maybe be duplicate values
-      while (argArr[i] !== " ") {
-        podNameArr.push(argArr[i]);
+      while (argArr3[i] !== " ") {
+        podNameArr.push(argArr3[i]);
         i++;
       }
       //skip spaces
-      while (argArr[i] === " ") {
+      while (argArr3[i] === " ") {
         i++;
       }
 
       // console.log("I IS:", i, " .... ARG ARRAY AT I IS:", argArr[i]);
-      if (argArr[i] === "<") {
+      if (argArr3[i] === "<") {
         podCpuLimitsArr = ["N", "O", "N", "E"];
         i += 7;
       } else {
         //   //   // //save cpu-limits to array to parse at end of loops
         //   console.log("ARG ARR at i is", argArr[i]);
         while (
-          argArr[i] === "1" ||
-          argArr[i] === "2" ||
-          argArr[i] === "3" ||
-          argArr[i] === "4" ||
-          argArr[i] === "5" ||
-          argArr[i] === "6" ||
-          argArr[i] === "7" ||
-          argArr[i] === "8" ||
-          argArr[i] === "9" ||
-          argArr[i] === "0"
+          argArr3[i] === "1" ||
+          argArr3[i] === "2" ||
+          argArr3[i] === "3" ||
+          argArr3[i] === "4" ||
+          argArr3[i] === "5" ||
+          argArr3[i] === "6" ||
+          argArr3[i] === "7" ||
+          argArr3[i] === "8" ||
+          argArr3[i] === "9" ||
+          argArr3[i] === "0"
         ) {
-          podCpuLimitsArr.push(argArr[i]);
+          podCpuLimitsArr.push(argArr3[i]);
           i++;
         }
         // console.log("podCpuLimitsArr is", podCpuLimitsArr);
@@ -580,43 +574,43 @@ function KranePodList(props) {
       }
 
       //skip spaces after cpu limt value
-      while (arg[i] !== " ") {
+      while (argArr3[i] !== " ") {
         i++;
       }
 
       //skip spaces
-      while (arg[i] === " ") {
+      while (argArr3[i] === " ") {
         i++;
       }
 
-      if (argArr[i] === "<") {
+      if (argArr3[i] === "<") {
         podMemoryLimitsArr = ["N", "O", "N", "E"];
         i += 6;
       } else {
         //save memory limit before unit of measure
         while (
-          argArr[i] === "1" ||
-          argArr[i] === "2" ||
-          argArr[i] === "3" ||
-          argArr[i] === "4" ||
-          argArr[i] === "5" ||
-          argArr[i] === "6" ||
-          argArr[i] === "7" ||
-          argArr[i] === "8" ||
-          argArr[i] === "9" ||
-          argArr[i] === "0"
+          argArr3[i] === "1" ||
+          argArr3[i] === "2" ||
+          argArr3[i] === "3" ||
+          argArr3[i] === "4" ||
+          argArr3[i] === "5" ||
+          argArr3[i] === "6" ||
+          argArr3[i] === "7" ||
+          argArr3[i] === "8" ||
+          argArr3[i] === "9" ||
+          argArr3[i] === "0"
         ) {
-          podMemoryLimitsArr.push(arg[i]);
+          podMemoryLimitsArr.push(argArr3[i]);
           i++;
         }
-        if (argArr[i] === "G") {
+        if (argArr3[i] === "G") {
           podMemoryLimitsArr.push("0");
           podMemoryLimitsArr.push("0");
           podMemoryLimitsArr.push("0");
           podMemoryLimitsArr.push("0");
           podMemoryLimitsArr.push("0");
           podMemoryLimitsArr.push("0");
-        } else if (argArr[i] === "M") {
+        } else if (argArr3[i] === "M") {
           podMemoryLimitsArr.push("0");
           podMemoryLimitsArr.push("0");
           podMemoryLimitsArr.push("0");
@@ -705,6 +699,19 @@ function KranePodList(props) {
       );
       setPodsArr([...kubeFilteredPods]);
     }
+
+    // console.log("podsArr is", podsArr);
+  }); // --------------------------end of ipc render to get all pods o wide info  -
+
+  // ----------------------------------- Listen to "get cpuUsed" return event
+  ipcRenderer.on("got_cpuUsed", (event, arg) => {
+    // console.log("ARG ISSSSSS", arg);
+    // console.log("filtered pods is", filteredPods);
+  }); // -------------------- end of ipc render function for get pods cpu used
+
+  //Listen to "get cpuUsed" return event
+  ipcRenderer.on("got_cpuLimits", (event, arg) => {
+    // console.log("ARG ISSSSSS", arg);
   }); //-------------------   end of ipc render function to get podcpu and memory limits
 
   useEffect(() => {
@@ -714,25 +721,6 @@ function KranePodList(props) {
       podsCommand,
       currDir,
     });
-
-    //---------------------------------------- beginnging get all pods cpu and memory usage section -
-    let CpuUsedCommand = `kubectl top pods --all-namespaces`;
-    setTimeout(() => {
-      ipcRenderer.send("getCpuUsed_command", {
-        CpuUsedCommand,
-        currDir,
-      });
-    }, 500);
-
-    // ----------------------------------------------- Beginning of get pod cpu and memory limits section
-
-    let cpuLimitsCommand = `kubectl get po --all-namespaces -o custom-columns="Name:metadata.name,CPU-limit:spec.containers[*].resources.limits.cpu",Memory-limit:"spec.containers[*].resources.limits.memory"`;
-    setTimeout(() => {
-      ipcRenderer.send("getCpuLimits_command", {
-        cpuLimitsCommand,
-        currDir,
-      });
-    }, 1000);
   }, []); // end of use effect to get pods info on page open
 
   //------------------------------------------------------------- END OF GET ALL POD INFO SECTION ---
@@ -777,19 +765,19 @@ function KranePodList(props) {
 
   const sortedByArray = [
     "index",
+    "namespace",
+    "node",
     "podCpuPercent",
     "podMemoryPercent",
     "name",
-    "namespace",
-    "node",
   ];
   const sortedByDisplayArray = [
     "index",
+    "namespace",
+    "node",
     "max cpu",
     "max memory",
     "name",
-    "namespace",
-    "node",
   ];
 
   function handleSort(event) {
@@ -1528,17 +1516,11 @@ function KranePodList(props) {
                   position: "relative",
                   top: "-48px",
                   left: "5px",
-                  fontSize: !podsArr[i]["podCpuLimit"]
-                    ? "13px"
-                    : podsArr[i]["podCpuLimit"] === "NONE"
-                    ? "13px"
-                    : "16px",
+                  fontSize:
+                    podsArr[i]["podCpuLimit"] === "NONE" ? "13px" : "16px",
                   fontWeight: "500",
-                  marginTop: !podsArr[i]["podCpuLimit"]
-                    ? "-55px"
-                    : podsArr[i]["podCpuLimit"] === "NONE"
-                    ? "-55px"
-                    : "-60px",
+                  marginTop:
+                    podsArr[i]["podCpuLimit"] === "NONE" ? "-55px" : "-60px",
                   marginLeft: "-8px",
                   // border: "2px solid red",
                   color: `${PodCpuPercentColor}`,
@@ -1639,16 +1621,10 @@ function KranePodList(props) {
                   left: "5px",
                   fontWeight: "500",
                   marginLeft: "-10px",
-                  fontSize: !podsArr[i]["podMemoryLimit"]
-                    ? "13px"
-                    : podsArr[i]["podMemoryLimit"] === "NONE"
-                    ? "13px"
-                    : "16px",
-                  marginTop: !podsArr[i]["podMemoryLimit"]
-                    ? "-55px"
-                    : podsArr[i]["podMemoryLimit"] === "NONE"
-                    ? "-55px"
-                    : "-60px",
+                  fontSize:
+                    podsArr[i]["podMemoryLimit"] === "NONE" ? "13px" : "16px",
+                  marginTop:
+                    podsArr[i]["podMemoryLimit"] === "NONE" ? "-55px" : "-60px",
                   // border: "2px solid red",
                   color: `${PodMemoryPercentColor}`,
                 }}

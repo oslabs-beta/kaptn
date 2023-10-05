@@ -178,6 +178,7 @@ function KraneNodeList() {
         i++;
       }
       let node = {
+        index: j,
         name: nameOutput.join(""),
         status: statusOutput.join(""),
         role: roleOutput.join(""),
@@ -197,6 +198,7 @@ function KraneNodeList() {
       };
 
       filteredNodes.push(node);
+      j++;
       // console.log("arg Arr is", argArr);
     } // ---------- end of for loop
 
@@ -224,46 +226,11 @@ function KraneNodeList() {
 
     let i: number = 0;
 
-    //skips "name"
-    while (argArr[i] !== " ") {
-      i++;
-    }
-
-    //skips spaces
-    while (argArr[i] === " ") {
-      i++;
-    }
-    //skips "CPU(cores)"
-    while (argArr[i] !== " ") {
-      i++;
-    }
-    //skips spaces
-    while (argArr[i] === " ") {
-      i++;
-    }
-    //skips "CPU%"
-    while (argArr[i] !== " ") {
-      i++;
-    }
-    //skips spaces
-    while (argArr[i] === " ") {
-      i++;
-    }
-
-    //skips "memory(bytes)"
-    while (argArr[i] !== " ") {
-      i++;
-    }
-    //skips spaces
-    while (argArr[i] === " ") {
-      i++;
-    }
-    //skips "Memory%"
+    //skips row of column titles
     while (argArr[i] !== "\n") {
       i++;
     }
     i++;
-    // console.log("arg Arr is", argArr);
 
     // //for loop to put all pods in array of objects
     for (let j = 0; i < argArr.length; i++) {
@@ -912,8 +879,8 @@ function KraneNodeList() {
                   value={
                     // nodesArr[i]["nodeMemoryLimit"] === "NONE"
                     //   ? 0
-                    //   : Number(`${nodesArr[i]["nodeMemoryPercent"]}`) 
-                      49 * 0.73
+                    //   : Number(`${nodesArr[i]["nodeMemoryPercent"]}`)
+                    49 * 0.73
                   }
                   style={{
                     position: "relative",

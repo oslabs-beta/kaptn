@@ -20,7 +20,7 @@ function Start() {
   const [kubectlServerVersion, setKubectlServerVersion] = useState("");
 
   const [metricsCheckStatus, setMetricsCheckStatus] = useState("checking");
-  const [metricsVersion, setMetricsVersion] = useState("");
+  // const [metricsVersion, setMetricsVersion] = useState("");
 
   const [promGrafCheckStatus, setPromGrafCheckStatus] = useState("checking");
   const [grafVersion, setGrafVersion] = useState("");
@@ -79,9 +79,13 @@ function Start() {
     // console.log("attempted to check if metrics installed:", arg);
     if (!arg.length) {
       //metrics not installed, save metrics status as not installed
+      setTimeout(() => {
+        // setMetricsVersion("installed");
+        setMetricsCheckStatus("not_installed");
+      }, 1500);
     } else {
       setTimeout(() => {
-        setMetricsVersion("installed");
+        // setMetricsVersion("installed");
         setMetricsCheckStatus("installed");
       }, 1500);
     }
@@ -115,7 +119,18 @@ function Start() {
     }
     //need to parse json object below this line and save client and server versions for when you dont have version +-1 sync warning (like i currently do).
     else if (typeof arg === "object") {
-      //parse json object
+      //parse json object potentially, but for now just setting to installed without number to hopefully allow all json returns to move forward without confusion.
+      setTimeout(() => {
+        setKubectlCheckStatus("InstalledUncertain");
+      }, 800);
+    } else if (arg[0] === "e" && arg[1] === "r" && arg[2] === "r") {
+      setTimeout(() => {
+        setKubectlCheckStatus("not_installed");
+      }, 800);
+    } else {
+      setTimeout(() => {
+        setKubectlCheckStatus("CannotDetect");
+      }, 800);
     }
   });
 
@@ -163,6 +178,23 @@ function Start() {
         />
       </div>
     );
+  } else if (kubectlCheckStatus === "InstalledUncertain") {
+    kubectlInstalledDiv = (
+      <div
+        style={{
+          fontSize: "11px",
+          // border: "1px solid green",
+          display: "flex",
+          flexDirection: "row",
+        }}
+      >
+        kubectl commands found
+        <CheckIcon
+          fontSize="small"
+          style={{ margin: "-1px 0 0 5px", color: "lightgreen" }}
+        />
+      </div>
+    );
   } else if (kubectlCheckStatus === "checking") {
     kubectlInstalledDiv = (
       <div
@@ -174,6 +206,32 @@ function Start() {
         }}
       >
         ... checking if kubectl commands are installed ...
+      </div>
+    );
+  } else if (kubectlCheckStatus === "not_installed") {
+    kubectlInstalledDiv = (
+      <div
+        style={{
+          fontSize: "11px",
+          // border: "1px solid green",
+          display: "flex",
+          flexDirection: "row",
+        }}
+      >
+        kubectl commands not found. Please install using the link to the right.
+      </div>
+    );
+  } else if (kubectlCheckStatus === "CannotDetect") {
+    kubectlInstalledDiv = (
+      <div
+        style={{
+          fontSize: "11px",
+          // border: "1px solid green",
+          display: "flex",
+          flexDirection: "row",
+        }}
+      >
+        Warning: If you not installed kubectl, please use the link to the right.
       </div>
     );
   }
@@ -207,9 +265,37 @@ function Start() {
         }}
       >
         Metrics server not installed. Kluster Manager requires metrics.{" "}
-        <a href="" style={{ marginLeft: "2px", color: "lightgreen" }}>
+        <div
+          id="metrics_install_link"
+          onClick={handleInstallMetrics}
+          style={{ marginLeft: "2px", color: "lightgreen" }}
+        >
           Install metrics server now
+        </div>
+      </div>
+    );
+  } else if (metricsCheckStatus === "now_installed") {
+    metricsInstalledDiv = (
+      <div
+        style={{
+          fontSize: "11px",
+          // border: "1px solid green",
+          display: "flex",
+          flexDirection: "row",
+        }}
+      >
+        metrics server install attempted. if problems persist, visit{" "}
+        <a
+          href="https://github.com/kubernetes-sigs/metrics-server"
+          target="blank"
+          style={{ margin: "0px 0 0 3px", color: "lightgreen" }}
+        >
+          this link
         </a>
+        <CheckIcon
+          fontSize="small"
+          style={{ margin: "-1px 0 0 5px", color: "lightgreen" }}
+        />
       </div>
     );
   } else if (metricsCheckStatus === "checking") {
@@ -340,10 +426,23 @@ function Start() {
   //   currDir,
   // });
 
-  // ipcRenderer.on("installed_metrics", (event, arg) => {
-  //   argOut = arg;
-  //   console.log("attempted to install metrics server:", arg);
-  // });
+  ipcRenderer.on("installed_metrics", (event, arg) => {
+    argOut = arg;
+    console.log("attempted to install metrics server:", arg);
+    setMetricsCheckStatus("now_installed");
+  });
+
+  function handleInstallMetrics() {
+    let kubectlMetricsServerInstallCommand =
+      "kubectl apply -f https://raw.githubusercontent.com/pythianarora/total-practice/master/sample-kubernetes-code/metrics-server.yaml";
+
+    let currDir = "NONE SELECTED";
+
+    ipcRenderer.send("install_metrics_server_command", {
+      kubectlMetricsServerInstallCommand,
+      currDir,
+    });
+  }
 
   return (
     <>

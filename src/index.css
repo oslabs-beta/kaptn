@@ -15,6 +15,11 @@ body {
   cursor: pointer;
 }
 
+/* make metrics install link a cursor on hover */
+#metrics_install_link:hover {
+  cursor: pointer;
+}
+
 /* Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
