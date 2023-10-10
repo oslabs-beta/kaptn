@@ -12,6 +12,7 @@ import Tooltip, { TooltipProps, tooltipClasses } from "@mui/material/Tooltip";
 import LightbulbIcon from "@mui/icons-material/Lightbulb";
 import { styled } from "@mui/material/styles";
 import { JsxElement } from "typescript";
+import SortIcon from "@mui/icons-material/Sort";
 
 const LightTooltip = styled(({ className, ...props }: TooltipProps) => (
   <Tooltip {...props} classes={{ popper: className }} />
@@ -157,7 +158,7 @@ function KranePodList(props) {
 
   //Listen to "get pods" return event and set pods array
   ipcRenderer.on("got_pods", (event, arg) => {
-    console.log("ARG is", arg);
+    // console.log("ARG is", arg);
     let argArr = arg.split("");
     // console.log("argArr length is", argArr.length);
 
@@ -772,11 +773,11 @@ function KranePodList(props) {
     },
   ]);
 
-  const [sortedBy, setSortedBy] = useState("index");
-  const [sortedByDisplay, setSortedByDisplay] = useState("index");
+  const [sortedBy, setSortedBy] = useState("");
+  const [sortedByDisplay, setSortedByDisplay] = useState("");
 
   const sortedByArray = [
-    "index",
+    "",
     "podCpuPercent",
     "podMemoryPercent",
     "name",
@@ -784,7 +785,7 @@ function KranePodList(props) {
     "node",
   ];
   const sortedByDisplayArray = [
-    "index",
+    "",
     "max cpu",
     "max memory",
     "name",
@@ -806,7 +807,7 @@ function KranePodList(props) {
     // console.log("sortedByArray[index] is: ", sortedByArray[thisIndex]);
     // console.log("index is: ", thisIndex);
 
-    if (sortedByDisplayArray[thisIndex] === "index") {
+    if (sortedByDisplayArray[thisIndex] === "") {
       tempPods.sort((a, b) => a.index - b.index);
     } else if (sortedByDisplayArray[thisIndex] === "max cpu") {
       //reset to sorted by index
@@ -914,7 +915,7 @@ function KranePodList(props) {
       }
       i++;
 
-      console.log("ARG SPLIT ISSSSSS", argArr);
+      // console.log("ARG SPLIT ISSSSSS", argArr);
 
       for (let j = 0; i < argArr.length; i++) {
         let podName = "";
@@ -986,7 +987,7 @@ function KranePodList(props) {
         };
 
         output.push(container);
-        console.log("output is: ", output);
+        // console.log("output is: ", output);
       } //end of for loop over containers
 
       setSelectedPodContainers(output);
@@ -1181,7 +1182,7 @@ function KranePodList(props) {
       tempPods.sort((a, b) => a.index - b.index);
 
       // after merging and sorting by index, check sortBy status and re-sort based on that
-      if (sortedByDisplayArray[sortIncrement % 6] === "index") {
+      if (sortedByDisplayArray[sortIncrement % 6] === "") {
         tempPods.sort((a, b) => a.index - b.index);
       } else if (sortedByDisplayArray[sortIncrement % 6] === "max cpu") {
         //reset to sorted by index
@@ -2197,40 +2198,7 @@ function KranePodList(props) {
             >
               PODS
             </div>
-            <div
-              style={{
-                // fontFamily: "Outfit",
-                fontSize: "9px",
-                fontWeight: "900",
-                letterSpacing: "2px",
-                // border: "1px solid white",
-                height: "5px",
-                textAlign: "left",
-                // color: "#ffffff99",
-                marginTop: "26px",
-                marginLeft: "10px",
-              }}
-            >
-              SORTED BY: {}
-            </div>
-            <Button
-              onClick={handleSort}
-              style={{
-                // fontFamily: "Outfit",
-                fontSize: "9px",
-                fontWeight: "900",
-                letterSpacing: "2px",
-                border: "1px solid",
-                height: "8px",
-                textAlign: "left",
-                // color: "#ffffff99",
-                marginTop: "24px",
-                marginLeft: "5px",
-                padding: "7px 5px 7px 5px",
-              }}
-            >
-              {sortedByDisplay}
-            </Button>
+           
           </div>
           <div
             style={{
@@ -2302,27 +2270,53 @@ function KranePodList(props) {
         <div
           style={{
             display: "flex",
-            justifyContent: "flex-end",
+            justifyContent: "space-between",
             margin: "-4px 40px 0px 0px",
           }}
         >
-          {" "}
-          <div
+          <Button
+            onClick={handleSort}
             style={{
-              fontSize: "10px",
-              margin: "8px 0 0 0",
-              color: "#ffffff99",
+              display: "flex",
+
+              // fontFamily: "Outfit",
+              fontSize: "9px",
+              fontWeight: "900",
+              letterSpacing: ".5px",
+              border: "1px solid",
+              height: "16px",
+              textAlign: "left",
+              color: sortedByDisplay === "" ? "#ffffff99" : "",
+              marginTop: "12px",
+              marginLeft: "70px",
+              padding: "8px 4px 8px 6px",
+              marginBottom:"12px"
             }}
           >
-            show kube-system
+            SORT BY{" "}
+            <SortIcon style={{ width: "12px", margin: "0 4px 0 3px" }} />{" "}
+            {sortedByDisplay}
+          </Button>{" "}
+          <div style={{display:"flex"}}>
+            {" "}
+            <div
+              style={{
+                fontSize: "10px",
+                margin: "10.5px 0 0 0",
+                color: "#ffffff99",
+              }}
+            >
+              show kube-system
+            </div>
+            <Checkbox
+              //@ts-ignore
+              size="small"
+              value="start"
+              checked={kubeSystemCheck}
+              onChange={handleKubeSystemChange}
+              style={{marginTop:"-7px"}}
+            />
           </div>
-          <Checkbox
-            //@ts-ignore
-            size="smaller"
-            value="start"
-            checked={kubeSystemCheck}
-            onChange={handleKubeSystemChange}
-          />
         </div>
         <div
           style={{
@@ -2675,7 +2669,7 @@ function KranePodList(props) {
 
                             width: "180px",
                             // border: "1px solid red",
-                            filter: "drop-shadow(10px 10px 10px #000000)",
+                            // filter: "drop-shadow(10px 10px 10px #000000)",
                           }}
                         />
                         <CircularProgress
@@ -2708,7 +2702,7 @@ function KranePodList(props) {
                             width: "180px",
 
                             // border: "1px solid red",
-                            filter: "drop-shadow(10px 10px 10px #000000)",
+                            // filter: "drop-shadow(10px 10px 10px #000000)",
                           }}
                         />
                         <div
@@ -2809,7 +2803,7 @@ function KranePodList(props) {
                         onClick={handlePodLogOpen}
                         style={{
                           width: "250px",
-                          border: "1px solid white",
+                          border: "1px solid",
                           fontSize: "14px",
                         }}
                       >
@@ -2835,7 +2829,7 @@ function KranePodList(props) {
                         onClick={handlePodYamlOpen}
                         style={{
                           width: "250px",
-                          border: "1px solid white",
+                          border: "1px solid",
                           fontSize: "14px",
                           margin: "0 10px 0 25px",
                         }}
@@ -2862,7 +2856,7 @@ function KranePodList(props) {
                         onClick={handlePodDeleteOpen}
                         style={{
                           width: "250px",
-                          border: "1px solid white",
+                          border: "1px solid",
                           fontSize: "14px",
                           margin: "0 10px 0 15px",
                         }}
@@ -3008,7 +3002,7 @@ function KranePodList(props) {
   }
 
   // console.log("selected pod 3 is ", selectedPod);
-  console.log(kubeSystemPods);
+  // console.log(kubeSystemPods);
 
   return (
     <>

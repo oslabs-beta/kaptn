@@ -34,7 +34,7 @@ function Start() {
     "kubectl get pods --all-namespaces | grep metrics-server";
 
   ipcRenderer.on("checked_promgraf_installed", (event, arg) => {
-    console.log("attempted to check if promgraf installed:", arg);
+    // console.log("attempted to check if promgraf installed:", arg);
     for (let i = 0; i < arg.length; i++) {
       if (
         arg[i] === "g" &&
@@ -108,10 +108,10 @@ function Start() {
         i++;
       }
       setKubectlClientVersion(`${kubectlClientVersionArr.join("")}`);
-      console.log("kubectl client is:", kubectlClientVersion);
+      // console.log("kubectl client is:", kubectlClientVersion);
 
       setKubectlServerVersion(`${kubectlServerVersionArr.join("")}`);
-      console.log("kubectl server is:", kubectlServerVersion);
+      // console.log("kubectl server is:", kubectlServerVersion);
 
       setTimeout(() => {
         setKubectlCheckStatus("Installed");
@@ -428,7 +428,7 @@ function Start() {
 
   ipcRenderer.on("installed_metrics", (event, arg) => {
     argOut = arg;
-    console.log("attempted to install metrics server:", arg);
+    // console.log("attempted to install metrics server:", arg);
     setMetricsCheckStatus("now_installed");
   });
 
@@ -714,7 +714,7 @@ function Start() {
                       letterSpacing: "1px",
                     }}
                   >
-                    <div>KLUSTER MANAGER</div>
+                    <div>KAPTN KRANE — NEW!</div>
 
                     <div
                       style={{

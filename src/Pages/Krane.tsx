@@ -122,7 +122,7 @@ function KlusterManager() {
             overflow: "hidden",
             alignItems: "center",
             marginLeft: "0px",
-            marginTop: "50px",
+            marginTop: "30px",
             marginBottom: "20px",
             textAlign: "center",
             width: "100%",
@@ -133,34 +133,38 @@ function KlusterManager() {
             style={{
               fontFamily: "Outfit",
               fontWeight: "800",
-              fontSize: "43px",
+              fontSize: "58px",
               justifyContent: "flex-start",
 
               overflowY: "hidden",
               alignItems: "center",
               width: "100%",
-              letterSpacing: "1px",
+              letterSpacing: "0px",
               color: theme.palette.mode === "dark" ? "white" : "#6466b2",
               // border: "1px solid pink",
+              textShadow:
+                theme.palette.mode === "dark"
+                  ? "5px 5px 2px #00000060"
+                  : "5px 5px 1px #00000020",
             }}
           >
-            KLUSTER MANAGER
+            kaptn krane
           </div>
           <div
             style={{
               // fontFamily: 'Outfit',
               fontWeight: "400",
-              fontSize: "14px",
+              fontSize: "16px",
               alignItems: "center",
               justifyContent: "flex-start",
               marginBottom: "10px",
               width: "100%",
-              letterSpacing: "1px",
+              letterSpacing: ".25px",
               color: theme.palette.mode === "dark" ? "white" : "grey",
               // border: "1px solid green",
             }}
           >
-            MANAGE YOUR CLUSTERS AND CONTAINERS
+            Easily manage your clusters, nodes, and containers.
           </div>
           <div>
             {" "}
