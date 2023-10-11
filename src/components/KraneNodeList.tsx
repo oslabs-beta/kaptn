@@ -609,13 +609,11 @@ function KraneNodeList() {
             border:
               theme.palette.mode === "dark"
                 ? "1.3px solid white"
-                : "1.3px solid grey",
+                : "1.3px solid #00000025",
             borderRadius: "5px",
             boxShadow:
-              theme.palette.mode === "dark"
-                ? "10px 9px 2px #00000060"
-                : "10px 10px 1px #00000020",
-            background: theme.palette.mode === "dark" ? "#0e0727" : "#e6e1fb",
+              theme.palette.mode === "dark" ? "10px 9px 2px #00000060" : "",
+            background: theme.palette.mode === "dark" ? "#0e0727" : "#e6e1fb80",
           }}
         >
           {" "}
@@ -778,11 +776,12 @@ function KraneNodeList() {
                     marginTop: "18px",
                     marginLeft: "10.5px",
                     rotate: "-131deg",
-                    color: "#ffffff40",
+                    color:
+                    theme.palette.mode === "dark" ? "#ffffff40" : "#00000015",
 
                     width: "68px",
                     // border: "1px solid red",
-                    filter: "drop-shadow(10px 10px 10px #000000)",
+                    // filter: "drop-shadow(10px 10px 10px #000000)",
                   }}
                 />
                 <CircularProgress
@@ -804,7 +803,7 @@ function KraneNodeList() {
 
                     width: "68px",
                     // border: "1px solid red",
-                    filter: "drop-shadow(10px 10px 10px #000000)",
+                    // filter: "drop-shadow(10px 10px 10px #000000)",
                   }}
                 />
               </div>
@@ -875,11 +874,11 @@ function KraneNodeList() {
                     marginTop: "18px",
                     marginLeft: "9.5px",
                     rotate: "-131deg",
-                    color: "#ffffff40",
-
+                    color:
+                    theme.palette.mode === "dark" ? "#ffffff40" : "#00000015",
                     width: "68px",
                     // border: "1px solid red",
-                    filter: "drop-shadow(10px 10px 10px #000000)",
+                    // filter: "drop-shadow(10px 10px 10px #000000)",
                   }}
                 />
                 <CircularProgress
@@ -901,7 +900,7 @@ function KraneNodeList() {
 
                     width: "68px",
                     // border: "1px solid red",
-                    filter: "drop-shadow(10px 10px 10px #000000)",
+                    // filter: "drop-shadow(10px 10px 10px #000000)",
                   }}
                 />
               </div>
@@ -974,6 +973,7 @@ function KraneNodeList() {
                 textAlign: "left",
                 // color: "#ffffff",
                 paddingTop: "10px",
+                color: theme.palette.mode === "dark" ? "" : "#6d6fb4",
               }}
             >
               NODES
@@ -1039,7 +1039,8 @@ function KraneNodeList() {
             style={{
               height: "1px",
               width: "975px",
-              backgroundColor: "#ffffff99",
+              backgroundColor:
+                theme.palette.mode === "dark" ? "#ffffff99" : "#6d6fb4",
               // border: "1px solid white",
               // marginRight: "50px",
               marginTop: "0px",
@@ -1082,7 +1083,7 @@ function KraneNodeList() {
               style={{
                 fontSize: "10px",
                 margin: "10.5px 0 0 0",
-                color: "#ffffff99",
+                color: theme.palette.mode === "dark" ? "#ffffff99" : "grey",
               }}
             >
               show kube-system
@@ -1093,7 +1094,10 @@ function KraneNodeList() {
               value="start"
               // checked={kubeSystemCheck}
               // onChange={handleKubeSystemChange}
-              style={{ marginTop: "-7px" }}
+              style={{
+                marginTop: "-7px",
+                color: theme.palette.mode === "dark" ? "" : "#00000050",
+              }}
             />
           </div>
         </div>

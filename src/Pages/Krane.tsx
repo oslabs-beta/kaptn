@@ -41,6 +41,7 @@ let filteredPods: any = [];
 function KlusterManager() {
   const [launch, setLaunch] = useState<boolean>(false);
   const [podsArr, setPodsArr] = useState([]);
+  // const [currDir, setCurrDir] = useState("NONE SELECTED");
 
   let podsCommand = "kubectl get pods";
 
@@ -122,7 +123,7 @@ function KlusterManager() {
             overflow: "hidden",
             alignItems: "center",
             marginLeft: "0px",
-            marginTop: "30px",
+            marginTop: "35px",
             marginBottom: "20px",
             textAlign: "center",
             width: "100%",
@@ -135,7 +136,7 @@ function KlusterManager() {
               fontWeight: "800",
               fontSize: "58px",
               justifyContent: "flex-start",
-
+              userSelect: "none",
               overflowY: "hidden",
               alignItems: "center",
               width: "100%",
@@ -143,9 +144,7 @@ function KlusterManager() {
               color: theme.palette.mode === "dark" ? "white" : "#6466b2",
               // border: "1px solid pink",
               textShadow:
-                theme.palette.mode === "dark"
-                  ? "5px 5px 2px #00000060"
-                  : "5px 5px 1px #00000020",
+                theme.palette.mode === "dark" ? "5px 5px 2px #00000060" : "",
             }}
           >
             kaptn krane
@@ -154,14 +153,17 @@ function KlusterManager() {
             style={{
               // fontFamily: 'Outfit',
               fontWeight: "400",
-              fontSize: "16px",
+              fontSize: "14.5px",
               alignItems: "center",
               justifyContent: "flex-start",
+              userSelect: "none",
               marginBottom: "10px",
               width: "100%",
-              letterSpacing: ".25px",
+              letterSpacing: "-.1px",
               color: theme.palette.mode === "dark" ? "white" : "grey",
               // border: "1px solid green",
+              textShadow:
+                theme.palette.mode === "dark" ? "2px 2px 2px #00000040" : "",
             }}
           >
             Easily manage your clusters, nodes, and containers.

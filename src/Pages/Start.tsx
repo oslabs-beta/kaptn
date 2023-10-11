@@ -168,6 +168,7 @@ function Start() {
           // border: "1px solid green",
           display: "flex",
           flexDirection: "row",
+          color: theme.palette.mode === "dark" ? "" :  "#3c3c9a",
         }}
       >
         kubectl client v{kubectlClientVersion} and server v
@@ -186,6 +187,7 @@ function Start() {
           // border: "1px solid green",
           display: "flex",
           flexDirection: "row",
+          color: theme.palette.mode === "dark" ? "" :  "#3c3c9a",
         }}
       >
         kubectl commands found
@@ -203,6 +205,7 @@ function Start() {
           // border: "1px solid green",
           display: "flex",
           flexDirection: "row",
+          color: theme.palette.mode === "dark" ? "" :  "#3c3c9a",
         }}
       >
         ... checking if kubectl commands are installed ...
@@ -216,6 +219,7 @@ function Start() {
           // border: "1px solid green",
           display: "flex",
           flexDirection: "row",
+          color: theme.palette.mode === "dark" ? "" :  "#3c3c9a",
         }}
       >
         kubectl commands not found. Please install using the link to the right.
@@ -229,6 +233,7 @@ function Start() {
           // border: "1px solid green",
           display: "flex",
           flexDirection: "row",
+          color: theme.palette.mode === "dark" ? "" :  "#3c3c9a",
         }}
       >
         Warning: If you not installed kubectl, please use the link to the right.
@@ -245,6 +250,7 @@ function Start() {
           // border: "1px solid green",
           display: "flex",
           flexDirection: "row",
+          color: theme.palette.mode === "dark" ? "" :  "#3c3c9a",
         }}
       >
         metrics server found{" "}
@@ -262,6 +268,7 @@ function Start() {
           // border: "1px solid green",
           display: "flex",
           flexDirection: "row",
+          color: theme.palette.mode === "dark" ? "" :  "#3c3c9a",
         }}
       >
         Metrics server not installed. Kluster Manager requires metrics.{" "}
@@ -282,6 +289,7 @@ function Start() {
           // border: "1px solid green",
           display: "flex",
           flexDirection: "row",
+          color: theme.palette.mode === "dark" ? "" :  "#3c3c9a",
         }}
       >
         metrics server install attempted. if problems persist, visit{" "}
@@ -306,6 +314,7 @@ function Start() {
           // border: "1px solid green",
           display: "flex",
           flexDirection: "row",
+          color: theme.palette.mode === "dark" ? "" :  "#3c3c9a",
         }}
       >
         ... checking if metrics server is installed ...
@@ -322,6 +331,7 @@ function Start() {
           // border: "1px solid green",
           display: "flex",
           flexDirection: "row",
+          color: theme.palette.mode === "dark" ? "" :  "#3c3c9a",
         }}
       >
         prometheus and grafana not found. Install on the Metrics Visualizer
@@ -336,6 +346,7 @@ function Start() {
           // border: "1px solid green",
           display: "flex",
           flexDirection: "row",
+          color: theme.palette.mode === "dark" ? "" :  "#3c3c9a",
         }}
       >
         grafana and prometheus found{" "}
@@ -353,6 +364,7 @@ function Start() {
           // border: "1px solid green",
           display: "flex",
           flexDirection: "row",
+          color: theme.palette.mode === "dark" ? "" :  "#3c3c9a",
         }}
       >
         ... checking if prometheus and grafana are installed ...
@@ -579,14 +591,17 @@ function Start() {
                 fontWeight: 300,
                 fontSize: "32px",
                 letterSpacing: ".05px",
-                color: "#f5f5f5",
+                color: theme.palette.mode === "dark" ? "#f5f5f5" : "#3c3c9a",
                 textDecoration: "none",
                 mt: 2,
                 mb: 8,
                 mr: 3,
                 ml: 3,
                 zIndex: "130",
-                textShadow: "1px 1px 5px rgb(0, 0, 0, 0.3)",
+                textShadow:
+                  theme.palette.mode === "dark"
+                    ? "1px 1px 5px rgb(0, 0, 0, 0.3)"
+                    : "",
               }}
             >
               {" "}
@@ -603,19 +618,25 @@ function Start() {
                 fontWeight: 300,
                 fontSize: "15px",
                 letterSpacing: ".05px",
-                color: "#f5f5f5",
+                color: theme.palette.mode === "dark" ? "#f5f5f5" : "#3c3c9a",
                 textDecoration: "none",
                 mt: 3,
                 mb: 0,
                 mr: 3,
                 ml: 3,
                 zIndex: "130",
-                textShadow: "1px 1px 5px rgb(0, 0, 0, 0.3)",
+                textShadow:
+                  theme.palette.mode === "dark"
+                    ? "1px 1px 5px rgb(0, 0, 0, 0.3)"
+                    : "",
               }}
             >
               * If this is your first time, please ensure that{" "}
               <a
-                style={{ color: "lightgreen", fontWeight: "400" }}
+                style={{
+                  color: theme.palette.mode === "dark" ? "lightgreen" : "green",
+                  fontWeight: "400",
+                }}
                 href="https://kubernetes.io/docs/tasks/tools/"
               >
                 kubectl commands are installed
@@ -635,7 +656,7 @@ function Start() {
             margin: "15px 0 0 8.3%",
             // border: "1px solid white",
             textAlign: "left",
-            color: "#ffffff",
+            color: theme.palette.mode === "dark" ? "#ffffff" : "#3c3c9a",
             paddingTop: "10px",
             width: "95%",
           }}
@@ -712,6 +733,7 @@ function Start() {
                       margin: "10px 20px 0 20px",
                       flexDirection: "column",
                       letterSpacing: "1px",
+                      textTransform: "none",
                     }}
                   >
                     <div>KAPTN KRANE — NEW!</div>
