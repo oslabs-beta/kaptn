@@ -38,7 +38,7 @@ type ArrPodObjs = {
 
 let filteredPods: any = [];
 
-function KlusterManager() {
+function Krane() {
   const [launch, setLaunch] = useState<boolean>(false);
   const [podsArr, setPodsArr] = useState([]);
   // const [currDir, setCurrDir] = useState("NONE SELECTED");
@@ -179,4 +179,4 @@ function KlusterManager() {
   );
 }
 
-export default KlusterManager;
+export default Krane;
