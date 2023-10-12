@@ -196,8 +196,9 @@ function KraneNodeList() {
         nodeCpuUsed: "",
         nodeCpuLimit: "",
         nodeCpuPercent: "",
-        nodeCpuMath: "",
+        nodeCpuPercentMath: "",
         nodeMemoryUsed: "",
+        nodeMemoryUsedDisplay: "",
         nodeMemoryLimit: "",
         nodeMemoryPercent: "",
       };
@@ -304,7 +305,9 @@ function KraneNodeList() {
         nodeMemoryUsedArr.push(arg[i]);
         i++;
       }
+      let nodeMemoryUsedDisplay;
       if (argArr[i] === "G") {
+        nodeMemoryUsedDisplay = [...nodeMemoryUsedArr, "G", "i"];
         nodeMemoryUsedArr.push("0");
         nodeMemoryUsedArr.push("0");
         nodeMemoryUsedArr.push("0");
@@ -312,11 +315,13 @@ function KraneNodeList() {
         nodeMemoryUsedArr.push("0");
         nodeMemoryUsedArr.push("0");
       } else if (argArr[i] === "M") {
+        nodeMemoryUsedDisplay = [...nodeMemoryUsedArr, "M", "i"];
         nodeMemoryUsedArr.push("0");
         nodeMemoryUsedArr.push("0");
         nodeMemoryUsedArr.push("0");
       }
       i += 2;
+      // console.log("node mem arr is", nodeMemoryUsedDisplay);
 
       //skip spaces
       while (arg[i] === " ") {
@@ -344,6 +349,7 @@ function KraneNodeList() {
         nodeCpuPercentMath: Number(nodeCpuPercentArr.join("").slice(0, -1)),
         nodeMemoryUsed: nodeMemoryUsedArr.join(""),
         nodeMemoryPercent: nodeMemoryPercentArr.join(""),
+        nodeMemoryUsedDisplay: nodeMemoryUsedDisplay.join(""),
       };
 
       i++;
@@ -377,6 +383,8 @@ function KraneNodeList() {
         finalNodeUsageArr[j]["nodeMemoryUsed"];
       filteredNodes[j]["nodeMemoryPercent"] =
         finalNodeUsageArr[j]["nodeMemoryPercent"];
+      filteredNodes[j]["nodeMemoryUsedDisplay"] =
+        finalNodeUsageArr[j]["nodeMemoryUsedDisplay"];
     }
     // console.log(" FILTERD Nodes AFTER USAGE FETCH IS ", filteredNodes);
 
@@ -570,6 +578,7 @@ function KraneNodeList() {
   let nodeList = [];
   for (let i = 0; i < nodesArr.length; i++) {
     let nodeReadyStatusRunning;
+    let nodeReadyStatusRunningLight;
     let nodeCpuPercentColor;
     let nodeCpuPercentColorLight;
     let nodeMemoryPercentColor;
@@ -577,8 +586,10 @@ function KraneNodeList() {
 
     if (nodesArr[i]["status"] === "Ready") {
       nodeReadyStatusRunning = "#2fc665";
+      nodeReadyStatusRunningLight = "#5bb57b";
     } else {
       nodeReadyStatusRunning = "rgba(210, 223, 61)";
+      nodeReadyStatusRunningLight = "rgba(210, 223, 61)";
     }
 
     // if (nodesArr[i]["nodeCpuLimit"] === "NONE") {
@@ -593,7 +604,7 @@ function KraneNodeList() {
       nodeCpuPercentColorLight = "#d35656";
     }
 
-    console.log("color is", nodeCpuPercentColorLight);
+    // console.log("color is", nodeCpuPercentColorLight);
 
     // if (nodesArr[i]["nodeMemoryPercent"] === "N/A") {
     //   nodeMemoryPercentColor = "#ffffff80";
@@ -629,6 +640,7 @@ function KraneNodeList() {
             theme.palette.mode === "dark"
               ? "1px 1px 2px black"
               : "1px 1px 1px #00000000",
+          userSelect: "none",
         }}
       >
         NODE {i + 1}
@@ -696,7 +708,7 @@ function KraneNodeList() {
                 textAlign: "right",
                 alignItems: "flex-end",
                 justifyContent: "right",
-                margin: "2px 10px 0 0",
+                margin: "0px 10px 0 0",
 
                 // border: "1px solid blue",
               }}
@@ -706,18 +718,24 @@ function KraneNodeList() {
                   width: "12px",
                   height: "12px",
                   borderRadius: "15px",
-                  backgroundColor: "#2fc665",
+                  backgroundColor:
+                    theme.palette.mode === "dark"
+                      ? `${nodeReadyStatusRunning}`
+                      : `${nodeReadyStatusRunningLight}`,
                   justifyContent: "right",
-                  margin: "5px 0 2px 0",
+                  margin: "0px 0 2px 0",
                   // border: ".5px solid white",
                 }}
               ></div>
               <div
                 style={{
                   fontSize: "10px",
-                  margin: "-4px 0 0 0",
+                  margin: "0px 0 0 0",
                   // color: "#2fc665",
-                  color: `${nodeReadyStatusRunning}`,
+                  color:
+                    theme.palette.mode === "dark"
+                      ? `${nodeReadyStatusRunning}`
+                      : `${nodeReadyStatusRunningLight}`,
                 }}
               >
                 {nodesArr[i]["status"]}
@@ -764,15 +782,16 @@ function KraneNodeList() {
             >
               <div
                 style={{
-                  display:"flex",
-                  fontSize: "13px",
+                  display: "flex",
+                  fontSize: "12px",
                   color: theme.palette.mode === "dark" ? "#ffffff" : "white",
                   fontWeight: "500",
                   margin: "-4px 0 4px 0",
-                  backgroundColor: theme.palette.mode === "dark" ? "#7269ea" : "#8d85f3",
-                  padding:"3px 3px 3px 4px",
-                  borderRadius:"3px",
-                  width:"57%"
+                  backgroundColor:
+                    theme.palette.mode === "dark" ? "#7269ea" : "#928dd0",
+                  padding: "3px 3px 3px 4px",
+                  borderRadius: "3px",
+                  width: `${nodesArr[i]["role"].length * 8.1}px`, //"105px",
                 }}
               >
                 {nodesArr[i]["role"].toUpperCase()}
@@ -788,11 +807,7 @@ function KraneNodeList() {
                 <br />
                 CPU PERCENT: {nodesArr[i]["nodeCpuPercent"]}
                 <br />
-                MEMORY USAGE:{" "}
-                {nodesArr[i]["nodeMemoryLimit"] === "NONE" ||
-                nodesArr[i]["nodeMemoryLimit"] === ""
-                  ? `${nodesArr[i]["nodeMemoryUsed"]}`
-                  : `${nodesArr[i]["nodeMemoryUsed"]} / ${nodesArr[i]["nodeMemoryLimit"]}`}
+                MEMORY USAGE: {`${nodesArr[i]["nodeMemoryUsedDisplay"]}`}
                 <br />
                 MEMORY PERCENT: {nodesArr[i]["nodeMemoryPercent"]}
               </div>
@@ -845,7 +860,7 @@ function KraneNodeList() {
                   value={Number(nodesArr[i]["nodeCpuPercentMath"]) * 0.73}
                   style={{
                     position: "relative",
-                    top: "-48px",
+                    top: "-48.5px",
                     left: "9.5px",
                     rotate: "-131deg",
                     color:
@@ -863,9 +878,9 @@ function KraneNodeList() {
                   position: "relative",
                   top: "-48px",
                   left: "5px",
-                  fontSize: "16px",
+                  fontSize: !nodesArr[i]["nodeCpuPercent"] ? "13px" : "16px",
                   fontWeight: "500",
-                  marginTop: "-60px",
+                  marginTop: !nodesArr[i]["nodeCpuPercent"] ? "-55px" : "-60px",
                   marginLeft: "-8px",
                   // border: "2px solid red",
                   color:
@@ -874,7 +889,9 @@ function KraneNodeList() {
                       : `${nodeCpuPercentColorLight}`,
                 }}
               >
-                {nodesArr[i]["nodeCpuPercent"]}
+                {!nodesArr[i]["nodeCpuPercent"]
+                  ? "LOADING"
+                  : nodesArr[i]["nodeCpuPercent"]}
               </div>
               <div
                 style={{
@@ -946,7 +963,7 @@ function KraneNodeList() {
                   }
                   style={{
                     position: "relative",
-                    top: "-48px",
+                    top: "-48.5px",
                     left: "8.5px",
                     rotate: "-131deg",
                     color:
@@ -967,8 +984,10 @@ function KraneNodeList() {
                   left: "5px",
                   fontWeight: "500",
                   marginLeft: "-10px",
-                  fontSize: "16px",
-                  marginTop: "-60px",
+                  fontSize: !nodesArr[i]["nodeMemoryPercent"] ? "13px" : "16px",
+                  marginTop: !nodesArr[i]["nodeMemoryPercent"]
+                    ? "-55px"
+                    : "-60px",
                   // border: "2px solid red",
                   color:
                     theme.palette.mode === "dark"
@@ -976,7 +995,9 @@ function KraneNodeList() {
                       : `${nodeMemoryPercentColorLight}`,
                 }}
               >
-                {`${nodesArr[i]["nodeMemoryPercent"]}`}
+                {!nodesArr[i]["nodeMemoryPercent"]
+                  ? "LOADING"
+                  : `${nodesArr[i]["nodeMemoryPercent"]}`}
               </div>
               <div
                 style={{
@@ -1030,9 +1051,14 @@ function KraneNodeList() {
                 // color: "#ffffff",
                 paddingTop: "10px",
                 color: theme.palette.mode === "dark" ? "" : "#6d6fb4",
+                userSelect: "none",
               }}
             >
               NODES
+            </div>
+            <div style={{ margin: "23px 0 0 8px", fontSize: "12px" }}>
+              {" "}
+              ( {nodeList.length} total )
             </div>
           </div>
           <div
@@ -1133,7 +1159,8 @@ function KraneNodeList() {
             <SortIcon style={{ width: "12px", margin: "0 4px 0 3px" }} />{" "}
             {/* {sortedByDisplay} */}
           </Button>{" "}
-          <div style={{ display: "flex" }}>
+          {/* SHOW KUBE SYSTEM DIV STARTS HERE */}
+          {/* <div style={{ display: "flex" }}>
             {" "}
             <div
               style={{
@@ -1155,7 +1182,8 @@ function KraneNodeList() {
                 color: theme.palette.mode === "dark" ? "" : "#00000050",
               }}
             />
-          </div>
+          </div> */}
+          {/* SHOW KUBE SYSTEM DIV ENDS HERE */}
         </div>
         <div
           style={{
@@ -1525,7 +1553,7 @@ function KraneNodeList() {
 
   // console.log("selected pod 3 is ", selectedPod);
 
-  console.log(" NODES ARR AT END IS ", nodesArr);
+  // console.log(" NODES ARR AT END IS ", nodesArr);
 
   return (
     <>

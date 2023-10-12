@@ -122,7 +122,6 @@ function KranePodList(props) {
   // ----------------------------------------- get pods info section ------------
 
   const [podsArr, setPodsArr] = useState([]);
-  const [podsContainersArr, setPodsContainersArr] = useState([]);
 
   function handleClick(event) {
     // setPodsArr(filteredPods);
@@ -153,19 +152,7 @@ function KranePodList(props) {
         currDir,
       });
     }, 1000);
-
-    // send command to get selected pods containers info
-    let podContainersCommand = `kubectl top pod --containers`;
-    //send get pods o wide info commands
-    ipcRenderer.send(
-      "podContainers_command",
-      {
-        podContainersCommand,
-        currDir,
-      },
-      2000
-    );
-  } // ---------------------- end of handle click function to refresh pods
+  }
 
   let podsArrOutput: any = [];
 
@@ -377,7 +364,6 @@ function KranePodList(props) {
         node: nodeOutput.join(""),
         nominatedNode: nominatedOutput.join(""),
         readinessGates: readinessOutput.join(""),
-        podContainers: [],
       };
 
       //increment j for index value
@@ -719,124 +705,8 @@ function KranePodList(props) {
         (pod) => pod.namespace !== "kube-system"
       );
       setPodsArr([...kubeFilteredPods]);
-    } //end of for loop
-  }); //-------------------   end of ipc render function to get podcpu and memory limits
-
-  //handle returned pod container info
-  ipcRenderer.on("podContainersRetrieved", (event, arg) => {
-    let argArr = arg.split("");
-    let output = [];
-
-    let i = 0;
-    //skips all column titles
-    while (argArr[i] !== "\n") {
-      i++;
     }
-    i++;
-
-    // console.log("ARG SPLIT ISSSSSS", argArr);
-
-    for (let j = 0; i < argArr.length; i++) {
-      let podName = "";
-      let name = "";
-      let cpuUsage = "";
-      let memoryUsage = "";
-
-      //saves pod name
-      while (argArr[i] !== " ") {
-        podName += argArr[i];
-        i++;
-      }
-
-      //skips spaces
-      while (argArr[i] === " ") {
-        i++;
-      }
-
-      //saves container name
-      while (argArr[i] !== " ") {
-        name += argArr[i];
-        i++;
-      }
-
-      //skips spaces
-      while (argArr[i] === " ") {
-        i++;
-      }
-
-      //saves cpu usage
-      while (argArr[i] !== " ") {
-        cpuUsage += argArr[i];
-        i++;
-      }
-
-      //skips spaces
-      while (argArr[i] === " ") {
-        i++;
-      }
-
-      //saves memory usage
-      while (argArr[i] !== " ") {
-        memoryUsage += argArr[i];
-        i++;
-      }
-
-      //skips spaces
-      while (argArr[i] !== "\n") {
-        i++;
-      }
-
-      let memoryUsageMath = "";
-      if (memoryUsage.slice(-2, -1) === "G") {
-        let temp = memoryUsage.slice(0, -2);
-        temp += "000000";
-        memoryUsageMath = temp;
-      } else if (memoryUsage.slice(-2, -1) === "M") {
-        let temp = memoryUsage.slice(0, -2);
-        temp += "000";
-        memoryUsageMath = temp;
-      }
-
-      let container = {
-        podName: podName,
-        name: name,
-        cpuUsage: cpuUsage,
-        cpuUsageMath: Number(cpuUsage.slice(0, -1)),
-        memoryUsage: memoryUsage,
-        memoryUsageMath: Number(memoryUsageMath),
-      };
-
-      output.push(container);
-    } //end of for loop over containers
-
-    setPodsContainersArr([...output]);
-    // let outputIndex = 0;
-    // filteredPods = [...podsArr];
-
-    console.log("output is: ", output);
-    // console.log("PodsArr is: ", podsArr);
-    // let tempFilteredPods = [...podsArr];
-
-    // // if (filteredPods[0]) {
-    //   for (let k = 0; k < output.length; k++) {
-    //     // console.log("output at k is:", output[k])
-    //     //   // console.log("output is: ", output);
-    //     // console.log("podsArr is: ", podsArr);
-    //     let containers = [];
-    //     console.log("fil pods is: ", filteredPods);
-    //     // let temp = tempFilteredPods[k];
-    //     while (filteredPods[k]["name"] === output[outputIndex]["podName"]) {
-    //       containers.push(output[outputIndex]);
-    //       outputIndex++;
-    //     }
-    //     filteredPods[k]["podContainers"] = [...containers];
-    //   }
-
-    // }
-
-    // console.log("temp filtered is: ", tempFilteredPods);
-  });
-  console.log(" podsContainersArr is: ", podsContainersArr);
+  }); //-------------------   end of ipc render function to get podcpu and memory limits
 
   useEffect(() => {
     let podsCommand = "kubectl get pods --all-namespaces -o wide";
@@ -864,18 +734,6 @@ function KranePodList(props) {
         currDir,
       });
     }, 1000);
-
-    // send command to get selected pods containers info
-    let podContainersCommand = `kubectl top pod --containers`;
-    //send get pods o wide info commands
-    ipcRenderer.send(
-      "podContainers_command",
-      {
-        podContainersCommand,
-        currDir,
-      },
-      3000
-    );
   }, []); // end of use effect to get pods info on page open
 
   //------------------------------------------------------------- END OF GET ALL POD INFO SECTION ---
@@ -912,7 +770,6 @@ function KranePodList(props) {
       node: "",
       nominatedNode: "",
       readinessGates: "",
-      podContainers: [],
     },
   ]);
 
@@ -1046,6 +903,104 @@ function KranePodList(props) {
   const [selectedPodContainers, setSelectedPodContainers] = useState([]);
 
   const handlePodOpen = (pod) => {
+    //handle returned pod container info
+    ipcRenderer.on("podContainersRetrieved", (event, arg) => {
+      let argArr = arg.split("");
+      let output = [];
+
+      let i = 0;
+      //skips all column titles
+      while (argArr[i] !== "\n") {
+        i++;
+      }
+      i++;
+
+      // console.log("ARG SPLIT ISSSSSS", argArr);
+
+      for (let j = 0; i < argArr.length; i++) {
+        let podName = "";
+        let name = "";
+        let cpuUsage = "";
+        let memoryUsage = "";
+
+        //saves pod name
+        while (argArr[i] !== " ") {
+          podName += argArr[i];
+          i++;
+        }
+
+        //skips spaces
+        while (argArr[i] === " ") {
+          i++;
+        }
+
+        //saves container name
+        while (argArr[i] !== " ") {
+          name += argArr[i];
+          i++;
+        }
+
+        //skips spaces
+        while (argArr[i] === " ") {
+          i++;
+        }
+
+        //saves cpu usage
+        while (argArr[i] !== " ") {
+          cpuUsage += argArr[i];
+          i++;
+        }
+
+        //skips spaces
+        while (argArr[i] === " ") {
+          i++;
+        }
+
+        //saves memory usage
+        while (argArr[i] !== " ") {
+          memoryUsage += argArr[i];
+          i++;
+        }
+
+        //skips spaces
+        while (argArr[i] !== "\n") {
+          i++;
+        }
+
+        let memoryUsageMath = "";
+        if (memoryUsage.slice(-2, -1) === "G") {
+          let temp = memoryUsage.slice(0, -2);
+          temp += "000000";
+          memoryUsageMath = temp;
+        } else if (memoryUsage.slice(-2, -1) === "M") {
+          let temp = memoryUsage.slice(0, -2);
+          temp += "000";
+          memoryUsageMath = temp;
+        }
+
+        let container = {
+          podName: podName,
+          name: name,
+          cpuUsage: cpuUsage,
+          memoryUsage: memoryUsage,
+          memoryUsageMath: memoryUsageMath,
+        };
+
+        output.push(container);
+        // console.log("output is: ", output);
+      } //end of for loop over containers
+
+      setSelectedPodContainers(output);
+    });
+
+    // send command to get selected pods containers info
+    let podContainersCommand = `kubectl top pod ${pod["name"]} --containers`;
+    //send get pods o wide info commands
+    ipcRenderer.send("podContainers_command", {
+      podContainersCommand,
+      currDir,
+    });
+
     if (pod["status"] === "Running") {
       setSelectedPodStatusColor("#2fc665");
     } else {
@@ -1101,7 +1056,6 @@ function KranePodList(props) {
         node: "",
         nominatedNode: "",
         readinessGates: "",
-        podContainers: [],
       },
     ]);
     setOpenPod(false);
@@ -1759,15 +1713,7 @@ function KranePodList(props) {
   // ---------------------------------------- END OF FOR LOOP TO CREATE EACH POD"S JSX --------
 
   let podContainerList = [];
-  let tempContainerList = podsContainersArr.filter(
-    (container) => selectedPod[0]["name"] === container["podName"]
-  );
-  console.log(tempContainerList);
-  // filteredPods = podsArrOutput.filter(
-  //   (ele: any, ind: number) =>
-  //     ind === podsArrOutput.findIndex((elem) => elem.name === ele.name)
-  // );
-  for (let i = 0; i < tempContainerList.length; i++) {
+  for (let i = 0; i < selectedPodContainers.length; i++) {
     let containerStatusColor;
     let containerCpuPercentColor;
     let containerCpuPercentColorLight;
@@ -1780,11 +1726,11 @@ function KranePodList(props) {
       containerStatusColor = "rgba(210, 223, 61)";
     }
 
-    if (tempContainerList[i]["podCpuLimit"] === "NONE") {
+    if (selectedPod[0]["podCpuLimit"] === "NONE") {
       containerCpuPercentColor = "#ffffff80";
       containerCpuPercentColorLight = "#ffffff80";
     } else if (
-      (100 * Number(tempContainerList[i]["cpuUsage"].slice(0, -1))) /
+      (100 * Number(selectedPodContainers[i]["cpuUsage"].slice(0, -1))) /
         Number(`${selectedPod[0]["podCpuLimit"]}`) <
       90
     ) {
@@ -1802,7 +1748,7 @@ function KranePodList(props) {
       Math.min(
         Math.round(
           100 *
-            (Number(tempContainerList[i]["memoryUsageMath"]) /
+            (Number(selectedPodContainers[i]["memoryUsageMath"]) /
               Number(selectedPod[0]["podMemoryLimit"])) *
             10
         ) / 10,
@@ -1940,7 +1886,7 @@ function KranePodList(props) {
                 fontSize: "19px",
               }}
             >
-              {tempContainerList[i]["name"]}
+              {selectedPodContainers[i]["name"]}
             </span>
             <div
               style={{
@@ -2003,9 +1949,9 @@ function KranePodList(props) {
                 // color: `${readyStatusRunning}`,
               }}
             >
-              CPU USAGE: {tempContainerList[i]["cpuUsage"]}
+              CPU USAGE: {selectedPodContainers[i]["cpuUsage"]}
               <br />
-              MEMORY USAGE: {tempContainerList[i]["memoryUsage"]}
+              MEMORY USAGE: {selectedPodContainers[i]["memoryUsage"]}
             </div>
 
             <div
@@ -2058,7 +2004,7 @@ function KranePodList(props) {
                       ? 0
                       : ((100 *
                           Number(
-                            tempContainerList[i]["cpuUsage"].slice(0, -1)
+                            selectedPodContainers[i]["cpuUsage"].slice(0, -1)
                           )) /
                           Number(`${selectedPod[0]["podCpuLimit"]}`)) *
                         0.73
@@ -2108,7 +2054,9 @@ function KranePodList(props) {
                   ? `no max`
                   : `${
                       100 *
-                      (Number(tempContainerList[i]["cpuUsage"].slice(0, -1)) /
+                      (Number(
+                        selectedPodContainers[i]["cpuUsage"].slice(0, -1)
+                      ) /
                         Number(selectedPod[0]["podCpuLimit"]))
                     }%`}
               </div>
@@ -2183,7 +2131,9 @@ function KranePodList(props) {
                       : Math.min(
                           73,
                           (73 *
-                            Number(tempContainerList[i]["memoryUsageMath"])) /
+                            Number(
+                              selectedPodContainers[i]["memoryUsageMath"]
+                            )) /
                             Number(`${selectedPod[0]["podMemoryLimit"]}`)
                         )
                   }
@@ -2238,7 +2188,7 @@ function KranePodList(props) {
                   : `${Math.min(
                       Math.round(
                         100 *
-                          (Number(tempContainerList[i]["memoryUsageMath"]) /
+                          (Number(selectedPodContainers[i]["memoryUsageMath"]) /
                             Number(selectedPod[0]["podMemoryLimit"])) *
                           10
                       ) / 10,
@@ -2300,12 +2250,9 @@ function KranePodList(props) {
                 userSelect: "none",
               }}
             >
-              PODS
+              PODS 
             </div>
-            <div style={{ margin: "23px 0 0 8px", fontSize: "12px" }}>
-              {" "}
-              ( {podsList.length} total )
-            </div>
+            <div style={{margin:"23px 0 0 8px", fontSize:"12px"}}> ( {podsList.length} total )</div>
           </div>
           <div
             style={{

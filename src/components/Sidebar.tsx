@@ -43,7 +43,7 @@ function SideNav(props) {
       }}
     >
       <LightTooltip
-        title="Kluster Manager"
+        title="Kaptn Krane"
         placement="right"
         arrow
         enterDelay={500}
