@@ -45,6 +45,8 @@ function Krane() {
 
   let podsCommand = "kubectl get pods";
 
+  let currDir = "NONE SELECTED";
+
   const theme = useTheme();
 
   const style = {
@@ -71,6 +73,46 @@ function Krane() {
     setPodsArr(filteredPods);
     // console.log("launch is", launch);
     // console.log("podsArr IN HANDLECLICK FOR LAUNCH is", podsArr);
+  }
+
+  function getPodsAndContainers() {
+    let podsCommand = "kubectl get pods --all-namespaces -o wide";
+    //send get pods o wide info commands
+    ipcRenderer.send("getPods_command", {
+      podsCommand,
+      currDir,
+    });
+
+    //---------------------------------------- beginnging get all pods cpu and memory usage section -
+    let CpuUsedCommand = `kubectl top pods --all-namespaces`;
+    setTimeout(() => {
+      ipcRenderer.send("getCpuUsed_command", {
+        CpuUsedCommand,
+        currDir,
+      });
+    }, 500);
+
+    // ----------------------------------------------- Beginning of get pod cpu and memory limits section
+
+    let cpuLimitsCommand = `kubectl get po --all-namespaces -o custom-columns="Name:metadata.name,CPU-limit:spec.containers[*].resources.limits.cpu",Memory-limit:"spec.containers[*].resources.limits.memory"`;
+    setTimeout(() => {
+      ipcRenderer.send("getCpuLimits_command", {
+        cpuLimitsCommand,
+        currDir,
+      });
+    }, 1000);
+
+    // send command to get selected pods containers info
+    let podContainersCommand = `kubectl top pod --containers`;
+    //send get pods o wide info commands
+    ipcRenderer.send(
+      "podContainers_command",
+      {
+        podContainersCommand,
+        currDir,
+      },
+      1300
+    );
   }
 
   // ---------------------------------------------------------- START OF IF CONDITION TO DETERMINE MAIN DIV'S JSX --------
@@ -169,9 +211,16 @@ function Krane() {
             Easily manage your clusters, nodes, and containers.
           </div>
           <div>
-            {" "}
-            <KraneNodeList />
-            <KranePodList />
+            <KraneNodeList
+              //@ts-expect-error
+              podsArr={podsArr}
+              setPodsArr={setPodsArr}
+            />
+            <KranePodList
+              podsArr={podsArr}
+              setPodsArr={setPodsArr}
+              getPodsAndContainers={getPodsAndContainers}
+            />
           </div>
         </div>
       </div>
