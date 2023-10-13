@@ -1260,7 +1260,11 @@ function KranePodList(props) {
     if (props.podsArr[i]["podCpuPercent"] === "N/A") {
       PodCpuPercentColor = "#ffffff80";
       PodCpuPercentColorLight = "#00000040";
-    } else if (props.podsArr[i]["podCpuPercent"] < 90) {
+    } else if (
+      props.podsArr[i]["podCpuPercent"] < 90 ||
+      props.podsArr[i]["podCpuPercent"] === "" ||
+      props.podsArr[i]["podCpuPercent"] === undefined
+    ) {
       PodCpuPercentColor = "#2fc665";
       PodCpuPercentColorLight = "#5bb57b";
     } else {
@@ -1271,7 +1275,11 @@ function KranePodList(props) {
     if (props.podsArr[i]["podMemoryPercent"] === "N/A") {
       PodMemoryPercentColor = "#ffffff80";
       PodMemoryPercentColorLight = "#00000040";
-    } else if (props.podsArr[i]["podMemoryPercent"] < 90) {
+    } else if (
+      props.podsArr[i]["podMemoryPercent"] < 90 ||
+      props.podsArr[i]["podMemoryPercent"] === "" ||
+      props.podsArr[i]["podMemoryPercent"] === undefined
+    ) {
       PodMemoryPercentColor = "#2fc665";
       PodMemoryPercentColorLight = "#5bb57b";
     } else {

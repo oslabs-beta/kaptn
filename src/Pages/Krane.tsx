@@ -41,6 +41,7 @@ let filteredPods: any = [];
 function Krane() {
   const [launch, setLaunch] = useState<boolean>(false);
   const [podsArr, setPodsArr] = useState([]);
+  const [nodesArr, setNodesArr] = useState([]);
   // const [currDir, setCurrDir] = useState("NONE SELECTED");
 
   let podsCommand = "kubectl get pods";
@@ -90,7 +91,7 @@ function Krane() {
         CpuUsedCommand,
         currDir,
       });
-    }, 500);
+    }, 200);
 
     // ----------------------------------------------- Beginning of get pod cpu and memory limits section
 
@@ -100,7 +101,7 @@ function Krane() {
         cpuLimitsCommand,
         currDir,
       });
-    }, 1000);
+    }, 400);
 
     // send command to get selected pods containers info
     let podContainersCommand = `kubectl top pod --containers`;
@@ -111,8 +112,34 @@ function Krane() {
         podContainersCommand,
         currDir,
       },
-      1300
+      600
     );
+  }
+
+  function getNodesInfo() {
+    let kraneCommand: string = "kubectl get nodes -o wide";
+    //send krane command to get all nodes
+    ipcRenderer.send("getNodes_command", {
+      kraneCommand,
+      currDir,
+    });
+
+    //---------------------------------------- get all nodes cpu and memory usage -
+    let nodesCpuUsedCommand: string = `kubectl top nodes`;
+    setTimeout(() => {
+      ipcRenderer.send("getNodesCpuUsed_command", {
+        nodesCpuUsedCommand,
+        currDir,
+      });
+    }, 200);
+
+    let nodesCpuLimitsCommand: string = `kubectl get nodes -o custom-columns="Name:metadata.name,CPU-limit:spec.containers[*].resources.limits.cpu,Memory-limit:spec.containers[*].resources.limits.cpu"`;
+    setTimeout(() => {
+      ipcRenderer.send("getNodesCpuLimits_command", {
+        nodesCpuLimitsCommand,
+        currDir,
+      });
+    }, 400);
   }
 
   // ---------------------------------------------------------- START OF IF CONDITION TO DETERMINE MAIN DIV'S JSX --------
@@ -212,9 +239,11 @@ function Krane() {
           </div>
           <div>
             <KraneNodeList
-              //@ts-expect-error
+              nodesArr={nodesArr}
+              setNodesArr={setNodesArr}
               podsArr={podsArr}
               setPodsArr={setPodsArr}
+              getNodesInfo={getNodesInfo}
             />
             <KranePodList
               podsArr={podsArr}

@@ -37,12 +37,12 @@ type ArrPodObjs = {
 
 // let filteredPods: any = [];
 
-function KraneNodeList() {
-  const [nodesArr, setNodesArr] = useState([]);
+function KraneNodeList(props) {
+  
 
   const theme = useTheme();
 
-  let kraneCommand: string = "kubectl get nodes -o wide";
+  
   let currDir = "NONE SELECTED";
   let filteredNodes = [];
 
@@ -218,7 +218,7 @@ function KraneNodeList() {
     );
     filteredNodes = finalNodesInfoArr;
     // console.log(" filtered NODES is", filteredNodes);
-    setNodesArr([...filteredNodes]);
+    props.setNodesArr([...filteredNodes]);
     // console.log(" Nodes Arr is", nodesArr);
   }); // ------------------------------------------ end of ipc render for get nodes command
 
@@ -388,7 +388,7 @@ function KraneNodeList() {
     }
     // console.log(" FILTERD Nodes AFTER USAGE FETCH IS ", filteredNodes);
 
-    setNodesArr([...filteredNodes]);
+    props.setNodesArr([...filteredNodes]);
   });
 
   //
@@ -543,40 +543,18 @@ function KraneNodeList() {
       filteredNodes[j]["nodeMemoryLimit"] = lastNodesArr[j]["nodeMemoryLimit"];
     }
 
-    setNodesArr([...filteredNodes]);
+    props.setNodesArr([...filteredNodes]);
   });
 
   useEffect(() => {
     // ----------------------------------------- get NODES section ------------
-
-    //send krane command to get all nodes
-    ipcRenderer.send("getNodes_command", {
-      kraneCommand,
-      currDir,
-    });
-
-    //---------------------------------------- get all nodes cpu and memory usage -
-    let nodesCpuUsedCommand = `kubectl top nodes`;
-    setTimeout(() => {
-      ipcRenderer.send("getNodesCpuUsed_command", {
-        nodesCpuUsedCommand,
-        currDir,
-      });
-    }, 1300);
-
-    let nodesCpuLimitsCommand = `kubectl get nodes -o custom-columns="Name:metadata.name,CPU-limit:spec.containers[*].resources.limits.cpu,Memory-limit:spec.containers[*].resources.limits.cpu"`;
-    setTimeout(() => {
-      ipcRenderer.send("getNodesCpuLimits_command", {
-        nodesCpuLimitsCommand,
-        currDir,
-      });
-    }, 1500);
+props.getNodesInfo()
   }, []);
 
   //-----------------------------------------------------------START OF FOR LOOP TO PUSH NODE LIST JSX
 
   let nodeList = [];
-  for (let i = 0; i < nodesArr.length; i++) {
+  for (let i = 0; i < props.nodesArr.length; i++) {
     let nodeReadyStatusRunning;
     let nodeReadyStatusRunningLight;
     let nodeCpuPercentColor;
@@ -584,7 +562,7 @@ function KraneNodeList() {
     let nodeMemoryPercentColor;
     let nodeMemoryPercentColorLight;
 
-    if (nodesArr[i]["status"] === "Ready") {
+    if (props.nodesArr[i]["status"] === "Ready") {
       nodeReadyStatusRunning = "#2fc665";
       nodeReadyStatusRunningLight = "#5bb57b";
     } else {
@@ -596,7 +574,7 @@ function KraneNodeList() {
     //   nodeCpuPercentColor = "#ffffff80";
     //   nodeCpuPercentColorLight = "#00000040";
     // } else
-    if (nodesArr[i]["nodeCpuPercentMath"] < 90) {
+    if (props.nodesArr[i]["nodeCpuPercentMath"] < 90) {
       nodeCpuPercentColor = "#2fc665";
       nodeCpuPercentColorLight = "#5bb57b";
     } else {
@@ -610,7 +588,7 @@ function KraneNodeList() {
     //   nodeMemoryPercentColor = "#ffffff80";
     //   nodeMemoryPercentColorLight = "#00000040";
     // } else
-    let temp = Number(nodesArr[i]["nodeMemoryPercent"].slice(0, -1));
+    let temp = Number(props.nodesArr[i]["nodeMemoryPercent"].slice(0, -1));
     if (temp < 90) {
       nodeMemoryPercentColor = "#2fc665";
       nodeMemoryPercentColorLight = "#5bb57b";
@@ -699,7 +677,7 @@ function KraneNodeList() {
                 textTransform: "none",
               }}
             >
-              {nodesArr[i]["name"]}
+              {props.nodesArr[i]["name"]}
             </span>
             <div
               style={{
@@ -738,7 +716,7 @@ function KraneNodeList() {
                       : `${nodeReadyStatusRunningLight}`,
                 }}
               >
-                {nodesArr[i]["status"]}
+                {props.nodesArr[i]["status"]}
               </div>
             </div>
           </div>
@@ -791,25 +769,25 @@ function KraneNodeList() {
                     theme.palette.mode === "dark" ? "#7269ea" : "#928dd0",
                   padding: "3px 3px 3px 4px",
                   borderRadius: "3px",
-                  width: `${nodesArr[i]["role"].length * 8.1}px`, //"105px",
+                  width: `${props.nodesArr[i]["role"].length * 8.1}px`, //"105px",
                 }}
               >
-                {nodesArr[i]["role"].toUpperCase()}
+                {props.nodesArr[i]["role"].toUpperCase()}
               </div>
               <div style={{ margin: "-11px 0 0 0" }}>
                 {" "}
                 <br />
                 CPU USAGE:{" "}
-                {nodesArr[i]["nodeCpuLimit"] === "NONE" ||
-                nodesArr[i]["nodeCpuLimit"] === ""
-                  ? `${nodesArr[i]["nodeCpuUsed"]}m`
-                  : `${nodesArr[i]["nodeCpuUsed"]}m / ${nodesArr[i]["nodeCpuLimit"]}m`}
+                {props.nodesArr[i]["nodeCpuLimit"] === "NONE" ||
+                props.nodesArr[i]["nodeCpuLimit"] === ""
+                  ? `${props.nodesArr[i]["nodeCpuUsed"]}m`
+                  : `${props.nodesArr[i]["nodeCpuUsed"]}m / ${props.nodesArr[i]["nodeCpuLimit"]}m`}
                 <br />
-                CPU PERCENT: {nodesArr[i]["nodeCpuPercent"]}
+                CPU PERCENT: {props.nodesArr[i]["nodeCpuPercent"]}
                 <br />
-                MEMORY USAGE: {`${nodesArr[i]["nodeMemoryUsedDisplay"]}`}
+                MEMORY USAGE: {`${props.nodesArr[i]["nodeMemoryUsedDisplay"]}`}
                 <br />
-                MEMORY PERCENT: {nodesArr[i]["nodeMemoryPercent"]}
+                MEMORY PERCENT: {props.nodesArr[i]["nodeMemoryPercent"]}
               </div>
             </div>
 
@@ -857,7 +835,7 @@ function KraneNodeList() {
                   variant="determinate"
                   // @ts-nocheck
                   thickness={1.35}
-                  value={Number(nodesArr[i]["nodeCpuPercentMath"]) * 0.73}
+                  value={Number(props.nodesArr[i]["nodeCpuPercentMath"]) * 0.73}
                   style={{
                     position: "relative",
                     top: "-48.5px",
@@ -878,9 +856,9 @@ function KraneNodeList() {
                   position: "relative",
                   top: "-48px",
                   left: "5px",
-                  fontSize: !nodesArr[i]["nodeCpuPercent"] ? "13px" : "16px",
+                  fontSize: !props.nodesArr[i]["nodeCpuPercent"] ? "13px" : "16px",
                   fontWeight: "500",
-                  marginTop: !nodesArr[i]["nodeCpuPercent"] ? "-55px" : "-60px",
+                  marginTop: !props.nodesArr[i]["nodeCpuPercent"] ? "-55px" : "-60px",
                   marginLeft: "-8px",
                   // border: "2px solid red",
                   color:
@@ -889,9 +867,9 @@ function KraneNodeList() {
                       : `${nodeCpuPercentColorLight}`,
                 }}
               >
-                {!nodesArr[i]["nodeCpuPercent"]
+                {!props.nodesArr[i]["nodeCpuPercent"]
                   ? "LOADING"
-                  : nodesArr[i]["nodeCpuPercent"]}
+                  : props.nodesArr[i]["nodeCpuPercent"]}
               </div>
               <div
                 style={{
@@ -958,7 +936,7 @@ function KraneNodeList() {
                   // @ts-nocheck
                   thickness={1.35}
                   value={
-                    Number(`${nodesArr[i]["nodeMemoryPercent"].slice(0, -1)}`) *
+                    Number(`${props.nodesArr[i]["nodeMemoryPercent"].slice(0, -1)}`) *
                     0.73
                   }
                   style={{
@@ -984,8 +962,8 @@ function KraneNodeList() {
                   left: "5px",
                   fontWeight: "500",
                   marginLeft: "-10px",
-                  fontSize: !nodesArr[i]["nodeMemoryPercent"] ? "13px" : "16px",
-                  marginTop: !nodesArr[i]["nodeMemoryPercent"]
+                  fontSize: !props.nodesArr[i]["nodeMemoryPercent"] ? "13px" : "16px",
+                  marginTop: !props.nodesArr[i]["nodeMemoryPercent"]
                     ? "-55px"
                     : "-60px",
                   // border: "2px solid red",
@@ -995,9 +973,9 @@ function KraneNodeList() {
                       : `${nodeMemoryPercentColorLight}`,
                 }}
               >
-                {!nodesArr[i]["nodeMemoryPercent"]
+                {!props.nodesArr[i]["nodeMemoryPercent"]
                   ? "LOADING"
-                  : `${nodesArr[i]["nodeMemoryPercent"]}`}
+                  : `${props.nodesArr[i]["nodeMemoryPercent"]}`}
               </div>
               <div
                 style={{
@@ -1028,7 +1006,7 @@ function KraneNodeList() {
 
   // ---------------------------------------------------------- START OF IF CONDITION TO DETERMINE MAIN DIV'S JSX --------
   let nodeListDiv;
-  if (nodesArr[0]) {
+  if (props.nodesArr[0]) {
     nodeListDiv = (
       <>
         <div
