@@ -38,11 +38,37 @@ type ArrPodObjs = {
 // let filteredPods: any = [];
 
 function KraneNodeList(props) {
-  
+  const [openNode, setOpenNode] = React.useState(false);
+
+  const [selectedNodeStatusColor, setSelectedNodeStatusColor] = useState("");
+  const [selectedNodeCPUColor, setSelectedNodeCPUColor] = useState("");
+  const [selectedNodeMemoryColor, setSelectedNodeMemoryColor] = useState("");
+  const [selectedNode, setSelectedNode] = useState([
+    {
+      index: "",
+      name: "",
+      status: "",
+      role: "",
+      age: "",
+      version: "",
+      internalIp: "",
+      externalIp: "",
+      osImage: "",
+      kernal: "",
+      containerRuntime: "",
+      nodeCpuUsed: "",
+      nodeCpuLimit: "",
+      nodeCpuPercent: "",
+      nodeCpuPercentMath: "",
+      nodeMemoryUsed: "",
+      nodeMemoryUsedDisplay: "",
+      nodeMemoryLimit: "",
+      nodeMemoryPercent: "",
+    },
+  ]);
 
   const theme = useTheme();
 
-  
   let currDir = "NONE SELECTED";
   let filteredNodes = [];
 
@@ -61,6 +87,124 @@ function KraneNodeList(props) {
     border:
       theme.palette.mode === "dark" ? "1px solid white" : "2px solid #9075ea",
     borderRadius: "10px",
+  };
+
+  const openNodeModalStyle = {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    width: "90%",
+    height: "92%",
+    background: theme.palette.mode === "dark" ? "#0e0727" : "#eeebfb",
+    color: theme.palette.mode === "dark" ? "white" : "#47456e",
+    boxShadow: 24,
+    p: 4,
+    padding: "10px",
+    mt: 0.8,
+    border:
+      theme.palette.mode === "dark" ? "1px solid white" : "2px solid #9075ea",
+    borderRadius: "10px",
+    overflow: "scroll",
+  };
+
+  const logStyle = {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    width: "80%",
+    height: "80%",
+    background: theme.palette.mode === "dark" ? "#0e0727" : "#e6e1fb",
+    color: theme.palette.mode === "dark" ? "white" : "#47456e",
+    boxShadow: 24,
+    p: 4,
+    padding: "10px",
+    border:
+      theme.palette.mode === "dark" ? "1px solid white" : "2px solid #9075ea",
+    borderRadius: "10px",
+    overflow: "scroll",
+  };
+
+  const nodeDeleteStyle = {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    width: "36%",
+    height: "26%",
+    justifyContent: "center",
+    background: theme.palette.mode === "dark" ? "#0e0727" : "#e6e1fb",
+    color: theme.palette.mode === "dark" ? "white" : "#47456e",
+    boxShadow: 24,
+    p: 4,
+    padding: "10px",
+    border:
+      theme.palette.mode === "dark" ? "1px solid white" : "2px solid #9075ea",
+    borderRadius: "10px",
+  };
+
+  const handleNodeOpen = (node) => {
+    if (node["status"] === "Ready") {
+      setSelectedNodeStatusColor("#2fc665");
+    } else {
+      setSelectedNodeStatusColor("rgba(210, 223, 61)");
+    }
+    setSelectedNode([node]);
+    // console.log("selected pod is ", pod);
+
+    // console.log(
+    //   `selectedNode[0]["podCpuPercent"] is`,
+    //   selectedNode[0]["podCpuPercent"]
+    // );
+    if (typeof selectedNode[0]["podCpuPercent"] === "string") {
+      if (selectedNode[0]["podCpuPercent"] === "N/A") {
+        setSelectedNodeCPUColor("#ffffff80");
+      }
+    } else if (selectedNode[0]["podCpuPercent"] < 90) {
+      setSelectedNodeCPUColor("#2fc665");
+    } else {
+      setSelectedNodeCPUColor("#cf4848");
+    }
+    // console.log(pod);
+
+    // console.log(selectedNodeStatusColor);
+    // if (podsArr[i]["status"] === "Running") {
+    //   readyStatusRunning = "#2fc665";
+    // } else {
+    //   readyStatusRunning = "rgba(210, 223, 61)";
+    // }
+
+    setOpenNode(true);
+
+    // console.log("selectedNodeCpuColor is", selectedNodeCPUColor);
+  };
+
+  const handleNodeClose = () => {
+    setSelectedNode([
+      {
+        index: "",
+        name: "",
+        status: "",
+        role: "",
+        age: "",
+        version: "",
+        internalIp: "",
+        externalIp: "",
+        osImage: "",
+        kernal: "",
+        containerRuntime: "",
+        nodeCpuUsed: "",
+        nodeCpuLimit: "",
+        nodeCpuPercent: "",
+        nodeCpuPercentMath: "",
+        nodeMemoryUsed: "",
+        nodeMemoryUsedDisplay: "",
+        nodeMemoryLimit: "",
+        nodeMemoryPercent: "",
+      },
+    ]);
+    setOpenNode(false);
   };
 
   //Listen to "get nodes" return event
@@ -548,12 +692,13 @@ function KraneNodeList(props) {
 
   useEffect(() => {
     // ----------------------------------------- get NODES section ------------
-props.getNodesInfo()
+    props.getNodesInfo();
   }, []);
 
   //-----------------------------------------------------------START OF FOR LOOP TO PUSH NODE LIST JSX
 
   let nodeList = [];
+  console.log("nodes arr is:", props.nodesArr);
   for (let i = 0; i < props.nodesArr.length; i++) {
     let nodeReadyStatusRunning;
     let nodeReadyStatusRunningLight;
@@ -625,7 +770,7 @@ props.getNodesInfo()
         <Button
           key={i}
           id="podButt"
-          // onClick={() => handleCommandOpen(nodesArr[i])}
+          onClick={() => handleNodeOpen(props.nodesArr[i])}
           style={{
             display: "flex",
             flexDirection: "column",
@@ -856,9 +1001,13 @@ props.getNodesInfo()
                   position: "relative",
                   top: "-48px",
                   left: "5px",
-                  fontSize: !props.nodesArr[i]["nodeCpuPercent"] ? "13px" : "16px",
+                  fontSize: !props.nodesArr[i]["nodeCpuPercent"]
+                    ? "13px"
+                    : "16px",
                   fontWeight: "500",
-                  marginTop: !props.nodesArr[i]["nodeCpuPercent"] ? "-55px" : "-60px",
+                  marginTop: !props.nodesArr[i]["nodeCpuPercent"]
+                    ? "-55px"
+                    : "-60px",
                   marginLeft: "-8px",
                   // border: "2px solid red",
                   color:
@@ -936,8 +1085,9 @@ props.getNodesInfo()
                   // @ts-nocheck
                   thickness={1.35}
                   value={
-                    Number(`${props.nodesArr[i]["nodeMemoryPercent"].slice(0, -1)}`) *
-                    0.73
+                    Number(
+                      `${props.nodesArr[i]["nodeMemoryPercent"].slice(0, -1)}`
+                    ) * 0.73
                   }
                   style={{
                     position: "relative",
@@ -962,7 +1112,9 @@ props.getNodesInfo()
                   left: "5px",
                   fontWeight: "500",
                   marginLeft: "-10px",
-                  fontSize: !props.nodesArr[i]["nodeMemoryPercent"] ? "13px" : "16px",
+                  fontSize: !props.nodesArr[i]["nodeMemoryPercent"]
+                    ? "13px"
+                    : "16px",
                   marginTop: !props.nodesArr[i]["nodeMemoryPercent"]
                     ? "-55px"
                     : "-60px",
@@ -1004,6 +1156,512 @@ props.getNodesInfo()
     );
   }
 
+  let nodesPodsList = [];
+  let tempPodList = props.podsArr.filter(
+    (pod) => selectedNode[0]["name"] === pod["node"]
+  );
+
+  for (let i = 0; i < tempPodList.length; i++) {
+    let containerStatusColor;
+    let containerCpuPercentColor;
+    let containerCpuPercentColorLight;
+    let containerMemoryColor;
+    let containerMemoryColorLight;
+
+    if (selectedNode[0]["status"] === "Running") {
+      containerStatusColor = "#2fc665";
+    } else {
+      containerStatusColor = "rgba(210, 223, 61)";
+    }
+
+    if (tempPodList[i]["podCpuLimit"] === "NONE") {
+      containerCpuPercentColor = "#ffffff80";
+      containerCpuPercentColorLight = "#ffffff80";
+    } else if (
+      (100 * Number(tempPodList[i]["nodeCpuUsed"])) /
+        Number(`${selectedNode[0]["podCpuLimit"]}`) <
+      90
+    ) {
+      containerCpuPercentColor = "#2fc665";
+      containerCpuPercentColorLight = "#2fc665";
+    } else {
+      containerCpuPercentColor = "#cf4848";
+      containerCpuPercentColorLight = "#cf4848";
+    }
+
+    if (selectedNode[0]["podMemoryLimit"] === "NONE") {
+      containerMemoryColor = "#ffffff80";
+      containerMemoryColorLight = "#ffffff80";
+    } else if (
+      Math.min(
+        Math.round(
+          100 *
+            (Number(tempPodList[i]["memoryUsageMath"]) /
+              Number(selectedNode[0]["podMemoryLimit"])) *
+            10
+        ) / 10,
+
+        100
+      ) < 90
+    ) {
+      containerMemoryColor = "#2fc665";
+      containerMemoryColorLight = "#2fc665";
+    } else {
+      containerMemoryColor = "#cf4848";
+      containerMemoryColorLight = "#cf4848";
+    }
+
+    // if (selectedNode[0]["podMemoryLimit"] === "NONE")
+    // {containerMemoryColor = "#ffffff80"}
+    //else if (
+    // Math.min())
+    // : Math.min(
+    //     Math.round(
+    //       100 *
+    //         (Number(selectedNodeContainers[i]["memoryUsageMath"]) /
+    //           Number(selectedNode[0]["podMemoryLimit"])) *
+    //         10
+    //     ) / 10,
+
+    //     100
+    //   )
+
+    // selectedNode[0]["podCpuLimit"] === "NONE"
+    // ? 0
+    // : ((100 *
+    //     Number(
+    //       selectedNodeContainers[i]["cpuUsage"].slice(0, -1)
+    //     )) /
+    //     Number(`${selectedNode[0]["podCpuLimit"]}`))
+
+    // if (selectedNodeContainers[i]["status"] === "Running"){
+    //   containerStatusColor = "#2fc665";
+    // } else {
+    //   containerStatusColor = "rgba(210, 223, 61)";
+    // }
+
+    // if (selectedNodeContainers[i]["podCpuPercent"] === "N/A") {
+    //   containerCpuPercentColor = "#ffffff80";
+    // } else if (selectedNodeContainers[i]["podCpuPercent"] < 90) {
+    //   containerCpuPercentColor = "#2fc665";
+    // } else {
+    //   containerCpuPercentColor = "#cf4848";
+    // }
+
+    // if (selectedNodeContainers[i]["podMemoryPercent"] === "N/A") {
+    //   containerMemoryColor = "#ffffff80";
+    // } else if (selectedNodeContainers[i]["podMemoryPercent"] < 90) {
+    //   containerMemoryColor = "#2fc665";
+    // } else {
+    //   containerMemoryColor = "#cf4848";
+    // }
+
+    nodesPodsList.push(
+      <div
+        key={i}
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          fontFamily: "Outfit",
+          fontWeight: "400",
+          fontSize: "17px",
+          justifyContent: "flex-start",
+          alignItems: "flex-start",
+          textAlign: "left",
+          width: "auto",
+          margin: "17px 0px 0px 0px",
+          padding: "0 30px 0px 0",
+          letterSpacing: "1px",
+          color: theme.palette.mode === "dark" ? "#8f85fb" : "#9075ea",
+          textShadow:
+            theme.palette.mode === "dark"
+              ? "1px 1px 2px black"
+              : "1px 1px 1px #00000000",
+          // border: "2px solid red",
+        }}
+      >
+        POD {i + 1}
+        <Button
+          key={i}
+          id="podButt"
+          // onClick={() => handlePodOpen(podsArr[i])}
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            width: "380px",
+            height: "115px",
+            fontSize: "16px",
+            // border: "1px solid white",
+            justifyContent: "center",
+            textAlign: "left",
+            alignItems: "space-between",
+            margin: "2px 0 0 0",
+            padding: "5px 0px 0px 0px",
+            color: theme.palette.mode === "dark" ? "white" : "grey",
+            border:
+              theme.palette.mode === "dark"
+                ? "1.3px solid white"
+                : "1.3px solid grey",
+            borderRadius: "5px",
+            boxShadow:
+              theme.palette.mode === "dark"
+                ? "10px 9px 2px #00000060"
+                : "10px 10px 1px #00000020",
+            background: theme.palette.mode === "dark" ? "#0e0727" : "#e6e1fb",
+          }}
+        >
+          {" "}
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              justifyContent: "flex-start",
+              // border: "1px solid yellow",
+              width: "350px",
+              margin: "30px 0 0 0",
+            }}
+          >
+            <img
+              style={{ width: "45px", marginLeft: "0px" }}
+              src="../../container.png"
+            ></img>
+            <span
+              style={{
+                margin: "5px 0 0 15px",
+                width: "250px",
+                lineHeight: "23px",
+                textTransform: "none",
+                fontSize: "19px",
+              }}
+            >
+              {tempPodList[i]["name"]}
+            </span>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                textAlign: "right",
+                alignItems: "flex-end",
+                justifyContent: "right",
+                margin: "0px 0px 0 28px",
+              }}
+            >
+              <div
+                style={{
+                  width: "12px",
+                  height: "12px",
+                  borderRadius: "15px",
+                  backgroundColor: `${containerStatusColor}`,
+                  justifyContent: "right",
+                  margin: "0px 0 0px 0",
+                  // border: ".5px solid white",
+                }}
+              ></div>
+            </div>
+          </div>
+          {/*---------------------------------------------------------------- */}
+          {/*                  beginng of row of stats below conatiner name   */}
+          {/*---------------------------------------------------------------- */}
+          <span
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              // border: "1px solid green",
+              textAlign: "center",
+              justifyContent: "left",
+              alignItems: "flex-start",
+              width: "100%",
+              // height:"100px",
+              alignContent: "flex-end",
+              // border: "2px solid red",
+              padding: "0px 0px 0px 70px",
+              margin: "5px 0px 0px 0px",
+              fontSize: "15px",
+            }}
+          >
+            <br />
+            <div
+              style={{
+                flexDirection: "column",
+                justifyContent: "left",
+                textAlign: "left",
+                width: "200px",
+                fontSize: "11.5px",
+                padding: "0px 0px 0 0px",
+                fontWeight: "400",
+                marginTop: "0px",
+                // border: "1px solid blue",
+                lineHeight: "16px",
+                textTransform: "none",
+                opacity: ".5",
+                // color: `${readyStatusRunning}`,
+              }}
+            >
+              CPU USAGE: {tempPodList[i]["cpuUsage"]}
+              <br />
+              MEMORY USAGE: {tempPodList[i]["memoryUsage"]}
+            </div>
+
+            <div
+              style={{
+                flexDirection: "column",
+                justifyContent: "center",
+                textAlign: "center",
+                alignItems: "center",
+                width: "70px",
+                height: "70px",
+                fontSize: "4",
+                padding: "0px 0px 0px 0px",
+                fontWeight: "400",
+                marginRight: "18px",
+                marginTop: "3px",
+                marginBottom: "0px",
+                // border: "1px solid red",
+                // color: `${readyStatusRunning}`,
+              }}
+            >
+              <div
+                style={
+                  {
+                    // border: "1px solid yellow"
+                  }
+                }
+              >
+                <CircularProgress
+                  variant="determinate"
+                  // @ts-nocheck
+                  thickness={1.35}
+                  value={100 * 0.73}
+                  style={{
+                    marginTop: "0px",
+                    marginLeft: "10.5px",
+                    rotate: "-131deg",
+                    color: "#ffffff40",
+
+                    width: "60px",
+                    // border: "1px solid red",
+                    // filter: "drop-shadow(10px 10px 10px #000000)",
+                  }}
+                />
+                <CircularProgress
+                  variant="determinate"
+                  // @ts-nocheck
+                  thickness={1.35}
+                  value={
+                    selectedNode[0]["podCpuLimit"] === "NONE"
+                      ? 0
+                      : ((100 * Number(tempPodList[i]["nodeCpuUsed"])) /
+                          Number(`${selectedNode[0]["podCpuLimit"]}`)) *
+                        0.73
+                  }
+                  //Number(`${podsArr[i]["podCpuLimit"]}`)
+
+                  // Number(
+                  //   selectedNodeContainers[i]["cpuUsage"].slice(0, -1)
+                  // )  / Number(`${podsArr[i]["podCpuLimit"]}`)
+                  style={{
+                    position: "relative",
+                    top: "-48px",
+                    left: "5.5px",
+                    rotate: "-131deg",
+                    color:
+                      theme.palette.mode === "dark"
+                        ? `${containerCpuPercentColor}`
+                        : `${containerCpuPercentColorLight}`,
+
+                    width: "60px",
+                    // border: "1px solid red",
+                    // filter: "drop-shadow(10px 10px 10px #000000)",
+                  }}
+                />
+              </div>
+              <div
+                style={{
+                  position: "relative",
+                  top: "-43px",
+                  left: "5px",
+                  fontSize:
+                    selectedNode[0]["podCpuLimit"] === "NONE" ? "13px" : "16px",
+                  fontWeight: "500",
+                  marginTop:
+                    selectedNode[0]["podCpuLimit"] === "NONE"
+                      ? "-55px"
+                      : "-60px",
+                  marginLeft: "-8px",
+                  // border: "2px solid red",
+                  color:
+                    theme.palette.mode === "dark"
+                      ? `${containerCpuPercentColor}`
+                      : `${containerCpuPercentColorLight}`,
+                }}
+              >
+                {selectedNode[0]["podCpuLimit"] === "NONE"
+                  ? `no max`
+                  : `${
+                      100 *
+                      (Number(tempPodList[i]["nodeCpuUsed"]) /
+                        Number(selectedNode[0]["podCpuLimit"]))
+                    }%`}
+              </div>
+              <div
+                style={{
+                  fontSize: "9px",
+                  position: "relative",
+                  top: "-43px",
+                  left: "-1.5px",
+                  // border: "1px solid red",
+
+                  marginRight: "-2px",
+                  fontWeight: "500",
+                  marginTop: "-8px",
+                  color:
+                    theme.palette.mode === "dark"
+                      ? `${containerCpuPercentColor}`
+                      : `${containerCpuPercentColorLight}`,
+                }}
+              >
+                CPU
+              </div>
+            </div>
+
+            <div
+              style={{
+                flexDirection: "column",
+                justifyContent: "center",
+                textAlign: "center",
+                alignItems: "center",
+                width: "70px",
+                height: "40px",
+                fontSize: "4",
+                padding: "0px 0px 0 0px",
+                fontWeight: "400",
+                marginRight: "18px",
+                marginTop: "3px",
+                // border: "1px solid red",
+                // color: `${readyStatusRunning}`,
+              }}
+            >
+              <div
+                style={
+                  {
+                    // border: "1px solid yellow"
+                  }
+                }
+              >
+                <CircularProgress
+                  variant="determinate"
+                  // @ts-nocheck
+                  thickness={1.35}
+                  value={100 * 0.73}
+                  style={{
+                    marginTop: "0px",
+                    marginLeft: "9.5px",
+                    rotate: "-131deg",
+                    color: "#ffffff40",
+
+                    width: "60px",
+                    // border: "1px solid red",
+                    // filter: "drop-shadow(10px 10px 10px #000000)",
+                  }}
+                />
+                <CircularProgress
+                  variant="determinate"
+                  // @ts-nocheck
+                  thickness={1.35}
+                  value={
+                    selectedNode[0]["podMemoryLimit"] === "NONE"
+                      ? 0
+                      : Math.min(
+                          73,
+                          (73 * Number(tempPodList[i]["memoryUsageMath"])) /
+                            Number(`${selectedNode[0]["podMemoryLimit"]}`)
+                        )
+                  }
+                  // selectedNode[0]["podCpuLimit"] === "NONE"
+                  // ? 0
+                  // : ((100 *
+                  //     Number(
+                  //       selectedNodeContainers[i]["memoryUsageMath"]
+                  //     )) /
+                  //     Number(`${selectedNode[0]["podMemoryLimit"]}`)) *
+                  //   0.73
+                  style={{
+                    position: "relative",
+                    top: "-48px",
+                    left: "4.8px",
+                    rotate: "-131deg",
+                    color:
+                      theme.palette.mode === "dark"
+                        ? `${containerMemoryColor}`
+                        : `${containerMemoryColorLight}`,
+
+                    width: "60px",
+                    // border: "1px solid red",
+                    // filter: "drop-shadow(10px 10px 10px #000000)",
+                  }}
+                />
+              </div>
+              <div
+                style={{
+                  position: "relative",
+                  top: "-43px",
+                  left: "5px",
+                  fontWeight: "500",
+                  marginLeft: "-11px",
+                  fontSize:
+                    selectedNode[0]["podMemoryLimit"] === "NONE"
+                      ? "13px"
+                      : "16px",
+                  marginTop:
+                    selectedNode[0]["podMemoryLimit"] === "NONE"
+                      ? "-55px"
+                      : "-60px",
+                  // border: "2px solid red",
+                  color:
+                    theme.palette.mode === "dark"
+                      ? `${containerMemoryColor}`
+                      : `${containerMemoryColorLight}`,
+                }}
+              >
+                {selectedNode[0]["podMemoryLimit"] === "NONE"
+                  ? `no max`
+                  : `${Math.min(
+                      Math.round(
+                        100 *
+                          (Number(tempPodList[i]["memoryUsageMath"]) /
+                            Number(selectedNode[0]["podMemoryLimit"])) *
+                          10
+                      ) / 10,
+
+                      100
+                    )}%`}
+              </div>
+              <div
+                style={{
+                  fontSize: "9px",
+                  position: "relative",
+                  top: "-43px",
+                  left: "-2.5px",
+                  // border: "1px solid red",
+
+                  marginRight: "-2px",
+                  fontWeight: "500",
+                  marginTop: "-8px",
+                  color:
+                    theme.palette.mode === "dark"
+                      ? `${containerMemoryColor}`
+                      : `${containerMemoryColorLight}`,
+                }}
+              >
+                MEMORY
+              </div>
+            </div>
+          </span>
+          {}
+        </Button>
+      </div>
+    );
+  }
   // ---------------------------------------------------------- START OF IF CONDITION TO DETERMINE MAIN DIV'S JSX --------
   let nodeListDiv;
   if (props.nodesArr[0]) {
@@ -1171,6 +1829,579 @@ props.getNodesInfo()
           }}
         >
           {nodeList}
+          <Modal
+            open={openNode}
+            onClose={handleNodeClose}
+            style={{ overflow: "scroll", height: "100%" }}
+            aria-labelledby="modal-modal-title"
+            aria-describedby="modal-modal-description"
+          >
+            <Box sx={openNodeModalStyle}>
+              <div style={{ display: "flex", flexDirection: "column" }}>
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "row",
+                    // border: "1px solid white",
+                  }}
+                >
+                  <div style={{ width: "140px", height: "400px" }}>
+                    <img
+                      style={{
+                        width: "100px",
+                        height: "100px",
+                        margin: "15px 25px 0 15px",
+                      }}
+                      src="../../pod.svg"
+                    ></img>
+                    {/* <img
+                      style={{
+                        width: "100px",
+                        height: "100px",
+                        margin: "15px 25px 0 20px",
+                      }}
+                      src="../../pod.svg"
+                    ></img> */}
+                  </div>
+                  {"  "}
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      // border: "1px solid green",
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "row",
+                        width: "820px",
+                        // border: "1px solid yellow",
+                      }}
+                    >
+                      <div
+                        style={{
+                          fontSize: "38px",
+                          fontWeight: "800",
+                          letterSpacing: ".1px",
+                          lineHeight: "40px",
+                          padding: "30px 0 10px 10px",
+                          // border: "1px solid yellow",
+                          width: "900px",
+                        }}
+                      >
+                        {selectedNode[0]["name"]}
+                      </div>
+
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          textAlign: "right",
+                          alignItems: "flex-end",
+                          justifyContent: "right",
+                          margin: "15px 15px 0 20px",
+                          // border: "1px solid green",
+                          // width:"200px"
+                        }}
+                      >
+                        <div
+                          style={{
+                            width: "24px",
+                            height: "24px",
+                            borderRadius: "15px",
+                            backgroundColor: `${selectedNodeStatusColor}`,
+                            justifyContent: "right",
+                            margin: "0px 0 2px 0",
+                            // border: "5px solid white",
+                          }}
+                        ></div>
+                        <div
+                          style={{
+                            fontSize: "20px",
+                            fontWeight: "500",
+                            color: `${selectedNodeStatusColor}`,
+                          }}
+                        >
+                          {/* {selectedNode[0]["ready"].toUpperCase()} */}
+                        </div>
+                        <div
+                          style={{
+                            fontSize: "20px",
+                            fontWeight: "500",
+                            margin: "-4px 0 0 0",
+                            color: `${selectedNodeStatusColor}`,
+                          }}
+                        >
+                          {selectedNode[0]["status"].toUpperCase()}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "row",
+                        // border: "1px solid pink",
+                        width: "100%",
+                        marginTop: "40px",
+                      }}
+                    >
+                      <div
+                        style={{
+                          flexDirection: "column",
+                          width: "300px",
+                          color:
+                            theme.palette.mode === "dark"
+                              ? "#ffffff99"
+                              : "darkpurple",
+                          margin: "-10px 0 20px 0px",
+                          fontSize: "17px",
+                          fontWeight: "200",
+                          // border: "2px solid green",
+                        }}
+                      >
+                        <div
+                          style={{
+                            display: "flex",
+                            fontSize: "25px",
+                            color:
+                              theme.palette.mode === "dark"
+                                ? "#ffffff"
+                                : "white",
+                            fontWeight: "500",
+                            margin: "-20px 0 4px 0",
+                            backgroundColor:
+                              theme.palette.mode === "dark"
+                                ? "#7269ea"
+                                : "#928dd0",
+                            padding: "3px 9px 3px 10px",
+                            borderRadius: "3px",
+                            width: `${selectedNode[0]["role"].length * 17.5}px`, //"105px",
+                            letterSpacing: ".5px",
+                          }}
+                        >
+                          {selectedNode[0]["role"].toUpperCase()}
+                        </div>
+                        <div style={{ paddingLeft: "5px" }}>
+                          <br />
+                          <div style={{ fontSize: "20px" }}>
+                            <b>
+                              NODE: {" " + selectedNode[0]["node"]}
+                              <br />
+                              NAMESPACE:
+                              {" " + selectedNode[0]["namespace"]}{" "}
+                            </b>
+                            <br />
+                          </div>
+                          <b>RESTARTS:</b>{" "}
+                          {/* {selectedNode[0]["restarts"].toUpperCase()} */}
+                          <br />
+                          <b>LAST RESTART:</b>{" "}
+                          {/* {selectedNode[0]["lastRestart"].toUpperCase()} */}
+                          <br />
+                          <b>AGE:</b> {selectedNode[0]["age"].toUpperCase()}
+                          <br />
+                          <b>IP ADDRESS:</b>
+                          {" " + selectedNode[0]["ipAddress"]}
+                          <br />
+                          <b>NOMINATED NODE:</b>
+                          {" " + selectedNode[0]["nominatedNode"]}
+                          <br />
+                          <b>READINESS GATES:</b>
+                          {" " + selectedNode[0]["readinessGates"]}
+                        </div>
+                      </div>
+
+                      {/* <div style={{ flexDirection: "column", width: "220px" }}>
+                        <div
+                          style={{ paddingLeft: "0px", color: "#ffffff99" }}
+                        >
+                          <br />
+                          CPU USED: {selectedNode[0]["podCpuUsed"].toUpperCase()}
+                          m
+                          <br />
+                          CPU LIMIT:{" "}
+                          {selectedNode[0]["podCpuLimit"].toUpperCase()}m
+                          <br />
+                          CPU PERCENTAGE: {selectedNode[0]["podCpuPercent"]}%
+                          <br />
+                          MEMORY USED:{" "}
+                          {selectedNode[0]["podMemoryUsed"].toUpperCase()}
+                          Mi
+                          <br />
+                          MEMORY LIMIT:
+                          {selectedNode[0]["podMemoryLimit"].toUpperCase()}Mi
+                          <br />
+                          MEMORY PERCENTAGE:{selectedNode[0]["podMemoryPercent"]}
+                          %
+                        </div>{" "}
+                      </div> */}
+
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          marginRight: "35px",
+                          marginLeft: "5px",
+                          // border: "1px solid yellow",
+                        }}
+                      >
+                        <CircularProgress
+                          variant="determinate"
+                          // @ts-nocheck
+                          thickness={1.35}
+                          value={100 * 0.73}
+                          style={{
+                            marginTop: "130px",
+                            marginLeft: "53.5px",
+                            rotate: "-131deg",
+                            color:
+                              theme.palette.mode === "dark"
+                                ? "#ffffff40"
+                                : "#00000015",
+
+                            width: "180px",
+                            // border: "1px solid red",
+                            // filter: "drop-shadow(10px 10px 10px #000000)",
+                          }}
+                        />
+                        <CircularProgress
+                          variant="determinate"
+                          // @ts-nocheck
+                          thickness={1.35}
+                          value={
+                            // 2 *
+                            selectedNode[0]["podCpuLimit"] === "NONE"
+                              ? 0
+                              : Number(`${selectedNode[0]["podCpuPercent"]}`) *
+                                0.73
+                          }
+                          style={{
+                            position: "relative",
+                            top: "-40px",
+                            left: "26.8px",
+                            rotate: "-131deg",
+                            color:
+                              selectedNode[0]["podCpuPercent"] === "N/A"
+                                ? "#ffffff80"
+                                : Number(selectedNode[0]["podCpuPercent"]) < 90
+                                ? `#2fc665`
+                                : Number(selectedNode[0]["podCpuPercent"]) > 90
+                                ? "#cf4848"
+                                : "yellow",
+                            width: "180px",
+
+                            // border: "1px solid red",
+                            // filter: "drop-shadow(10px 10px 10px #000000)",
+                          }}
+                        />
+                        <div
+                          style={{
+                            position: "relative",
+                            top: "-95px",
+                            left: "0px",
+                            fontSize:
+                              selectedNode[0]["podCpuPercent"] === "N/A"
+                                ? "36px"
+                                : "38px",
+                            fontWeight: "800",
+                            marginTop: "-60px",
+                            marginLeft: "-37px",
+                            // border: "2px solid blue",
+                            color:
+                              selectedNode[0]["podCpuPercent"] === "N/A"
+                                ? "#ffffff80"
+                                : Number(selectedNode[0]["podCpuPercent"]) < 90
+                                ? `#2fc665`
+                                : Number(selectedNode[0]["podCpuPercent"]) > 90
+                                ? "#cf4848"
+                                : "yellow", //`${PodMemoryPercentColor}`,
+                          }}
+                        >
+                          {selectedNode[0]["podCpuPercent"] === "N/A"
+                            ? `NO MAX`
+                            : `${selectedNode[0]["podCpuPercent"]}%`}
+                        </div>
+                        <div
+                          style={{
+                            fontSize: "16px",
+                            position: "relative",
+                            top: "-99px",
+                            left: "-21px",
+                            // border: "1px solid red",
+
+                            marginRight: "-2px",
+                            fontWeight: "400",
+                            marginTop: "-8px",
+                            color:
+                              selectedNode[0]["podCpuPercent"] === "N/A"
+                                ? "#ffffff80"
+                                : Number(selectedNode[0]["podCpuPercent"]) < 90
+                                ? `#2fc665`
+                                : Number(selectedNode[0]["podCpuPercent"]) > 90
+                                ? "#cf4848"
+                                : "yellow", //"#cf4848", //`${PodMemoryPercentColor}`,
+                          }}
+                        >
+                          CPU
+                        </div>
+                        <div
+                          style={{
+                            position: "relative",
+                            top: -42,
+                            left: -19,
+                            fontWeight: "400",
+                            fontSize: "16px",
+                            // display: "flex",
+                            // flexDirection: "column",
+                            // margin: "-50px 0 0 -29px",
+                            textAlign: "center",
+                            color:
+                              selectedNode[0]["podCpuPercent"] === "N/A"
+                                ? "#ffffff80"
+                                : Number(selectedNode[0]["podCpuPercent"]) < 90
+                                ? `#2fc665`
+                                : Number(selectedNode[0]["podCpuPercent"]) > 90
+                                ? "#cf4848"
+                                : "yellow", //"#cf4848", //`${PodMemoryPercentColor}`,
+                          }}
+                        >
+                          {" "}
+                          CPU USED:{" "}
+                          <strong>
+                            {/* {selectedNode[0]["podCpuUsed"].toUpperCase()} */}
+                            m
+                          </strong>
+                          <br />
+                          CPU LIMIT:{" "}
+                          <strong>
+                            {/* {selectedNode[0]["podCpuLimit"].toUpperCase()} */}
+                            m
+                          </strong>
+                        </div>
+                      </div>
+
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          // border: "1px solid yellow",
+                        }}
+                      >
+                        <CircularProgress
+                          variant="determinate"
+                          // @ts-nocheck
+                          thickness={1.35}
+                          value={100 * 0.73}
+                          style={{
+                            marginTop: "130px",
+                            marginLeft: "53.5px",
+                            rotate: "-131deg",
+                            color:
+                              theme.palette.mode === "dark"
+                                ? "#ffffff40"
+                                : "#00000015",
+
+                            width: "180px",
+                            // border: "1px solid red",
+                            // filter: "drop-shadow(10px 10px 10px #000000)",
+                          }}
+                        />
+                        <CircularProgress
+                          variant="determinate"
+                          // @ts-nocheck
+                          thickness={1.35}
+                          value={
+                            // 2 *
+                            selectedNode[0]["podMemoryLimit"] === "NONE"
+                              ? 0
+                              : Number(
+                                  `${selectedNode[0]["podMemoryPercent"]}`
+                                ) * 0.73
+                          }
+                          style={{
+                            position: "relative",
+                            top: "-40px",
+                            left: "26.8px",
+                            rotate: "-131deg",
+                            color:
+                              selectedNode[0]["podMemoryPercent"] === "N/A"
+                                ? "#ffffff80"
+                                : Number(selectedNode[0]["podMemoryPercent"]) <
+                                  90
+                                ? `#2fc665`
+                                : Number(selectedNode[0]["podMemoryPercent"]) >
+                                  90
+                                ? "#cf4848"
+                                : "yellow",
+                            width: "180px",
+
+                            // border: "1px solid red",
+                            // filter: "drop-shadow(10px 10px 10px #000000)",
+                          }}
+                        />
+                        <div
+                          style={{
+                            position: "relative",
+                            top: "-95px",
+                            left: "0px",
+                            fontSize:
+                              selectedNode[0]["podMemoryPercent"] === "N/A"
+                                ? "36px"
+                                : "38px",
+                            fontWeight: "800",
+                            marginTop: "-60px",
+                            marginLeft: "-37px",
+                            // border: "2px solid blue",
+                            color:
+                              selectedNode[0]["podMemoryPercent"] === "N/A"
+                                ? "#ffffff80"
+                                : Number(selectedNode[0]["podMemoryPercent"]) <
+                                  90
+                                ? `#2fc665`
+                                : Number(selectedNode[0]["podMemoryPercent"]) >
+                                  90
+                                ? "#cf4848"
+                                : "yellow", //`${PodMemoryPercentColor}`,
+                          }}
+                        >
+                          {selectedNode[0]["podMemoryPercent"] === "N/A"
+                            ? `NO MAX`
+                            : `${selectedNode[0]["podMemoryPercent"]}%`}
+                        </div>
+                        <div
+                          style={{
+                            fontSize: "16px",
+                            position: "relative",
+                            top: "-99px",
+                            left: "-20px",
+                            // border: "1px solid red",
+
+                            marginRight: "-2px",
+                            fontWeight: "400",
+                            marginTop: "-8px",
+                            color:
+                              selectedNode[0]["podMemoryPercent"] === "N/A"
+                                ? "#ffffff80"
+                                : Number(selectedNode[0]["podMemoryPercent"]) <
+                                  90
+                                ? `#2fc665`
+                                : Number(selectedNode[0]["podMemoryPercent"]) >
+                                  90
+                                ? "#cf4848"
+                                : "yellow", //"#cf4848", //`${PodMemoryPercentColor}`,
+                          }}
+                        >
+                          MEMORY
+                        </div>
+                        <div
+                          style={{
+                            position: "relative",
+                            top: -42,
+                            left: -19,
+                            fontWeight: "400",
+                            fontSize: "16px",
+                            // display: "flex",
+                            // flexDirection: "column",
+                            // margin: "-50px 0 0 -29px",
+                            textAlign: "center",
+                            color:
+                              selectedNode[0]["podMemoryPercent"] === "N/A"
+                                ? "#ffffff80"
+                                : Number(selectedNode[0]["podMemoryPercent"]) <
+                                  90
+                                ? `#2fc665`
+                                : Number(selectedNode[0]["podMemoryPercent"]) >
+                                  90
+                                ? "#cf4848"
+                                : "yellow", //"#cf4848", //`${PodMemoryPercentColor}`,
+                          }}
+                        >
+                          {" "}
+                          MEM. USED:{" "}
+                          <strong>
+                            {selectedNode[0]["podMemoryUsedDisplay"]}
+                          </strong>
+                          <br />
+                          MEM. LIMIT:{" "}
+                          <strong>
+                            {selectedNode[0]["podMemoryLimitDisplay"]}
+                          </strong>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "row",
+                        justifyContent: "flex-start",
+                        alignItems: "flex-end",
+                        margin: "50px 0 0 0px",
+                      }}
+                    >
+                      <div
+                        style={{
+                          fontFamily: "Outfit",
+                          fontSize: "20px",
+                          fontWeight: "900",
+                          letterSpacing: "3px",
+                          // border: "1px solid white",
+                          textAlign: "left",
+                          // color: "#ffffff",
+                          paddingTop: "10px",
+                        }}
+                      >
+                        NODE'S PODS
+                      </div>
+                      <div
+                        style={{
+                          margin: "0px 0 2px 10px",
+                          color: `${selectedNodeStatusColor}`,
+                        }}
+                      >
+                        ({selectedNode[0]["ready"]} {selectedNode[0]["status"]})
+                      </div>
+                    </div>
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "row",
+                        justifyContent: "flex-start",
+                        margin: "0 0 0 0px",
+                      }}
+                    >
+                      <div
+                        style={{
+                          height: "1px",
+                          width: "100%",
+                          backgroundColor: "#ffffff99",
+                          // border: "1px solid white",
+                          // marginRight: "50px",
+                          marginRight: "20px",
+                          marginTop: "5px",
+                        }}
+                      ></div>
+                    </div>
+                    <div
+                      style={{
+                        display: "flex",
+                        flexWrap: "wrap",
+                        margin: "0 0 0 0px",
+                      }}
+                    >
+                      {nodesPodsList}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </Box>
+          </Modal>
         </div>
         <div style={{ height: "20px" }}></div>
       </>
@@ -1244,292 +2475,7 @@ props.getNodesInfo()
   // </>
   //
 
-  //{
-  // "apiVersion": "v1",
-  // "kind": "Node",
-  // "metadata": {
-  //     "annotations": {
-  //         "kubeadm.alpha.kubernetes.io/cri-socket": "unix:///var/run/cri-dockerd.sock",
-  //         "node.alpha.kubernetes.io/ttl": "0",
-  //         "volumes.kubernetes.io/controller-managed-attach-detach": "true"
-  //     },
-  //     "creationTimestamp": "2023-05-01T18:47:55Z",
-  //     "labels": {
-  //         "beta.kubernetes.io/arch": "arm64",
-  //         "beta.kubernetes.io/os": "linux",
-  //         "kubernetes.io/arch": "arm64",
-  //         "kubernetes.io/hostname": "docker-desktop",
-  //         "kubernetes.io/os": "linux",
-  //         "node-role.kubernetes.io/control-plane": "",
-  //         "node.kubernetes.io/exclude-from-external-load-balancers": ""
-  //     },
-  //     "name": "docker-desktop",
-  //     "resourceVersion": "1171992",
-  //     "uid": "2a49ff81-3780-4a1c-a9ca-e85be82b254f"
-  // },
-  // "spec": {},
-  // "status": {
-  //     "addresses": [
-  //         {
-  //             "address": "192.168.65.4",
-  //             "type": "InternalIP"
-  //         },
-  //         {
-  //             "address": "docker-desktop",
-  //             "type": "Hostname"
-  //         }
-  //     ],
-  //     "allocatable": {
-  //         "cpu": "4",
-  //         "ephemeral-storage": "56403987978",
-  //         "hugepages-1Gi": "0",
-  //         "hugepages-2Mi": "0",
-  //         "hugepages-32Mi": "0",
-  //         "hugepages-64Ki": "0",
-  //         "memory": "7937592Ki",
-  //         "pods": "110"
-  //     },
-  //     "capacity": {
-  //         "cpu": "4",
-  //         "ephemeral-storage": "61202244Ki",
-  //         "hugepages-1Gi": "0",
-  //         "hugepages-2Mi": "0",
-  //         "hugepages-32Mi": "0",
-  //         "hugepages-64Ki": "0",
-  //         "memory": "8039992Ki",
-  //         "pods": "110"
-  //     },
-  //     "conditions": [
-  //         {
-  //             "lastHeartbeatTime": "2023-09-20T22:01:10Z",
-  //             "lastTransitionTime": "2023-05-01T18:47:53Z",
-  //             "message": "kubelet has sufficient memory available",
-  //             "reason": "KubeletHasSufficientMemory",
-  //             "status": "False",
-  //             "type": "MemoryPressure"
-  //         },
-  //         {
-  //             "lastHeartbeatTime": "2023-09-20T22:01:10Z",
-  //             "lastTransitionTime": "2023-05-01T18:47:53Z",
-  //             "message": "kubelet has no disk pressure",
-  //             "reason": "KubeletHasNoDiskPressure",
-  //             "status": "False",
-  //             "type": "DiskPressure"
-  //         },
-  //         {
-  //             "lastHeartbeatTime": "2023-09-20T22:01:10Z",
-  //             "lastTransitionTime": "2023-05-01T18:47:53Z",
-  //             "message": "kubelet has sufficient PID available",
-  //             "reason": "KubeletHasSufficientPID",
-  //             "status": "False",
-  //             "type": "PIDPressure"
-  //         },
-  //         {
-  //             "lastHeartbeatTime": "2023-09-20T22:01:10Z",
-  //             "lastTransitionTime": "2023-05-01T18:48:26Z",
-  //             "message": "kubelet is posting ready status",
-  //             "reason": "KubeletReady",
-  //             "status": "True",
-  //             "type": "Ready"
-  //         }
-  //     ],
-  //     "daemonEndpoints": {
-  //         "kubeletEndpoint": {
-  //             "Port": 10250
-  //         }
-  //     },
-  //     "images": [
-  //         {
-  //             "names": [
-  //                 "hubproxy.docker.internal:5555/docker/desktop-kubernetes@sha256:f1573ffb14599a41a50fc9bd6f15c0f4060ed6ade929e9f2c458e5e3cc36cf68",
-  //                 "hubproxy.docker.internal:5555/docker/desktop-kubernetes:kubernetes-v1.25.9-cni-v1.1.1-critools-v1.25.0-cri-dockerd-v0.2.6-1-debian"
-  //             ],
-  //             "sizeBytes": 385396541
-  //         },
-  //         {
-  //             "names": [
-  //                 "grafana/grafana@sha256:00a4d2889c2b32f86c50673b1a82cb5b45349f1c24b0a882d11a53518e2ecae4",
-  //                 "grafana/grafana:9.5.1"
-  //             ],
-  //             "sizeBytes": 297448929
-  //         },
-  //         {
-  //             "names": [
-  //                 "quay.io/prometheus/prometheus@sha256:d2ab0a27783fd4ad96a8853e2847b99a0be0043687b8a5d1ebfb2dd3fa4fd1b8",
-  //                 "quay.io/prometheus/prometheus:v2.42.0"
-  //             ],
-  //             "sizeBytes": 225839649
-  //         },
-  //         {
-  //             "names": [
-  //                 "registry.k8s.io/etcd:3.5.6-0"
-  //             ],
-  //             "sizeBytes": 180688846
-  //         },
-  //         {
-  //             "names": [
-  //                 "registry.k8s.io/etcd:3.5.5-0"
-  //             ],
-  //             "sizeBytes": 178899047
-  //         },
-  //         {
-  //             "names": [
-  //                 "registry.k8s.io/kube-apiserver:v1.25.9"
-  //             ],
-  //             "sizeBytes": 123299566
-  //         },
-  //         {
-  //             "names": [
-  //                 "registry.k8s.io/kube-apiserver:v1.25.4"
-  //             ],
-  //             "sizeBytes": 123202762
-  //         },
-  //         {
-  //             "names": [
-  //                 "registry.k8s.io/kube-controller-manager:v1.25.9"
-  //             ],
-  //             "sizeBytes": 112814099
-  //         },
-  //         {
-  //             "names": [
-  //                 "registry.k8s.io/kube-controller-manager:v1.25.4"
-  //             ],
-  //             "sizeBytes": 112651759
-  //         },
-  //         {
-  //             "names": [
-  //                 "quay.io/kiwigrid/k8s-sidecar@sha256:eaa478cdd0b8e1be7a4813bc1b01948b838e2feaa6d999e60c997dc823013824",
-  //                 "quay.io/kiwigrid/k8s-sidecar:1.22.0"
-  //             ],
-  //             "sizeBytes": 77954382
-  //         },
-  //         {
-  //             "names": [
-  //                 "registry.k8s.io/metrics-server/metrics-server@sha256:ee4304963fb035239bb5c5e8c10f2f38ee80efc16ecbdb9feb7213c17ae2e86e",
-  //                 "registry.k8s.io/metrics-server/metrics-server:v0.6.4"
-  //             ],
-  //             "sizeBytes": 66906490
-  //         },
-  //         {
-  //             "names": [
-  //                 "quay.io/prometheus/alertmanager@sha256:fd4d9a3dd1fd0125108417be21be917f19cc76262347086509a0d43f29b80e98",
-  //                 "quay.io/prometheus/alertmanager:v0.25.0"
-  //             ],
-  //             "sizeBytes": 63233000
-  //         },
-  //         {
-  //             "names": [
-  //                 "k8s.gcr.io/metrics-server/metrics-server@sha256:6c5603956c0aed6b4087a8716afce8eb22f664b13162346ee852b4fab305ca15",
-  //                 "k8s.gcr.io/metrics-server/metrics-server:v0.5.0"
-  //             ],
-  //             "sizeBytes": 60016245
-  //         },
-  //         {
-  //             "names": [
-  //                 "registry.k8s.io/kube-proxy:v1.25.9"
-  //             ],
-  //             "sizeBytes": 58056002
-  //         },
-  //         {
-  //             "names": [
-  //                 "registry.k8s.io/kube-proxy:v1.25.4"
-  //             ],
-  //             "sizeBytes": 57990466
-  //         },
-  //         {
-  //             "names": [
-  //                 "k8s.gcr.io/metrics-server/metrics-server@sha256:78035f05bcf7e0f9b401bae1ac62b5a505f95f9c2122b80cff73dcc04d58497e",
-  //                 "k8s.gcr.io/metrics-server/metrics-server:v0.4.1"
-  //             ],
-  //             "sizeBytes": 57796983
-  //         },
-  //         {
-  //             "names": [
-  //                 "quay.io/prometheus-operator/prometheus-operator@sha256:be4fbe0cfcad639e7a9ce40274917e1e30a3cae045ae27cde35ac84739fdef40",
-  //                 "quay.io/prometheus-operator/prometheus-operator:v0.63.0"
-  //             ],
-  //             "sizeBytes": 53228029
-  //         },
-  //         {
-  //             "names": [
-  //                 "registry.k8s.io/kube-scheduler:v1.25.9"
-  //             ],
-  //             "sizeBytes": 49441087
-  //         },
-  //         {
-  //             "names": [
-  //                 "registry.k8s.io/kube-scheduler:v1.25.4"
-  //             ],
-  //             "sizeBytes": 49278447
-  //         },
-  //         {
-  //             "names": [
-  //                 "registry.k8s.io/coredns/coredns:v1.9.3"
-  //             ],
-  //             "sizeBytes": 47660771
-  //         },
-  //         {
-  //             "names": [
-  //                 "registry.k8s.io/kube-state-metrics/kube-state-metrics@sha256:ec5732e28f151de3847df60f48c5a570aacdb692ff1ce949d97105ae5e5a6722",
-  //                 "registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.8.2"
-  //             ],
-  //             "sizeBytes": 40442314
-  //         },
-  //         {
-  //             "names": [
-  //                 "docker/desktop-storage-provisioner:v2.0"
-  //             ],
-  //             "sizeBytes": 39816902
-  //         },
-  //         {
-  //             "names": [
-  //                 "docker/desktop-vpnkit-controller:dc331cb22850be0cdd97c84a9cfecaf44a1afb6e"
-  //             ],
-  //             "sizeBytes": 34992760
-  //         },
-  //         {
-  //             "names": [
-  //                 "quay.io/prometheus/node-exporter@sha256:39c642b2b337e38c18e80266fb14383754178202f40103646337722a594d984c",
-  //                 "quay.io/prometheus/node-exporter:v1.5.0"
-  //             ],
-  //             "sizeBytes": 21845668
-  //         },
-  //         {
-  //             "names": [
-  //                 "docker/desktop-vpnkit-controller:v2.0"
-  //             ],
-  //             "sizeBytes": 19178584
-  //         },
-  //         {
-  //             "names": [
-  //                 "quay.io/prometheus-operator/prometheus-config-reloader@sha256:3f976422884ec7744f69084da7736927eb634914a0c035d5a865cf6a6b8eb1b0",
-  //                 "quay.io/prometheus-operator/prometheus-config-reloader:v0.63.0"
-  //             ],
-  //             "sizeBytes": 12333565
-  //         },
-  //         {
-  //             "names": [
-  //                 "registry.k8s.io/pause:3.8"
-  //             ],
-  //             "sizeBytes": 514000
-  //         }
-  //     ],
-  //     "nodeInfo": {
-  //         "architecture": "arm64",
-  //         "bootID": "09ba70b6-5aaf-484f-9189-5c5c85ec7200",
-  //         "containerRuntimeVersion": "docker://24.0.2",
-  //         "kernelVersion": "5.15.49-linuxkit-pr",
-  //         "kubeProxyVersion": "v1.25.4",
-  //         "kubeletVersion": "v1.25.4",
-  //         "machineID": "08187e84-990c-459e-a1c3-18edd2c5ee23",
-  //         "operatingSystem": "linux",
-  //         "osImage": "Docker Desktop",
-  //         "systemUUID": "08187e84-990c-459e-a1c3-18edd2c5ee23"
-  //     }
-  // }
-  //
-
-  // console.log("selected pod 3 is ", selectedPod);
+  // console.log("selected pod 3 is ", selectedNode);
 
   // console.log(" NODES ARR AT END IS ", nodesArr);
 
@@ -1561,3 +2507,290 @@ props.getNodesInfo()
 }
 
 export default KraneNodeList;
+
+// json output of describe or get node -o wide =
+//
+//{
+// "apiVersion": "v1",
+// "kind": "Node",
+// "metadata": {
+//     "annotations": {
+//         "kubeadm.alpha.kubernetes.io/cri-socket": "unix:///var/run/cri-dockerd.sock",
+//         "node.alpha.kubernetes.io/ttl": "0",
+//         "volumes.kubernetes.io/controller-managed-attach-detach": "true"
+//     },
+//     "creationTimestamp": "2023-05-01T18:47:55Z",
+//     "labels": {
+//         "beta.kubernetes.io/arch": "arm64",
+//         "beta.kubernetes.io/os": "linux",
+//         "kubernetes.io/arch": "arm64",
+//         "kubernetes.io/hostname": "docker-desktop",
+//         "kubernetes.io/os": "linux",
+//         "node-role.kubernetes.io/control-plane": "",
+//         "node.kubernetes.io/exclude-from-external-load-balancers": ""
+//     },
+//     "name": "docker-desktop",
+//     "resourceVersion": "1171992",
+//     "uid": "2a49ff81-3780-4a1c-a9ca-e85be82b254f"
+// },
+// "spec": {},
+// "status": {
+//     "addresses": [
+//         {
+//             "address": "192.168.65.4",
+//             "type": "InternalIP"
+//         },
+//         {
+//             "address": "docker-desktop",
+//             "type": "Hostname"
+//         }
+//     ],
+//     "allocatable": {
+//         "cpu": "4",
+//         "ephemeral-storage": "56403987978",
+//         "hugepages-1Gi": "0",
+//         "hugepages-2Mi": "0",
+//         "hugepages-32Mi": "0",
+//         "hugepages-64Ki": "0",
+//         "memory": "7937592Ki",
+//         "pods": "110"
+//     },
+//     "capacity": {
+//         "cpu": "4",
+//         "ephemeral-storage": "61202244Ki",
+//         "hugepages-1Gi": "0",
+//         "hugepages-2Mi": "0",
+//         "hugepages-32Mi": "0",
+//         "hugepages-64Ki": "0",
+//         "memory": "8039992Ki",
+//         "pods": "110"
+//     },
+//     "conditions": [
+//         {
+//             "lastHeartbeatTime": "2023-09-20T22:01:10Z",
+//             "lastTransitionTime": "2023-05-01T18:47:53Z",
+//             "message": "kubelet has sufficient memory available",
+//             "reason": "KubeletHasSufficientMemory",
+//             "status": "False",
+//             "type": "MemoryPressure"
+//         },
+//         {
+//             "lastHeartbeatTime": "2023-09-20T22:01:10Z",
+//             "lastTransitionTime": "2023-05-01T18:47:53Z",
+//             "message": "kubelet has no disk pressure",
+//             "reason": "KubeletHasNoDiskPressure",
+//             "status": "False",
+//             "type": "DiskPressure"
+//         },
+//         {
+//             "lastHeartbeatTime": "2023-09-20T22:01:10Z",
+//             "lastTransitionTime": "2023-05-01T18:47:53Z",
+//             "message": "kubelet has sufficient PID available",
+//             "reason": "KubeletHasSufficientPID",
+//             "status": "False",
+//             "type": "PIDPressure"
+//         },
+//         {
+//             "lastHeartbeatTime": "2023-09-20T22:01:10Z",
+//             "lastTransitionTime": "2023-05-01T18:48:26Z",
+//             "message": "kubelet is posting ready status",
+//             "reason": "KubeletReady",
+//             "status": "True",
+//             "type": "Ready"
+//         }
+//     ],
+//     "daemonEndpoints": {
+//         "kubeletEndpoint": {
+//             "Port": 10250
+//         }
+//     },
+//     "images": [
+//         {
+//             "names": [
+//                 "hubproxy.docker.internal:5555/docker/desktop-kubernetes@sha256:f1573ffb14599a41a50fc9bd6f15c0f4060ed6ade929e9f2c458e5e3cc36cf68",
+//                 "hubproxy.docker.internal:5555/docker/desktop-kubernetes:kubernetes-v1.25.9-cni-v1.1.1-critools-v1.25.0-cri-dockerd-v0.2.6-1-debian"
+//             ],
+//             "sizeBytes": 385396541
+//         },
+//         {
+//             "names": [
+//                 "grafana/grafana@sha256:00a4d2889c2b32f86c50673b1a82cb5b45349f1c24b0a882d11a53518e2ecae4",
+//                 "grafana/grafana:9.5.1"
+//             ],
+//             "sizeBytes": 297448929
+//         },
+//         {
+//             "names": [
+//                 "quay.io/prometheus/prometheus@sha256:d2ab0a27783fd4ad96a8853e2847b99a0be0043687b8a5d1ebfb2dd3fa4fd1b8",
+//                 "quay.io/prometheus/prometheus:v2.42.0"
+//             ],
+//             "sizeBytes": 225839649
+//         },
+//         {
+//             "names": [
+//                 "registry.k8s.io/etcd:3.5.6-0"
+//             ],
+//             "sizeBytes": 180688846
+//         },
+//         {
+//             "names": [
+//                 "registry.k8s.io/etcd:3.5.5-0"
+//             ],
+//             "sizeBytes": 178899047
+//         },
+//         {
+//             "names": [
+//                 "registry.k8s.io/kube-apiserver:v1.25.9"
+//             ],
+//             "sizeBytes": 123299566
+//         },
+//         {
+//             "names": [
+//                 "registry.k8s.io/kube-apiserver:v1.25.4"
+//             ],
+//             "sizeBytes": 123202762
+//         },
+//         {
+//             "names": [
+//                 "registry.k8s.io/kube-controller-manager:v1.25.9"
+//             ],
+//             "sizeBytes": 112814099
+//         },
+//         {
+//             "names": [
+//                 "registry.k8s.io/kube-controller-manager:v1.25.4"
+//             ],
+//             "sizeBytes": 112651759
+//         },
+//         {
+//             "names": [
+//                 "quay.io/kiwigrid/k8s-sidecar@sha256:eaa478cdd0b8e1be7a4813bc1b01948b838e2feaa6d999e60c997dc823013824",
+//                 "quay.io/kiwigrid/k8s-sidecar:1.22.0"
+//             ],
+//             "sizeBytes": 77954382
+//         },
+//         {
+//             "names": [
+//                 "registry.k8s.io/metrics-server/metrics-server@sha256:ee4304963fb035239bb5c5e8c10f2f38ee80efc16ecbdb9feb7213c17ae2e86e",
+//                 "registry.k8s.io/metrics-server/metrics-server:v0.6.4"
+//             ],
+//             "sizeBytes": 66906490
+//         },
+//         {
+//             "names": [
+//                 "quay.io/prometheus/alertmanager@sha256:fd4d9a3dd1fd0125108417be21be917f19cc76262347086509a0d43f29b80e98",
+//                 "quay.io/prometheus/alertmanager:v0.25.0"
+//             ],
+//             "sizeBytes": 63233000
+//         },
+//         {
+//             "names": [
+//                 "k8s.gcr.io/metrics-server/metrics-server@sha256:6c5603956c0aed6b4087a8716afce8eb22f664b13162346ee852b4fab305ca15",
+//                 "k8s.gcr.io/metrics-server/metrics-server:v0.5.0"
+//             ],
+//             "sizeBytes": 60016245
+//         },
+//         {
+//             "names": [
+//                 "registry.k8s.io/kube-proxy:v1.25.9"
+//             ],
+//             "sizeBytes": 58056002
+//         },
+//         {
+//             "names": [
+//                 "registry.k8s.io/kube-proxy:v1.25.4"
+//             ],
+//             "sizeBytes": 57990466
+//         },
+//         {
+//             "names": [
+//                 "k8s.gcr.io/metrics-server/metrics-server@sha256:78035f05bcf7e0f9b401bae1ac62b5a505f95f9c2122b80cff73dcc04d58497e",
+//                 "k8s.gcr.io/metrics-server/metrics-server:v0.4.1"
+//             ],
+//             "sizeBytes": 57796983
+//         },
+//         {
+//             "names": [
+//                 "quay.io/prometheus-operator/prometheus-operator@sha256:be4fbe0cfcad639e7a9ce40274917e1e30a3cae045ae27cde35ac84739fdef40",
+//                 "quay.io/prometheus-operator/prometheus-operator:v0.63.0"
+//             ],
+//             "sizeBytes": 53228029
+//         },
+//         {
+//             "names": [
+//                 "registry.k8s.io/kube-scheduler:v1.25.9"
+//             ],
+//             "sizeBytes": 49441087
+//         },
+//         {
+//             "names": [
+//                 "registry.k8s.io/kube-scheduler:v1.25.4"
+//             ],
+//             "sizeBytes": 49278447
+//         },
+//         {
+//             "names": [
+//                 "registry.k8s.io/coredns/coredns:v1.9.3"
+//             ],
+//             "sizeBytes": 47660771
+//         },
+//         {
+//             "names": [
+//                 "registry.k8s.io/kube-state-metrics/kube-state-metrics@sha256:ec5732e28f151de3847df60f48c5a570aacdb692ff1ce949d97105ae5e5a6722",
+//                 "registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.8.2"
+//             ],
+//             "sizeBytes": 40442314
+//         },
+//         {
+//             "names": [
+//                 "docker/desktop-storage-provisioner:v2.0"
+//             ],
+//             "sizeBytes": 39816902
+//         },
+//         {
+//             "names": [
+//                 "docker/desktop-vpnkit-controller:dc331cb22850be0cdd97c84a9cfecaf44a1afb6e"
+//             ],
+//             "sizeBytes": 34992760
+//         },
+//         {
+//             "names": [
+//                 "quay.io/prometheus/node-exporter@sha256:39c642b2b337e38c18e80266fb14383754178202f40103646337722a594d984c",
+//                 "quay.io/prometheus/node-exporter:v1.5.0"
+//             ],
+//             "sizeBytes": 21845668
+//         },
+//         {
+//             "names": [
+//                 "docker/desktop-vpnkit-controller:v2.0"
+//             ],
+//             "sizeBytes": 19178584
+//         },
+//         {
+//             "names": [
+//                 "quay.io/prometheus-operator/prometheus-config-reloader@sha256:3f976422884ec7744f69084da7736927eb634914a0c035d5a865cf6a6b8eb1b0",
+//                 "quay.io/prometheus-operator/prometheus-config-reloader:v0.63.0"
+//             ],
+//             "sizeBytes": 12333565
+//         },
+//         {
+//             "names": [
+//                 "registry.k8s.io/pause:3.8"
+//             ],
+//             "sizeBytes": 514000
+//         }
+//     ],
+//     "nodeInfo": {
+//         "architecture": "arm64",
+//         "bootID": "09ba70b6-5aaf-484f-9189-5c5c85ec7200",
+//         "containerRuntimeVersion": "docker://24.0.2",
+//         "kernelVersion": "5.15.49-linuxkit-pr",
+//         "kubeProxyVersion": "v1.25.4",
+//         "kubeletVersion": "v1.25.4",
+//         "machineID": "08187e84-990c-459e-a1c3-18edd2c5ee23",
+//         "operatingSystem": "linux",
+//         "osImage": "Docker Desktop",
+//         "systemUUID": "08187e84-990c-459e-a1c3-18edd2c5ee23"
+//     }
+// }
+//

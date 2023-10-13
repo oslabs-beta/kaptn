@@ -334,8 +334,10 @@ function KranePodList(props) {
         age: ageOutput.join(""),
         podCpuUsed: "",
         podMemoryUsed: "",
+        podMemoryUsedDisplay: "",
         podCpuLimit: "",
         podMemoryLimit: "",
+        podMemoryLimitDisplay: "",
         ipAddress: ipOutput.join(""),
         node: nodeOutput.join(""),
         nominatedNode: nominatedOutput.join(""),
@@ -380,6 +382,7 @@ function KranePodList(props) {
     for (let j = 0; i < argArr.length; i++) {
       let podCpuUsedArr = [];
       let podMemoryUsedArr = [];
+      let podMemoryUsedDisplayArr = [];
 
       //skips namespace because array order is same for both outputs
       while (argArr[i] !== " ") {
@@ -447,6 +450,7 @@ function KranePodList(props) {
         i++;
       }
       if (argArr[i] === "G") {
+        podMemoryUsedDisplayArr = [...podMemoryUsedArr, "G", "i"];
         podMemoryUsedArr.push("0");
         podMemoryUsedArr.push("0");
         podMemoryUsedArr.push("0");
@@ -454,6 +458,7 @@ function KranePodList(props) {
         podMemoryUsedArr.push("0");
         podMemoryUsedArr.push("0");
       } else if (argArr[i] === "M") {
+        podMemoryUsedDisplayArr = [...podMemoryUsedArr, "M", "i"];
         podMemoryUsedArr.push("0");
         podMemoryUsedArr.push("0");
         podMemoryUsedArr.push("0");
@@ -471,6 +476,7 @@ function KranePodList(props) {
       pod = {
         podCpuUsed: podCpuUsedArr.join(""),
         podMemoryUsed: podMemoryUsedArr.join(""),
+        podMemoryUsedDisplay: podMemoryUsedDisplayArr.join(""),
       };
 
       j++;
@@ -494,6 +500,8 @@ function KranePodList(props) {
     for (let j = 0; j < finalPodUsageArr.length; j++) {
       filteredPods[j]["podCpuUsed"] = finalPodUsageArr[j]["podCpuUsed"];
       filteredPods[j]["podMemoryUsed"] = finalPodUsageArr[j]["podMemoryUsed"];
+      filteredPods[j]["podMemoryUsedDisplay"] =
+        finalPodUsageArr[j]["podMemoryUsedDisplay"];
     }
     // console.log("filtered pods is", filteredPods);
   }); // -------------------- end of ipc render function for get pods cpu used
@@ -519,6 +527,7 @@ function KranePodList(props) {
     for (let j = 0; i < argArr.length; i++) {
       let podCpuLimitsArr = [];
       let podMemoryLimitsArr = [];
+      let podMemoryLimitsDisplayArr = [];
       let podNameArr = [];
 
       //take name because maybe be duplicate values
@@ -588,6 +597,7 @@ function KranePodList(props) {
           i++;
         }
         if (argArr[i] === "G") {
+          podMemoryLimitsDisplayArr = [...podMemoryLimitsArr, "G", "i"];
           podMemoryLimitsArr.push("0");
           podMemoryLimitsArr.push("0");
           podMemoryLimitsArr.push("0");
@@ -595,11 +605,12 @@ function KranePodList(props) {
           podMemoryLimitsArr.push("0");
           podMemoryLimitsArr.push("0");
         } else if (argArr[i] === "M") {
+          podMemoryLimitsDisplayArr = [...podMemoryLimitsArr, "M", "i"];
           podMemoryLimitsArr.push("0");
           podMemoryLimitsArr.push("0");
           podMemoryLimitsArr.push("0");
         }
-
+        // console.log("podMemoryLimitsDisplayArr is:", podMemoryLimitsDisplayArr);
         i += 3;
       }
 
@@ -608,6 +619,7 @@ function KranePodList(props) {
         podName: podNameArr.join(""),
         podCpuLimit: podCpuLimitsArr.join(""),
         podMemoryLimit: podMemoryLimitsArr.join(""),
+        podMemoryLimitDisplay: podMemoryLimitsDisplayArr.join(""),
       };
 
       j++;
@@ -627,10 +639,12 @@ function KranePodList(props) {
     for (let j = 0; j < lastPodsArr.length; j++) {
       let currentCpu = lastPodsArr[j]["podCpuLimit"];
       let currentMemory = lastPodsArr[j]["podMemoryLimit"];
+      let currentMemoryDisplay = lastPodsArr[j]["podMemoryLimitDisplay"];
       filteredPods[j]["podCpuLimit"] = currentCpu;
       filteredPods[j]["podMemoryLimit"] = currentMemory;
+      filteredPods[j]["podMemoryLimitDisplay"] = currentMemoryDisplay;
 
-      filteredPods[j]["podCpuPercent"] = currentCpu;
+      // filteredPods[j]["podCpuPercent"] = currentCpu;
 
       // let log = Number(filteredPods[j]["podCpuUsed"]);
       // console.log("filterd cpu limit is ", filteredPods[j]["podCpuLimit"]);
@@ -684,6 +698,8 @@ function KranePodList(props) {
       props.setPodsArr([...kubeFilteredPods]);
     } //end of for loop
   }); //-------------------   end of ipc render function to get podcpu and memory limits
+
+  // console.log(props.podsArr);
 
   //handle returned pod container info
   ipcRenderer.on("podContainersRetrieved", (event, arg) => {
@@ -776,7 +792,7 @@ function KranePodList(props) {
     // let outputIndex = 0;
     // filteredPods = [...podsArr];
 
-    console.log("output is: ", output);
+    // console.log("output is: ", output);
     // console.log("PodsArr is: ", podsArr);
     // let tempFilteredPods = [...podsArr];
 
@@ -799,7 +815,7 @@ function KranePodList(props) {
 
     // console.log("temp filtered is: ", tempFilteredPods);
   });
-  console.log(" podsContainersArr is: ", podsContainersArr);
+  // console.log(" podsContainersArr is: ", podsContainersArr);
 
   useEffect(() => {
     props.getPodsAndContainers();
@@ -1449,8 +1465,8 @@ function KranePodList(props) {
               MEMORY USAGE:{" "}
               {props.podsArr[i]["podMemoryLimit"] === "NONE" ||
               props.podsArr[i]["podMemoryLimit"] === ""
-                ? `${props.podsArr[i]["podMemoryUsed"]}`
-                : `${props.podsArr[i]["podMemoryUsed"]} / ${props.podsArr[i]["podMemoryLimit"]}`}
+                ? `${props.podsArr[i]["podMemoryUsedDisplay"]}`
+                : `${props.podsArr[i]["podMemoryUsedDisplay"]} / ${props.podsArr[i]["podMemoryLimitDisplay"]}`}
               <br />
               RESTARTS/LAST: {props.podsArr[i]["restarts"]} (
               {props.podsArr[i]["lastRestart"]})
@@ -1701,7 +1717,7 @@ function KranePodList(props) {
   let tempContainerList = podsContainersArr.filter(
     (container) => selectedPod[0]["name"] === container["podName"]
   );
-  console.log(tempContainerList);
+  // console.log(tempContainerList);
   // filteredPods = podsArrOutput.filter(
   //   (ele: any, ind: number) =>
   //     ind === podsArrOutput.findIndex((elem) => elem.name === ele.name)
@@ -2633,7 +2649,7 @@ function KranePodList(props) {
                         <div
                           style={{
                             position: "relative",
-                            top: "-100px",
+                            top: "-95px",
                             left: "0px",
                             fontSize:
                               selectedPod[0]["podCpuPercent"] === "N/A"
@@ -2661,7 +2677,7 @@ function KranePodList(props) {
                           style={{
                             fontSize: "16px",
                             position: "relative",
-                            top: "-104px",
+                            top: "-99px",
                             left: "-21px",
                             // border: "1px solid red",
 
@@ -2683,7 +2699,7 @@ function KranePodList(props) {
                         <div
                           style={{
                             position: "relative",
-                            top: -50,
+                            top: -42,
                             left: -19,
                             fontWeight: "400",
                             fontSize: "16px",
@@ -2702,11 +2718,11 @@ function KranePodList(props) {
                           }}
                         >
                           {" "}
-                          CPU USED: {selectedPod[0]["podCpuUsed"].toUpperCase()}
-                          m
+                          CPU USED: <strong>{selectedPod[0]["podCpuUsed"].toUpperCase()}
+                          m</strong>
                           <br />
                           CPU LIMIT:{" "}
-                          {selectedPod[0]["podCpuLimit"].toUpperCase()}m
+                          <strong>{selectedPod[0]["podCpuLimit"].toUpperCase()}m</strong>
                         </div>
                       </div>
 
@@ -2774,7 +2790,7 @@ function KranePodList(props) {
                         <div
                           style={{
                             position: "relative",
-                            top: "-100px",
+                            top: "-95px",
                             left: "0px",
                             fontSize:
                               selectedPod[0]["podMemoryPercent"] === "N/A"
@@ -2804,7 +2820,7 @@ function KranePodList(props) {
                           style={{
                             fontSize: "16px",
                             position: "relative",
-                            top: "-104px",
+                            top: "-99px",
                             left: "-20px",
                             // border: "1px solid red",
 
@@ -2828,7 +2844,7 @@ function KranePodList(props) {
                         <div
                           style={{
                             position: "relative",
-                            top: -50,
+                            top: -42,
                             left: -19,
                             fontWeight: "400",
                             fontSize: "16px",
@@ -2850,10 +2866,10 @@ function KranePodList(props) {
                         >
                           {" "}
                           MEM. USED:{" "}
-                          {selectedPod[0]["podMemoryUsed"].toUpperCase()}
+                          <strong>{selectedPod[0]["podMemoryUsedDisplay"]}</strong>
                           <br />
                           MEM. LIMIT:{" "}
-                          {selectedPod[0]["podMemoryLimit"].toUpperCase()}
+                          <strong>{selectedPod[0]["podMemoryLimitDisplay"]}</strong>
                         </div>
                       </div>
                     </div>

@@ -19,6 +19,7 @@ import HomeRoundedIcon from "@mui/icons-material/HomeRounded";
 import PrecisionManufacturingIcon from "@mui/icons-material/PrecisionManufacturing";
 import ScatterPlotIcon from "@mui/icons-material/ScatterPlot";
 import LensBlurIcon from "@mui/icons-material/LensBlur";
+import TerminalIcon from '@mui/icons-material/Terminal';
 
 function SideNav(props) {
   // Color theme is toggled here with the light/dark mode menu item
@@ -88,7 +89,7 @@ function SideNav(props) {
           style={{ height: "20px", paddingLeft: "8px", marginBottom: "20px" }}
         >
           <Link to="/dashboard">
-            <HomeRoundedIcon
+            <TerminalIcon
               className="menuIcons"
               fontSize="medium"
               style={{

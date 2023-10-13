@@ -42,11 +42,11 @@ function Krane() {
   const [launch, setLaunch] = useState<boolean>(false);
   const [podsArr, setPodsArr] = useState([]);
   const [nodesArr, setNodesArr] = useState([]);
-  // const [currDir, setCurrDir] = useState("NONE SELECTED");
+  const [currDir, setCurrDir] = useState("NONE SELECTED");
 
   let podsCommand = "kubectl get pods";
 
-  let currDir = "NONE SELECTED";
+  // let currDir = "NONE SELECTED";
 
   const theme = useTheme();
 
@@ -70,8 +70,8 @@ function Krane() {
   // ----------------------------------------- get pods info section ------------
 
   function handleClick(event) {
-    setLaunch(true);
-    setPodsArr(filteredPods);
+    // setLaunch(true);
+    // setPodsArr(filteredPods);
     // console.log("launch is", launch);
     // console.log("podsArr IN HANDLECLICK FOR LAUNCH is", podsArr);
   }
