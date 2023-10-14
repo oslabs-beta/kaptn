@@ -967,7 +967,7 @@ function KranePodList(props) {
     }
     // console.log("TEMP PODS ARR IS: ", tempPods);
     props.setPodsArr([...tempPods]);
-    // console.log("PODS ARR IS: ", podsArr);
+    console.log("PODS ARR IS: ", props.podsArr);
     // console.log("sortedBy is: ", sortedBy);
     // function compare(a, b) {
     //   //   if (sortedBy === "podCpuPercent" || sortedBy === "podMemoryPercent"){

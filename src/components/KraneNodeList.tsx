@@ -1168,7 +1168,7 @@ function KraneNodeList(props) {
     let containerMemoryColor;
     let containerMemoryColorLight;
 
-    if (selectedNode[0]["status"] === "Running") {
+    if (tempPodList[i]["status"] === "Running") {
       containerStatusColor = "#2fc665";
     } else {
       containerStatusColor = "rgba(210, 223, 61)";
@@ -1178,8 +1178,8 @@ function KraneNodeList(props) {
       containerCpuPercentColor = "#ffffff80";
       containerCpuPercentColorLight = "#ffffff80";
     } else if (
-      (100 * Number(tempPodList[i]["nodeCpuUsed"])) /
-        Number(`${selectedNode[0]["podCpuLimit"]}`) <
+      (100 * Number(tempPodList[i]["podCpuUsed"])) /
+        Number(`${tempPodList[i]["podCpuLimit"]}`) <
       90
     ) {
       containerCpuPercentColor = "#2fc665";
@@ -1189,7 +1189,7 @@ function KraneNodeList(props) {
       containerCpuPercentColorLight = "#cf4848";
     }
 
-    if (selectedNode[0]["podMemoryLimit"] === "NONE") {
+    if (tempPodList[i]["podMemoryLimit"] === "NONE") {
       containerMemoryColor = "#ffffff80";
       containerMemoryColorLight = "#ffffff80";
     } else if (
@@ -1197,7 +1197,7 @@ function KraneNodeList(props) {
         Math.round(
           100 *
             (Number(tempPodList[i]["memoryUsageMath"]) /
-              Number(selectedNode[0]["podMemoryLimit"])) *
+              Number(tempPodList[i]["podMemoryLimit"])) *
             10
         ) / 10,
 
@@ -1289,7 +1289,7 @@ function KraneNodeList(props) {
             display: "flex",
             flexDirection: "column",
             width: "380px",
-            height: "115px",
+            height: "125px",
             fontSize: "16px",
             // border: "1px solid white",
             justifyContent: "center",
@@ -1318,20 +1318,20 @@ function KraneNodeList(props) {
               justifyContent: "flex-start",
               // border: "1px solid yellow",
               width: "350px",
-              margin: "30px 0 0 0",
+              margin: "20px 0 0 0",
             }}
           >
             <img
               style={{ width: "45px", marginLeft: "0px" }}
-              src="../../container.png"
+              src="../../pod.svg"
             ></img>
             <span
               style={{
-                margin: "5px 0 0 15px",
+                margin: "0px 0 0 15px",
                 width: "250px",
-                lineHeight: "23px",
+                lineHeight: "19px",
                 textTransform: "none",
-                fontSize: "19px",
+                fontSize: "16px",
               }}
             >
               {tempPodList[i]["name"]}
@@ -1343,20 +1343,32 @@ function KraneNodeList(props) {
                 textAlign: "right",
                 alignItems: "flex-end",
                 justifyContent: "right",
-                margin: "0px 0px 0 28px",
+                margin: "3px -3px 0 28px",
               }}
             >
               <div
                 style={{
-                  width: "12px",
-                  height: "12px",
+                  width: "9px",
+                  height: "9px",
                   borderRadius: "15px",
                   backgroundColor: `${containerStatusColor}`,
                   justifyContent: "right",
-                  margin: "0px 0 0px 0",
+                  margin: "-5px 0 0px 0",
                   // border: ".5px solid white",
                 }}
               ></div>
+              <div
+                style={{
+                  color: `${containerStatusColor}`,
+                  justifyContent: "right",
+                  fontSize:"9px",
+                  margin: "2px 0 0px 0",
+                  lineHeight:"10px"
+                  // border: ".5px solid white",
+                }}
+              >{tempPodList[i]["ready"]}
+              <br/>
+                {tempPodList[i]["status"]}</div>
             </div>
           </div>
           {/*---------------------------------------------------------------- */}
@@ -1385,21 +1397,25 @@ function KraneNodeList(props) {
                 flexDirection: "column",
                 justifyContent: "left",
                 textAlign: "left",
-                width: "200px",
-                fontSize: "11.5px",
+                width: "270px",
+                fontSize: "10px",
                 padding: "0px 0px 0 0px",
                 fontWeight: "400",
-                marginTop: "0px",
+                margin: "-3px 0 0 0",
                 // border: "1px solid blue",
-                lineHeight: "16px",
+                lineHeight: "13px",
                 textTransform: "none",
                 opacity: ".5",
                 // color: `${readyStatusRunning}`,
               }}
             >
-              CPU USAGE: {tempPodList[i]["cpuUsage"]}
+              AGE: {`${tempPodList[i]["age"]}`}
               <br />
-              MEMORY USAGE: {tempPodList[i]["memoryUsage"]}
+              CPU USAGE: {`${tempPodList[i]["podCpuUsed"]}m`}
+              <br />
+              MEMORY USAGE: {tempPodList[i]["podMemoryUsedDisplay"]}
+              <br/>
+              RESTARTS (LAST): {tempPodList[i]["restarts"]} / {tempPodList[i]["lastRestart"]}
             </div>
 
             <div
@@ -1413,7 +1429,8 @@ function KraneNodeList(props) {
                 fontSize: "4",
                 padding: "0px 0px 0px 0px",
                 fontWeight: "400",
-                marginRight: "18px",
+                marginLeft:"10px",
+                marginRight: "5px",
                 marginTop: "3px",
                 marginBottom: "0px",
                 // border: "1px solid red",
@@ -1433,7 +1450,7 @@ function KraneNodeList(props) {
                   thickness={1.35}
                   value={100 * 0.73}
                   style={{
-                    marginTop: "0px",
+                    marginTop: "10px",
                     marginLeft: "10.5px",
                     rotate: "-131deg",
                     color: "#ffffff40",
@@ -1448,10 +1465,10 @@ function KraneNodeList(props) {
                   // @ts-nocheck
                   thickness={1.35}
                   value={
-                    selectedNode[0]["podCpuLimit"] === "NONE"
+                    tempPodList[i]["podCpuLimit"] === "NONE"
                       ? 0
-                      : ((100 * Number(tempPodList[i]["nodeCpuUsed"])) /
-                          Number(`${selectedNode[0]["podCpuLimit"]}`)) *
+                      : ((100 * Number(tempPodList[i]["podCpuUsed"])) /
+                          Number(`${tempPodList[i]["podCpuLimit"]}`)) *
                         0.73
                   }
                   //Number(`${podsArr[i]["podCpuLimit"]}`)
@@ -1481,13 +1498,13 @@ function KraneNodeList(props) {
                   top: "-43px",
                   left: "5px",
                   fontSize:
-                    selectedNode[0]["podCpuLimit"] === "NONE" ? "13px" : "16px",
+                  tempPodList[i]["podCpuLimit"] === "NONE" ? "13px" : "16px",
                   fontWeight: "500",
                   marginTop:
-                    selectedNode[0]["podCpuLimit"] === "NONE"
+                  tempPodList[i]["podCpuLimit"] === "NONE"
                       ? "-55px"
                       : "-60px",
-                  marginLeft: "-8px",
+                  marginLeft: tempPodList[i]["podCpuLimit"] === "NONE" ? "-12px" : "-8px",
                   // border: "2px solid red",
                   color:
                     theme.palette.mode === "dark"
@@ -1495,12 +1512,12 @@ function KraneNodeList(props) {
                       : `${containerCpuPercentColorLight}`,
                 }}
               >
-                {selectedNode[0]["podCpuLimit"] === "NONE"
+                {tempPodList[i]["podCpuLimit"] === "NONE"
                   ? `no max`
                   : `${
                       100 *
-                      (Number(tempPodList[i]["nodeCpuUsed"]) /
-                        Number(selectedNode[0]["podCpuLimit"]))
+                      (Number(tempPodList[i]["podCpuUsed"]) /
+                        Number(tempPodList[i]["podCpuLimit"]))
                     }%`}
               </div>
               <div
@@ -1535,7 +1552,7 @@ function KraneNodeList(props) {
                 fontSize: "4",
                 padding: "0px 0px 0 0px",
                 fontWeight: "400",
-                marginRight: "18px",
+                marginRight: "8px",
                 marginTop: "3px",
                 // border: "1px solid red",
                 // color: `${readyStatusRunning}`,
@@ -1554,7 +1571,7 @@ function KraneNodeList(props) {
                   thickness={1.35}
                   value={100 * 0.73}
                   style={{
-                    marginTop: "0px",
+                    marginTop: "10px",
                     marginLeft: "9.5px",
                     rotate: "-131deg",
                     color: "#ffffff40",
@@ -1569,12 +1586,12 @@ function KraneNodeList(props) {
                   // @ts-nocheck
                   thickness={1.35}
                   value={
-                    selectedNode[0]["podMemoryLimit"] === "NONE"
+                    tempPodList[i]["podMemoryLimit"] === "NONE"
                       ? 0
                       : Math.min(
                           73,
-                          (73 * Number(tempPodList[i]["memoryUsageMath"])) /
-                            Number(`${selectedNode[0]["podMemoryLimit"]}`)
+                          (.73 * Number(tempPodList[i]["podMemoryUsed"])) /
+                            Number(tempPodList[i]["podMemoryLimit"])
                         )
                   }
                   // selectedNode[0]["podCpuLimit"] === "NONE"
@@ -1607,13 +1624,13 @@ function KraneNodeList(props) {
                   top: "-43px",
                   left: "5px",
                   fontWeight: "500",
-                  marginLeft: "-11px",
+                  marginLeft:  "-12px",
                   fontSize:
-                    selectedNode[0]["podMemoryLimit"] === "NONE"
+                  tempPodList[i]["podMemoryLimit"] === "NONE"
                       ? "13px"
                       : "16px",
                   marginTop:
-                    selectedNode[0]["podMemoryLimit"] === "NONE"
+                  tempPodList[i]["podMemoryLimit"] === "NONE"
                       ? "-55px"
                       : "-60px",
                   // border: "2px solid red",
@@ -1623,13 +1640,13 @@ function KraneNodeList(props) {
                       : `${containerMemoryColorLight}`,
                 }}
               >
-                {selectedNode[0]["podMemoryLimit"] === "NONE"
+                {tempPodList[i]["podMemoryLimit"] === "NONE"
                   ? `no max`
                   : `${Math.min(
                       Math.round(
                         100 *
-                          (Number(tempPodList[i]["memoryUsageMath"]) /
-                            Number(selectedNode[0]["podMemoryLimit"])) *
+                          (Number(tempPodList[i]["podMemoryUsed"]) /
+                            Number(tempPodList[i]["podMemoryLimit"])) *
                           10
                       ) / 10,
 
@@ -1852,16 +1869,8 @@ function KraneNodeList(props) {
                         height: "100px",
                         margin: "15px 25px 0 15px",
                       }}
-                      src="../../pod.svg"
+                      src="../../node.svg"
                     ></img>
-                    {/* <img
-                      style={{
-                        width: "100px",
-                        height: "100px",
-                        margin: "15px 25px 0 20px",
-                      }}
-                      src="../../pod.svg"
-                    ></img> */}
                   </div>
                   {"  "}
                   <div
@@ -1975,7 +1984,7 @@ function KraneNodeList(props) {
                               theme.palette.mode === "dark"
                                 ? "#7269ea"
                                 : "#928dd0",
-                            padding: "3px 9px 3px 10px",
+                            padding: "2px 9px 1px 10px",
                             borderRadius: "3px",
                             width: `${selectedNode[0]["role"].length * 17.5}px`, //"105px",
                             letterSpacing: ".5px",
@@ -1985,28 +1994,24 @@ function KraneNodeList(props) {
                         </div>
                         <div style={{ paddingLeft: "5px" }}>
                           <br />
-                          <div style={{ fontSize: "20px" }}>
-                            <b>
-                              NODE: {" " + selectedNode[0]["node"]}
-                              <br />
-                              NAMESPACE:
-                              {" " + selectedNode[0]["namespace"]}{" "}
-                            </b>
-                            <br />
-                          </div>
-                          <b>RESTARTS:</b>{" "}
-                          {/* {selectedNode[0]["restarts"].toUpperCase()} */}
+                          <b>AGE:</b> {" " + selectedNode[0]["age"]}
                           <br />
-                          <b>LAST RESTART:</b>{" "}
-                          {/* {selectedNode[0]["lastRestart"].toUpperCase()} */}
+                          <b>VERSION:</b>
+                          {" " + selectedNode[0]["version"]} <br />
+                          <b>INTERNAL IP:</b>{" "}
+                          {selectedNode[0]["internalIp"].toUpperCase()}
                           <br />
-                          <b>AGE:</b> {selectedNode[0]["age"].toUpperCase()}
+                          <b>EXTERNAL IP:</b>{" "}
+                          {selectedNode[0]["externalIp"].toUpperCase()}
                           <br />
-                          <b>IP ADDRESS:</b>
-                          {" " + selectedNode[0]["ipAddress"]}
+                          <b>OS IMAGE:</b>{" "}
+                          {selectedNode[0]["osImage"].toUpperCase()}
                           <br />
-                          <b>NOMINATED NODE:</b>
-                          {" " + selectedNode[0]["nominatedNode"]}
+                          <b>KERNAL VERSION:</b>
+                          {" " + selectedNode[0]["kernal"]}
+                          <br />
+                          <b>CONTAINER RUNTIME:</b>
+                          {" " + selectedNode[0]["containerRuntime"]}
                           <br />
                           <b>READINESS GATES:</b>
                           {" " + selectedNode[0]["readinessGates"]}
@@ -2074,10 +2079,8 @@ function KraneNodeList(props) {
                           thickness={1.35}
                           value={
                             // 2 *
-                            selectedNode[0]["podCpuLimit"] === "NONE"
-                              ? 0
-                              : Number(`${selectedNode[0]["podCpuPercent"]}`) *
-                                0.73
+                            Number(`${selectedNode[0]["nodeCpuPercentMath"]}`) *
+                            0.73
                           }
                           style={{
                             position: "relative",
@@ -2085,11 +2088,15 @@ function KraneNodeList(props) {
                             left: "26.8px",
                             rotate: "-131deg",
                             color:
-                              selectedNode[0]["podCpuPercent"] === "N/A"
+                              selectedNode[0]["nodeCpuPercent"] === "N/A"
                                 ? "#ffffff80"
-                                : Number(selectedNode[0]["podCpuPercent"]) < 90
+                                : Number(
+                                    selectedNode[0]["nodeCpuPercentMath"]
+                                  ) < 90
                                 ? `#2fc665`
-                                : Number(selectedNode[0]["podCpuPercent"]) > 90
+                                : Number(
+                                    selectedNode[0]["nodeCpuPercentMath"]
+                                  ) > 90
                                 ? "#cf4848"
                                 : "yellow",
                             width: "180px",
@@ -2103,27 +2110,22 @@ function KraneNodeList(props) {
                             position: "relative",
                             top: "-95px",
                             left: "0px",
-                            fontSize:
-                              selectedNode[0]["podCpuPercent"] === "N/A"
-                                ? "36px"
-                                : "38px",
+                            fontSize: "38px",
                             fontWeight: "800",
                             marginTop: "-60px",
                             marginLeft: "-37px",
                             // border: "2px solid blue",
                             color:
-                              selectedNode[0]["podCpuPercent"] === "N/A"
-                                ? "#ffffff80"
-                                : Number(selectedNode[0]["podCpuPercent"]) < 90
-                                ? `#2fc665`
-                                : Number(selectedNode[0]["podCpuPercent"]) > 90
-                                ? "#cf4848"
-                                : "yellow", //`${PodMemoryPercentColor}`,
+                            Number(selectedNode[0]["nodeCpuPercentMath"]) < 90
+                            ? `#2fc665`
+                            : Number(
+                                selectedNode[0]["nodeCpuPercentMath"]
+                              ) > 90
+                            ? "#cf4848"
+                            : "yellow", //`${PodMemoryPercentColor}`,
                           }}
                         >
-                          {selectedNode[0]["podCpuPercent"] === "N/A"
-                            ? `NO MAX`
-                            : `${selectedNode[0]["podCpuPercent"]}%`}
+                          { `${selectedNode[0]["nodeCpuPercent"]}`}
                         </div>
                         <div
                           style={{
@@ -2137,13 +2139,13 @@ function KraneNodeList(props) {
                             fontWeight: "400",
                             marginTop: "-8px",
                             color:
-                              selectedNode[0]["podCpuPercent"] === "N/A"
-                                ? "#ffffff80"
-                                : Number(selectedNode[0]["podCpuPercent"]) < 90
-                                ? `#2fc665`
-                                : Number(selectedNode[0]["podCpuPercent"]) > 90
-                                ? "#cf4848"
-                                : "yellow", //"#cf4848", //`${PodMemoryPercentColor}`,
+                            Number(selectedNode[0]["nodeCpuPercentMath"]) < 90
+                            ? `#2fc665`
+                            : Number(
+                                selectedNode[0]["nodeCpuPercentMath"]
+                              ) > 90
+                            ? "#cf4848"
+                            : "yellow", //"#cf4848", //`${PodMemoryPercentColor}`,
                           }}
                         >
                           CPU
@@ -2160,26 +2162,26 @@ function KraneNodeList(props) {
                             // margin: "-50px 0 0 -29px",
                             textAlign: "center",
                             color:
-                              selectedNode[0]["podCpuPercent"] === "N/A"
-                                ? "#ffffff80"
-                                : Number(selectedNode[0]["podCpuPercent"]) < 90
-                                ? `#2fc665`
-                                : Number(selectedNode[0]["podCpuPercent"]) > 90
-                                ? "#cf4848"
-                                : "yellow", //"#cf4848", //`${PodMemoryPercentColor}`,
+                            Number(selectedNode[0]["nodeCpuPercentMath"]) < 90
+                            ? `#2fc665`
+                            : Number(
+                                selectedNode[0]["nodeCpuPercentMath"]
+                              ) > 90
+                            ? "#cf4848"
+                            : "yellow", //"#cf4848", //`${PodMemoryPercentColor}`,
                           }}
                         >
                           {" "}
                           CPU USED:{" "}
                           <strong>
-                            {/* {selectedNode[0]["podCpuUsed"].toUpperCase()} */}
+                            {selectedNode[0]["nodeCpuUsed"].toUpperCase()}
                             m
                           </strong>
                           <br />
                           CPU LIMIT:{" "}
                           <strong>
-                            {/* {selectedNode[0]["podCpuLimit"].toUpperCase()} */}
-                            m
+                            {selectedNode[0]["nodeCpuLimit"] === "NONE" ? "NONE" : `${selectedNode[0]["nodeCpuLimit"].toUpperCase()}m`}
+                            
                           </strong>
                         </div>
                       </div>
@@ -2218,10 +2220,8 @@ function KraneNodeList(props) {
                           thickness={1.35}
                           value={
                             // 2 *
-                            selectedNode[0]["podMemoryLimit"] === "NONE"
-                              ? 0
-                              : Number(
-                                  `${selectedNode[0]["podMemoryPercent"]}`
+                           Number(
+                                  `${selectedNode[0]["nodeMemoryPercent"].slice(0,-1)}`
                                 ) * 0.73
                           }
                           style={{
@@ -2230,12 +2230,10 @@ function KraneNodeList(props) {
                             left: "26.8px",
                             rotate: "-131deg",
                             color:
-                              selectedNode[0]["podMemoryPercent"] === "N/A"
-                                ? "#ffffff80"
-                                : Number(selectedNode[0]["podMemoryPercent"]) <
+                             Number(selectedNode[0]["nodeMemoryPercent"].slice(0,-1)) <
                                   90
                                 ? `#2fc665`
-                                : Number(selectedNode[0]["podMemoryPercent"]) >
+                                : Number(selectedNode[0]["nodeMemoryPercent"].slice(0,-1)) >
                                   90
                                 ? "#cf4848"
                                 : "yellow",
@@ -2259,20 +2257,16 @@ function KraneNodeList(props) {
                             marginLeft: "-37px",
                             // border: "2px solid blue",
                             color:
-                              selectedNode[0]["podMemoryPercent"] === "N/A"
-                                ? "#ffffff80"
-                                : Number(selectedNode[0]["podMemoryPercent"]) <
+                               Number(selectedNode[0]["nodeMemoryPercent"].slice(0,-1)) <
                                   90
                                 ? `#2fc665`
-                                : Number(selectedNode[0]["podMemoryPercent"]) >
+                                : Number(selectedNode[0]["nodeMemoryPercent"].slice(0,-1)) >
                                   90
                                 ? "#cf4848"
                                 : "yellow", //`${PodMemoryPercentColor}`,
                           }}
                         >
-                          {selectedNode[0]["podMemoryPercent"] === "N/A"
-                            ? `NO MAX`
-                            : `${selectedNode[0]["podMemoryPercent"]}%`}
+                          {selectedNode[0]["nodeMemoryPercent"]}
                         </div>
                         <div
                           style={{
@@ -2286,15 +2280,13 @@ function KraneNodeList(props) {
                             fontWeight: "400",
                             marginTop: "-8px",
                             color:
-                              selectedNode[0]["podMemoryPercent"] === "N/A"
-                                ? "#ffffff80"
-                                : Number(selectedNode[0]["podMemoryPercent"]) <
-                                  90
-                                ? `#2fc665`
-                                : Number(selectedNode[0]["podMemoryPercent"]) >
-                                  90
-                                ? "#cf4848"
-                                : "yellow", //"#cf4848", //`${PodMemoryPercentColor}`,
+                            Number(selectedNode[0]["nodeMemoryPercent"].slice(0,-1)) <
+                            90
+                          ? `#2fc665`
+                          : Number(selectedNode[0]["nodeMemoryPercent"].slice(0,-1)) >
+                            90
+                          ? "#cf4848"
+                          : "yellow", //"#cf4848", //`${PodMemoryPercentColor}`,
                           }}
                         >
                           MEMORY
@@ -2311,26 +2303,24 @@ function KraneNodeList(props) {
                             // margin: "-50px 0 0 -29px",
                             textAlign: "center",
                             color:
-                              selectedNode[0]["podMemoryPercent"] === "N/A"
-                                ? "#ffffff80"
-                                : Number(selectedNode[0]["podMemoryPercent"]) <
-                                  90
-                                ? `#2fc665`
-                                : Number(selectedNode[0]["podMemoryPercent"]) >
-                                  90
-                                ? "#cf4848"
-                                : "yellow", //"#cf4848", //`${PodMemoryPercentColor}`,
+                            Number(selectedNode[0]["nodeMemoryPercent"].slice(0,-1)) <
+                            90
+                          ? `#2fc665`
+                          : Number(selectedNode[0]["nodeMemoryPercent"].slice(0,-1)) >
+                            90
+                          ? "#cf4848"
+                          : "yellow", //"#cf4848", //`${PodMemoryPercentColor}`,
                           }}
                         >
                           {" "}
                           MEM. USED:{" "}
                           <strong>
-                            {selectedNode[0]["podMemoryUsedDisplay"]}
+                            {selectedNode[0]["nodeMemoryUsedDisplay"]}
                           </strong>
                           <br />
                           MEM. LIMIT:{" "}
                           <strong>
-                            {selectedNode[0]["podMemoryLimitDisplay"]}
+                            {selectedNode[0]["nodeMemoryLimit"]}
                           </strong>
                         </div>
                       </div>
@@ -2362,10 +2352,10 @@ function KraneNodeList(props) {
                       <div
                         style={{
                           margin: "0px 0 2px 10px",
-                          color: `${selectedNodeStatusColor}`,
+                          // color: `${selectedNodeStatusColor}`,
                         }}
                       >
-                        ({selectedNode[0]["ready"]} {selectedNode[0]["status"]})
+                        ({tempPodList.length} total)
                       </div>
                     </div>
                     <div
