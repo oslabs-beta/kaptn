@@ -144,6 +144,13 @@ function KraneNodeList(props) {
     borderRadius: "10px",
   };
 
+  function handleClick(event) {
+    // setPodsArr(filteredPods);
+    // console.log("launch is", launch);
+    // console.log("podsArr IN HANDLECLICK FOR LAUNCH is", podsArr);
+    props.getNodesInfo();
+  } // ---------------------- end of handle click function to refresh pods
+
   const handleNodeOpen = (node) => {
     if (node["status"] === "Ready") {
       setSelectedNodeStatusColor("#2fc665");
@@ -1160,101 +1167,44 @@ function KraneNodeList(props) {
   let tempPodList = props.podsArr.filter(
     (pod) => selectedNode[0]["name"] === pod["node"]
   );
-
   for (let i = 0; i < tempPodList.length; i++) {
-    let containerStatusColor;
-    let containerCpuPercentColor;
-    let containerCpuPercentColorLight;
-    let containerMemoryColor;
-    let containerMemoryColorLight;
+    let nodesPodsStatuColor;
+    let nodesPodsCpuPercentColor;
+    let nodesPodsCpuPercentColorLight;
+    let nodesPodsMemoryColor;
+    let nodesPodsMemoryColorLight;
 
     if (tempPodList[i]["status"] === "Running") {
-      containerStatusColor = "#2fc665";
+      nodesPodsStatuColor = "#2fc665";
     } else {
-      containerStatusColor = "rgba(210, 223, 61)";
+      nodesPodsStatuColor = "rgba(210, 223, 61)";
     }
 
     if (tempPodList[i]["podCpuLimit"] === "NONE") {
-      containerCpuPercentColor = "#ffffff80";
-      containerCpuPercentColorLight = "#ffffff80";
+      nodesPodsCpuPercentColor = "#ffffff80";
+      nodesPodsCpuPercentColorLight = "#ffffff80";
     } else if (
       (100 * Number(tempPodList[i]["podCpuUsed"])) /
         Number(`${tempPodList[i]["podCpuLimit"]}`) <
       90
     ) {
-      containerCpuPercentColor = "#2fc665";
-      containerCpuPercentColorLight = "#2fc665";
+      nodesPodsCpuPercentColor = "#2fc665";
+      nodesPodsCpuPercentColorLight = "#2fc665";
     } else {
-      containerCpuPercentColor = "#cf4848";
-      containerCpuPercentColorLight = "#cf4848";
+      nodesPodsCpuPercentColor = "#cf4848";
+      nodesPodsCpuPercentColorLight = "#cf4848";
     }
 
     if (tempPodList[i]["podMemoryLimit"] === "NONE") {
-      containerMemoryColor = "#ffffff80";
-      containerMemoryColorLight = "#ffffff80";
-    } else if (
-      Math.min(
-        Math.round(
-          100 *
-            (Number(tempPodList[i]["memoryUsageMath"]) /
-              Number(tempPodList[i]["podMemoryLimit"])) *
-            10
-        ) / 10,
-
-        100
-      ) < 90
-    ) {
-      containerMemoryColor = "#2fc665";
-      containerMemoryColorLight = "#2fc665";
+      nodesPodsMemoryColor = "#ffffff80";
+      nodesPodsMemoryColorLight = "#ffffff80";
+    } else if (tempPodList[i]["podMemoryPercent"] < 90) {
+      nodesPodsMemoryColor = "#2fc665";
+      nodesPodsMemoryColorLight = "#2fc665";
     } else {
-      containerMemoryColor = "#cf4848";
-      containerMemoryColorLight = "#cf4848";
+      nodesPodsMemoryColor = "#cf4848";
+      nodesPodsMemoryColorLight = "#cf4848";
     }
-
-    // if (selectedNode[0]["podMemoryLimit"] === "NONE")
-    // {containerMemoryColor = "#ffffff80"}
-    //else if (
-    // Math.min())
-    // : Math.min(
-    //     Math.round(
-    //       100 *
-    //         (Number(selectedNodeContainers[i]["memoryUsageMath"]) /
-    //           Number(selectedNode[0]["podMemoryLimit"])) *
-    //         10
-    //     ) / 10,
-
-    //     100
-    //   )
-
-    // selectedNode[0]["podCpuLimit"] === "NONE"
-    // ? 0
-    // : ((100 *
-    //     Number(
-    //       selectedNodeContainers[i]["cpuUsage"].slice(0, -1)
-    //     )) /
-    //     Number(`${selectedNode[0]["podCpuLimit"]}`))
-
-    // if (selectedNodeContainers[i]["status"] === "Running"){
-    //   containerStatusColor = "#2fc665";
-    // } else {
-    //   containerStatusColor = "rgba(210, 223, 61)";
-    // }
-
-    // if (selectedNodeContainers[i]["podCpuPercent"] === "N/A") {
-    //   containerCpuPercentColor = "#ffffff80";
-    // } else if (selectedNodeContainers[i]["podCpuPercent"] < 90) {
-    //   containerCpuPercentColor = "#2fc665";
-    // } else {
-    //   containerCpuPercentColor = "#cf4848";
-    // }
-
-    // if (selectedNodeContainers[i]["podMemoryPercent"] === "N/A") {
-    //   containerMemoryColor = "#ffffff80";
-    // } else if (selectedNodeContainers[i]["podMemoryPercent"] < 90) {
-    //   containerMemoryColor = "#2fc665";
-    // } else {
-    //   containerMemoryColor = "#cf4848";
-    // }
 
     nodesPodsList.push(
       <div
@@ -1351,7 +1301,7 @@ function KraneNodeList(props) {
                   width: "9px",
                   height: "9px",
                   borderRadius: "15px",
-                  backgroundColor: `${containerStatusColor}`,
+                  backgroundColor: `${nodesPodsStatuColor}`,
                   justifyContent: "right",
                   margin: "-5px 0 0px 0",
                   // border: ".5px solid white",
@@ -1359,16 +1309,18 @@ function KraneNodeList(props) {
               ></div>
               <div
                 style={{
-                  color: `${containerStatusColor}`,
+                  color: `${nodesPodsStatuColor}`,
                   justifyContent: "right",
-                  fontSize:"9px",
+                  fontSize: "9px",
                   margin: "2px 0 0px 0",
-                  lineHeight:"10px"
+                  lineHeight: "10px",
                   // border: ".5px solid white",
                 }}
-              >{tempPodList[i]["ready"]}
-              <br/>
-                {tempPodList[i]["status"]}</div>
+              >
+                {tempPodList[i]["ready"]}
+                <br />
+                {tempPodList[i]["status"]}
+              </div>
             </div>
           </div>
           {/*---------------------------------------------------------------- */}
@@ -1397,7 +1349,7 @@ function KraneNodeList(props) {
                 flexDirection: "column",
                 justifyContent: "left",
                 textAlign: "left",
-                width: "270px",
+                width: "290px",
                 fontSize: "10px",
                 padding: "0px 0px 0 0px",
                 fontWeight: "400",
@@ -1414,8 +1366,9 @@ function KraneNodeList(props) {
               CPU USAGE: {`${tempPodList[i]["podCpuUsed"]}m`}
               <br />
               MEMORY USAGE: {tempPodList[i]["podMemoryUsedDisplay"]}
-              <br/>
-              RESTARTS (LAST): {tempPodList[i]["restarts"]} / {tempPodList[i]["lastRestart"]}
+              <br />
+              RESTARTS (LAST): {tempPodList[i]["restarts"]} /{" "}
+              {tempPodList[i]["lastRestart"]}
             </div>
 
             <div
@@ -1429,7 +1382,7 @@ function KraneNodeList(props) {
                 fontSize: "4",
                 padding: "0px 0px 0px 0px",
                 fontWeight: "400",
-                marginLeft:"10px",
+                marginLeft: "0px",
                 marginRight: "5px",
                 marginTop: "3px",
                 marginBottom: "0px",
@@ -1483,8 +1436,8 @@ function KraneNodeList(props) {
                     rotate: "-131deg",
                     color:
                       theme.palette.mode === "dark"
-                        ? `${containerCpuPercentColor}`
-                        : `${containerCpuPercentColorLight}`,
+                        ? `${nodesPodsCpuPercentColor}`
+                        : `${nodesPodsCpuPercentColorLight}`,
 
                     width: "60px",
                     // border: "1px solid red",
@@ -1498,18 +1451,19 @@ function KraneNodeList(props) {
                   top: "-43px",
                   left: "5px",
                   fontSize:
-                  tempPodList[i]["podCpuLimit"] === "NONE" ? "13px" : "16px",
+                    tempPodList[i]["podCpuLimit"] === "NONE" ? "13px" : "16px",
                   fontWeight: "500",
                   marginTop:
-                  tempPodList[i]["podCpuLimit"] === "NONE"
+                    tempPodList[i]["podCpuLimit"] === "NONE"
                       ? "-55px"
                       : "-60px",
-                  marginLeft: tempPodList[i]["podCpuLimit"] === "NONE" ? "-12px" : "-8px",
+                  marginLeft:
+                    tempPodList[i]["podCpuLimit"] === "NONE" ? "-12px" : "-8px",
                   // border: "2px solid red",
                   color:
                     theme.palette.mode === "dark"
-                      ? `${containerCpuPercentColor}`
-                      : `${containerCpuPercentColorLight}`,
+                      ? `${nodesPodsCpuPercentColor}`
+                      : `${nodesPodsCpuPercentColorLight}`,
                 }}
               >
                 {tempPodList[i]["podCpuLimit"] === "NONE"
@@ -1533,8 +1487,8 @@ function KraneNodeList(props) {
                   marginTop: "-8px",
                   color:
                     theme.palette.mode === "dark"
-                      ? `${containerCpuPercentColor}`
-                      : `${containerCpuPercentColorLight}`,
+                      ? `${nodesPodsCpuPercentColor}`
+                      : `${nodesPodsCpuPercentColorLight}`,
                 }}
               >
                 CPU
@@ -1588,20 +1542,8 @@ function KraneNodeList(props) {
                   value={
                     tempPodList[i]["podMemoryLimit"] === "NONE"
                       ? 0
-                      : Math.min(
-                          73,
-                          (.73 * Number(tempPodList[i]["podMemoryUsed"])) /
-                            Number(tempPodList[i]["podMemoryLimit"])
-                        )
+                      : 0.73 * tempPodList[i]["podMemoryPercent"]
                   }
-                  // selectedNode[0]["podCpuLimit"] === "NONE"
-                  // ? 0
-                  // : ((100 *
-                  //     Number(
-                  //       selectedNodeContainers[i]["memoryUsageMath"]
-                  //     )) /
-                  //     Number(`${selectedNode[0]["podMemoryLimit"]}`)) *
-                  //   0.73
                   style={{
                     position: "relative",
                     top: "-48px",
@@ -1609,8 +1551,8 @@ function KraneNodeList(props) {
                     rotate: "-131deg",
                     color:
                       theme.palette.mode === "dark"
-                        ? `${containerMemoryColor}`
-                        : `${containerMemoryColorLight}`,
+                        ? `${nodesPodsMemoryColor}`
+                        : `${nodesPodsMemoryColorLight}`,
 
                     width: "60px",
                     // border: "1px solid red",
@@ -1624,20 +1566,20 @@ function KraneNodeList(props) {
                   top: "-43px",
                   left: "5px",
                   fontWeight: "500",
-                  marginLeft:  "-12px",
+                  marginLeft: "-12px",
                   fontSize:
-                  tempPodList[i]["podMemoryLimit"] === "NONE"
+                    tempPodList[i]["podMemoryLimit"] === "NONE"
                       ? "13px"
                       : "16px",
                   marginTop:
-                  tempPodList[i]["podMemoryLimit"] === "NONE"
+                    tempPodList[i]["podMemoryLimit"] === "NONE"
                       ? "-55px"
                       : "-60px",
                   // border: "2px solid red",
                   color:
                     theme.palette.mode === "dark"
-                      ? `${containerMemoryColor}`
-                      : `${containerMemoryColorLight}`,
+                      ? `${nodesPodsMemoryColor}`
+                      : `${nodesPodsMemoryColorLight}`,
                 }}
               >
                 {tempPodList[i]["podMemoryLimit"] === "NONE"
@@ -1666,8 +1608,8 @@ function KraneNodeList(props) {
                   marginTop: "-8px",
                   color:
                     theme.palette.mode === "dark"
-                      ? `${containerMemoryColor}`
-                      : `${containerMemoryColorLight}`,
+                      ? `${nodesPodsMemoryColor}`
+                      : `${nodesPodsMemoryColorLight}`,
                 }}
               >
                 MEMORY
@@ -1756,7 +1698,7 @@ function KraneNodeList(props) {
 
                 // color: "#ffffff99",
               }}
-              // onClick={handleClick}
+              onClick={handleClick}
             >
               Refresh stats
             </Button>
@@ -2116,16 +2058,16 @@ function KraneNodeList(props) {
                             marginLeft: "-37px",
                             // border: "2px solid blue",
                             color:
-                            Number(selectedNode[0]["nodeCpuPercentMath"]) < 90
-                            ? `#2fc665`
-                            : Number(
-                                selectedNode[0]["nodeCpuPercentMath"]
-                              ) > 90
-                            ? "#cf4848"
-                            : "yellow", //`${PodMemoryPercentColor}`,
+                              Number(selectedNode[0]["nodeCpuPercentMath"]) < 90
+                                ? `#2fc665`
+                                : Number(
+                                    selectedNode[0]["nodeCpuPercentMath"]
+                                  ) > 90
+                                ? "#cf4848"
+                                : "yellow", //`${PodMemoryPercentColor}`,
                           }}
                         >
-                          { `${selectedNode[0]["nodeCpuPercent"]}`}
+                          {`${selectedNode[0]["nodeCpuPercent"]}`}
                         </div>
                         <div
                           style={{
@@ -2139,13 +2081,13 @@ function KraneNodeList(props) {
                             fontWeight: "400",
                             marginTop: "-8px",
                             color:
-                            Number(selectedNode[0]["nodeCpuPercentMath"]) < 90
-                            ? `#2fc665`
-                            : Number(
-                                selectedNode[0]["nodeCpuPercentMath"]
-                              ) > 90
-                            ? "#cf4848"
-                            : "yellow", //"#cf4848", //`${PodMemoryPercentColor}`,
+                              Number(selectedNode[0]["nodeCpuPercentMath"]) < 90
+                                ? `#2fc665`
+                                : Number(
+                                    selectedNode[0]["nodeCpuPercentMath"]
+                                  ) > 90
+                                ? "#cf4848"
+                                : "yellow", //"#cf4848", //`${PodMemoryPercentColor}`,
                           }}
                         >
                           CPU
@@ -2162,26 +2104,28 @@ function KraneNodeList(props) {
                             // margin: "-50px 0 0 -29px",
                             textAlign: "center",
                             color:
-                            Number(selectedNode[0]["nodeCpuPercentMath"]) < 90
-                            ? `#2fc665`
-                            : Number(
-                                selectedNode[0]["nodeCpuPercentMath"]
-                              ) > 90
-                            ? "#cf4848"
-                            : "yellow", //"#cf4848", //`${PodMemoryPercentColor}`,
+                              Number(selectedNode[0]["nodeCpuPercentMath"]) < 90
+                                ? `#2fc665`
+                                : Number(
+                                    selectedNode[0]["nodeCpuPercentMath"]
+                                  ) > 90
+                                ? "#cf4848"
+                                : "yellow", //"#cf4848", //`${PodMemoryPercentColor}`,
                           }}
                         >
                           {" "}
                           CPU USED:{" "}
                           <strong>
-                            {selectedNode[0]["nodeCpuUsed"].toUpperCase()}
-                            m
+                            {selectedNode[0]["nodeCpuUsed"].toUpperCase()}m
                           </strong>
                           <br />
                           CPU LIMIT:{" "}
                           <strong>
-                            {selectedNode[0]["nodeCpuLimit"] === "NONE" ? "NONE" : `${selectedNode[0]["nodeCpuLimit"].toUpperCase()}m`}
-                            
+                            {selectedNode[0]["nodeCpuLimit"] === "NONE"
+                              ? "NONE"
+                              : `${selectedNode[0][
+                                  "nodeCpuLimit"
+                                ].toUpperCase()}m`}
                           </strong>
                         </div>
                       </div>
@@ -2220,9 +2164,12 @@ function KraneNodeList(props) {
                           thickness={1.35}
                           value={
                             // 2 *
-                           Number(
-                                  `${selectedNode[0]["nodeMemoryPercent"].slice(0,-1)}`
-                                ) * 0.73
+                            Number(
+                              `${selectedNode[0]["nodeMemoryPercent"].slice(
+                                0,
+                                -1
+                              )}`
+                            ) * 0.73
                           }
                           style={{
                             position: "relative",
@@ -2230,11 +2177,19 @@ function KraneNodeList(props) {
                             left: "26.8px",
                             rotate: "-131deg",
                             color:
-                             Number(selectedNode[0]["nodeMemoryPercent"].slice(0,-1)) <
-                                  90
+                              Number(
+                                selectedNode[0]["nodeMemoryPercent"].slice(
+                                  0,
+                                  -1
+                                )
+                              ) < 90
                                 ? `#2fc665`
-                                : Number(selectedNode[0]["nodeMemoryPercent"].slice(0,-1)) >
-                                  90
+                                : Number(
+                                    selectedNode[0]["nodeMemoryPercent"].slice(
+                                      0,
+                                      -1
+                                    )
+                                  ) > 90
                                 ? "#cf4848"
                                 : "yellow",
                             width: "180px",
@@ -2257,11 +2212,19 @@ function KraneNodeList(props) {
                             marginLeft: "-37px",
                             // border: "2px solid blue",
                             color:
-                               Number(selectedNode[0]["nodeMemoryPercent"].slice(0,-1)) <
-                                  90
+                              Number(
+                                selectedNode[0]["nodeMemoryPercent"].slice(
+                                  0,
+                                  -1
+                                )
+                              ) < 90
                                 ? `#2fc665`
-                                : Number(selectedNode[0]["nodeMemoryPercent"].slice(0,-1)) >
-                                  90
+                                : Number(
+                                    selectedNode[0]["nodeMemoryPercent"].slice(
+                                      0,
+                                      -1
+                                    )
+                                  ) > 90
                                 ? "#cf4848"
                                 : "yellow", //`${PodMemoryPercentColor}`,
                           }}
@@ -2280,13 +2243,21 @@ function KraneNodeList(props) {
                             fontWeight: "400",
                             marginTop: "-8px",
                             color:
-                            Number(selectedNode[0]["nodeMemoryPercent"].slice(0,-1)) <
-                            90
-                          ? `#2fc665`
-                          : Number(selectedNode[0]["nodeMemoryPercent"].slice(0,-1)) >
-                            90
-                          ? "#cf4848"
-                          : "yellow", //"#cf4848", //`${PodMemoryPercentColor}`,
+                              Number(
+                                selectedNode[0]["nodeMemoryPercent"].slice(
+                                  0,
+                                  -1
+                                )
+                              ) < 90
+                                ? `#2fc665`
+                                : Number(
+                                    selectedNode[0]["nodeMemoryPercent"].slice(
+                                      0,
+                                      -1
+                                    )
+                                  ) > 90
+                                ? "#cf4848"
+                                : "yellow", //"#cf4848", //`${PodMemoryPercentColor}`,
                           }}
                         >
                           MEMORY
@@ -2303,13 +2274,21 @@ function KraneNodeList(props) {
                             // margin: "-50px 0 0 -29px",
                             textAlign: "center",
                             color:
-                            Number(selectedNode[0]["nodeMemoryPercent"].slice(0,-1)) <
-                            90
-                          ? `#2fc665`
-                          : Number(selectedNode[0]["nodeMemoryPercent"].slice(0,-1)) >
-                            90
-                          ? "#cf4848"
-                          : "yellow", //"#cf4848", //`${PodMemoryPercentColor}`,
+                              Number(
+                                selectedNode[0]["nodeMemoryPercent"].slice(
+                                  0,
+                                  -1
+                                )
+                              ) < 90
+                                ? `#2fc665`
+                                : Number(
+                                    selectedNode[0]["nodeMemoryPercent"].slice(
+                                      0,
+                                      -1
+                                    )
+                                  ) > 90
+                                ? "#cf4848"
+                                : "yellow", //"#cf4848", //`${PodMemoryPercentColor}`,
                           }}
                         >
                           {" "}
@@ -2319,11 +2298,153 @@ function KraneNodeList(props) {
                           </strong>
                           <br />
                           MEM. LIMIT:{" "}
-                          <strong>
-                            {selectedNode[0]["nodeMemoryLimit"]}
-                          </strong>
+                          <strong>{selectedNode[0]["nodeMemoryLimit"]}</strong>
                         </div>
                       </div>
+                    </div>
+
+                    <div
+                      style={{
+                        flexDirection: "row",
+                        justifyContent: "space-between",
+                        margin: "0 0 0 0px",
+                        // border: "1px solid red",
+                      }}
+                    >
+                     
+
+                      <Button
+                        // onClick={handlePodLogOpen}
+                        style={{
+                          width: "250px",
+                          border: "1px solid",
+                          fontSize: "14px",
+                        }}
+                      >
+                        VIEW LOGS
+                      </Button>
+                      {/* <Modal open={openPodLog} onClose={handlePodLogClose}>
+                        <Box sx={logStyle}>
+                          <div
+                            style={{
+                              fontFamily: "Outfit",
+                              fontSize: "24px",
+                              fontWeight: "700",
+                              textAlign: "center",
+                              marginTop: "10px",
+                            }}
+                          >
+                            POD LOGS
+                          </div>
+                          {podLogs}
+                        </Box>
+                      </Modal>
+                      <Button
+                        onClick={handlePodYamlOpen}
+                        style={{
+                          width: "250px",
+                          border: "1px solid",
+                          fontSize: "14px",
+                          margin: "0 10px 0 25px",
+                        }}
+                      >
+                        VIEW POD YAML
+                      </Button>
+                      <Modal open={openPodYaml} onClose={handlePodYamlClose}>
+                        <Box sx={logStyle}>
+                          <div
+                            style={{
+                              fontFamily: "Outfit",
+                              fontSize: "24px",
+                              fontWeight: "700",
+                              textAlign: "center",
+                              marginTop: "10px",
+                            }}
+                          >
+                            POD YAML OUTPUT
+                          </div>
+                          {podYaml}
+                        </Box>
+                      </Modal>
+                      <Button
+                        onClick={handlePodDeleteOpen}
+                        style={{
+                          width: "250px",
+                          border: "1px solid",
+                          fontSize: "14px",
+                          margin: "0 10px 0 15px",
+                        }}
+                      >
+                        DELETE / RESTART POD
+                      </Button>
+                      <Modal
+                        open={openPodDelete}
+                        onClose={handlePodDeleteClose}
+                        style={{ overflow: "scroll", height: "100%" }}
+                      >
+                        <Box sx={podDeleteStyle}>
+                          <div
+                            style={{
+                              textAlign: "center",
+                              fontSize: "18px",
+                              fontWeight: "900",
+                              paddingTop: "20px",
+                            }}
+                          >
+                            ARE YOU SURE YOU WANT DELETE?
+                          </div>
+                          <div
+                            style={{
+                              padding: "10px 40px 0 40px",
+                              textAlign: "center",
+                              fontSize: "12px",
+                            }}
+                          >
+                            Please note: if this pod is scheduled to be running,
+                            then a new version will replace it after
+                            termination.
+                          </div>
+                          <div
+                            style={{
+                              display: "flex",
+                              flexDirection: "row",
+                              marginTop: "30px",
+                              justifyContent: "center",
+                            }}
+                          >
+                            <Button
+                              onClick={handlePodDelete}
+                              style={{
+                                fontSize: "16px",
+                                margin: "0 10px 0 0",
+                                padding: "5px 15px 5px 15px",
+                                border:
+                                  theme.palette.mode === "dark"
+                                    ? "1px solid #8f85fb"
+                                    : "1px solid",
+                                color:
+                                  theme.palette.mode === "dark"
+                                    ? "white"
+                                    : "darkpurple",
+                              }}
+                            >
+                              DELETE POD
+                            </Button>
+                            <Button
+                              onClick={handlePodDeleteClose}
+                              style={{
+                                opacity: "50%",
+                                fontSize: "15px",
+                                margin: "0 0 0 10px",
+                                padding: "5px 10px 5px 10px",
+                                border: "1px solid #ffffff89",
+                              }}
+                            >
+                              CANCEL
+                            </Button>
+                          </div>
+                        </Box>
+                      </Modal> */}
                     </div>
 
                     <div
@@ -2332,7 +2453,7 @@ function KraneNodeList(props) {
                         flexDirection: "row",
                         justifyContent: "flex-start",
                         alignItems: "flex-end",
-                        margin: "50px 0 0 0px",
+                        margin: "20px 0 0 0px",
                       }}
                     >
                       <div

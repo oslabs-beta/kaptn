@@ -101,7 +101,7 @@ function Krane() {
         cpuLimitsCommand,
         currDir,
       });
-    }, 400);
+    }, 500);
 
     // send command to get selected pods containers info
     let podContainersCommand = `kubectl top pod --containers`;
@@ -112,7 +112,7 @@ function Krane() {
         podContainersCommand,
         currDir,
       },
-      600
+      700
     );
   }
 

@@ -1245,7 +1245,7 @@ function KranePodList(props) {
 
     // let current = podsArr[i]["ready"];
     // current = current.split("");
-    // console.log("current is", current);
+    console.log("current is", props.podsArr[1]);
 
     // let podsArrReadyLength = podsArr[i]["ready"].length;
 
@@ -1717,7 +1717,7 @@ function KranePodList(props) {
   let tempContainerList = podsContainersArr.filter(
     (container) => selectedPod[0]["name"] === container["podName"]
   );
-  // console.log(tempContainerList);
+  console.log("temp container list is:", tempContainerList);
   // filteredPods = podsArrOutput.filter(
   //   (ele: any, ind: number) =>
   //     ind === podsArrOutput.findIndex((elem) => elem.name === ele.name)
@@ -1735,7 +1735,7 @@ function KranePodList(props) {
       containerStatusColor = "rgba(210, 223, 61)";
     }
 
-    if (tempContainerList[i]["podCpuLimit"] === "NONE") {
+    if (selectedPod[0]["podCpuLimit"] === "NONE") {
       containerCpuPercentColor = "#ffffff80";
       containerCpuPercentColorLight = "#ffffff80";
     } else if (
@@ -2062,9 +2062,8 @@ function KranePodList(props) {
                 {selectedPod[0]["podCpuLimit"] === "NONE"
                   ? `no max`
                   : `${
-                      100 *
-                      (Number(tempContainerList[i]["cpuUsage"].slice(0, -1)) /
-                        Number(selectedPod[0]["podCpuLimit"]))
+                      ((Number(tempContainerList[i]["cpuUsage"].slice(0, -1)) /
+                        Number(selectedPod[0]["podCpuLimit"])))*100
                     }%`}
               </div>
               <div
@@ -2718,11 +2717,15 @@ function KranePodList(props) {
                           }}
                         >
                           {" "}
-                          CPU USED: <strong>{selectedPod[0]["podCpuUsed"].toUpperCase()}
-                          m</strong>
+                          CPU USED:{" "}
+                          <strong>
+                            {selectedPod[0]["podCpuUsed"].toUpperCase()}m
+                          </strong>
                           <br />
                           CPU LIMIT:{" "}
-                          <strong>{selectedPod[0]["podCpuLimit"].toUpperCase()}m</strong>
+                          <strong>
+                            {selectedPod[0]["podCpuLimit"].toUpperCase()}m
+                          </strong>
                         </div>
                       </div>
 
@@ -2866,10 +2869,14 @@ function KranePodList(props) {
                         >
                           {" "}
                           MEM. USED:{" "}
-                          <strong>{selectedPod[0]["podMemoryUsedDisplay"]}</strong>
+                          <strong>
+                            {selectedPod[0]["podMemoryUsedDisplay"]}
+                          </strong>
                           <br />
                           MEM. LIMIT:{" "}
-                          <strong>{selectedPod[0]["podMemoryLimitDisplay"]}</strong>
+                          <strong>
+                            {selectedPod[0]["podMemoryLimitDisplay"]}
+                          </strong>
                         </div>
                       </div>
                     </div>
