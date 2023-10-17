@@ -106,6 +106,7 @@ function KraneNodeList(props) {
       theme.palette.mode === "dark" ? "1px solid white" : "2px solid #9075ea",
     borderRadius: "10px",
     overflow: "scroll",
+    overflowX: "hidden",
   };
 
   const logStyle = {
@@ -1182,7 +1183,7 @@ function KraneNodeList(props) {
 
     if (tempPodList[i]["podCpuLimit"] === "NONE") {
       nodesPodsCpuPercentColor = "#ffffff80";
-      nodesPodsCpuPercentColorLight = "#ffffff80";
+      nodesPodsCpuPercentColorLight = "#00000045";
     } else if (
       (100 * Number(tempPodList[i]["podCpuUsed"])) /
         Number(`${tempPodList[i]["podCpuLimit"]}`) <
@@ -1197,7 +1198,7 @@ function KraneNodeList(props) {
 
     if (tempPodList[i]["podMemoryLimit"] === "NONE") {
       nodesPodsMemoryColor = "#ffffff80";
-      nodesPodsMemoryColorLight = "#ffffff80";
+      nodesPodsMemoryColorLight = "#00000045";
     } else if (tempPodList[i]["podMemoryPercent"] < 90) {
       nodesPodsMemoryColor = "#2fc665";
       nodesPodsMemoryColorLight = "#2fc665";
@@ -1214,7 +1215,7 @@ function KraneNodeList(props) {
           flexDirection: "column",
           fontFamily: "Outfit",
           fontWeight: "400",
-          fontSize: "17px",
+          fontSize: "16px",
           justifyContent: "flex-start",
           alignItems: "flex-start",
           textAlign: "left",
@@ -1256,7 +1257,7 @@ function KraneNodeList(props) {
             boxShadow:
               theme.palette.mode === "dark"
                 ? "10px 9px 2px #00000060"
-                : "10px 10px 1px #00000020",
+                : "10px 10px 1px #00000000",
             background: theme.palette.mode === "dark" ? "#0e0727" : "#e6e1fb",
           }}
         >
@@ -1281,7 +1282,7 @@ function KraneNodeList(props) {
                 width: "250px",
                 lineHeight: "19px",
                 textTransform: "none",
-                fontSize: "16px",
+                fontSize: "15px",
               }}
             >
               {tempPodList[i]["name"]}
@@ -1406,8 +1407,8 @@ function KraneNodeList(props) {
                     marginTop: "10px",
                     marginLeft: "10.5px",
                     rotate: "-131deg",
-                    color: "#ffffff40",
-
+                    color:
+                      theme.palette.mode === "dark" ? "#ffffff40" : "#00000020",
                     width: "60px",
                     // border: "1px solid red",
                     // filter: "drop-shadow(10px 10px 10px #000000)",
@@ -1528,7 +1529,8 @@ function KraneNodeList(props) {
                     marginTop: "10px",
                     marginLeft: "9.5px",
                     rotate: "-131deg",
-                    color: "#ffffff40",
+                    color:
+                      theme.palette.mode === "dark" ? "#ffffff40" : "#00000020",
 
                     width: "60px",
                     // border: "1px solid red",
@@ -1930,11 +1932,13 @@ function KraneNodeList(props) {
                             borderRadius: "3px",
                             width: `${selectedNode[0]["role"].length * 17.5}px`, //"105px",
                             letterSpacing: ".5px",
+                            userSelect: "none",
+                            // webkitUserSelect: "none",
                           }}
                         >
                           {selectedNode[0]["role"].toUpperCase()}
                         </div>
-                        <div style={{ paddingLeft: "5px" }}>
+                        <div style={{ paddingLeft: "5px", fontSize:"16px" }}>
                           <br />
                           <b>AGE:</b> {" " + selectedNode[0]["age"]}
                           <br />
@@ -1955,8 +1959,8 @@ function KraneNodeList(props) {
                           <b>CONTAINER RUNTIME:</b>
                           {" " + selectedNode[0]["containerRuntime"]}
                           <br />
-                          <b>READINESS GATES:</b>
-                          {" " + selectedNode[0]["readinessGates"]}
+                          <b>ROLE:</b>
+                          {" " + selectedNode[0]["role"]}
                         </div>
                       </div>
 
@@ -2311,9 +2315,83 @@ function KraneNodeList(props) {
                         // border: "1px solid red",
                       }}
                     >
-                     
-
-                      <Button
+                      <button className="button3D-pushable" role="button" style={{margin:"0 10px 0 0px"}}>
+                        <span className="button3D-shadow"></span>
+                        <span
+                          className="button3D-edge"
+                          style={{
+                            background:
+                              theme.palette.mode === "dark"
+                                ? "linear-gradient(to left, hsl(239, 40%, 25%) 0%, hsl(239, 40%, 30%) 8%, hsl(239, 40%, 30%) 92%,  hsl(239, 40%, 25%) 100%)"
+                                : "linear-gradient(to left, hsl(263, 40%, 64%) 0%, hsl(263, 40%, 70%) 8%, hsl(263, 40%, 70%) 92%,hsl(263, 40%, 64%) 100%)",
+                          }}
+                        ></span>
+                        <span
+                          className="button3D-front text"
+                          style={{
+                            width: "250px",
+                            background:
+                              theme.palette.mode === "dark"
+                                ? "hsl(239, 38%, 51%)"
+                                : "hsl(263, 65%, 80%)",
+                          }}
+                        >
+                          VIEW LOGS
+                        </span>
+                      </button>
+                      <button className="button3D-pushable" role="button" style={{margin:"0 10px 0 10px"}}>
+                        <span className="button3D-shadow"></span>
+                        <span
+                          className="button3D-edge"
+                          style={
+                            {
+                              background:
+                              theme.palette.mode === "dark"
+                                ? "linear-gradient(to left, hsl(239, 40%, 25%) 0%, hsl(239, 40%, 30%) 8%, hsl(239, 40%, 30%) 92%,  hsl(239, 40%, 25%) 100%)"
+                                : "linear-gradient(to left, hsl(263, 40%, 64%) 0%, hsl(263, 40%, 70%) 8%, hsl(263, 40%, 70%) 92%,hsl(263, 40%, 64%) 100%)",
+                            }
+                          }
+                        ></span>
+                        <span
+                          className="button3D-front text"
+                          style={{
+                            width: "250px",
+                            background:
+                              theme.palette.mode === "dark"
+                                ? "hsl(239, 38%, 51%)"
+                                : "hsl(263, 65%, 80%)",
+                          }}
+                        >
+                          VIEW POD YAML
+                        </span>
+                      </button>
+                      <button className="button3D-pushable" role="button" style={{margin:"0 0px 0 10px"}}>
+                        <span className="button3D-shadow"></span>
+                        <span
+                          className="button3D-edge"
+                          style={
+                            {
+                              background:
+                              theme.palette.mode === "dark"
+                                ? "linear-gradient(to left, hsl(239, 40%, 25%) 0%, hsl(239, 40%, 30%) 8%, hsl(239, 40%, 30%) 92%,  hsl(239, 40%, 25%) 100%)"
+                                : "linear-gradient(to left, hsl(263, 40%, 64%) 0%, hsl(263, 40%, 70%) 8%, hsl(263, 40%, 70%) 92%,hsl(263, 40%, 64%) 100%)",
+                            }
+                          }
+                        ></span>
+                        <span
+                          className="button3D-front text"
+                          style={{
+                            width: "250px",
+                            background:
+                            theme.palette.mode === "dark"
+                              ? "hsl(239, 38%, 51%)"
+                              : "hsl(263, 65%, 80%)",
+                          }}
+                        >
+                          DELETE / RESTART NODE
+                        </span>
+                      </button>
+                      {/* <Button
                         // onClick={handlePodLogOpen}
                         style={{
                           width: "250px",
@@ -2322,7 +2400,7 @@ function KraneNodeList(props) {
                         }}
                       >
                         VIEW LOGS
-                      </Button>
+                      </Button> */}
                       {/* <Modal open={openPodLog} onClose={handlePodLogClose}>
                         <Box sx={logStyle}>
                           <div

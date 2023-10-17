@@ -78,6 +78,7 @@ function KranePodList(props) {
       theme.palette.mode === "dark" ? "1px solid white" : "2px solid #9075ea",
     borderRadius: "10px",
     overflow: "scroll",
+    overflowX: "hidden",
   };
 
   const logStyle = {
@@ -1867,7 +1868,7 @@ function KranePodList(props) {
             boxShadow:
               theme.palette.mode === "dark"
                 ? "10px 9px 2px #00000060"
-                : "10px 10px 1px #00000020",
+                : "10px 10px 1px #00000000",
             background: theme.palette.mode === "dark" ? "#0e0727" : "#e6e1fb",
           }}
         >
@@ -1892,7 +1893,7 @@ function KranePodList(props) {
                 width: "250px",
                 lineHeight: "23px",
                 textTransform: "none",
-                fontSize: "19px",
+                fontSize: "17px",
               }}
             >
               {tempContainerList[i]["name"]}
@@ -1997,7 +1998,8 @@ function KranePodList(props) {
                     marginTop: "0px",
                     marginLeft: "10.5px",
                     rotate: "-131deg",
-                    color: "#ffffff40",
+                    color:
+                      theme.palette.mode === "dark" ? "#ffffff40" : "#00000015",
 
                     width: "60px",
                     // border: "1px solid red",
@@ -2062,8 +2064,9 @@ function KranePodList(props) {
                 {selectedPod[0]["podCpuLimit"] === "NONE"
                   ? `no max`
                   : `${
-                      ((Number(tempContainerList[i]["cpuUsage"].slice(0, -1)) /
-                        Number(selectedPod[0]["podCpuLimit"])))*100
+                      (Number(tempContainerList[i]["cpuUsage"].slice(0, -1)) /
+                        Number(selectedPod[0]["podCpuLimit"])) *
+                      100
                     }%`}
               </div>
               <div
@@ -2120,7 +2123,8 @@ function KranePodList(props) {
                     marginTop: "0px",
                     marginLeft: "9.5px",
                     rotate: "-131deg",
-                    color: "#ffffff40",
+                    color:
+                      theme.palette.mode === "dark" ? "#ffffff40" : "#00000015",
 
                     width: "60px",
                     // border: "1px solid red",
@@ -2888,7 +2892,7 @@ function KranePodList(props) {
                         // border: "1px solid red",
                       }}
                     >
-                      <Button
+                      {/* <Button
                         onClick={handlePodLogOpen}
                         style={{
                           width: "250px",
@@ -2897,7 +2901,36 @@ function KranePodList(props) {
                         }}
                       >
                         VIEW LOGS
-                      </Button>
+                      </Button> */}
+                      <button
+                        className="button3D-pushable"
+                        role="button"
+                        onClick={handlePodLogOpen}
+                        style={{margin:"0 10px 0 0px"}}
+                      >
+                        <span className="button3D-shadow"></span>
+                        <span
+                          className="button3D-edge"
+                          style={{
+                            background:
+                              theme.palette.mode === "dark"
+                                ? "linear-gradient(to left, hsl(239, 40%, 25%) 0%, hsl(239, 40%, 30%) 8%, hsl(239, 40%, 30%) 92%,  hsl(239, 40%, 25%) 100%)"
+                                : "linear-gradient(to left, hsl(263, 40%, 64%) 0%, hsl(263, 40%, 70%) 8%, hsl(263, 40%, 70%) 92%,hsl(263, 40%, 64%) 100%)",
+                          }}
+                        ></span>
+                        <span
+                          className="button3D-front text"
+                          style={{
+                            width: "250px",
+                            background:
+                              theme.palette.mode === "dark"
+                                ? "hsl(239, 38%, 51%)"
+                                : "hsl(263, 65%, 80%)",
+                          }}
+                        >
+                          VIEW LOGS
+                        </span>
+                      </button>
                       <Modal open={openPodLog} onClose={handlePodLogClose}>
                         <Box sx={logStyle}>
                           <div
@@ -2914,7 +2947,7 @@ function KranePodList(props) {
                           {podLogs}
                         </Box>
                       </Modal>
-                      <Button
+                      {/* <Button
                         onClick={handlePodYamlOpen}
                         style={{
                           width: "250px",
@@ -2924,7 +2957,36 @@ function KranePodList(props) {
                         }}
                       >
                         VIEW POD YAML
-                      </Button>
+                      </Button> */}
+                      <button
+                        className="button3D-pushable"
+                        role="button"
+                        onClick={handlePodYamlOpen}
+                        style={{ margin: "0 10px 0 10px" }}
+                      >
+                        <span className="button3D-shadow"></span>
+                        <span
+                          className="button3D-edge"
+                          style={{
+                            background:
+                              theme.palette.mode === "dark"
+                                ? "linear-gradient(to left, hsl(239, 40%, 25%) 0%, hsl(239, 40%, 30%) 8%, hsl(239, 40%, 30%) 92%,  hsl(239, 40%, 25%) 100%)"
+                                : "linear-gradient(to left, hsl(263, 40%, 64%) 0%, hsl(263, 40%, 70%) 8%, hsl(263, 40%, 70%) 92%,hsl(263, 40%, 64%) 100%)",
+                          }}
+                        ></span>
+                        <span
+                          className="button3D-front text"
+                          style={{
+                            width: "250px",
+                            background:
+                              theme.palette.mode === "dark"
+                                ? "hsl(239, 38%, 51%)"
+                                : "hsl(263, 65%, 80%)",
+                          }}
+                        >
+                          VIEW POD YAML
+                        </span>
+                      </button>
                       <Modal open={openPodYaml} onClose={handlePodYamlClose}>
                         <Box sx={logStyle}>
                           <div
@@ -2941,7 +3003,7 @@ function KranePodList(props) {
                           {podYaml}
                         </Box>
                       </Modal>
-                      <Button
+                      {/* <Button
                         onClick={handlePodDeleteOpen}
                         style={{
                           width: "250px",
@@ -2951,7 +3013,36 @@ function KranePodList(props) {
                         }}
                       >
                         DELETE / RESTART POD
-                      </Button>
+                      </Button> */}
+                      <button
+                        className="button3D-pushable"
+                        role="button"
+                        onClick={handlePodDeleteOpen}
+                        style={{margin:"0 0px 0 10px"}}
+                      >
+                        <span className="button3D-shadow"></span>
+                        <span
+                          className="button3D-edge"
+                          style={{
+                            background:
+                              theme.palette.mode === "dark"
+                                ? "linear-gradient(to left, hsl(239, 40%, 25%) 0%, hsl(239, 40%, 30%) 8%, hsl(239, 40%, 30%) 92%,  hsl(239, 40%, 25%) 100%)"
+                                : "linear-gradient(to left, hsl(263, 40%, 64%) 0%, hsl(263, 40%, 70%) 8%, hsl(263, 40%, 70%) 92%,hsl(263, 40%, 64%) 100%)",
+                          }}
+                        ></span>
+                        <span
+                          className="button3D-front text"
+                          style={{
+                            width: "250px",
+                            background:
+                              theme.palette.mode === "dark"
+                                ? "hsl(239, 38%, 51%)"
+                                : "hsl(263, 65%, 80%)",
+                          }}
+                        >
+                          DELETE / RESTART POD
+                        </span>
+                      </button>
                       <Modal
                         open={openPodDelete}
                         onClose={handlePodDeleteClose}
@@ -2987,7 +3078,7 @@ function KranePodList(props) {
                               justifyContent: "center",
                             }}
                           >
-                            <Button
+                            {/* <Button
                               onClick={handlePodDelete}
                               style={{
                                 fontSize: "16px",
@@ -3005,7 +3096,37 @@ function KranePodList(props) {
                             >
                               DELETE POD
                             </Button>
-                            <Button
+                             */}
+                            <button
+                              className="button3D-pushable"
+                              role="button"
+                              onClick={handlePodDelete}
+                              style={{ marginRight: "10px" }}
+                            >
+                              <span className="button3D-shadow"></span>
+                              <span
+                                className="button3D-edge"
+                                style={{
+                                  background:
+                                    theme.palette.mode === "dark"
+                                      ? "linear-gradient(to left, hsl(239, 40%, 25%) 0%, hsl(239, 40%, 30%) 8%, hsl(239, 40%, 30%) 92%,  hsl(239, 40%, 25%) 100%)"
+                                      : "linear-gradient(to left, hsl(263, 40%, 64%) 0%, hsl(263, 40%, 70%) 8%, hsl(263, 40%, 70%) 92%,hsl(263, 40%, 64%) 100%)",
+                                }}
+                              ></span>
+                              <span
+                                className="button3D-front text"
+                                style={{
+                                  width: "150px",
+                                  background:
+                                    theme.palette.mode === "dark"
+                                      ? "hsl(239, 38%, 51%)"
+                                      : "hsl(263, 65%, 80%)",
+                                }}
+                              >
+                                DELETE POD
+                              </span>
+                            </button>
+                            {/* <Button
                               onClick={handlePodDeleteClose}
                               style={{
                                 opacity: "50%",
@@ -3016,7 +3137,35 @@ function KranePodList(props) {
                               }}
                             >
                               CANCEL
-                            </Button>
+                            </Button> */}
+                            <button
+                              className="button3D-pushable"
+                              role="button"
+                              onClick={handlePodDeleteClose}
+                            >
+                              <span className="button3D-shadow"></span>
+                              <span
+                                className="button3D-edge"
+                                style={{
+                                  background:
+                                    theme.palette.mode === "dark"
+                                      ? "linear-gradient(to left, hsl(239, 40%, 20%) 0%, hsl(239, 40%, 25%) 8%, hsl(239, 40%, 25%) 92%,  hsl(239, 40%, 20%) 100%)"
+                                      : "linear-gradient(to left, hsl(263, 40%, 64%) 0%, hsl(263, 40%, 70%) 8%, hsl(263, 40%, 70%) 92%,hsl(263, 40%, 64%) 100%)",
+                                }}
+                              ></span>
+                              <span
+                                className="button3D-front text"
+                                style={{
+                                  width: "110px",
+                                  background:
+                                    theme.palette.mode === "dark"
+                                      ? "hsl(239, 38%, 31%)"
+                                      : "hsl(263, 65%, 80%)",
+                                }}
+                              >
+                                CANCEL
+                              </span>
+                            </button>
                           </div>
                         </Box>
                       </Modal>

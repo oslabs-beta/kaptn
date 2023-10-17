@@ -91,7 +91,7 @@ function Krane() {
         CpuUsedCommand,
         currDir,
       });
-    }, 200);
+    }, 400);
 
     // ----------------------------------------------- Beginning of get pod cpu and memory limits section
 
@@ -101,7 +101,7 @@ function Krane() {
         cpuLimitsCommand,
         currDir,
       });
-    }, 500);
+    }, 600);
 
     // send command to get selected pods containers info
     let podContainersCommand = `kubectl top pod --containers`;
@@ -112,7 +112,7 @@ function Krane() {
         podContainersCommand,
         currDir,
       },
-      700
+      800
     );
   }
 
