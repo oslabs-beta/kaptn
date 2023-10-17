@@ -701,6 +701,15 @@ function KraneNodeList(props) {
   useEffect(() => {
     // ----------------------------------------- get NODES section ------------
     props.getNodesInfo();
+
+   const nodesInterval = setInterval(() => {
+      props.getNodesInfo();
+    }, 30000);
+
+     return () => {
+      clearInterval(nodesInterval);
+    };
+
   }, []);
 
   //-----------------------------------------------------------START OF FOR LOOP TO PUSH NODE LIST JSX
@@ -1633,12 +1642,14 @@ function KraneNodeList(props) {
             display: "flex",
             flexDirection: "row",
             justifyContent: "space-between",
-            margin: "0 0 0 68px",
+            margin: "-10px 0 0 68px",
+            height: "34px",
           }}
         >
-          <div style={{ display: "flex", flexDirection: "row" }}>
+          <div style={{ display: "flex", flexDirection: "row"}}>
             <div
               style={{
+                display: "flex", flexDirection: "row",
                 fontFamily: "Outfit",
                 fontSize: "24px",
                 fontWeight: "900",
@@ -1646,64 +1657,17 @@ function KraneNodeList(props) {
                 // border: "1px solid white",
                 textAlign: "left",
                 // color: "#ffffff",
-                paddingTop: "10px",
+                paddingTop: "0px",
                 color: theme.palette.mode === "dark" ? "" : "#6d6fb4",
                 userSelect: "none",
               }}
             >
               NODES
             </div>
-            <div style={{ margin: "23px 0 0 8px", fontSize: "12px" }}>
+            <div style={{ display: "flex", flexDirection: "row", margin: "10px 0 0 8px", fontSize: "12px" }}>
               {" "}
               ( {nodeList.length} total )
             </div>
-          </div>
-          <div
-            style={{
-              // fontFamily: "Outfit",
-              display: "flex",
-              flexDirection: "row",
-              width: "265px",
-              height: "30px",
-              fontSize: "9px",
-              fontWeight: "400",
-              letterSpacing: "1px",
-              lineHeight: "12px",
-              // border: "1px solid white",
-              paddingBottom: "0px",
-              textAlign: "right",
-              color: "#ffffff99",
-              marginRight: "0px",
-              marginTop: "10px",
-              justifyContent: "flex-end",
-              // paddingTop: "50px",
-            }}
-          >
-            {/* <div
-              style={{
-                marginTop: "5px",
-              }}
-            >
-              <i> STATS AUTOMATICALLY REFRESH EVERY 30 SECONDS</i>
-            </div> */}
-            <Button
-              style={{
-                marginLeft: "10px",
-                marginTop: "8px",
-                letterSpacing: ".8px",
-                // padding:"0 0 0 0",
-                // border: "1px solid #ffffff99",
-                border: "1px solid",
-                fontSize: "9px",
-                width: "98px",
-                height: "20px",
-
-                // color: "#ffffff99",
-              }}
-              onClick={handleClick}
-            >
-              Refresh stats
-            </Button>
           </div>
         </div>
         <div
@@ -1711,7 +1675,7 @@ function KraneNodeList(props) {
             display: "flex",
             flexDirection: "row",
             justifyContent: "flex-start",
-            margin: "0 0 0 68px",
+            margin: "0 0 0 68px", width:"100%"
           }}
         >
           <div
@@ -1938,7 +1902,7 @@ function KraneNodeList(props) {
                         >
                           {selectedNode[0]["role"].toUpperCase()}
                         </div>
-                        <div style={{ paddingLeft: "5px", fontSize:"16px" }}>
+                        <div style={{ paddingLeft: "5px", fontSize: "16px" }}>
                           <br />
                           <b>AGE:</b> {" " + selectedNode[0]["age"]}
                           <br />
@@ -2315,7 +2279,11 @@ function KraneNodeList(props) {
                         // border: "1px solid red",
                       }}
                     >
-                      <button className="button3D-pushable" role="button" style={{margin:"0 10px 0 0px"}}>
+                      <button
+                        className="button3D-pushable"
+                        role="button"
+                        style={{ margin: "0 10px 0 0px" }}
+                      >
                         <span className="button3D-shadow"></span>
                         <span
                           className="button3D-edge"
@@ -2339,18 +2307,20 @@ function KraneNodeList(props) {
                           VIEW LOGS
                         </span>
                       </button>
-                      <button className="button3D-pushable" role="button" style={{margin:"0 10px 0 10px"}}>
+                      <button
+                        className="button3D-pushable"
+                        role="button"
+                        style={{ margin: "0 10px 0 10px" }}
+                      >
                         <span className="button3D-shadow"></span>
                         <span
                           className="button3D-edge"
-                          style={
-                            {
-                              background:
+                          style={{
+                            background:
                               theme.palette.mode === "dark"
                                 ? "linear-gradient(to left, hsl(239, 40%, 25%) 0%, hsl(239, 40%, 30%) 8%, hsl(239, 40%, 30%) 92%,  hsl(239, 40%, 25%) 100%)"
                                 : "linear-gradient(to left, hsl(263, 40%, 64%) 0%, hsl(263, 40%, 70%) 8%, hsl(263, 40%, 70%) 92%,hsl(263, 40%, 64%) 100%)",
-                            }
-                          }
+                          }}
                         ></span>
                         <span
                           className="button3D-front text"
@@ -2365,27 +2335,29 @@ function KraneNodeList(props) {
                           VIEW POD YAML
                         </span>
                       </button>
-                      <button className="button3D-pushable" role="button" style={{margin:"0 0px 0 10px"}}>
+                      <button
+                        className="button3D-pushable"
+                        role="button"
+                        style={{ margin: "0 0px 0 10px" }}
+                      >
                         <span className="button3D-shadow"></span>
                         <span
                           className="button3D-edge"
-                          style={
-                            {
-                              background:
+                          style={{
+                            background:
                               theme.palette.mode === "dark"
                                 ? "linear-gradient(to left, hsl(239, 40%, 25%) 0%, hsl(239, 40%, 30%) 8%, hsl(239, 40%, 30%) 92%,  hsl(239, 40%, 25%) 100%)"
                                 : "linear-gradient(to left, hsl(263, 40%, 64%) 0%, hsl(263, 40%, 70%) 8%, hsl(263, 40%, 70%) 92%,hsl(263, 40%, 64%) 100%)",
-                            }
-                          }
+                          }}
                         ></span>
                         <span
                           className="button3D-front text"
                           style={{
                             width: "250px",
                             background:
-                            theme.palette.mode === "dark"
-                              ? "hsl(239, 38%, 51%)"
-                              : "hsl(263, 65%, 80%)",
+                              theme.palette.mode === "dark"
+                                ? "hsl(239, 38%, 51%)"
+                                : "hsl(263, 65%, 80%)",
                           }}
                         >
                           DELETE / RESTART NODE
@@ -2678,12 +2650,12 @@ function KraneNodeList(props) {
         style={{
           display: "flex",
           flexDirection: "column",
-          justifyContent: "center",
+          justifyContent: "flex-start",
           overflow: "hidden",
-          alignItems: "center",
-          marginLeft: "-24px",
+          alignItems: "flex-start",
+          marginLeft: "0px",
           marginTop: "0px",
-          marginBottom: "20px",
+          marginBottom: "0px",
           textAlign: "center",
           width: "100%",
           // border: "1px solid red",

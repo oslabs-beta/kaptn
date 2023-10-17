@@ -820,6 +820,13 @@ function KranePodList(props) {
 
   useEffect(() => {
     props.getPodsAndContainers();
+    const podsInterval = setInterval(() => {
+      props.getPodsAndContainers();
+    }, 15000);
+
+    return () => {
+      clearInterval(podsInterval);
+    };
   }, []); // end of use effect to get pods info on page open
 
   //------------------------------------------------------------- END OF GET ALL POD INFO SECTION ---
@@ -2240,77 +2247,44 @@ function KranePodList(props) {
           style={{
             display: "flex",
             flexDirection: "row",
-            justifyContent: "space-between",
-            margin: "0 0 0 68px",
+            justifyContent: "flex-end",
+            margin: "-10px 0 0 68px",
+            width: "975px",
+            // border:"1px solid red"
           }}
         >
-          <div style={{ display: "flex", flexDirection: "row" }}>
-            <div
-              style={{
-                fontFamily: "Outfit",
-                fontSize: "24px",
-                fontWeight: "900",
-                letterSpacing: "3px",
-                // border: "1px solid white",
-                textAlign: "left",
-                color: theme.palette.mode === "dark" ? "" : "#6d6fb4",
-                paddingTop: "10px",
-                userSelect: "none",
-              }}
-            >
-              PODS
-            </div>
-            <div style={{ margin: "23px 0 0 8px", fontSize: "12px" }}>
-              {" "}
-              ( {podsList.length} total )
-            </div>
-          </div>
           <div
             style={{
-              // fontFamily: "Outfit",
               display: "flex",
               flexDirection: "row",
-              width: "265px",
-              height: "30px",
-              fontSize: "9px",
-              fontWeight: "400",
-              letterSpacing: "1px",
-              lineHeight: "12px",
-              // border: "1px solid white",
-              paddingBottom: "0px",
-              textAlign: "right",
-              color: "#ffffff99",
-              marginRight: "50px",
-              marginTop: "10px",
-              justifyContent: "flex-end",
-              // paddingTop: "50px",
+              justifyContent: "space-between",
+              width: "100%",
+              // border:"1px solid green"
             }}
           >
-            {/* <div
-              style={{
-                marginTop: "5px",
-              }}
-            >
-              <i> STATS AUTOMATICALLY REFRESH EVERY 30 SECONDS</i>
-            </div> */}
-            <Button
-              style={{
-                marginLeft: "10px",
-                marginTop: "8px",
-                letterSpacing: ".8px",
-                // padding:"0 0 0 0",
-                // border: "1px solid #ffffff99",
-                border: "1px solid",
-                fontSize: "9px",
-                width: "98px",
-                height: "20px",
-
-                // color: "#ffffff99",
-              }}
-              onClick={handleClick}
-            >
-              Refresh stats
-            </Button>
+            <div style={{ display: "flex" }}>
+              {" "}
+              <div
+                style={{
+                  fontFamily: "Outfit",
+                  fontSize: "24px",
+                  fontWeight: "900",
+                  letterSpacing: "3px",
+                  // border: "1px solid white",
+                  textAlign: "left",
+                  color: theme.palette.mode === "dark" ? "" : "#6d6fb4",
+                  paddingTop: "0px",
+                  paddingBottom: "5px",
+                  userSelect: "none",
+                }}
+              >
+                PODS
+              </div>
+              <div style={{ margin: "13px 0 0 8px", fontSize: "12px" }}>
+                {" "}
+                ( {podsList.length} total )
+              </div>
+            </div>
           </div>
         </div>
         <div
@@ -2324,13 +2298,13 @@ function KranePodList(props) {
           <div
             style={{
               height: "1px",
-              width: "975px",
+              width: "95%",
               backgroundColor:
                 theme.palette.mode === "dark" ? "#ffffff99" : "#6d6fb4",
 
               // border: "1px solid white",
               // marginRight: "50px",
-              marginTop: "0px",
+              marginTop: "-7px",
             }}
           ></div>
         </div>
@@ -2338,49 +2312,11 @@ function KranePodList(props) {
           style={{
             display: "flex",
             justifyContent: "space-between",
-            margin: "-4px 40px 0px 0px",
+            margin: "-2px 5% 0px 60px",
           }}
         >
-          <Button
-            onClick={handleSort}
-            style={{
-              display: "flex",
-
-              // fontFamily: "Outfit",
-              fontSize: "9px",
-              fontWeight: "900",
-              letterSpacing: ".5px",
-              border: "1px solid",
-              height: "16px",
-              textAlign: "left",
-              color:
-                sortedByDisplay === "" && theme.palette.mode === "dark"
-                  ? "#ffffff99"
-                  : sortedByDisplay === "" && theme.palette.mode === "light"
-                  ? "grey"
-                  : "",
-              marginTop: "12px",
-              marginLeft: "70px",
-              padding: "8px 4px 8px 6px",
-              marginBottom: "12px",
-            }}
-          >
-            SORT BY{" "}
-            <SortIcon style={{ width: "12px", margin: "0 4px 0 3px" }} />{" "}
-            {sortedByDisplay}
-          </Button>{" "}
           <div style={{ display: "flex" }}>
             {" "}
-            <div
-              style={{
-                fontSize: "10px",
-                margin: "10.5px 0 0 0",
-                color: theme.palette.mode === "dark" ? "#ffffff99" : "grey",
-                userSelect: "none",
-              }}
-            >
-              show kube-system
-            </div>
             <Checkbox
               //@ts-ignore
               size="small"
@@ -2388,10 +2324,51 @@ function KranePodList(props) {
               checked={kubeSystemCheck}
               onChange={handleKubeSystemChange}
               style={{
-                marginTop: "-7px",
+                marginTop: "-15px",
                 color: theme.palette.mode === "dark" ? "" : "#00000050",
               }}
             />
+            <div
+              style={{
+                fontSize: "10px",
+                margin: "3px 0 0 -5px",
+                color: theme.palette.mode === "dark" ? "#ffffff99" : "grey",
+                userSelect: "none",
+              }}
+            >
+              show kube-system
+            </div>
+          </div>
+          <div>
+            <Button
+              onClick={handleSort}
+              style={{
+                display: "flex",
+
+                // fontFamily: "Outfit",
+                fontSize: "9px",
+                fontWeight: "900",
+                letterSpacing: ".5px",
+                border: "1px solid",
+                height: "16px",
+                textAlign: "left",
+                color:
+                  sortedByDisplay === "" && theme.palette.mode === "dark"
+                    ? "#ffffff99"
+                    : sortedByDisplay === "" && theme.palette.mode === "light"
+                    ? "grey"
+                    : "",
+                marginTop: "5px",
+                marginLeft: "70px",
+                marginRight: "-2px",
+                padding: "8px 4px 8px 6px",
+                marginBottom: "14px",
+              }}
+            >
+              SORT BY{" "}
+              <SortIcon style={{ width: "12px", margin: "0 4px 0 3px" }} />{" "}
+              {sortedByDisplay}
+            </Button>
           </div>
         </div>
         <div
@@ -2906,7 +2883,7 @@ function KranePodList(props) {
                         className="button3D-pushable"
                         role="button"
                         onClick={handlePodLogOpen}
-                        style={{margin:"0 10px 0 0px"}}
+                        style={{ margin: "0 10px 0 0px" }}
                       >
                         <span className="button3D-shadow"></span>
                         <span
@@ -3018,7 +2995,7 @@ function KranePodList(props) {
                         className="button3D-pushable"
                         role="button"
                         onClick={handlePodDeleteOpen}
-                        style={{margin:"0 0px 0 10px"}}
+                        style={{ margin: "0 0px 0 10px" }}
                       >
                         <span className="button3D-shadow"></span>
                         <span

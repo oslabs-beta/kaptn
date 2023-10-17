@@ -39,7 +39,6 @@ type ArrPodObjs = {
 let filteredPods: any = [];
 
 function Krane() {
-  const [launch, setLaunch] = useState<boolean>(false);
   const [podsArr, setPodsArr] = useState([]);
   const [nodesArr, setNodesArr] = useState([]);
   const [currDir, setCurrDir] = useState("NONE SELECTED");
@@ -70,10 +69,18 @@ function Krane() {
   // ----------------------------------------- get pods info section ------------
 
   function handleClick(event) {
-    // setLaunch(true);
-    // setPodsArr(filteredPods);
-    // console.log("launch is", launch);
-    // console.log("podsArr IN HANDLECLICK FOR LAUNCH is", podsArr);
+    getNodesInfo();
+    getPodsAndContainers();
+  }
+
+  const [nodeShowStatus, setNodeShowStatus] = useState(false);
+  function handleNodeShowStatus() {
+    setNodeShowStatus(!nodeShowStatus);
+  }
+
+  const [podsShowStatus, setpodsShowStatus] = useState(false);
+  function handlePodsShowStatus() {
+    setpodsShowStatus(!podsShowStatus);
   }
 
   function getPodsAndContainers() {
@@ -143,32 +150,87 @@ function Krane() {
   }
 
   // ---------------------------------------------------------- START OF IF CONDITION TO DETERMINE MAIN DIV'S JSX --------
-  let mainDiv;
-  if (launch !== true) {
-    mainDiv = (
+
+  let nodesDiv;
+  if (nodeShowStatus) {
+    nodesDiv = (
       <>
-        <Button
-          style={{
-            border: "1px solid",
-            margin: "50px 0 0 0",
-            padding: "0 20px 0 20px",
-            height: "60px",
-            fontSize: "16px",
-            color: "white",
-            backgroundColor:
-              theme.palette.mode === "dark" ? "#150f2d" : "#8881ce",
-          }}
-          onClick={handleClick}
-        >
-          VIEW YOUR NODES AND PODS
-        </Button>
+        <KraneNodeList
+          nodesArr={nodesArr}
+          setNodesArr={setNodesArr}
+          podsArr={podsArr}
+          setPodsArr={setPodsArr}
+          getNodesInfo={getNodesInfo}
+        />
       </>
     );
-  } else {
-    mainDiv = (
+  }
+
+  let podsDiv;
+  if (podsShowStatus) {
+    podsDiv = (
       <>
-        <KraneNodeList />
-        <KranePodList />
+        <KranePodList
+          podsArr={podsArr}
+          setPodsArr={setPodsArr}
+          getPodsAndContainers={getPodsAndContainers}
+        />
+      </>
+    );
+  }
+
+  let refreshShowDiv;
+  if (podsShowStatus || nodeShowStatus) {
+    refreshShowDiv = (
+      <>
+        <div
+          style={{
+            // fontFamily: "Outfit",
+            display: "flex",
+            flexDirection: "row",
+            width: "91%",
+            height: "30px",
+            fontSize: "9px",
+            fontWeight: "400",
+            letterSpacing: "1px",
+            lineHeight: "12px",
+            // border: "1px solid white",
+            paddingBottom: "0px",
+            textAlign: "right",
+            color: "#ffffff99",
+            marginRight: "0px",
+            marginTop: "0px",
+            justifyContent: "flex-end",
+            // paddingTop: "50px",
+          }}
+        >
+          {/* <div
+              style={{
+                marginTop: "5px",
+              }}
+            >
+              <i> STATS AUTOMATICALLY REFRESH EVERY 30 SECONDS</i>
+            </div> */}
+          <Button
+            style={{
+              marginLeft: "10px",
+              marginTop: "8px",
+              marginBottom:"0px",
+              letterSpacing: ".8px",
+              // padding:"0 0 0 0",
+              // border: "1px solid #ffffff99",
+              border: "1px solid",
+              fontSize: "9px",
+              width: "98px",
+              height: "20px",
+
+              // color: "#ffffff99",
+            }}
+            onClick={handleClick}
+          >
+            Refresh stats
+          </Button>
+        </div>
       </>
     );
   }
@@ -236,20 +298,87 @@ function Krane() {
             }}
           >
             Easily manage your clusters, nodes, and containers.
+            <br />
+            <p></p>
+            <div>CHOOSE ONE OR MORE:</div>
           </div>
-          <div>
-            <KraneNodeList
-              nodesArr={nodesArr}
-              setNodesArr={setNodesArr}
-              podsArr={podsArr}
-              setPodsArr={setPodsArr}
-              getNodesInfo={getNodesInfo}
-            />
-            <KranePodList
-              podsArr={podsArr}
-              setPodsArr={setPodsArr}
-              getPodsAndContainers={getPodsAndContainers}
-            />
+          <div style={{ display: "flex", margin:"-5px 0 0 0" }}>
+            <Button
+              style={{
+                marginLeft: "10px",
+                marginTop: "8px",
+                letterSpacing: ".8px",
+                padding: "5px 10px 5px 10px",
+                // border: "1px solid #ffffff99",
+                border: "1px solid",
+                fontSize: "12px",
+                // width: "98px",
+                height: "20px",
+              }}
+            >
+              DEPLOYMENTS
+            </Button>
+            <Button
+              onClick={handleNodeShowStatus}
+              style={{
+                marginLeft: "10px",
+                marginTop: "8px",
+                letterSpacing: ".8px",
+                padding: "5px 0 5px 0",
+                border:
+                  theme.palette.mode === "dark" && !nodeShowStatus
+                    ? "1px solid #ffffff"
+                    : theme.palette.mode !== "dark" && !nodeShowStatus
+                    ? "1px solid #00000060"
+                    : "1px solid #8d85f3",
+                // border: "1px solid",
+                fontSize: "12px",
+                // width: "98px",
+                height: "20px",
+                color:
+                  theme.palette.mode === "dark" && !nodeShowStatus
+                    ? "#ffffff"
+                    : theme.palette.mode !== "dark" && !nodeShowStatus
+                    ? "#00000060"
+                    : "white",
+                backgroundColor: !nodeShowStatus ? "transparent" : "#8d85f3",
+              }}
+            >
+              NODES
+            </Button>
+            <Button
+              onClick={handlePodsShowStatus}
+              style={{
+                marginLeft: "10px",
+                marginTop: "8px",
+                letterSpacing: ".8px",
+                padding: "5px 0 5px 0",
+                // border: "1px solid #ffffff99",
+                border:
+                  theme.palette.mode === "dark" && !podsShowStatus
+                    ? "1px solid #ffffff"
+                    : theme.palette.mode !== "dark" && !podsShowStatus
+                    ? "1px solid #00000060"
+                    : "1px solid #8d85f3",
+                fontSize: "12px",
+                // width: "98px",
+                height: "20px",
+                color:
+                  theme.palette.mode === "dark" && !podsShowStatus
+                    ? "#ffffff"
+                    : theme.palette.mode !== "dark" && !podsShowStatus
+                    ? "#00000060"
+                    : "white",
+                backgroundColor: !podsShowStatus ? "transparent" : "#8d85f3",
+              }}
+            >
+              PODS
+            </Button>
+          </div>
+          {refreshShowDiv}
+          <div style={{marginBottom:"0px", width:"100%"}}>
+            {nodesDiv}
+            {podsDiv}
           </div>
         </div>
       </div>
