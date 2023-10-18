@@ -45,6 +45,42 @@ function Krane() {
 
   let podsCommand = "kubectl get pods";
 
+
+  const [openPod, setOpenPod] = React.useState(false);
+  const [openPodDelete, setOpenPodDelete] = React.useState(false);
+  const [openPodLog, setOpenPodLog] = React.useState(false);
+  const [podLogs, setPodLogs] = React.useState([]);
+
+  const [openPodYaml, setOpenPodYaml] = React.useState(false);
+  const [podYaml, setPodYaml] = React.useState([]);
+
+  const [selectedPodStatusColor, setSelectedPodStatusColor] = useState("");
+  const [selectedPodCPUColor, setSelectedPodCPUColor] = useState("");
+  const [selectedPodMemoryColor, setSelectedPodMemoryColor] = useState("");
+  const [selectedPod, setSelectedPod] = useState([
+    {
+      index: "",
+      name: "",
+      ready: "",
+      status: "",
+      restarts: "",
+      lastRestart: "",
+      age: "",
+      podCpuUsed: "",
+      podCpuLimit: "",
+      podCpuPercent: "",
+      podMemoryUsed: "",
+      podMemoryLimit: "",
+      podMemoryPercent: "",
+      ipAddress: "",
+      node: "",
+      nominatedNode: "",
+      readinessGates: "",
+      podContainers: [],
+    },
+  ]);
+
+
   // let currDir = "NONE SELECTED";
 
   const theme = useTheme();
@@ -161,6 +197,26 @@ function Krane() {
           podsArr={podsArr}
           setPodsArr={setPodsArr}
           getNodesInfo={getNodesInfo}
+          openPod={openPod}
+          setOpenPod = {setOpenPod}
+          openPodDelete={openPodDelete}
+          setOpenPodDelete={setOpenPodDelete}
+          openPodLog={openPodLog}
+          setOpenPodLog={setOpenPodLog}
+          podLogs={podLogs}
+          setPodLogs={setPodLogs}
+          openPodYaml={openPodYaml}
+          setOpenPodYaml={setOpenPodYaml}
+          podYaml={podYaml}
+          setPodYaml={setPodYaml}
+          selectedPodStatusColor={selectedPodStatusColor}
+          setSelectedPodStatusColor={setSelectedPodStatusColor}
+          selectedPodCPUColor={selectedPodCPUColor}
+          setSelectedPodCPUColor={setSelectedPodCPUColor}
+          selectedPodMemoryColor={selectedPodMemoryColor}
+          setSelectedPodMemoryColor={setSelectedPodMemoryColor}
+          selectedPod={selectedPod}
+          setSelectedPod={setSelectedPod}
         />
       </>
     );
@@ -174,6 +230,28 @@ function Krane() {
           podsArr={podsArr}
           setPodsArr={setPodsArr}
           getPodsAndContainers={getPodsAndContainers}
+          currDir={currDir}
+          setCurrDir={setCurrDir}
+          openPod={openPod}
+          setOpenPod = {setOpenPod}
+          openPodDelete={openPodDelete}
+          setOpenPodDelete={setOpenPodDelete}
+          openPodLog={openPodLog}
+          setOpenPodLog={setOpenPodLog}
+          podLogs={podLogs}
+          setPodLogs={setPodLogs}
+          openPodYaml={openPodYaml}
+          setOpenPodYaml={setOpenPodYaml}
+          podYaml={podYaml}
+          setPodYaml={setPodYaml}
+          selectedPodStatusColor={selectedPodStatusColor}
+          setSelectedPodStatusColor={setSelectedPodStatusColor}
+          selectedPodCPUColor={selectedPodCPUColor}
+          setSelectedPodCPUColor={setSelectedPodCPUColor}
+          selectedPodMemoryColor={selectedPodMemoryColor}
+          setSelectedPodMemoryColor={setSelectedPodMemoryColor}
+          selectedPod={selectedPod}
+          setSelectedPod={setSelectedPod}
         />
       </>
     );
