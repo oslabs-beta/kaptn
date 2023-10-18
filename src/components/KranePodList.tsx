@@ -2221,8 +2221,8 @@ function KranePodList(props) {
             display: "flex",
             flexDirection: "row",
             justifyContent: "flex-end",
-            margin: "-10px 0 0 68px",
-            width: "975px",
+            margin: "-10px 0 0 0px",
+            width: "95.5%",
             // border:"1px solid red"
           }}
         >
@@ -2236,7 +2236,6 @@ function KranePodList(props) {
             }}
           >
             <div style={{ display: "flex" }}>
-              {" "}
               <div
                 style={{
                   fontFamily: "Outfit",
@@ -2249,6 +2248,7 @@ function KranePodList(props) {
                   paddingTop: "15px",
                   paddingBottom: "5px",
                   userSelect: "none",
+                  margin:"0 0 0 68px"
                 }}
               >
                 PODS
@@ -2260,16 +2260,15 @@ function KranePodList(props) {
                   userSelect: "none",
                 }}
               >
-                {" "}
                 ( {podsList.length} total )
               </div>
             </div>
-            <div>
+            <div style={{display: "flex",
+              flexDirection: "row", justifyContent:"flex-end", marginRight:"0px"}}>
               <Button
                 onClick={handleSort}
                 style={{
                   display: "flex",
-
                   // fontFamily: "Outfit",
                   fontSize: "9px",
                   fontWeight: "900",
@@ -2284,8 +2283,8 @@ function KranePodList(props) {
                       ? "grey"
                       : "",
                   marginTop: "23px",
-                  marginLeft: "70px",
-                  marginRight: "5px",
+                  marginLeft: "0px",
+                  marginRight: "2px",
                   padding: "8px 4px 8px 6px",
                   marginBottom: "14px",
                 }}

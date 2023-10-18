@@ -1857,9 +1857,11 @@ function KraneNodeList(props) {
             justifyContent: "space-between",
             margin: "-10px 0 0 68px",
             height: "34px",
+            width: "250%",
+            // border: "1px solid red",
           }}
         >
-          <div style={{ display: "flex", flexDirection: "row" }}>
+          <div style={{ display: "flex", flexDirection: "row", width: "100%" }}>
             <div
               style={{
                 display: "flex",
@@ -1898,13 +1900,13 @@ function KraneNodeList(props) {
             flexDirection: "row",
             justifyContent: "flex-start",
             margin: "0 0 0 68px",
-            width: "100%",
+            width: "171%",
           }}
         >
           <div
             style={{
               height: "1px",
-              width: "975px",
+              width: "3000px",
               backgroundColor:
                 theme.palette.mode === "dark" ? "#ffffff99" : "#6d6fb4",
               // border: "1px solid white",
@@ -2797,7 +2799,7 @@ function KraneNodeList(props) {
                           textAlign: "left",
                           // color: "#ffffff",
                           paddingTop: "10px",
-                          userSelect:"none"
+                          userSelect: "none",
                         }}
                       >
                         NODE'S PODS
@@ -3894,11 +3896,11 @@ function KraneNodeList(props) {
           marginTop: "-18px",
           marginBottom: "0px",
           textAlign: "center",
-          width: "100%",
-          // border: "1px solid red",
+          width: "95.5%",
+          // border: "1px solid green",
         }}
       >
-        <div>{nodeListDiv}</div>
+        <div >{nodeListDiv}</div>
       </div>
     </>
   );
