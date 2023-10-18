@@ -1882,8 +1882,9 @@ function KraneNodeList(props) {
               style={{
                 display: "flex",
                 flexDirection: "row",
-                margin: "10px 0 0 8px",
+                margin: "13px 0 0 8px",
                 fontSize: "12px",
+                userSelect: "none",
               }}
             >
               {" "}
@@ -2796,6 +2797,7 @@ function KraneNodeList(props) {
                           textAlign: "left",
                           // color: "#ffffff",
                           paddingTop: "10px",
+                          userSelect:"none"
                         }}
                       >
                         NODE'S PODS
@@ -2803,6 +2805,7 @@ function KraneNodeList(props) {
                       <div
                         style={{
                           margin: "0px 0 2px 10px",
+                          userSelect: "none",
                           // color: `${selectedNodeStatusColor}`,
                         }}
                       >
@@ -3888,7 +3891,7 @@ function KraneNodeList(props) {
           overflow: "hidden",
           alignItems: "flex-start",
           marginLeft: "0px",
-          marginTop: "0px",
+          marginTop: "-18px",
           marginBottom: "0px",
           textAlign: "center",
           width: "100%",

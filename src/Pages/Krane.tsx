@@ -55,8 +55,11 @@ function Krane() {
   const [podYaml, setPodYaml] = React.useState([]);
 
   const [selectedPodStatusColor, setSelectedPodStatusColor] = useState("");
+  const [selectedPodStatusColorLight, setSelectedPodStatusColorLight] = useState("");
   const [selectedPodCPUColor, setSelectedPodCPUColor] = useState("");
+  const [selectedPodCPUColorLight, setSelectedPodCPUColorLight] = useState("");
   const [selectedPodMemoryColor, setSelectedPodMemoryColor] = useState("");
+  const [selectedPodMemoryColorLight, setSelectedPodMemoryColorLight] = useState("");
   const [selectedPod, setSelectedPod] = useState([
     {
       index: "",
@@ -112,11 +115,6 @@ function Krane() {
   const [nodeShowStatus, setNodeShowStatus] = useState(false);
   function handleNodeShowStatus() {
     setNodeShowStatus(!nodeShowStatus);
-  }
-
-  const [podsShowStatus, setpodsShowStatus] = useState(false);
-  function handlePodsShowStatus() {
-    setpodsShowStatus(!podsShowStatus);
   }
 
   function getPodsAndContainers() {
@@ -187,9 +185,9 @@ function Krane() {
 
   // ---------------------------------------------------------- START OF IF CONDITION TO DETERMINE MAIN DIV'S JSX --------
 
-  let nodesDiv;
+  let nodesAndPodsDiv;
   if (nodeShowStatus) {
-    nodesDiv = (
+    nodesAndPodsDiv = (
       <>
         <KraneNodeList
           nodesArr={nodesArr}
@@ -215,18 +213,16 @@ function Krane() {
           setSelectedPodCPUColor={setSelectedPodCPUColor}
           selectedPodMemoryColor={selectedPodMemoryColor}
           setSelectedPodMemoryColor={setSelectedPodMemoryColor}
+          selectedPodStatusColorLight={selectedPodStatusColorLight}
+          setSelectedPodStatusColorLight={setSelectedPodStatusColorLight}
+          selectedPodCPUColorLight={selectedPodCPUColorLight}
+          setSelectedPodCPUColorLight={setSelectedPodCPUColorLight}
+          selectedPodMemoryColorLight={selectedPodMemoryColorLight}
+          setSelectedPodMemoryColorLight={setSelectedPodMemoryColorLight}
           selectedPod={selectedPod}
           setSelectedPod={setSelectedPod}
         />
-      </>
-    );
-  }
-
-  let podsDiv;
-  if (podsShowStatus) {
-    podsDiv = (
-      <>
-        <KranePodList
+         <KranePodList
           podsArr={podsArr}
           setPodsArr={setPodsArr}
           getPodsAndContainers={getPodsAndContainers}
@@ -250,6 +246,12 @@ function Krane() {
           setSelectedPodCPUColor={setSelectedPodCPUColor}
           selectedPodMemoryColor={selectedPodMemoryColor}
           setSelectedPodMemoryColor={setSelectedPodMemoryColor}
+          selectedPodStatusColorLight={selectedPodStatusColorLight}
+          setSelectedPodStatusColorLight={setSelectedPodStatusColorLight}
+          selectedPodCPUColorLight={selectedPodCPUColorLight}
+          setSelectedPodCPUColorLight={setSelectedPodCPUColorLight}
+          selectedPodMemoryColorLight={selectedPodMemoryColorLight}
+          setSelectedPodMemoryColorLight={setSelectedPodMemoryColorLight}
           selectedPod={selectedPod}
           setSelectedPod={setSelectedPod}
         />
@@ -258,7 +260,7 @@ function Krane() {
   }
 
   let refreshShowDiv;
-  if (podsShowStatus || nodeShowStatus) {
+  if (nodeShowStatus) {
     refreshShowDiv = (
       <>
         <div
@@ -386,7 +388,7 @@ function Krane() {
                 marginLeft: "10px",
                 marginTop: "8px",
                 letterSpacing: ".8px",
-                padding: "5px 10px 5px 10px",
+                padding: "12px 10px 12px 10px",
                 // border: "1px solid #ffffff99",
                 border: "1px solid",
                 fontSize: "12px",
@@ -402,7 +404,7 @@ function Krane() {
                 marginLeft: "10px",
                 marginTop: "8px",
                 letterSpacing: ".8px",
-                padding: "5px 0 5px 0",
+                padding: "12px 10px 12px 10px",
                 border:
                   theme.palette.mode === "dark" && !nodeShowStatus
                     ? "1px solid #ffffff"
@@ -422,41 +424,12 @@ function Krane() {
                 backgroundColor: !nodeShowStatus ? "transparent" : "#8d85f3",
               }}
             >
-              NODES
-            </Button>
-            <Button
-              onClick={handlePodsShowStatus}
-              style={{
-                marginLeft: "10px",
-                marginTop: "8px",
-                letterSpacing: ".8px",
-                padding: "5px 0 5px 0",
-                // border: "1px solid #ffffff99",
-                border:
-                  theme.palette.mode === "dark" && !podsShowStatus
-                    ? "1px solid #ffffff"
-                    : theme.palette.mode !== "dark" && !podsShowStatus
-                    ? "1px solid #00000060"
-                    : "1px solid #8d85f3",
-                fontSize: "12px",
-                // width: "98px",
-                height: "20px",
-                color:
-                  theme.palette.mode === "dark" && !podsShowStatus
-                    ? "#ffffff"
-                    : theme.palette.mode !== "dark" && !podsShowStatus
-                    ? "#00000060"
-                    : "white",
-                backgroundColor: !podsShowStatus ? "transparent" : "#8d85f3",
-              }}
-            >
-              PODS
+              NODES & PODS
             </Button>
           </div>
           {refreshShowDiv}
           <div style={{marginBottom:"0px", width:"100%"}}>
-            {nodesDiv}
-            {podsDiv}
+            {nodesAndPodsDiv}
           </div>
         </div>
       </div>

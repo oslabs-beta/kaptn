@@ -833,8 +833,6 @@ function KranePodList(props) {
 
   // -------------------------------------------------- beginning of expand pods section -----------
 
-
-
   const [sortedBy, setSortedBy] = useState("");
   const [sortedByDisplay, setSortedByDisplay] = useState("");
 
@@ -967,8 +965,10 @@ function KranePodList(props) {
   const handlePodOpen = (pod) => {
     if (pod["status"] === "Running") {
       props.setSelectedPodStatusColor("#2fc665");
+      props.setSelectedPodStatusColorLight("#2fc665");
     } else {
       props.setSelectedPodStatusColor("rgba(210, 223, 61)");
+      props.setSelectedPodStatusColorLight("rgba(210, 223, 61)");
     }
     props.setSelectedPod([pod]);
     // console.log("selected pod is ", pod);
@@ -980,11 +980,14 @@ function KranePodList(props) {
     if (typeof props.selectedPod[0]["podCpuPercent"] === "string") {
       if (props.selectedPod[0]["podCpuPercent"] === "N/A") {
         props.setSelectedPodCPUColor("#ffffff80");
+        props.setSelectedPodCPUColorLight("#ffffff80");
       }
     } else if (props.selectedPod[0]["podCpuPercent"] < 90) {
       props.setSelectedPodCPUColor("#2fc665");
+      props.setSelectedPodCPUColorLight("#2fc665");
     } else {
       props.setSelectedPodCPUColor("#cf4848");
+      props.setSelectedPodCPUColorLight("#cf4848");
     }
     // console.log(pod);
 
@@ -1244,7 +1247,7 @@ function KranePodList(props) {
     // console.log("numerator is", Number(numerator));
 
     if (props.podsArr[i]["status"] === "Running") {
-      readyStatusRunning = "#2fc665";
+      readyStatusRunning = "#5eba62";
     } else {
       readyStatusRunning = "rgba(210, 223, 61)";
     }
@@ -1258,7 +1261,7 @@ function KranePodList(props) {
       props.podsArr[i]["podCpuPercent"] === undefined
     ) {
       PodCpuPercentColor = "#2fc665";
-      PodCpuPercentColorLight = "#5bb57b";
+      PodCpuPercentColorLight = "#5eba62";
     } else {
       PodCpuPercentColor = "#cf4848";
       PodCpuPercentColorLight = "#d35656";
@@ -1273,7 +1276,7 @@ function KranePodList(props) {
       props.podsArr[i]["podMemoryPercent"] === undefined
     ) {
       PodMemoryPercentColor = "#2fc665";
-      PodMemoryPercentColorLight = "#5bb57b";
+      PodMemoryPercentColorLight = "#5eba62";
     } else {
       PodMemoryPercentColor = "#cf4848";
       PodMemoryPercentColorLight = "#d35656";
@@ -2022,10 +2025,12 @@ function KranePodList(props) {
                   top: "-43px",
                   left: "5px",
                   fontSize:
-                  props.selectedPod[0]["podCpuLimit"] === "NONE" ? "13px" : "16px",
+                    props.selectedPod[0]["podCpuLimit"] === "NONE"
+                      ? "13px"
+                      : "16px",
                   fontWeight: "500",
                   marginTop:
-                  props.selectedPod[0]["podCpuLimit"] === "NONE"
+                    props.selectedPod[0]["podCpuLimit"] === "NONE"
                       ? "-55px"
                       : "-60px",
                   marginLeft: "-8px",
@@ -2152,11 +2157,11 @@ function KranePodList(props) {
                   fontWeight: "500",
                   marginLeft: "-11px",
                   fontSize:
-                  props.selectedPod[0]["podMemoryLimit"] === "NONE"
+                    props.selectedPod[0]["podMemoryLimit"] === "NONE"
                       ? "13px"
                       : "16px",
                   marginTop:
-                  props.selectedPod[0]["podMemoryLimit"] === "NONE"
+                    props.selectedPod[0]["podMemoryLimit"] === "NONE"
                       ? "-55px"
                       : "-60px",
                   // border: "2px solid red",
@@ -2248,42 +2253,48 @@ function KranePodList(props) {
               >
                 PODS
               </div>
-              <div style={{ margin: "28px 0 0 8px", fontSize: "12px" }}>
+              <div
+                style={{
+                  margin: "28px 0 0 8px",
+                  fontSize: "12px",
+                  userSelect: "none",
+                }}
+              >
                 {" "}
                 ( {podsList.length} total )
               </div>
             </div>
-              <div>
-            <Button
-              onClick={handleSort}
-              style={{
-                display: "flex",
+            <div>
+              <Button
+                onClick={handleSort}
+                style={{
+                  display: "flex",
 
-                // fontFamily: "Outfit",
-                fontSize: "9px",
-                fontWeight: "900",
-                letterSpacing: ".5px",
-                border: "1px solid",
-                height: "16px",
-                textAlign: "left",
-                color:
-                  sortedByDisplay === "" && theme.palette.mode === "dark"
-                    ? "#ffffff99"
-                    : sortedByDisplay === "" && theme.palette.mode === "light"
-                    ? "grey"
-                    : "",
-                marginTop: "23px",
-                marginLeft: "70px",
-                marginRight: "5px",
-                padding: "8px 4px 8px 6px",
-                marginBottom: "14px",
-              }}
-            >
-              SORT BY{" "}
-              <SortIcon style={{ width: "12px", margin: "0 4px 0 3px" }} />{" "}
-              {sortedByDisplay}
-            </Button>
-          </div>
+                  // fontFamily: "Outfit",
+                  fontSize: "9px",
+                  fontWeight: "900",
+                  letterSpacing: ".5px",
+                  border: "1px solid",
+                  height: "16px",
+                  textAlign: "left",
+                  color:
+                    sortedByDisplay === "" && theme.palette.mode === "dark"
+                      ? "#ffffff99"
+                      : sortedByDisplay === "" && theme.palette.mode === "light"
+                      ? "grey"
+                      : "",
+                  marginTop: "23px",
+                  marginLeft: "70px",
+                  marginRight: "5px",
+                  padding: "8px 4px 8px 6px",
+                  marginBottom: "14px",
+                }}
+              >
+                SORT BY{" "}
+                <SortIcon style={{ width: "12px", margin: "0 4px 0 3px" }} />{" "}
+                {sortedByDisplay}
+              </Button>
+            </div>
           </div>
         </div>
         <div
@@ -2316,11 +2327,10 @@ function KranePodList(props) {
         >
           <div style={{ display: "flex" }}>
             {" "}
-           
             <div
               onClick={handleKubeSystemChange}
               style={{
-                cursor:"pointer",
+                cursor: "pointer",
                 fontSize: "10px",
                 margin: "3px -3px 0 10px",
                 color: theme.palette.mode === "dark" ? "#ffffff99" : "grey",
@@ -2328,7 +2338,8 @@ function KranePodList(props) {
               }}
             >
               show kube-system
-            </div> <Checkbox
+            </div>{" "}
+            <Checkbox
               //@ts-ignore
               size="small"
               value="start"
@@ -2340,7 +2351,6 @@ function KranePodList(props) {
               }}
             />
           </div>
-          
         </div>
         <div
           style={{
@@ -2499,7 +2509,8 @@ function KranePodList(props) {
                           <b>LAST RESTART:</b>{" "}
                           {props.selectedPod[0]["lastRestart"].toUpperCase()}
                           <br />
-                          <b>AGE:</b> {props.selectedPod[0]["age"].toUpperCase()}
+                          <b>AGE:</b>{" "}
+                          {props.selectedPod[0]["age"].toUpperCase()}
                           <br />
                           <b>IP ADDRESS:</b>
                           {" " + props.selectedPod[0]["ipAddress"]}
@@ -2575,8 +2586,9 @@ function KranePodList(props) {
                             // 2 *
                             props.selectedPod[0]["podCpuLimit"] === "NONE"
                               ? 0
-                              : Number(`${props.selectedPod[0]["podCpuPercent"]}`) *
-                                0.73
+                              : Number(
+                                  `${props.selectedPod[0]["podCpuPercent"]}`
+                                ) * 0.73
                           }
                           style={{
                             position: "relative",
@@ -2584,11 +2596,15 @@ function KranePodList(props) {
                             left: "26.8px",
                             rotate: "-131deg",
                             color:
-                            props.selectedPod[0]["podCpuPercent"] === "N/A"
+                              props.selectedPod[0]["podCpuPercent"] === "N/A"
                                 ? "#ffffff80"
-                                : Number(props.selectedPod[0]["podCpuPercent"]) < 90
+                                : Number(
+                                    props.selectedPod[0]["podCpuPercent"]
+                                  ) < 90
                                 ? `#2fc665`
-                                : Number(props.selectedPod[0]["podCpuPercent"]) > 90
+                                : Number(
+                                    props.selectedPod[0]["podCpuPercent"]
+                                  ) > 90
                                 ? "#cf4848"
                                 : "yellow",
                             width: "180px",
@@ -2603,7 +2619,7 @@ function KranePodList(props) {
                             top: "-95px",
                             left: "0px",
                             fontSize:
-                            props.selectedPod[0]["podCpuPercent"] === "N/A"
+                              props.selectedPod[0]["podCpuPercent"] === "N/A"
                                 ? "36px"
                                 : "38px",
                             fontWeight: "800",
@@ -2611,11 +2627,15 @@ function KranePodList(props) {
                             marginLeft: "-37px",
                             // border: "2px solid blue",
                             color:
-                            props.selectedPod[0]["podCpuPercent"] === "N/A"
+                              props.selectedPod[0]["podCpuPercent"] === "N/A"
                                 ? "#ffffff80"
-                                : Number(props.selectedPod[0]["podCpuPercent"]) < 90
+                                : Number(
+                                    props.selectedPod[0]["podCpuPercent"]
+                                  ) < 90
                                 ? `#2fc665`
-                                : Number(props.selectedPod[0]["podCpuPercent"]) > 90
+                                : Number(
+                                    props.selectedPod[0]["podCpuPercent"]
+                                  ) > 90
                                 ? "#cf4848"
                                 : "yellow", //`${PodMemoryPercentColor}`,
                           }}
@@ -2636,11 +2656,15 @@ function KranePodList(props) {
                             fontWeight: "400",
                             marginTop: "-8px",
                             color:
-                            props.selectedPod[0]["podCpuPercent"] === "N/A"
+                              props.selectedPod[0]["podCpuPercent"] === "N/A"
                                 ? "#ffffff80"
-                                : Number(props.selectedPod[0]["podCpuPercent"]) < 90
+                                : Number(
+                                    props.selectedPod[0]["podCpuPercent"]
+                                  ) < 90
                                 ? `#2fc665`
-                                : Number(props.selectedPod[0]["podCpuPercent"]) > 90
+                                : Number(
+                                    props.selectedPod[0]["podCpuPercent"]
+                                  ) > 90
                                 ? "#cf4848"
                                 : "yellow", //"#cf4848", //`${PodMemoryPercentColor}`,
                           }}
@@ -2659,11 +2683,15 @@ function KranePodList(props) {
                             // margin: "-50px 0 0 -29px",
                             textAlign: "center",
                             color:
-                            props.selectedPod[0]["podCpuPercent"] === "N/A"
+                              props.selectedPod[0]["podCpuPercent"] === "N/A"
                                 ? "#ffffff80"
-                                : Number(props.selectedPod[0]["podCpuPercent"]) < 90
+                                : Number(
+                                    props.selectedPod[0]["podCpuPercent"]
+                                  ) < 90
                                 ? `#2fc665`
-                                : Number(props.selectedPod[0]["podCpuPercent"]) > 90
+                                : Number(
+                                    props.selectedPod[0]["podCpuPercent"]
+                                  ) > 90
                                 ? "#cf4848"
                                 : "yellow", //"#cf4848", //`${PodMemoryPercentColor}`,
                           }}
@@ -2727,13 +2755,15 @@ function KranePodList(props) {
                             left: "26.8px",
                             rotate: "-131deg",
                             color:
-                            props.selectedPod[0]["podMemoryPercent"] === "N/A"
+                              props.selectedPod[0]["podMemoryPercent"] === "N/A"
                                 ? "#ffffff80"
-                                : Number(props.selectedPod[0]["podMemoryPercent"]) <
-                                  90
+                                : Number(
+                                    props.selectedPod[0]["podMemoryPercent"]
+                                  ) < 90
                                 ? `#2fc665`
-                                : Number(props.selectedPod[0]["podMemoryPercent"]) >
-                                  90
+                                : Number(
+                                    props.selectedPod[0]["podMemoryPercent"]
+                                  ) > 90
                                 ? "#cf4848"
                                 : "yellow",
                             width: "180px",
@@ -2748,7 +2778,7 @@ function KranePodList(props) {
                             top: "-95px",
                             left: "0px",
                             fontSize:
-                            props.selectedPod[0]["podMemoryPercent"] === "N/A"
+                              props.selectedPod[0]["podMemoryPercent"] === "N/A"
                                 ? "36px"
                                 : "38px",
                             fontWeight: "800",
@@ -2756,13 +2786,15 @@ function KranePodList(props) {
                             marginLeft: "-37px",
                             // border: "2px solid blue",
                             color:
-                            props.selectedPod[0]["podMemoryPercent"] === "N/A"
+                              props.selectedPod[0]["podMemoryPercent"] === "N/A"
                                 ? "#ffffff80"
-                                : Number(props.selectedPod[0]["podMemoryPercent"]) <
-                                  90
+                                : Number(
+                                    props.selectedPod[0]["podMemoryPercent"]
+                                  ) < 90
                                 ? `#2fc665`
-                                : Number(props.selectedPod[0]["podMemoryPercent"]) >
-                                  90
+                                : Number(
+                                    props.selectedPod[0]["podMemoryPercent"]
+                                  ) > 90
                                 ? "#cf4848"
                                 : "yellow", //`${PodMemoryPercentColor}`,
                           }}
@@ -2783,13 +2815,15 @@ function KranePodList(props) {
                             fontWeight: "400",
                             marginTop: "-8px",
                             color:
-                            props.selectedPod[0]["podMemoryPercent"] === "N/A"
+                              props.selectedPod[0]["podMemoryPercent"] === "N/A"
                                 ? "#ffffff80"
-                                : Number(props.selectedPod[0]["podMemoryPercent"]) <
-                                  90
+                                : Number(
+                                    props.selectedPod[0]["podMemoryPercent"]
+                                  ) < 90
                                 ? `#2fc665`
-                                : Number(props.selectedPod[0]["podMemoryPercent"]) >
-                                  90
+                                : Number(
+                                    props.selectedPod[0]["podMemoryPercent"]
+                                  ) > 90
                                 ? "#cf4848"
                                 : "yellow", //"#cf4848", //`${PodMemoryPercentColor}`,
                           }}
@@ -2808,13 +2842,15 @@ function KranePodList(props) {
                             // margin: "-50px 0 0 -29px",
                             textAlign: "center",
                             color:
-                            props.selectedPod[0]["podMemoryPercent"] === "N/A"
+                              props.selectedPod[0]["podMemoryPercent"] === "N/A"
                                 ? "#ffffff80"
-                                : Number(props.selectedPod[0]["podMemoryPercent"]) <
-                                  90
+                                : Number(
+                                    props.selectedPod[0]["podMemoryPercent"]
+                                  ) < 90
                                 ? `#2fc665`
-                                : Number(props.selectedPod[0]["podMemoryPercent"]) >
-                                  90
+                                : Number(
+                                    props.selectedPod[0]["podMemoryPercent"]
+                                  ) > 90
                                 ? "#cf4848"
                                 : "yellow", //"#cf4848", //`${PodMemoryPercentColor}`,
                           }}
@@ -2876,10 +2912,13 @@ function KranePodList(props) {
                                 : "hsl(263, 65%, 80%)",
                           }}
                         >
-                          VIEW LOGS
+                          VIEW POD LOGS
                         </span>
                       </button>
-                      <Modal open={props.openPodLog} onClose={handlePodLogClose}>
+                      <Modal
+                        open={props.openPodLog}
+                        onClose={handlePodLogClose}
+                      >
                         <Box sx={logStyle}>
                           <div
                             style={{
@@ -2935,7 +2974,10 @@ function KranePodList(props) {
                           VIEW POD YAML
                         </span>
                       </button>
-                      <Modal open={props.openPodYaml} onClose={handlePodYamlClose}>
+                      <Modal
+                        open={props.openPodYaml}
+                        onClose={handlePodYamlClose}
+                      >
                         <Box sx={logStyle}>
                           <div
                             style={{
@@ -3137,6 +3179,7 @@ function KranePodList(props) {
                           textAlign: "left",
                           // color: "#ffffff",
                           paddingTop: "10px",
+                          userSelect: "none",
                         }}
                       >
                         POD'S CONTAINERS
@@ -3145,9 +3188,11 @@ function KranePodList(props) {
                         style={{
                           margin: "0px 0 2px 10px",
                           color: `${props.selectedPodStatusColor}`,
+                          userSelect: "none",
                         }}
                       >
-                        ({props.selectedPod[0]["ready"]} {props.selectedPod[0]["status"]})
+                        ({props.selectedPod[0]["ready"]}{" "}
+                        {props.selectedPod[0]["status"]})
                       </div>
                     </div>
                     <div
