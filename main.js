@@ -33,153 +33,10 @@ function createMainWindow() {
 
 /******** EVENT LISTENERS ********/
 
+
 //************************************************************** */
 //***               START PAGE - IPC methods                 *** */
 //************************************************************** */
-
-//Listen for command to get a pod containers
-ipcMain.on("podContainers_command", (event, arg) => {
-  const { podContainersCommand, currDir } = arg;
-
-  // if kubectl command is entered with no directory chosen, use ZDOTDIR as directory address when calling exec command --- otherwise ("else" on line further down) submit command normally
-  if (currDir === "NONE SELECTED") {
-    let kubDir = process.env.ZDOTDIR;
-    exec(` ${podContainersCommand}`, { cwd: kubDir }, (err, stdout, stderr) => {
-      // Handle failed command execution
-      if (err) {
-        let output = err;
-      }
-      // Handle successful command execution but returned error (stderr)
-      if (stderr) {
-        return event.sender.send("podContainersRetrieved", stderr);
-      }
-      // Handle successful command execution with no errors
-      return event.sender.send("podContainersRetrieved", stdout);
-    });
-  } else {
-    exec(
-      ` ${podContainersCommand}`,
-      { cwd: currDir },
-      (err, stdout, stderr) => {
-        // Handle failed command execution
-        if (err) {
-          let output = err;
-        }
-        // Handle successful command execution but returned error (stderr)
-        if (stderr) {
-          return event.sender.send("podYamlRetrieved", stderr);
-        }
-        // Handle successful command execution with no errors
-        return event.sender.send("podYamlRetrieved", stdout);
-      }
-    );
-  }
-});
-
-//Listen for command to view a podd logs
-ipcMain.on("podLogs_command", (event, arg) => {
-  const { podLogsCommand, currDir } = arg;
-
-  // if kubectl command is entered with no directory chosen, use ZDOTDIR as directory address when calling exec command --- otherwise ("else" on line further down) submit command normally
-  if (currDir === "NONE SELECTED") {
-    let kubDir = process.env.ZDOTDIR;
-    exec(` ${podLogsCommand}`, { cwd: kubDir }, (err, stdout, stderr) => {
-      // Handle failed command execution
-      if (err) {
-        let output = err;
-      }
-      // Handle successful command execution but returned error (stderr)
-      if (stderr) {
-        return event.sender.send("podLogsRetrieved", stderr);
-      }
-      // Handle successful command execution with no errors
-      return event.sender.send("podLogsRetrieved", stdout);
-    });
-  } else {
-    exec(` ${podLogsCommand}`, { cwd: currDir }, (err, stdout, stderr) => {
-      // Handle failed command execution
-      if (err) {
-        let output = err;
-      }
-      // Handle successful command execution but returned error (stderr)
-      if (stderr) {
-        return event.sender.send("podLogsRetrieved", stderr);
-      }
-      // Handle successful command execution with no errors
-      return event.sender.send("podLogsRetrieved", stdout);
-    });
-  }
-});
-
-//Listen for command to delete/restart a pod
-ipcMain.on("podYaml_command", (event, arg) => {
-  const { podYamlCommand, currDir } = arg;
-
-  // if kubectl command is entered with no directory chosen, use ZDOTDIR as directory address when calling exec command --- otherwise ("else" on line further down) submit command normally
-  if (currDir === "NONE SELECTED") {
-    let kubDir = process.env.ZDOTDIR;
-    exec(` ${podYamlCommand}`, { cwd: kubDir }, (err, stdout, stderr) => {
-      // Handle failed command execution
-      if (err) {
-        let output = err;
-      }
-      // Handle successful command execution but returned error (stderr)
-      if (stderr) {
-        return event.sender.send("podYamlRetrieved", stderr);
-      }
-      // Handle successful command execution with no errors
-      return event.sender.send("podYamlRetrieved", stdout);
-    });
-  } else {
-    exec(` ${podYamlCommand}`, { cwd: currDir }, (err, stdout, stderr) => {
-      // Handle failed command execution
-      if (err) {
-        let output = err;
-      }
-      // Handle successful command execution but returned error (stderr)
-      if (stderr) {
-        return event.sender.send("podYamlRetrieved", stderr);
-      }
-      // Handle successful command execution with no errors
-      return event.sender.send("podYamlRetrieved", stdout);
-    });
-  }
-});
-
-//Listen for command to delete/restart a pod
-ipcMain.on("deletePod_command", (event, arg) => {
-  const { podDeleteCommand, currDir } = arg;
-
-  // if kubectl command is entered with no directory chosen, use ZDOTDIR as directory address when calling exec command --- otherwise ("else" on line further down) submit command normally
-  if (currDir === "NONE SELECTED") {
-    let kubDir = process.env.ZDOTDIR;
-    exec(` ${podDeleteCommand}`, { cwd: kubDir }, (err, stdout, stderr) => {
-      // Handle failed command execution
-      if (err) {
-        let output = err;
-      }
-      // Handle successful command execution but returned error (stderr)
-      if (stderr) {
-        return event.sender.send("deleted_pod", stderr);
-      }
-      // Handle successful command execution with no errors
-      return event.sender.send("deleted_pod", stdout);
-    });
-  } else {
-    exec(` ${podDeleteCommand}`, { cwd: currDir }, (err, stdout, stderr) => {
-      // Handle failed command execution
-      if (err) {
-        let output = err;
-      }
-      // Handle successful command execution but returned error (stderr)
-      if (stderr) {
-        return event.sender.send("deleted_pod", stderr);
-      }
-      // Handle successful command execution with no errors
-      return event.sender.send("deleted_pod", stdout);
-    });
-  }
-});
 
 //Listen for check if prometheus and grafana are installed
 ipcMain.on("check_promgraf_installed", (event, arg) => {
@@ -356,6 +213,234 @@ ipcMain.on("install_metrics_server_command", (event, arg) => {
 //************************************************************ */
 //***               KRANE PAGE ipc methods                 *** */
 //************************************************************ */
+
+
+
+//Listen for command to get deployments info
+ipcMain.on("getDeployments_command", (event, arg) => {
+  const { deploymentsCommand, currDir } = arg;
+
+  // if kubectl command is entered with no directory chosen, use ZDOTDIR as directory address when calling exec command --- otherwise ("else" on line further down) submit command normally
+  if (currDir === "NONE SELECTED") {
+    let kubDir = process.env.ZDOTDIR;
+    exec(` ${deploymentsCommand}`, { cwd: kubDir }, (err, stdout, stderr) => {
+      // Handle failed command execution
+      if (err) {
+        let output = err;
+      }
+      // Handle successful command execution but returned error (stderr)
+      if (stderr) {
+        return event.sender.send("got_deployments", stderr);
+      }
+      // Handle successful command execution with no errors
+      return event.sender.send("got_deployments", stdout);
+    });
+  } else {
+    exec(
+      ` ${deploymentsCommand}`,
+      { cwd: currDir },
+      (err, stdout, stderr) => {
+        // Handle failed command execution
+        if (err) {
+          let output = err;
+        }
+        // Handle successful command execution but returned error (stderr)
+        if (stderr) {
+          return event.sender.send("got_deployments", stderr);
+        }
+        // Handle successful command execution with no errors
+        return event.sender.send("got_deployments", stdout);
+      }
+    );
+  }
+});
+
+
+//Listen for command to get replicaSets info
+ipcMain.on("getReplicas_command", (event, arg) => {
+  const { getReplicasCommand, currDir } = arg;
+
+  // if kubectl command is entered with no directory chosen, use ZDOTDIR as directory address when calling exec command --- otherwise ("else" on line further down) submit command normally
+  if (currDir === "NONE SELECTED") {
+    let kubDir = process.env.ZDOTDIR;
+    exec(` ${getReplicasCommand}`, { cwd: kubDir }, (err, stdout, stderr) => {
+      // Handle failed command execution
+      if (err) {
+        let output = err;
+      }
+      // Handle successful command execution but returned error (stderr)
+      if (stderr) {
+        return event.sender.send("got_rs", stderr);
+      }
+      // Handle successful command execution with no errors
+      return event.sender.send("got_rs", stdout);
+    });
+  } else {
+    exec(
+      ` ${getReplicasCommand}`,
+      { cwd: currDir },
+      (err, stdout, stderr) => {
+        // Handle failed command execution
+        if (err) {
+          let output = err;
+        }
+        // Handle successful command execution but returned error (stderr)
+        if (stderr) {
+          return event.sender.send("got_rs", stderr);
+        }
+        // Handle successful command execution with no errors
+        return event.sender.send("got_rs", stdout);
+      }
+    );
+  }
+});
+
+
+
+//Listen for command to get a pod containers
+ipcMain.on("podContainers_command", (event, arg) => {
+  const { podContainersCommand, currDir } = arg;
+
+  // if kubectl command is entered with no directory chosen, use ZDOTDIR as directory address when calling exec command --- otherwise ("else" on line further down) submit command normally
+  if (currDir === "NONE SELECTED") {
+    let kubDir = process.env.ZDOTDIR;
+    exec(` ${podContainersCommand}`, { cwd: kubDir }, (err, stdout, stderr) => {
+      // Handle failed command execution
+      if (err) {
+        let output = err;
+      }
+      // Handle successful command execution but returned error (stderr)
+      if (stderr) {
+        return event.sender.send("podContainersRetrieved", stderr);
+      }
+      // Handle successful command execution with no errors
+      return event.sender.send("podContainersRetrieved", stdout);
+    });
+  } else {
+    exec(
+      ` ${podContainersCommand}`,
+      { cwd: currDir },
+      (err, stdout, stderr) => {
+        // Handle failed command execution
+        if (err) {
+          let output = err;
+        }
+        // Handle successful command execution but returned error (stderr)
+        if (stderr) {
+          return event.sender.send("podContainersRetrieved", stderr);
+        }
+        // Handle successful command execution with no errors
+        return event.sender.send("podContainersRetrieved", stdout);
+      }
+    );
+  }
+});
+
+//Listen for command to view a podd logs
+ipcMain.on("podLogs_command", (event, arg) => {
+  const { podLogsCommand, currDir } = arg;
+
+  // if kubectl command is entered with no directory chosen, use ZDOTDIR as directory address when calling exec command --- otherwise ("else" on line further down) submit command normally
+  if (currDir === "NONE SELECTED") {
+    let kubDir = process.env.ZDOTDIR;
+    exec(` ${podLogsCommand}`, { cwd: kubDir }, (err, stdout, stderr) => {
+      // Handle failed command execution
+      if (err) {
+        let output = err;
+      }
+      // Handle successful command execution but returned error (stderr)
+      if (stderr) {
+        return event.sender.send("podLogsRetrieved", stderr);
+      }
+      // Handle successful command execution with no errors
+      return event.sender.send("podLogsRetrieved", stdout);
+    });
+  } else {
+    exec(` ${podLogsCommand}`, { cwd: currDir }, (err, stdout, stderr) => {
+      // Handle failed command execution
+      if (err) {
+        let output = err;
+      }
+      // Handle successful command execution but returned error (stderr)
+      if (stderr) {
+        return event.sender.send("podLogsRetrieved", stderr);
+      }
+      // Handle successful command execution with no errors
+      return event.sender.send("podLogsRetrieved", stdout);
+    });
+  }
+});
+
+//Listen for command to delete/restart a pod
+ipcMain.on("podYaml_command", (event, arg) => {
+  const { podYamlCommand, currDir } = arg;
+
+  // if kubectl command is entered with no directory chosen, use ZDOTDIR as directory address when calling exec command --- otherwise ("else" on line further down) submit command normally
+  if (currDir === "NONE SELECTED") {
+    let kubDir = process.env.ZDOTDIR;
+    exec(` ${podYamlCommand}`, { cwd: kubDir }, (err, stdout, stderr) => {
+      // Handle failed command execution
+      if (err) {
+        let output = err;
+      }
+      // Handle successful command execution but returned error (stderr)
+      if (stderr) {
+        return event.sender.send("podYamlRetrieved", stderr);
+      }
+      // Handle successful command execution with no errors
+      return event.sender.send("podYamlRetrieved", stdout);
+    });
+  } else {
+    exec(` ${podYamlCommand}`, { cwd: currDir }, (err, stdout, stderr) => {
+      // Handle failed command execution
+      if (err) {
+        let output = err;
+      }
+      // Handle successful command execution but returned error (stderr)
+      if (stderr) {
+        return event.sender.send("podYamlRetrieved", stderr);
+      }
+      // Handle successful command execution with no errors
+      return event.sender.send("podYamlRetrieved", stdout);
+    });
+  }
+});
+
+//Listen for command to delete/restart a pod
+ipcMain.on("deletePod_command", (event, arg) => {
+  const { podDeleteCommand, currDir } = arg;
+
+  // if kubectl command is entered with no directory chosen, use ZDOTDIR as directory address when calling exec command --- otherwise ("else" on line further down) submit command normally
+  if (currDir === "NONE SELECTED") {
+    let kubDir = process.env.ZDOTDIR;
+    exec(` ${podDeleteCommand}`, { cwd: kubDir }, (err, stdout, stderr) => {
+      // Handle failed command execution
+      if (err) {
+        let output = err;
+      }
+      // Handle successful command execution but returned error (stderr)
+      if (stderr) {
+        return event.sender.send("deleted_pod", stderr);
+      }
+      // Handle successful command execution with no errors
+      return event.sender.send("deleted_pod", stdout);
+    });
+  } else {
+    exec(` ${podDeleteCommand}`, { cwd: currDir }, (err, stdout, stderr) => {
+      // Handle failed command execution
+      if (err) {
+        let output = err;
+      }
+      // Handle successful command execution but returned error (stderr)
+      if (stderr) {
+        return event.sender.send("deleted_pod", stderr);
+      }
+      // Handle successful command execution with no errors
+      return event.sender.send("deleted_pod", stdout);
+    });
+  }
+});
+
 
 //*********************************  NODE LIST METHODS ******** */
 

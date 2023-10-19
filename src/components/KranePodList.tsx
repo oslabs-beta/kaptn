@@ -1716,7 +1716,7 @@ function KranePodList(props) {
 
     if (props.selectedPod[0]["podCpuLimit"] === "NONE") {
       containerCpuPercentColor = "#ffffff80";
-      containerCpuPercentColorLight = "#ffffff80";
+      containerCpuPercentColorLight = "#00000040";
     } else if (
       (100 * Number(tempContainerList[i]["cpuUsage"].slice(0, -1))) /
         Number(`${props.selectedPod[0]["podCpuLimit"]}`) <
@@ -1731,7 +1731,7 @@ function KranePodList(props) {
 
     if (props.selectedPod[0]["podMemoryLimit"] === "NONE") {
       containerMemoryColor = "#ffffff80";
-      containerMemoryColorLight = "#ffffff80";
+      containerMemoryColorLight = "#00000040";
     } else if (
       Math.min(
         Math.round(
@@ -2248,7 +2248,7 @@ function KranePodList(props) {
                   paddingTop: "15px",
                   paddingBottom: "5px",
                   userSelect: "none",
-                  margin:"0 0 0 68px"
+                  margin: "0 0 0 68px",
                 }}
               >
                 PODS
@@ -2263,8 +2263,14 @@ function KranePodList(props) {
                 ( {podsList.length} total )
               </div>
             </div>
-            <div style={{display: "flex",
-              flexDirection: "row", justifyContent:"flex-end", marginRight:"0px"}}>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "flex-end",
+                marginRight: "0px",
+              }}
+            >
               <Button
                 onClick={handleSort}
                 style={{
@@ -3206,7 +3212,10 @@ function KranePodList(props) {
                         style={{
                           height: "1px",
                           width: "100%",
-                          backgroundColor: "#ffffff99",
+                          backgroundColor:
+                            theme.palette.mode === "dark"
+                              ? "#ffffff99"
+                              : "#6d6fb4",
                           // border: "1px solid white",
                           // marginRight: "50px",
                           marginRight: "20px",

@@ -69,7 +69,7 @@ function KraneNodeList(props) {
 
   const theme = useTheme();
 
-  let currDir = "NONE SELECTED";
+  let currDir = props.currDir;
   let filteredNodes = [];
 
   const style = {
@@ -3900,7 +3900,7 @@ function KraneNodeList(props) {
           // border: "1px solid green",
         }}
       >
-        <div >{nodeListDiv}</div>
+        <div>{nodeListDiv}</div>
       </div>
     </>
   );

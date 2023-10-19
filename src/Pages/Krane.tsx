@@ -14,6 +14,7 @@ import { styled } from "@mui/material/styles";
 import { JsxElement } from "typescript";
 import KraneNodeList from "../components/KraneNodeList.js";
 import KranePodList from "../components/KranePodList.js";
+import KraneDeploymentsList from "../components/KraneDeploymentsList.tsx";
 
 const LightTooltip = styled(({ className, ...props }: TooltipProps) => (
   <Tooltip {...props} classes={{ popper: className }} />
@@ -39,12 +40,10 @@ type ArrPodObjs = {
 let filteredPods: any = [];
 
 function Krane() {
+  const [deploymentsArr, setDeploymentsArr] = useState([]);
   const [podsArr, setPodsArr] = useState([]);
   const [nodesArr, setNodesArr] = useState([]);
   const [currDir, setCurrDir] = useState("NONE SELECTED");
-
-  let podsCommand = "kubectl get pods";
-
 
   const [openPod, setOpenPod] = React.useState(false);
   const [openPodDelete, setOpenPodDelete] = React.useState(false);
@@ -55,11 +54,13 @@ function Krane() {
   const [podYaml, setPodYaml] = React.useState([]);
 
   const [selectedPodStatusColor, setSelectedPodStatusColor] = useState("");
-  const [selectedPodStatusColorLight, setSelectedPodStatusColorLight] = useState("");
+  const [selectedPodStatusColorLight, setSelectedPodStatusColorLight] =
+    useState("");
   const [selectedPodCPUColor, setSelectedPodCPUColor] = useState("");
   const [selectedPodCPUColorLight, setSelectedPodCPUColorLight] = useState("");
   const [selectedPodMemoryColor, setSelectedPodMemoryColor] = useState("");
-  const [selectedPodMemoryColorLight, setSelectedPodMemoryColorLight] = useState("");
+  const [selectedPodMemoryColorLight, setSelectedPodMemoryColorLight] =
+    useState("");
   const [selectedPod, setSelectedPod] = useState([
     {
       index: "",
@@ -83,9 +84,6 @@ function Krane() {
     },
   ]);
 
-
-  // let currDir = "NONE SELECTED";
-
   const theme = useTheme();
 
   const style = {
@@ -108,11 +106,36 @@ function Krane() {
   // ----------------------------------------- get pods info section ------------
 
   function handleClick(event) {
+    getDeploymentsInfo();
     getNodesInfo();
     getPodsAndContainers();
   }
 
+  const [deploymentsShowStatus, setDeploymentsShowStatus] = useState(false);
+
+  function handleDeploymentsShowStatus() {
+    setDeploymentsShowStatus(!deploymentsShowStatus);
+  }
+
+  function getDeploymentsInfo() {
+    let deploymentsCommand: string = "kubectl get deployments -o wide";
+    //send krane command to get all nodes
+    ipcRenderer.send("getDeployments_command", {
+      deploymentsCommand,
+      currDir,
+    });
+
+    let getReplicasCommand: string = `kubectl get rs -o wide`;
+    setTimeout(() => {
+      ipcRenderer.send("getReplicas_command", {
+        getReplicasCommand,
+        currDir,
+      });
+    }, 200);
+  }
+
   const [nodeShowStatus, setNodeShowStatus] = useState(false);
+
   function handleNodeShowStatus() {
     setNodeShowStatus(!nodeShowStatus);
   }
@@ -184,6 +207,14 @@ function Krane() {
   }
 
   // ---------------------------------------------------------- START OF IF CONDITION TO DETERMINE MAIN DIV'S JSX --------
+  let deploymentsDiv;
+  if (deploymentsShowStatus) {
+    deploymentsDiv = (
+      <>
+        <KraneDeploymentsList getDeploymentsInfo={getDeploymentsInfo} deploymentsArr={deploymentsArr} setDeploymentsArr={setDeploymentsArr} />
+      </>
+    );
+  }
 
   let nodesAndPodsDiv;
   if (nodeShowStatus) {
@@ -196,7 +227,7 @@ function Krane() {
           setPodsArr={setPodsArr}
           getNodesInfo={getNodesInfo}
           openPod={openPod}
-          setOpenPod = {setOpenPod}
+          setOpenPod={setOpenPod}
           openPodDelete={openPodDelete}
           setOpenPodDelete={setOpenPodDelete}
           openPodLog={openPodLog}
@@ -222,14 +253,14 @@ function Krane() {
           selectedPod={selectedPod}
           setSelectedPod={setSelectedPod}
         />
-         <KranePodList
+        <KranePodList
           podsArr={podsArr}
           setPodsArr={setPodsArr}
           getPodsAndContainers={getPodsAndContainers}
           currDir={currDir}
           setCurrDir={setCurrDir}
           openPod={openPod}
-          setOpenPod = {setOpenPod}
+          setOpenPod={setOpenPod}
           openPodDelete={openPodDelete}
           setOpenPodDelete={setOpenPodDelete}
           openPodLog={openPodLog}
@@ -260,7 +291,7 @@ function Krane() {
   }
 
   let refreshShowDiv;
-  if (nodeShowStatus) {
+  if (nodeShowStatus || deploymentsShowStatus) {
     refreshShowDiv = (
       <>
         <div
@@ -295,7 +326,7 @@ function Krane() {
             style={{
               marginLeft: "10px",
               marginTop: "8px",
-              marginBottom:"0px",
+              marginBottom: "0px",
               letterSpacing: ".8px",
               // padding:"0 0 0 0",
               // border: "1px solid #ffffff99",
@@ -382,18 +413,33 @@ function Krane() {
             <p></p>
             <div>CHOOSE ONE OR MORE:</div>
           </div>
-          <div style={{ display: "flex", margin:"-5px 0 0 0" }}>
+          <div style={{ display: "flex", margin: "-5px 0 0 0" }}>
             <Button
+              onClick={handleDeploymentsShowStatus}
               style={{
                 marginLeft: "10px",
                 marginTop: "8px",
                 letterSpacing: ".8px",
                 padding: "12px 10px 12px 10px",
                 // border: "1px solid #ffffff99",
-                border: "1px solid",
+                border:
+                  theme.palette.mode === "dark" && !deploymentsShowStatus
+                    ? "1px solid #ffffff"
+                    : theme.palette.mode !== "dark" && !deploymentsShowStatus
+                    ? "1px solid #00000060"
+                    : "1px solid #8d85f3",
                 fontSize: "12px",
                 // width: "98px",
                 height: "20px",
+                color:
+                  theme.palette.mode === "dark" && !deploymentsShowStatus
+                    ? "#ffffff"
+                    : theme.palette.mode !== "dark" && !deploymentsShowStatus
+                    ? "#00000060"
+                    : "white",
+                backgroundColor: !deploymentsShowStatus
+                  ? "transparent"
+                  : "#8d85f3",
               }}
             >
               DEPLOYMENTS
@@ -428,7 +474,8 @@ function Krane() {
             </Button>
           </div>
           {refreshShowDiv}
-          <div style={{marginBottom:"0px", width:"100%"}}>
+          <div style={{ marginBottom: "0px", width: "100%" }}>
+            {deploymentsDiv}
             {nodesAndPodsDiv}
           </div>
         </div>
