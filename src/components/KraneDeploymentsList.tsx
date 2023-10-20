@@ -337,7 +337,7 @@ function KraneDeploymentsList(props) {
               display: "flex",
               flexDirection: "column",
               width: "450px",
-              height: "105px",
+              height: "118px",
               fontSize: "16px",
               // border: "1px solid white",
               justifyContent: "flex-start",
@@ -377,7 +377,7 @@ function KraneDeploymentsList(props) {
               ></img>
               <span
                 style={{
-                  margin: "5px 0 0 15px",
+                  margin: "0px 0 0 15px",
                   width: "360px",
                   lineHeight: "23px",
                   fontSize: "18px",
@@ -425,6 +425,7 @@ function KraneDeploymentsList(props) {
                 // border: ".5px solid white",
                 width: "380px",
                 height: "40px",
+                marginTop: "10px",
               }}
             >
               <div
@@ -434,19 +435,19 @@ function KraneDeploymentsList(props) {
                   justifyContent: "flex-end",
                   alignItems: "center",
                   textTransform: "none",
-                  margin: "0 25px 0 0px",
+                  margin: "0 20px 0 0px",
                 }}
               >
                 <div
                   style={{
-                    fontSize: "17px",
+                    fontSize: "19px",
                     fontWeight: "500",
-                    margin: "0px 0 0px 0",
+                    margin: "-6px 0 0px 0",
                   }}
                 >
                   {props.deploymentsArr[i]["age"].toLowerCase()}
                 </div>
-                <div style={{ fontSize: "10px", margin: "-6px 0 0 0" }}>
+                <div style={{ fontSize: "10px", margin: "-4px 0 0 0" }}>
                   AGE
                 </div>
               </div>
@@ -457,19 +458,25 @@ function KraneDeploymentsList(props) {
                   justifyContent: "flex-end",
                   alignItems: "center",
                   textTransform: "none",
-                  margin: "0 25px 0 25px",
+                  margin: "0 25px 0 20px",
                 }}
               >
                 <div
                   style={{
-                    fontSize: "17px",
+                    fontSize: "22px",
                     fontWeight: "500",
-                    margin: "0px 0 0px 0",
+                    margin: "-8.9px 0 0px -10px",
                   }}
                 >
                   {props.deploymentsArr[i]["upToDate"]}
                 </div>
-                <div style={{ fontSize: "10px", margin: "-6px 0 0 0" }}>
+                <div
+                  style={{
+                    fontSize: "10px",
+                    margin: "-6px 0 0 0",
+                    width: "70px",
+                  }}
+                >
                   UP-TO-DATE
                 </div>
               </div>
@@ -480,14 +487,14 @@ function KraneDeploymentsList(props) {
                   justifyContent: "flex-end",
                   alignItems: "center",
                   textTransform: "none",
-                  margin: "0 25px 0 25px",
+                  margin: "0 20px 0 15px",
                 }}
               >
                 <div
                   style={{
-                    fontSize: "17px",
+                    fontSize: "22px",
                     fontWeight: "500",
-                    margin: "0px 0 0px 0",
+                    margin: "-8.9px 0 0px 0",
                   }}
                 >
                   {props.deploymentsArr[i]["available"]}
@@ -498,28 +505,73 @@ function KraneDeploymentsList(props) {
               </div>
               <div
                 style={{
-                  display: "flex",
+                  display:"flex",
+                  flexDirection: "column",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  textTransform: "none",
+                  margin: "-27px 0px 0 20px",
+                  fontSize: "36px", 
+                  fontWeight: "200",
+                }}
+              >
+                {props.deploymentsArr[i]["readyNumerator"]}
+                 / 
+                 {props.deploymentsArr[i]["readyDenominator"]}
+                <div style={{ fontSize: "10px",fontWeight: "500", margin: "-12.5px 0px 0 0px" }}>
+                  READY
+                </div>
+              </div>
+              {/* <div
+                style={{
+                  
                   flexDirection: "column",
                   justifyContent: "flex-end",
                   alignItems: "center",
                   textTransform: "none",
-                  margin: "0 25px 0 25px",
+                  margin: "0 20px 0 20px",
                 }}
               >
                 <div
                   style={{
-                    fontSize: "17px",
+                    fontSize: "25px",
                     fontWeight: "500",
-                    margin: "0px 0 0px 0",
+                    margin: "-23px 0 0px 0px",
                   }}
                 >
-                  {props.deploymentsArr[i]["readyNumerator"]} /
+                  {props.deploymentsArr[i]["readyNumerator"]} 
+                  
+                  </div> 
+                  <div
+                  style={{
+                    position:"relative",
+                    top:"-40px",
+                    left:"20px",
+                    fontSize: "25px",
+                    fontWeight: "500",
+                    // margin: "-40px 0 0px 20px",
+                  }}
+                >
+                  /</div>
+                  <div
+                  style={{
+                    position:"relative",
+                    top:"-75px",
+                    left:"35px",
+                    fontSize: "25px",
+                    fontWeight: "500",
+                    // margin: "-40px 0 0px 50px",
+                  }}
+                >
                   {props.deploymentsArr[i]["readyDenominator"]}
+                  
                 </div>
-                <div style={{ fontSize: "10px", margin: "-6px 0 0 0" }}>
+                <div style={{ fontSize: "10px", position:"relative",
+                    top:"-75px",
+                    left:"20px", margin: "-11px 0 0 -12px" }}>
                   READY
                 </div>
-              </div>
+              </div> */}
               <div
                 style={{
                   display: "flex",
