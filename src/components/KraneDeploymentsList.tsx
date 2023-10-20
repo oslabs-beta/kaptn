@@ -59,7 +59,8 @@ function KraneDeploymentsList(props) {
 
     for (let j = 0; i < argArr.length; i++) {
       let nameOutput: any = [];
-      let readyOutput: any = [];
+      let readyNumeratorOutput: any = [];
+      let readyDenominatorOutput: any = [];
       let upToDateOutput: any = [];
       let availableOutput: any = [];
       let ageOutput: any = [];
@@ -78,8 +79,13 @@ function KraneDeploymentsList(props) {
       }
 
       //saves ready
+      while (arg[i] !== "/") {
+        readyNumeratorOutput.push(arg[i]);
+        i++;
+      }
+      i++;
       while (arg[i] !== " ") {
-        readyOutput.push(arg[i]);
+        readyDenominatorOutput.push(arg[i]);
         i++;
       }
 
@@ -145,9 +151,10 @@ function KraneDeploymentsList(props) {
       let deployment = {
         index: j,
         name: nameOutput.join(""),
-        ready: readyOutput.join(""),
-        upToDate: upToDateOutput.join(""),
-        available: availableOutput.join(""),
+        readyNumerator: Number(readyNumeratorOutput.join("")),
+        readyDenominator: Number(readyDenominatorOutput.join("")),
+        upToDate: Number(upToDateOutput.join("")),
+        available: Number(availableOutput.join("")),
         age: ageOutput.join(""),
         containers: containersOutput.join(""),
         images: imagesOutput.join(""),
@@ -297,7 +304,239 @@ function KraneDeploymentsList(props) {
   for (let i = 0; i < props.deploymentsArr.length; i++) {
     deploymentsList.push(
       <>
-        <div>BLAH</div>
+        <div
+          key={i}
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            fontFamily: "Outfit",
+            fontWeight: "400",
+            fontSize: "17px",
+            justifyContent: "flex-start",
+            alignItems: "flex-start",
+            textAlign: "left",
+            width: "auto",
+            margin: "17px 50px 0 20px",
+            padding: "0 0 0px 0",
+            letterSpacing: "1px",
+            color: theme.palette.mode === "dark" ? "#8f85fb" : "#9075ea",
+            textShadow:
+              theme.palette.mode === "dark"
+                ? "1px 1px 2px black"
+                : "1px 1px 1px #00000000",
+            userSelect: "none",
+            // border:"1px solid red"
+          }}
+        >
+          DEPLOYMENT {i + 1}
+          <Button
+            key={i}
+            id="podButt"
+            // onClick={() => handleDeploymentOpen(props.deploymentsArr[i])}
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              width: "450px",
+              height: "105px",
+              fontSize: "16px",
+              // border: "1px solid white",
+              justifyContent: "flex-start",
+              textAlign: "left",
+              alignItems: "space-between",
+              margin: "2px 0 0 0",
+              padding: "15px 0px 0px 0px",
+              color: theme.palette.mode === "dark" ? "white" : "grey",
+              border:
+                theme.palette.mode === "dark"
+                  ? "1.3px solid white"
+                  : "1.3px solid #00000025",
+              borderRadius: "5px",
+              boxShadow:
+                theme.palette.mode === "dark" ? "10px 9px 2px #00000060" : "",
+              background:
+                theme.palette.mode === "dark" ? "#0e0727" : "#e6e1fb80",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                width: "440px",
+                justifyContent: "flex-start",
+                // border: "1px solid green",
+              }}
+            >
+              <img
+                style={{
+                  width: "40px",
+                  marginRight: "0px",
+                  marginLeft: "10.8px",
+                  // border: "1px solid blue",
+                }}
+                src="../../public/deploy-2.svg"
+              ></img>
+              <span
+                style={{
+                  margin: "5px 0 0 15px",
+                  width: "360px",
+                  lineHeight: "23px",
+                  fontSize: "18px",
+                  textTransform: "none",
+                  // border: "1px solid blue",
+                }}
+              >
+                {props.deploymentsArr[i]["name"]}
+              </span>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  textAlign: "right",
+                  alignItems: "flex-end",
+                  justifyContent: "right",
+                  margin: "0px 10px 0 10px",
+
+                  // border: "1px solid blue",
+                }}
+              >
+                <div
+                  style={{
+                    width: "12px",
+                    height: "12px",
+                    borderRadius: "15px",
+                    backgroundColor: "green",
+                    //   theme.palette.mode === "dark"
+                    //     ? `${nodeReadyStatusRunning}`
+                    //     : `${nodeReadyStatusRunningLight}`,
+                    justifyContent: "right",
+                    // margin: "0px 0 2px 0",
+                    // border: ".5px solid white",
+                  }}
+                ></div>
+              </div>
+            </div>
+            <div
+              style={{
+                display: "flex",
+                fontSize: "12px",
+                marginLeft: "70px",
+                justifyContent: "flex-start",
+                alignItems: "start",
+                // border: ".5px solid white",
+                width: "380px",
+                height: "40px",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "flex-end",
+                  alignItems: "center",
+                  textTransform: "none",
+                  margin: "0 25px 0 0px",
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: "17px",
+                    fontWeight: "500",
+                    margin: "0px 0 0px 0",
+                  }}
+                >
+                  {props.deploymentsArr[i]["age"].toLowerCase()}
+                </div>
+                <div style={{ fontSize: "10px", margin: "-6px 0 0 0" }}>
+                  AGE
+                </div>
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "flex-end",
+                  alignItems: "center",
+                  textTransform: "none",
+                  margin: "0 25px 0 25px",
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: "17px",
+                    fontWeight: "500",
+                    margin: "0px 0 0px 0",
+                  }}
+                >
+                  {props.deploymentsArr[i]["upToDate"]}
+                </div>
+                <div style={{ fontSize: "10px", margin: "-6px 0 0 0" }}>
+                  UP-TO-DATE
+                </div>
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "flex-end",
+                  alignItems: "center",
+                  textTransform: "none",
+                  margin: "0 25px 0 25px",
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: "17px",
+                    fontWeight: "500",
+                    margin: "0px 0 0px 0",
+                  }}
+                >
+                  {props.deploymentsArr[i]["available"]}
+                </div>
+                <div style={{ fontSize: "10px", margin: "-6px 0 0 0" }}>
+                  AVAILABLE
+                </div>
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "flex-end",
+                  alignItems: "center",
+                  textTransform: "none",
+                  margin: "0 25px 0 25px",
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: "17px",
+                    fontWeight: "500",
+                    margin: "0px 0 0px 0",
+                  }}
+                >
+                  {props.deploymentsArr[i]["readyNumerator"]} /
+                  {props.deploymentsArr[i]["readyDenominator"]}
+                </div>
+                <div style={{ fontSize: "10px", margin: "-6px 0 0 0" }}>
+                  READY
+                </div>
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "flex-start",
+                  fontSize: "10px",
+                  margin: "0px 0 0 20px",
+                  // color: "#2fc665",
+                  // color:
+                  //   theme.palette.mode === "dark"
+                  //     ? `${nodeReadyStatusRunning}`
+                  //     : `${nodeReadyStatusRunningLight}`,
+                }}
+              ></div>
+            </div>
+          </Button>
+        </div>
       </>
     );
   }
@@ -311,8 +550,8 @@ function KraneDeploymentsList(props) {
           flexDirection: "row",
           justifyContent: "space-between",
           margin: "-10px 0 0 68px",
-          height: "34px",
-          width: "250%",
+          // height: "34px",
+          // width: "260%",
           // border: "1px solid red",
         }}
       >
@@ -360,10 +599,9 @@ function KraneDeploymentsList(props) {
         <div
           style={{
             height: "1px",
-            width: "3000px",
+            width: "70%",
             backgroundColor:
               theme.palette.mode === "dark" ? "#ffffff99" : "#6d6fb4",
-            // border: "1px solid green",
             // marginRight: "50px",
             marginTop: "0px",
           }}
@@ -375,9 +613,11 @@ function KraneDeploymentsList(props) {
           display: "flex",
           flexWrap: "wrap",
           margin: "-5px 0 0 50px",
+          // border: "1px solid blue",
+          width: "100%",
         }}
       >
-        <div>{deploymentsList}</div>
+        {deploymentsList}
       </div>
     </>
   );
@@ -400,7 +640,9 @@ function KraneDeploymentsList(props) {
           marginBottom: "50px",
           textAlign: "center",
           width: "95.5%",
+          height: "auto",
           // border: "1px solid green",
+          // overflow:"scroll"
         }}
       >
         <div>{deploymentsListDiv}</div>

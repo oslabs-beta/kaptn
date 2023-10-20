@@ -40,6 +40,23 @@ type ArrPodObjs = {
 function KraneNodeList(props) {
   const [openNode, setOpenNode] = React.useState(false);
 
+  const [openNodeLog, setOpenNodeLog] = React.useState(false);
+  const [nodeLogs, setNodeLogs] = React.useState([]);
+
+  const [openNodeYaml, setOpenNodeYaml] = React.useState(false);
+  const [nodeYaml, setNodeYaml] = React.useState([]);
+
+  const [openNodeDescribe, setOpenNodeDescribe] = React.useState(false);
+  const [nodeDescribe, setNodeDescribe] = React.useState([]);
+
+  const [openNodeDrain, setOpenNodeDrain] = React.useState(false);
+
+  const [openNodeCordon, setOpenNodeCordon] = React.useState(false);
+
+  const [openNodeUncordon, setOpenNodeUncordon] = React.useState(false);
+
+  const [openNodeDelete, setOpenNodeDelete] = React.useState(false);
+
   const [selectedNodeStatusColor, setSelectedNodeStatusColor] = useState("");
   const [selectedNodeCPUColor, setSelectedNodeCPUColor] = useState("");
   const [selectedNodeMemoryColor, setSelectedNodeMemoryColor] = useState("");
@@ -154,6 +171,60 @@ function KraneNodeList(props) {
     transform: "translate(-50%, -50%)",
     width: "36%",
     height: "26%",
+    justifyContent: "center",
+    background: theme.palette.mode === "dark" ? "#0e0727" : "#e6e1fb",
+    color: theme.palette.mode === "dark" ? "white" : "#47456e",
+    boxShadow: 24,
+    p: 4,
+    padding: "10px",
+    border:
+      theme.palette.mode === "dark" ? "1px solid white" : "2px solid #9075ea",
+    borderRadius: "10px",
+  };
+
+  const nodeDrainStyle = {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    width: "40%",
+    height: "32%",
+    justifyContent: "center",
+    background: theme.palette.mode === "dark" ? "#0e0727" : "#e6e1fb",
+    color: theme.palette.mode === "dark" ? "white" : "#47456e",
+    boxShadow: 24,
+    p: 4,
+    padding: "10px",
+    border:
+      theme.palette.mode === "dark" ? "1px solid white" : "2px solid #9075ea",
+    borderRadius: "10px",
+  };
+
+  const nodeCordonStyle = {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    width: "40%",
+    height: "23%",
+    justifyContent: "center",
+    background: theme.palette.mode === "dark" ? "#0e0727" : "#e6e1fb",
+    color: theme.palette.mode === "dark" ? "white" : "#47456e",
+    boxShadow: 24,
+    p: 4,
+    padding: "10px",
+    border:
+      theme.palette.mode === "dark" ? "1px solid white" : "2px solid #9075ea",
+    borderRadius: "10px",
+  };
+
+  const nodeUncordonStyle = {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    width: "45%",
+    height: "23%",
     justifyContent: "center",
     background: theme.palette.mode === "dark" ? "#0e0727" : "#e6e1fb",
     color: theme.palette.mode === "dark" ? "white" : "#47456e",
@@ -924,6 +995,205 @@ function KraneNodeList(props) {
     //     clearInterval(nodesInterval);
     //   };
   }, []);
+
+  const handleNodeLogOpen = (pod) => {
+    ipcRenderer.on("nodeLogsRetrieved", (event, arg) => {
+      let argArr = arg.split("");
+      let temp = "";
+      let output = [];
+      // console.log("ARG SPLIT ISSSSSS", argArr);
+      for (let i = 0; i < argArr.length; i++) {
+        while (argArr[i] !== "\n") {
+          temp += argArr[i];
+          i++;
+        }
+        // console.log("temp is", temp);
+        output.push(<p>{temp}</p>);
+      }
+      setNodeLogs(output);
+    });
+
+    let nodeLogsCommand = `kubectl logs ${selectedNode[0]["name"]}`;
+    //send get pods o wide info commands
+    ipcRenderer.send("nodeLogs_command", {
+      nodeLogsCommand,
+      currDir,
+    });
+
+    setOpenNodeLog(true);
+  };
+
+  const handleNodeLogClose = () => {
+    setOpenNodeLog(false);
+  };
+
+  const handleNodeYamlOpen = (pod) => {
+    ipcRenderer.on("nodeYamlRetrieved", (event, arg) => {
+      let argArr = arg.split("/n");
+      let output = [];
+      // console.log("ARG SPLIT ISSSSSS", argArr);
+      for (let i = 0; i < argArr.length; i++) {
+        output.push(
+          <pre>
+            <span>{argArr[i]}</span>
+          </pre>
+        );
+      }
+      setNodeYaml(output);
+    });
+
+    let nodeYamlCommand = `kubectl get node ${selectedNode[0]["name"]} -o yaml`;
+    //`kubectl top pod ${selectedPod[0]["name"]} --containers`;
+    //send get container info commands
+    ipcRenderer.send("nodeYaml_command", {
+      nodeYamlCommand,
+      currDir,
+    });
+
+    setOpenNodeYaml(true);
+  };
+
+  const handleNodeYamlClose = () => {
+    setOpenNodeYaml(false);
+  };
+
+  const handleNodeDescribeOpen = (pod) => {
+    ipcRenderer.on("nodeDescribeRetrieved", (event, arg) => {
+      let argArr = arg.split("/n");
+      let output = [];
+      // console.log("ARG SPLIT ISSSSSS", argArr);
+      for (let i = 0; i < argArr.length; i++) {
+        output.push(
+          <pre>
+            <span>{argArr[i]}</span>
+          </pre>
+        );
+      }
+      setNodeDescribe(output);
+    });
+
+    let nodeDescribeCommand = `kubectl describe node ${selectedNode[0]["name"]}`;
+    //`kubectl top pod ${selectedPod[0]["name"]} --containers`;
+    //send get container info commands
+    ipcRenderer.send("nodeDescribe_command", {
+      nodeDescribeCommand,
+      currDir,
+    });
+
+    setOpenNodeDescribe(true);
+  };
+
+  const handleNodeDescribeClose = () => {
+    setOpenNodeDescribe(false);
+  };
+
+  const handleNodeDrainOpen = (pod) => {
+    setOpenNodeDrain(true);
+  };
+
+  const handleNodeDrainClose = () => {
+    setOpenNodeDrain(false);
+  };
+
+  const handleNodeDrain = () => {
+    //listen for pods deleted
+    ipcRenderer.on("drained_pod", (event, arg) => {
+      //parse response to check if successful and if so, close modals and refresh list
+
+      props.getNodesInfo();
+
+      setOpenNodeDrain(false);
+      setOpenNode(false);
+    });
+
+    let nodeDrainCommand = `kubectl drain node ${selectedNode[0]["name"]}`;
+    //send get drain node command
+    ipcRenderer.send("drainNode_command", {
+      nodeDrainCommand,
+      currDir,
+    });
+  };
+
+  const handleNodeCordonOpen = (pod) => {
+    setOpenNodeCordon(true);
+  };
+
+  const handleNodeCordonClose = () => {
+    setOpenNodeCordon(false);
+  };
+
+  const handleNodeCordon = () => {
+    //listen for pods deleted
+    ipcRenderer.on("cordoned_pod", (event, arg) => {
+      //parse response to check if successful and if so, close modals and refresh list
+
+      props.getNodesInfo();
+
+      setOpenNodeCordon(false);
+      setOpenNode(false);
+    });
+
+    let nodeCordonCommand = `kubectl cordon node ${selectedNode[0]["name"]}`;
+    //send get drain node command
+    ipcRenderer.send("cordonNode_command", {
+      nodeCordonCommand,
+      currDir,
+    });
+  };
+
+  const handleNodeUncordonOpen = (pod) => {
+    setOpenNodeUncordon(true);
+  };
+
+  const handleNodeUncordonClose = () => {
+    setOpenNodeUncordon(false);
+  };
+
+  const handleNodeUncordon = () => {
+    //listen for pods deleted
+    ipcRenderer.on("uncordoned_pod", (event, arg) => {
+      //parse response to check if successful and if so, close modals and refresh list
+
+      props.getNodesInfo();
+
+      setOpenNodeUncordon(false);
+      setOpenNode(false);
+    });
+
+    let nodeUncordonCommand = `kubectl uncordon node ${selectedNode[0]["name"]}`;
+    //send get drain node command
+    ipcRenderer.send("uncordonNode_command", {
+      nodeUncordonCommand,
+      currDir,
+    });
+  };
+
+  const handleNodeDeleteOpen = (pod) => {
+    setOpenNodeDelete(true);
+  };
+
+  const handleNodeDeleteClose = () => {
+    setOpenNodeDelete(false);
+  };
+
+  const handleNodeDelete = () => {
+    //listen for pods deleted
+    ipcRenderer.on("deleted_pod", (event, arg) => {
+      //parse response to check if successful and if so, close modals and refresh list
+
+      props.getNodesInfo();
+
+      setOpenNodeDelete(false);
+      setOpenNode(false);
+    });
+
+    let nodeDeleteCommand = `kubectl delete node ${selectedNode[0]["name"]}`;
+    //send get delete pod command
+    ipcRenderer.send("deleteNode_command", {
+      nodeDeleteCommand,
+      currDir,
+    });
+  };
 
   //-----------------------------------------------------------START OF FOR LOOP TO PUSH NODE LIST JSX
 
@@ -2452,35 +2722,8 @@ function KraneNodeList(props) {
                       <button
                         className="button3D-pushable"
                         role="button"
+                        onClick={handleNodeYamlOpen}
                         style={{ margin: "0 10px 0 0px" }}
-                      >
-                        <span className="button3D-shadow"></span>
-                        <span
-                          className="button3D-edge"
-                          style={{
-                            background:
-                              theme.palette.mode === "dark"
-                                ? "linear-gradient(to left, hsl(239, 40%, 25%) 0%, hsl(239, 40%, 30%) 8%, hsl(239, 40%, 30%) 92%,  hsl(239, 40%, 25%) 100%)"
-                                : "linear-gradient(to left, hsl(263, 40%, 64%) 0%, hsl(263, 40%, 70%) 8%, hsl(263, 40%, 70%) 92%,hsl(263, 40%, 64%) 100%)",
-                          }}
-                        ></span>
-                        <span
-                          className="button3D-front text"
-                          style={{
-                            width: "250px",
-                            background:
-                              theme.palette.mode === "dark"
-                                ? "hsl(239, 38%, 51%)"
-                                : "hsl(263, 65%, 80%)",
-                          }}
-                        >
-                          VIEW NODE LOGS
-                        </span>
-                      </button>
-                      <button
-                        className="button3D-pushable"
-                        role="button"
-                        style={{ margin: "0 10px 0 10px" }}
                       >
                         <span className="button3D-shadow"></span>
                         <span
@@ -2505,9 +2748,76 @@ function KraneNodeList(props) {
                           VIEW NODE YAML
                         </span>
                       </button>
+                      <Modal open={openNodeYaml} onClose={handleNodeYamlClose}>
+                        <Box sx={logStyle}>
+                          <div
+                            style={{
+                              fontFamily: "Outfit",
+                              fontSize: "24px",
+                              fontWeight: "700",
+                              textAlign: "center",
+                              marginTop: "10px",
+                            }}
+                          >
+                            NODE YAML OUTPUT
+                          </div>
+                          {nodeYaml}
+                        </Box>
+                      </Modal>
+
                       <button
                         className="button3D-pushable"
                         role="button"
+                        onClick={handleNodeDescribeOpen}
+                        style={{ margin: "0 10px 0 10px" }}
+                      >
+                        <span className="button3D-shadow"></span>
+                        <span
+                          className="button3D-edge"
+                          style={{
+                            background:
+                              theme.palette.mode === "dark"
+                                ? "linear-gradient(to left, hsl(239, 40%, 25%) 0%, hsl(239, 40%, 30%) 8%, hsl(239, 40%, 30%) 92%,  hsl(239, 40%, 25%) 100%)"
+                                : "linear-gradient(to left, hsl(263, 40%, 64%) 0%, hsl(263, 40%, 70%) 8%, hsl(263, 40%, 70%) 92%,hsl(263, 40%, 64%) 100%)",
+                          }}
+                        ></span>
+                        <span
+                          className="button3D-front text"
+                          style={{
+                            width: "250px",
+                            background:
+                              theme.palette.mode === "dark"
+                                ? "hsl(239, 38%, 51%)"
+                                : "hsl(263, 65%, 80%)",
+                          }}
+                        >
+                          DESCRIBE NODE
+                        </span>
+                      </button>
+                      <Modal
+                        open={openNodeDescribe}
+                        onClose={handleNodeDescribeClose}
+                      >
+                        <Box sx={logStyle}>
+                          <div
+                            style={{
+                              fontFamily: "Outfit",
+                              fontSize: "24px",
+                              fontWeight: "700",
+                              textAlign: "center",
+                              marginTop: "10px",
+                            }}
+                          >
+                            NODE DESCRIBE
+                          </div>
+                          {nodeDescribe}
+                        </Box>
+                      </Modal>
+
+                      <button
+                        className="button3D-pushable"
+                        role="button"
+                        onClick={handleNodeDrainOpen}
                         style={{ margin: "0 0px 0 10px" }}
                       >
                         <span className="button3D-shadow"></span>
@@ -2533,9 +2843,140 @@ function KraneNodeList(props) {
                           DRAIN NODE
                         </span>
                       </button>
+                      <Modal
+                        open={openNodeDrain}
+                        onClose={handleNodeDrainClose}
+                        style={{ overflow: "scroll", height: "100%" }}
+                      >
+                        <Box sx={nodeDrainStyle}>
+                          <div
+                            style={{
+                              textAlign: "center",
+                              fontSize: "18px",
+                              fontWeight: "900",
+                              paddingTop: "20px",
+                            }}
+                          >
+                            ARE YOU SURE YOU WANT DRAIN THIS NODE?
+                          </div>
+                          <div
+                            style={{
+                              padding: "10px 40px 0 40px",
+                              textAlign: "center",
+                              fontSize: "12px",
+                            }}
+                          >
+                            Please note: This will safely evict all of your pods
+                            from a node before you perform maintenance on the
+                            node (e.g. kernel upgrade, hardware maintenance,
+                            etc.). Safe evictions allow the pod's containers to
+                            gracefully terminate and will respect the
+                            PodDisruptionBudgets you have specified.
+                          </div>
+                          <div
+                            style={{
+                              display: "flex",
+                              flexDirection: "row",
+                              marginTop: "30px",
+                              justifyContent: "center",
+                            }}
+                          >
+                            {/* <Button
+                              onClick={handlePodDelete}
+                              style={{
+                                fontSize: "16px",
+                                margin: "0 10px 0 0",
+                                padding: "5px 15px 5px 15px",
+                                border:
+                                  theme.palette.mode === "dark"
+                                    ? "1px solid #8f85fb"
+                                    : "1px solid",
+                                color:
+                                  theme.palette.mode === "dark"
+                                    ? "white"
+                                    : "darkpurple",
+                              }}
+                            >
+                              DELETE POD
+                            </Button>
+                             */}
+                            <button
+                              className="button3D-pushable"
+                              role="button"
+                              onClick={handleNodeDrain}
+                              style={{ marginRight: "10px" }}
+                            >
+                              <span className="button3D-shadow"></span>
+                              <span
+                                className="button3D-edge"
+                                style={{
+                                  background:
+                                    theme.palette.mode === "dark"
+                                      ? "linear-gradient(to left, hsl(239, 40%, 25%) 0%, hsl(239, 40%, 30%) 8%, hsl(239, 40%, 30%) 92%,  hsl(239, 40%, 25%) 100%)"
+                                      : "linear-gradient(to left, hsl(263, 40%, 64%) 0%, hsl(263, 40%, 70%) 8%, hsl(263, 40%, 70%) 92%,hsl(263, 40%, 64%) 100%)",
+                                }}
+                              ></span>
+                              <span
+                                className="button3D-front text"
+                                style={{
+                                  width: "150px",
+                                  background:
+                                    theme.palette.mode === "dark"
+                                      ? "hsl(239, 38%, 51%)"
+                                      : "hsl(263, 65%, 80%)",
+                                }}
+                              >
+                                DRAIN NODE
+                              </span>
+                            </button>
+                            {/* <Button
+                              onClick={handlePodDeleteClose}
+                              style={{
+                                opacity: "50%",
+                                fontSize: "15px",
+                                margin: "0 0 0 10px",
+                                padding: "5px 10px 5px 10px",
+                                border: "1px solid #ffffff89",
+                              }}
+                            >
+                              CANCEL
+                            </Button> */}
+                            <button
+                              className="button3D-pushable"
+                              role="button"
+                              onClick={handleNodeDrainClose}
+                            >
+                              <span className="button3D-shadow"></span>
+                              <span
+                                className="button3D-edge"
+                                style={{
+                                  background:
+                                    theme.palette.mode === "dark"
+                                      ? "linear-gradient(to left, hsl(239, 40%, 20%) 0%, hsl(239, 40%, 25%) 8%, hsl(239, 40%, 25%) 92%,  hsl(239, 40%, 20%) 100%)"
+                                      : "linear-gradient(to left, hsl(263, 40%, 64%) 0%, hsl(263, 40%, 70%) 8%, hsl(263, 40%, 70%) 92%,hsl(263, 40%, 64%) 100%)",
+                                }}
+                              ></span>
+                              <span
+                                className="button3D-front text"
+                                style={{
+                                  width: "110px",
+                                  background:
+                                    theme.palette.mode === "dark"
+                                      ? "hsl(239, 38%, 31%)"
+                                      : "hsl(263, 65%, 80%)",
+                                }}
+                              >
+                                CANCEL
+                              </span>
+                            </button>
+                          </div>
+                        </Box>
+                      </Modal>
+
                       <button
                         className="button3D-pushable"
                         role="button"
+                        onClick={handleNodeCordonOpen}
                         style={{ margin: "20px 10px 0 0px" }}
                       >
                         <span className="button3D-shadow"></span>
@@ -2561,9 +3002,136 @@ function KraneNodeList(props) {
                           CORDON NODE
                         </span>
                       </button>
+                      <Modal
+                        open={openNodeCordon}
+                        onClose={handleNodeCordonClose}
+                        style={{ overflow: "scroll", height: "100%" }}
+                      >
+                        <Box sx={nodeCordonStyle}>
+                          <div
+                            style={{
+                              textAlign: "center",
+                              fontSize: "18px",
+                              fontWeight: "900",
+                              paddingTop: "20px",
+                            }}
+                          >
+                            ARE YOU SURE YOU WANT CORDON THIS NODE?
+                          </div>
+                          <div
+                            style={{
+                              padding: "10px 40px 0 40px",
+                              textAlign: "center",
+                              fontSize: "12px",
+                            }}
+                          >
+                            Please note: Cordoning a node will mark it as
+                            unschedulable.
+                          </div>
+                          <div
+                            style={{
+                              display: "flex",
+                              flexDirection: "row",
+                              marginTop: "30px",
+                              justifyContent: "center",
+                            }}
+                          >
+                            {/* <Button
+                              onClick={handlePodDelete}
+                              style={{
+                                fontSize: "16px",
+                                margin: "0 10px 0 0",
+                                padding: "5px 15px 5px 15px",
+                                border:
+                                  theme.palette.mode === "dark"
+                                    ? "1px solid #8f85fb"
+                                    : "1px solid",
+                                color:
+                                  theme.palette.mode === "dark"
+                                    ? "white"
+                                    : "darkpurple",
+                              }}
+                            >
+                              DELETE POD
+                            </Button>
+                             */}
+                            <button
+                              className="button3D-pushable"
+                              role="button"
+                              onClick={handleNodeCordon}
+                              style={{ marginRight: "10px" }}
+                            >
+                              <span className="button3D-shadow"></span>
+                              <span
+                                className="button3D-edge"
+                                style={{
+                                  background:
+                                    theme.palette.mode === "dark"
+                                      ? "linear-gradient(to left, hsl(239, 40%, 25%) 0%, hsl(239, 40%, 30%) 8%, hsl(239, 40%, 30%) 92%,  hsl(239, 40%, 25%) 100%)"
+                                      : "linear-gradient(to left, hsl(263, 40%, 64%) 0%, hsl(263, 40%, 70%) 8%, hsl(263, 40%, 70%) 92%,hsl(263, 40%, 64%) 100%)",
+                                }}
+                              ></span>
+                              <span
+                                className="button3D-front text"
+                                style={{
+                                  width: "160px",
+                                  background:
+                                    theme.palette.mode === "dark"
+                                      ? "hsl(239, 38%, 51%)"
+                                      : "hsl(263, 65%, 80%)",
+                                }}
+                              >
+                                CORDON NODE
+                              </span>
+                            </button>
+                            {/* <Button
+                              onClick={handlePodDeleteClose}
+                              style={{
+                                opacity: "50%",
+                                fontSize: "15px",
+                                margin: "0 0 0 10px",
+                                padding: "5px 10px 5px 10px",
+                                border: "1px solid #ffffff89",
+                              }}
+                            >
+                              CANCEL
+                            </Button> */}
+                            <button
+                              className="button3D-pushable"
+                              role="button"
+                              onClick={handleNodeCordonClose}
+                            >
+                              <span className="button3D-shadow"></span>
+                              <span
+                                className="button3D-edge"
+                                style={{
+                                  background:
+                                    theme.palette.mode === "dark"
+                                      ? "linear-gradient(to left, hsl(239, 40%, 20%) 0%, hsl(239, 40%, 25%) 8%, hsl(239, 40%, 25%) 92%,  hsl(239, 40%, 20%) 100%)"
+                                      : "linear-gradient(to left, hsl(263, 40%, 64%) 0%, hsl(263, 40%, 70%) 8%, hsl(263, 40%, 70%) 92%,hsl(263, 40%, 64%) 100%)",
+                                }}
+                              ></span>
+                              <span
+                                className="button3D-front text"
+                                style={{
+                                  width: "110px",
+                                  background:
+                                    theme.palette.mode === "dark"
+                                      ? "hsl(239, 38%, 31%)"
+                                      : "hsl(263, 65%, 80%)",
+                                }}
+                              >
+                                CANCEL
+                              </span>
+                            </button>
+                          </div>
+                        </Box>
+                      </Modal>
+
                       <button
                         className="button3D-pushable"
                         role="button"
+                        onClick={handleNodeUncordonOpen}
                         style={{ margin: "0 10px 0 10px" }}
                       >
                         <span className="button3D-shadow"></span>
@@ -2589,9 +3157,136 @@ function KraneNodeList(props) {
                           UNCORDON NODE
                         </span>
                       </button>
+                      <Modal
+                        open={openNodeUncordon}
+                        onClose={handleNodeUncordonClose}
+                        style={{ overflow: "scroll", height: "100%" }}
+                      >
+                        <Box sx={nodeUncordonStyle}>
+                          <div
+                            style={{
+                              textAlign: "center",
+                              fontSize: "18px",
+                              fontWeight: "900",
+                              paddingTop: "20px",
+                            }}
+                          >
+                            ARE YOU SURE YOU WANT UNCORDON THIS NODE?
+                          </div>
+                          <div
+                            style={{
+                              padding: "10px 40px 0 40px",
+                              textAlign: "center",
+                              fontSize: "12px",
+                            }}
+                          >
+                            Please note: Uncordoning a node will mark it as
+                            schedulable.
+                          </div>
+                          <div
+                            style={{
+                              display: "flex",
+                              flexDirection: "row",
+                              marginTop: "30px",
+                              justifyContent: "center",
+                            }}
+                          >
+                            {/* <Button
+                              onClick={handlePodDelete}
+                              style={{
+                                fontSize: "16px",
+                                margin: "0 10px 0 0",
+                                padding: "5px 15px 5px 15px",
+                                border:
+                                  theme.palette.mode === "dark"
+                                    ? "1px solid #8f85fb"
+                                    : "1px solid",
+                                color:
+                                  theme.palette.mode === "dark"
+                                    ? "white"
+                                    : "darkpurple",
+                              }}
+                            >
+                              DELETE POD
+                            </Button>
+                             */}
+                            <button
+                              className="button3D-pushable"
+                              role="button"
+                              onClick={handleNodeUncordon}
+                              style={{ marginRight: "10px" }}
+                            >
+                              <span className="button3D-shadow"></span>
+                              <span
+                                className="button3D-edge"
+                                style={{
+                                  background:
+                                    theme.palette.mode === "dark"
+                                      ? "linear-gradient(to left, hsl(239, 40%, 25%) 0%, hsl(239, 40%, 30%) 8%, hsl(239, 40%, 30%) 92%,  hsl(239, 40%, 25%) 100%)"
+                                      : "linear-gradient(to left, hsl(263, 40%, 64%) 0%, hsl(263, 40%, 70%) 8%, hsl(263, 40%, 70%) 92%,hsl(263, 40%, 64%) 100%)",
+                                }}
+                              ></span>
+                              <span
+                                className="button3D-front text"
+                                style={{
+                                  width: "175px",
+                                  background:
+                                    theme.palette.mode === "dark"
+                                      ? "hsl(239, 38%, 51%)"
+                                      : "hsl(263, 65%, 80%)",
+                                }}
+                              >
+                                UNCORDON NODE
+                              </span>
+                            </button>
+                            {/* <Button
+                              onClick={handlePodDeleteClose}
+                              style={{
+                                opacity: "50%",
+                                fontSize: "15px",
+                                margin: "0 0 0 10px",
+                                padding: "5px 10px 5px 10px",
+                                border: "1px solid #ffffff89",
+                              }}
+                            >
+                              CANCEL
+                            </Button> */}
+                            <button
+                              className="button3D-pushable"
+                              role="button"
+                              onClick={handleNodeUncordonClose}
+                            >
+                              <span className="button3D-shadow"></span>
+                              <span
+                                className="button3D-edge"
+                                style={{
+                                  background:
+                                    theme.palette.mode === "dark"
+                                      ? "linear-gradient(to left, hsl(239, 40%, 20%) 0%, hsl(239, 40%, 25%) 8%, hsl(239, 40%, 25%) 92%,  hsl(239, 40%, 20%) 100%)"
+                                      : "linear-gradient(to left, hsl(263, 40%, 64%) 0%, hsl(263, 40%, 70%) 8%, hsl(263, 40%, 70%) 92%,hsl(263, 40%, 64%) 100%)",
+                                }}
+                              ></span>
+                              <span
+                                className="button3D-front text"
+                                style={{
+                                  width: "110px",
+                                  background:
+                                    theme.palette.mode === "dark"
+                                      ? "hsl(239, 38%, 31%)"
+                                      : "hsl(263, 65%, 80%)",
+                                }}
+                              >
+                                CANCEL
+                              </span>
+                            </button>
+                          </div>
+                        </Box>
+                      </Modal>
+
                       <button
                         className="button3D-pushable"
                         role="button"
+                        onClick={handleNodeDeleteOpen}
                         style={{ margin: "0 10px 0 10px" }}
                       >
                         <span className="button3D-shadow"></span>
@@ -2614,38 +3309,135 @@ function KraneNodeList(props) {
                                 : "hsl(263, 65%, 80%)",
                           }}
                         >
-                          UPDATE TAINTS ON NODE
-                        </span>
-                      </button>
-                      <button
-                        className="button3D-pushable"
-                        role="button"
-                        style={{ margin: "20px 10px 0 0px" }}
-                      >
-                        <span className="button3D-shadow"></span>
-                        <span
-                          className="button3D-edge"
-                          style={{
-                            background:
-                              theme.palette.mode === "dark"
-                                ? "linear-gradient(to left, hsl(239, 40%, 25%) 0%, hsl(239, 40%, 30%) 8%, hsl(239, 40%, 30%) 92%,  hsl(239, 40%, 25%) 100%)"
-                                : "linear-gradient(to left, hsl(263, 40%, 64%) 0%, hsl(263, 40%, 70%) 8%, hsl(263, 40%, 70%) 92%,hsl(263, 40%, 64%) 100%)",
-                          }}
-                        ></span>
-                        <span
-                          className="button3D-front text"
-                          style={{
-                            width: "790px",
-                            background:
-                              theme.palette.mode === "dark"
-                                ? "hsl(239, 38%, 51%)"
-                                : "hsl(263, 65%, 80%)",
-                            fontSize: "16px",
-                          }}
-                        >
                           DELETE / RESTART NODE
                         </span>
                       </button>
+                      <Modal
+                        open={openNodeDelete}
+                        onClose={handleNodeDeleteClose}
+                        style={{ overflow: "scroll", height: "100%" }}
+                      >
+                        <Box sx={nodeDeleteStyle}>
+                          <div
+                            style={{
+                              textAlign: "center",
+                              fontSize: "18px",
+                              fontWeight: "900",
+                              paddingTop: "20px",
+                            }}
+                          >
+                            ARE YOU SURE YOU WANT DELETE?
+                          </div>
+                          <div
+                            style={{
+                              padding: "10px 40px 0 40px",
+                              textAlign: "center",
+                              fontSize: "12px",
+                            }}
+                          >
+                            Please note: if this node is scheduled to be
+                            running, then a new version will replace it after
+                            termination.
+                          </div>
+                          <div
+                            style={{
+                              display: "flex",
+                              flexDirection: "row",
+                              marginTop: "30px",
+                              justifyContent: "center",
+                            }}
+                          >
+                            {/* <Button
+                              onClick={handlePodDelete}
+                              style={{
+                                fontSize: "16px",
+                                margin: "0 10px 0 0",
+                                padding: "5px 15px 5px 15px",
+                                border:
+                                  theme.palette.mode === "dark"
+                                    ? "1px solid #8f85fb"
+                                    : "1px solid",
+                                color:
+                                  theme.palette.mode === "dark"
+                                    ? "white"
+                                    : "darkpurple",
+                              }}
+                            >
+                              DELETE POD
+                            </Button>
+                             */}
+                            <button
+                              className="button3D-pushable"
+                              role="button"
+                              onClick={handleNodeDelete}
+                              style={{ marginRight: "10px" }}
+                            >
+                              <span className="button3D-shadow"></span>
+                              <span
+                                className="button3D-edge"
+                                style={{
+                                  background:
+                                    theme.palette.mode === "dark"
+                                      ? "linear-gradient(to left, hsl(239, 40%, 25%) 0%, hsl(239, 40%, 30%) 8%, hsl(239, 40%, 30%) 92%,  hsl(239, 40%, 25%) 100%)"
+                                      : "linear-gradient(to left, hsl(263, 40%, 64%) 0%, hsl(263, 40%, 70%) 8%, hsl(263, 40%, 70%) 92%,hsl(263, 40%, 64%) 100%)",
+                                }}
+                              ></span>
+                              <span
+                                className="button3D-front text"
+                                style={{
+                                  width: "150px",
+                                  background:
+                                    theme.palette.mode === "dark"
+                                      ? "hsl(239, 38%, 51%)"
+                                      : "hsl(263, 65%, 80%)",
+                                }}
+                              >
+                                DELETE NODE
+                              </span>
+                            </button>
+                            {/* <Button
+                              onClick={handlePodDeleteClose}
+                              style={{
+                                opacity: "50%",
+                                fontSize: "15px",
+                                margin: "0 0 0 10px",
+                                padding: "5px 10px 5px 10px",
+                                border: "1px solid #ffffff89",
+                              }}
+                            >
+                              CANCEL
+                            </Button> */}
+                            <button
+                              className="button3D-pushable"
+                              role="button"
+                              onClick={handleNodeDeleteClose}
+                            >
+                              <span className="button3D-shadow"></span>
+                              <span
+                                className="button3D-edge"
+                                style={{
+                                  background:
+                                    theme.palette.mode === "dark"
+                                      ? "linear-gradient(to left, hsl(239, 40%, 20%) 0%, hsl(239, 40%, 25%) 8%, hsl(239, 40%, 25%) 92%,  hsl(239, 40%, 20%) 100%)"
+                                      : "linear-gradient(to left, hsl(263, 40%, 64%) 0%, hsl(263, 40%, 70%) 8%, hsl(263, 40%, 70%) 92%,hsl(263, 40%, 64%) 100%)",
+                                }}
+                              ></span>
+                              <span
+                                className="button3D-front text"
+                                style={{
+                                  width: "110px",
+                                  background:
+                                    theme.palette.mode === "dark"
+                                      ? "hsl(239, 38%, 31%)"
+                                      : "hsl(263, 65%, 80%)",
+                                }}
+                              >
+                                CANCEL
+                              </span>
+                            </button>
+                          </div>
+                        </Box>
+                      </Modal>
                       {/* <Button
                         // onClick={handlePodLogOpen}
                         style={{

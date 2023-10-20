@@ -1090,6 +1090,36 @@ function KranePodList(props) {
     props.setOpenPodYaml(false);
   };
 
+  const handlePodDescribeOpen = (pod) => {
+    ipcRenderer.on("podDescribeRetrieved", (event, arg) => {
+      let argArr = arg.split("/n");
+      let output = [];
+      // console.log("ARG SPLIT ISSSSSS", argArr);
+      for (let i = 0; i < argArr.length; i++) {
+        output.push(
+          <pre>
+            <span>{argArr[i]}</span>
+          </pre>
+        );
+      }
+      props.setPodDescribe(output);
+    });
+
+    let podDescribeCommand = `kubectl describe pod ${props.selectedPod[0]["name"]}`;
+    //`kubectl top pod ${selectedPod[0]["name"]} --containers`;
+    //send get container info commands
+    ipcRenderer.send("podDescribe_command", {
+      podDescribeCommand,
+      currDir,
+    });
+
+    props.setOpenPodDescribe(true);
+  };
+
+  const handlePodDescribeClose = () => {
+    props.setOpenPodDescribe(false);
+  };
+
   const handlePodDeleteOpen = (pod) => {
     props.setOpenPodDelete(true);
   };
@@ -1103,33 +1133,7 @@ function KranePodList(props) {
     ipcRenderer.on("deleted_pod", (event, arg) => {
       //parse response to check if successful and if so, close modals and refresh list
 
-      let podsCommand = "kubectl get pods --all-namespaces -o wide";
-      //send get pods o wide info commands
-      setTimeout(() => {
-        ipcRenderer.send("getPods_command", {
-          podsCommand,
-          currDir,
-        });
-      }, 1000);
-
-      //---------------------------------------- beginnging get all pods cpu and memory usage section -
-      let CpuUsedCommand = `kubectl top pods --all-namespaces`;
-      setTimeout(() => {
-        ipcRenderer.send("getCpuUsed_command", {
-          CpuUsedCommand,
-          currDir,
-        });
-      }, 1500);
-
-      // ----------------------------------------------- Beginning of get pod cpu and memory limits section
-
-      let cpuLimitsCommand = `kubectl get po --all-namespaces -o custom-columns="Name:metadata.name,CPU-limit:spec.containers[*].resources.limits.cpu",Memory-limit:"spec.containers[*].resources.limits.memory"`;
-      setTimeout(() => {
-        ipcRenderer.send("getCpuLimits_command", {
-          cpuLimitsCommand,
-          currDir,
-        });
-      }, 2000);
+      props.getPodsAndContainers();
 
       props.setOpenPodDelete(false);
       props.setOpenPod(false);
@@ -3012,7 +3016,7 @@ function KranePodList(props) {
                       <button
                         className="button3D-pushable"
                         role="button"
-                        onClick={handlePodDeleteOpen}
+                        onClick={handlePodDescribeOpen}
                         style={{ margin: "0 0px 0 10px" }}
                       >
                         <span className="button3D-shadow"></span>
@@ -3033,6 +3037,56 @@ function KranePodList(props) {
                               theme.palette.mode === "dark"
                                 ? "hsl(239, 38%, 51%)"
                                 : "hsl(263, 65%, 80%)",
+                          }}
+                        >
+                          DESCRIBE POD
+                        </span>
+                      </button>
+                      <Modal
+                        open={props.openPodDescribe}
+                        onClose={handlePodDescribeClose}
+                      >
+                        <Box sx={logStyle}>
+                          <div
+                            style={{
+                              fontFamily: "Outfit",
+                              fontSize: "24px",
+                              fontWeight: "700",
+                              textAlign: "center",
+                              marginTop: "10px",
+                            }}
+                          >
+                            POD DESCRIBE
+                          </div>
+                          {props.podDescribe}
+                        </Box>
+                      </Modal>
+
+                      <button
+                        className="button3D-pushable"
+                        role="button"
+                        onClick={handlePodDeleteOpen}
+                        style={{ margin: "20px 10px 0 0px" }}
+                      >
+                        <span className="button3D-shadow"></span>
+                        <span
+                          className="button3D-edge"
+                          style={{
+                            background:
+                              theme.palette.mode === "dark"
+                                ? "linear-gradient(to left, hsl(239, 40%, 25%) 0%, hsl(239, 40%, 30%) 8%, hsl(239, 40%, 30%) 92%,  hsl(239, 40%, 25%) 100%)"
+                                : "linear-gradient(to left, hsl(263, 40%, 64%) 0%, hsl(263, 40%, 70%) 8%, hsl(263, 40%, 70%) 92%,hsl(263, 40%, 64%) 100%)",
+                          }}
+                        ></span>
+                        <span
+                          className="button3D-front text"
+                          style={{
+                            width: "790px",
+                            background:
+                              theme.palette.mode === "dark"
+                                ? "hsl(239, 38%, 51%)"
+                                : "hsl(263, 65%, 80%)",
+                            fontSize: "16px",
                           }}
                         >
                           DELETE / RESTART POD

@@ -46,12 +46,17 @@ function Krane() {
   const [currDir, setCurrDir] = useState("NONE SELECTED");
 
   const [openPod, setOpenPod] = React.useState(false);
-  const [openPodDelete, setOpenPodDelete] = React.useState(false);
+  
   const [openPodLog, setOpenPodLog] = React.useState(false);
   const [podLogs, setPodLogs] = React.useState([]);
-
+  
   const [openPodYaml, setOpenPodYaml] = React.useState(false);
   const [podYaml, setPodYaml] = React.useState([]);
+  
+  const [openPodDescribe, setOpenPodDescribe] = React.useState(false);
+  const [podDescribe, setPodDescribe] = React.useState([]);
+
+  const [openPodDelete, setOpenPodDelete] = React.useState(false);
 
   const [selectedPodStatusColor, setSelectedPodStatusColor] = useState("");
   const [selectedPodStatusColorLight, setSelectedPodStatusColorLight] =
@@ -211,7 +216,11 @@ function Krane() {
   if (deploymentsShowStatus) {
     deploymentsDiv = (
       <>
-        <KraneDeploymentsList getDeploymentsInfo={getDeploymentsInfo} deploymentsArr={deploymentsArr} setDeploymentsArr={setDeploymentsArr} />
+        <KraneDeploymentsList
+          getDeploymentsInfo={getDeploymentsInfo}
+          deploymentsArr={deploymentsArr}
+          setDeploymentsArr={setDeploymentsArr}
+        />
       </>
     );
   }
@@ -238,6 +247,10 @@ function Krane() {
           setOpenPodYaml={setOpenPodYaml}
           podYaml={podYaml}
           setPodYaml={setPodYaml}
+          openPodDescribe={openPodDescribe}
+          setOpenPodDescribe={setOpenPodDescribe}
+          podDescribe={podDescribe}
+          setPodDescribe={setPodDescribe}
           selectedPodStatusColor={selectedPodStatusColor}
           setSelectedPodStatusColor={setSelectedPodStatusColor}
           selectedPodCPUColor={selectedPodCPUColor}
@@ -271,6 +284,10 @@ function Krane() {
           setOpenPodYaml={setOpenPodYaml}
           podYaml={podYaml}
           setPodYaml={setPodYaml}
+          openPodDescribe={openPodDescribe}
+          setOpenPodDescribe={setOpenPodDescribe}
+          podDescribe={podDescribe}
+          setPodDescribe={setPodDescribe}
           selectedPodStatusColor={selectedPodStatusColor}
           setSelectedPodStatusColor={setSelectedPodStatusColor}
           selectedPodCPUColor={selectedPodCPUColor}
@@ -411,7 +428,7 @@ function Krane() {
             Easily manage your clusters, nodes, and containers.
             <br />
             <p></p>
-            <div>CHOOSE ONE OR MORE:</div>
+            {/* <div>CHOOSE ONE OR MORE:</div> */}
           </div>
           <div style={{ display: "flex", margin: "-5px 0 0 0" }}>
             <Button
@@ -472,7 +489,104 @@ function Krane() {
             >
               NODES & PODS
             </Button>
+            <Button
+              // onClick={handleNodeShowStatus}
+              style={{
+                marginLeft: "10px",
+                marginTop: "8px",
+                letterSpacing: ".8px",
+                padding: "12px 10px 12px 10px",
+                border:
+                  theme.palette.mode === "dark"
+                    ? "1px solid #ffffff80"
+                    : "1px solid #00000060",
+                // border: "1px solid",
+                fontSize: "12px",
+                // width: "98px",
+                height: "20px",
+                color:
+                  theme.palette.mode === "dark" ? "#ffffff80" : "#00000060",
+                // backgroundColor: !nodeShowStatus ? "transparent" : "#8d85f3",
+              }}
+            >
+              DAEMONSETS
+            </Button>
+            <Button
+              // onClick={handleNodeShowStatus}
+              style={{
+                marginLeft: "10px",
+                marginTop: "8px",
+                letterSpacing: ".8px",
+                padding: "12px 10px 12px 10px",
+                border:
+                  theme.palette.mode === "dark"
+                    ? "1px solid #ffffff80"
+                    : "1px solid #00000060",
+                // border: "1px solid",
+                fontSize: "12px",
+                // width: "98px",
+                height: "20px",
+                color:
+                  theme.palette.mode === "dark" ? "#ffffff80" : "#00000060",
+                // backgroundColor: !nodeShowStatus ? "transparent" : "#8d85f3",
+              }}
+            >
+              SERVICES
+            </Button>
+            <Button
+              // onClick={handleNodeShowStatus}
+              style={{
+                marginLeft: "10px",
+                marginTop: "8px",
+                letterSpacing: ".8px",
+                padding: "12px 10px 12px 10px",
+                border:
+                  theme.palette.mode === "dark"
+                    ? "1px solid #ffffff80"
+                    : "1px solid #00000060",
+                // border: "1px solid",
+                fontSize: "12px",
+                // width: "98px",
+                height: "20px",
+                color:
+                  theme.palette.mode === "dark" ? "#ffffff80" : "#00000060",
+                // backgroundColor: !nodeShowStatus ? "transparent" : "#8d85f3",
+              }}
+            >
+              NAMESPACES
+            </Button>
           </div>
+          <div
+            style={{
+              display: "flex",
+              margin: "5px 0 0 260px",
+              color: theme.palette.mode === "dark" ? "#ffffff80" : "#00000060",
+              fontSize: "9px",
+              letterSpacing: ".5px",
+              // border:"1px solid red"
+            }}
+          >
+            <div
+              style={{
+                height: "1px",
+                backgroundColor:
+                  theme.palette.mode === "dark" ? "#ffffff80" : "#00000060",
+                width: "100px",
+                margin: "6px 0px 0 0px",
+              }}
+            ></div>
+            <div style={{ margin: "0 5px 0 5px" }}>COMING SOON!</div>
+            <div
+              style={{
+                height: "1px",
+                backgroundColor:
+                  theme.palette.mode === "dark" ? "#ffffff80" : "#00000060",
+                width: "100px",
+                margin: "6px 0px 0 0px",
+              }}
+            ></div>
+          </div>
+
           {refreshShowDiv}
           <div style={{ marginBottom: "0px", width: "100%" }}>
             {deploymentsDiv}
