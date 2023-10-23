@@ -42,6 +42,51 @@ function KraneDeploymentsList(props) {
 
   let currDir = props.currDir;
 
+  const openDeploymentModalStyle = {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    width: "90%",
+    height: "92%",
+    background: theme.palette.mode === "dark" ? "#0e0727" : "#eeebfb",
+    color: theme.palette.mode === "dark" ? "white" : "#47456e",
+    boxShadow: 24,
+    p: 4,
+    padding: "10px",
+    mt: 0.8,
+    border:
+      theme.palette.mode === "dark" ? "1px solid white" : "2px solid #9075ea",
+    borderRadius: "10px",
+    overflow: "auto",
+    overflowX: "hidden",
+  };
+
+  const [openDeployment, setOpenDeployment] = React.useState(false);
+
+  const [selectedDeploymentReadyColor, setSelectedDeploymentReadyColor] =
+    useState("");
+  const [
+    selectedDeploymentReadyColorLight,
+    setSelectedDeploymentReadyColorLight,
+  ] = useState("");
+
+  const [selectedDeployment, setSelectedDeployment] = useState([
+    {
+      index: "",
+      name: "",
+      available: "",
+      age: "",
+      containers: "",
+      images: "",
+      readyDenominator: "",
+      readyNumerator: "",
+      replicaSets: {},
+      selector: "",
+      upToDate: "",
+    },
+  ]);
+
   //Listen to "get deployments" return event and set pods array
   ipcRenderer.on("got_deployments", (event, arg) => {
     let argArr = arg.split("");
@@ -300,8 +345,71 @@ function KraneDeploymentsList(props) {
     props.getDeploymentsInfo();
   }, []);
 
+  const handleDeploymentOpen = (deployment) => {
+    if (deployment["readyNumerator"] / deployment["readyDenominator"] === 1) {
+      setSelectedDeploymentReadyColor("#2fc665");
+      setSelectedDeploymentReadyColorLight("#2fc665");
+    } else {
+      setSelectedDeploymentReadyColor("rgba(210, 223, 61)");
+      setSelectedDeploymentReadyColorLight("rgba(210, 223, 61)");
+    }
+    setSelectedDeployment([deployment]);
+
+    // if (typeof props.selectedPod[0]["podCpuPercent"] === "string") {
+    //   if (props.selectedPod[0]["podCpuPercent"] === "N/A") {
+    //     // props.setSelectedPodCPUColor("#ffffff80");
+    //     // props.setSelectedPodCPUColorLight("#ffffff80");
+    //   }
+    // } else if (props.selectedPod[0]["podCpuPercent"] < 90) {
+    //   // props.setSelectedPodCPUColor("#2fc665");
+    //   // props.setSelectedPodCPUColorLight("#2fc665");
+    // } else {
+    //   // props.setSelectedPodCPUColor("#cf4848");
+    //   // props.setSelectedPodCPUColorLight("#cf4848");
+    // }
+
+    setOpenDeployment(true);
+    
+
+    // console.log("selectedPodCpuColor is", selectedPodCPUColor);
+  };
+
+  const handleDeploymentClose = () => {
+    setSelectedDeployment([
+      {
+        index: "",
+        name: "",
+        available: "",
+        age: "",
+        containers: "",
+        images: "",
+        readyDenominator: "",
+        readyNumerator: "",
+        replicaSets: {},
+        selector: "",
+        upToDate: "",
+      },
+    ]);
+    setOpenDeployment(false);
+  };
+
   let deploymentsList = [];
   for (let i = 0; i < props.deploymentsArr.length; i++) {
+    let deploymentReadyColor;
+    let deploymentReadyColorLight;
+
+    if (
+      props.deploymentsArr[i]["readyNumerator"] /
+        props.deploymentsArr[i]["readyDenominator"] ===
+      1
+    ) {
+      deploymentReadyColor = "#2fc665";
+      deploymentReadyColorLight = "#2fc665";
+    } else {
+      deploymentReadyColor = "rgba(210, 223, 61)";
+      deploymentReadyColorLight = "rgba(210, 223, 61)";
+    }
+
     deploymentsList.push(
       <>
         <div
@@ -332,12 +440,12 @@ function KraneDeploymentsList(props) {
           <Button
             key={i}
             id="podButt"
-            // onClick={() => handleDeploymentOpen(props.deploymentsArr[i])}
+            onClick={() => handleDeploymentOpen(props.deploymentsArr[i])}
             style={{
               display: "flex",
               flexDirection: "column",
               width: "450px",
-              height: "118px",
+              height: "105px",
               fontSize: "16px",
               // border: "1px solid white",
               justifyContent: "flex-start",
@@ -373,11 +481,11 @@ function KraneDeploymentsList(props) {
                   marginLeft: "10.8px",
                   // border: "1px solid blue",
                 }}
-                src="../../public/deploy-2.svg"
+                src="../../deploy-2.svg"
               ></img>
               <span
                 style={{
-                  margin: "0px 0 0 15px",
+                  margin: "-2px 0 0 15px",
                   width: "360px",
                   lineHeight: "23px",
                   fontSize: "18px",
@@ -404,10 +512,10 @@ function KraneDeploymentsList(props) {
                     width: "12px",
                     height: "12px",
                     borderRadius: "15px",
-                    backgroundColor: "green",
-                    //   theme.palette.mode === "dark"
-                    //     ? `${nodeReadyStatusRunning}`
-                    //     : `${nodeReadyStatusRunningLight}`,
+                    backgroundColor:
+                      theme.palette.mode === "dark"
+                        ? deploymentReadyColor
+                        : deploymentReadyColorLight,
                     justifyContent: "right",
                     // margin: "0px 0 2px 0",
                     // border: ".5px solid white",
@@ -420,12 +528,12 @@ function KraneDeploymentsList(props) {
                 display: "flex",
                 fontSize: "12px",
                 marginLeft: "70px",
-                justifyContent: "flex-start",
+                justifyContent: "space-around",
                 alignItems: "start",
                 // border: ".5px solid white",
                 width: "380px",
                 height: "40px",
-                marginTop: "10px",
+                marginTop: "0px",
               }}
             >
               <div
@@ -445,7 +553,7 @@ function KraneDeploymentsList(props) {
                     margin: "-6px 0 0px 0",
                   }}
                 >
-                  {props.deploymentsArr[i]["age"].toLowerCase()}
+                  {props.deploymentsArr[i]["age"].toUpperCase()}
                 </div>
                 <div style={{ fontSize: "10px", margin: "-4px 0 0 0" }}>
                   AGE
@@ -505,20 +613,53 @@ function KraneDeploymentsList(props) {
               </div>
               <div
                 style={{
-                  display:"flex",
+                  display: "flex",
                   flexDirection: "column",
                   justifyContent: "center",
                   alignItems: "center",
                   textTransform: "none",
-                  margin: "-27px 0px 0 20px",
-                  fontSize: "36px", 
-                  fontWeight: "200",
+                  margin: "-17px 0px 0 20px",
+                  fontSize: "30px",
+                  fontWeight: "400",
+                  color:
+                    theme.palette.mode === "dark"
+                      ? deploymentReadyColor
+                      : deploymentReadyColorLight,
                 }}
               >
-                {props.deploymentsArr[i]["readyNumerator"]}
-                 / 
-                 {props.deploymentsArr[i]["readyDenominator"]}
-                <div style={{ fontSize: "10px",fontWeight: "500", margin: "-12.5px 0px 0 0px" }}>
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "row",
+                    fontFamily: "Roboto Condensed",
+                    fontWeight: "500",
+                  }}
+                >
+                  {props.deploymentsArr[i]["readyNumerator"]}
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "row",
+                      margin: "17px 0px 0 3px",
+                      fontSize: "10px",
+                      fontFamily: "Roboto",
+                      fontWeight: "400",
+                    }}
+                  >
+                    OF
+                  </div>
+                  <div style={{ margin: "0px 0 0 3px" }}>
+                    {props.deploymentsArr[i]["readyDenominator"]}
+                  </div>
+                </div>
+                <div
+                  style={{
+                    fontSize: "10px",
+                    fontWeight: "500",
+                    margin: "-12.5px 0px 0 1px",
+                    // color: "white",
+                  }}
+                >
                   READY
                 </div>
               </div>
@@ -615,7 +756,7 @@ function KraneDeploymentsList(props) {
               fontFamily: "Outfit",
               fontSize: "24px",
               fontWeight: "900",
-              letterSpacing: "3px",
+              letterSpacing: "2.8px",
               // border: "1px solid white",
               textAlign: "left",
               // color: "#ffffff",
@@ -670,6 +811,559 @@ function KraneDeploymentsList(props) {
         }}
       >
         {deploymentsList}
+        <Modal
+          open={openDeployment}
+          onClose={handleDeploymentClose}
+          style={{ overflow: "scroll", height: "100%" }}
+          aria-labelledby="modal-modal-title"
+          aria-describedby="modal-modal-description"
+        >
+          <Box sx={openDeploymentModalStyle}>
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "row",
+                  // border: "1px solid white",
+                }}
+              >
+                <div style={{ width: "140px", height: "400px" }}>
+                  <img
+                    style={{
+                      width: "100px",
+                      height: "100px",
+                      margin: "15px 25px 0 15px",
+                    }}
+                    src="../../deploy-2.svg"
+                  ></img>
+                  {/* <img
+                      style={{
+                        width: "100px",
+                        height: "100px",
+                        margin: "15px 25px 0 20px",
+                      }}
+                      src="../../pod.svg"
+                    ></img> */}
+                </div>
+                {"  "}
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    // border: "1px solid green",
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "row",
+                      width: "820px",
+                      alignItems: "flex-start",
+                      // border: "1px solid yellow",
+                    }}
+                  >
+                    <div
+                      style={{
+                        fontSize: "38px",
+                        fontWeight: "800",
+                        letterSpacing: ".1px",
+                        lineHeight: "40px",
+                        margin: "30px 0 0 0",
+                        padding: "00px -10px 10px 10px",
+                        // border: "1px solid yellow",
+                        width: "790px",
+                      }}
+                    >
+                      {selectedDeployment[0]["name"]}
+                    </div>
+                    <div
+                      style={{
+                        width: "17px",
+                        height: "17px",
+                        borderRadius: "20px",
+                        backgroundColor:
+                          theme.palette.mode === "dark"
+                            ? selectedDeploymentReadyColor
+                            : selectedDeploymentReadyColorLight,
+                        justifyContent: "right",
+                        margin: "4px 0 0px 10px",
+                        // border: ".5px solid white",
+                      }}
+                    ></div>
+                  </div>
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "row",
+                      // border: "1px solid green",
+                      alignItems: "flex-end",
+                      margin: "20px 0 0 0",
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "flex-end",
+                        alignItems: "center",
+                        textTransform: "none",
+                        margin: "-8px 70px 0 90px",
+                        transform: "scale(2,2)",
+                      }}
+                    >
+                      <div
+                        style={{
+                          fontSize: "19px",
+                          fontWeight: "500",
+                          margin: "-5px 0 0px 0",
+                        }}
+                      >
+                        {selectedDeployment[0]["age"].toUpperCase()}
+                      </div>
+                      <div style={{ fontSize: "10px", margin: "-4px 0 0 0" }}>
+                        AGE
+                      </div>
+                    </div>
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "flex-end",
+                        alignItems: "center",
+                        textTransform: "none",
+                        margin: "0 45px 0 80px",
+                        transform: "scale(2,2)",
+                      }}
+                    >
+                      <div
+                        style={{
+                          fontSize: "22px",
+                          fontWeight: "500",
+                          margin: "-8.9px 0 0px -10px",
+                        }}
+                      >
+                        {selectedDeployment[0]["upToDate"]}
+                      </div>
+                      <div
+                        style={{
+                          fontSize: "10px",
+                          margin: "-6px 0 0 0",
+                          width: "70px",
+                        }}
+                      >
+                        UP-TO-DATE
+                      </div>
+                    </div>
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "flex-end",
+                        alignItems: "center",
+                        textTransform: "none",
+                        margin: "0 70px 0 85px",
+                        transform: "scale(2,2)",
+                      }}
+                    >
+                      <div
+                        style={{
+                          fontSize: "22px",
+                          fontWeight: "500",
+                          margin: "-8.9px 0 0px 0",
+                        }}
+                      >
+                        {selectedDeployment[0]["available"]}
+                      </div>
+                      <div style={{ fontSize: "10px", margin: "-6px 0 0 0" }}>
+                        AVAILABLE
+                      </div>
+                    </div>
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "flex-end",
+                        alignItems: "center",
+                        textTransform: "none",
+                        margin: "45px 0px 0 70px",
+                        fontSize: "30px",
+                        fontWeight: "400",
+                        color:
+                          theme.palette.mode === "dark"
+                            ? selectedDeploymentReadyColor
+                            : selectedDeploymentReadyColorLight,
+                        transform: "scale(2,2)",
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "row",
+                          fontFamily: "Roboto Condensed",
+                          fontWeight: "500",
+                          margin: "-16px 0px 0 0px",
+                        }}
+                      >
+                        {selectedDeployment[0]["readyNumerator"]}
+                        <div
+                          style={{
+                            display: "flex",
+                            flexDirection: "row",
+                            margin: "17px 0px 0 3px",
+                            fontSize: "9px",
+                            fontFamily: "Roboto",
+                            fontWeight: "400",
+                          }}
+                        >
+                          OF
+                        </div>
+                        <div style={{ margin: "0px 0 0 3px" }}>
+                          {selectedDeployment[0]["readyDenominator"]}
+                        </div>
+                      </div>
+                      <div
+                        style={{
+                          fontSize: "10px",
+                          fontWeight: "500",
+                          margin: "-12.5px 0px 0 1px",
+                          // color: "white",
+                        }}
+                      >
+                        READY
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "row",
+                      fontWeight: "800",
+                      margin: "50px 0 0 0",
+                      // border: "1px solid green",
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        margin: "0 0 0 10px",
+                        fontSize: "16px",
+                        color:
+                          theme.palette.mode === "dark"
+                            ? "#ffffff99"
+                            : "darkpurple",
+                      }}
+                    >
+                      CONTAINERS:
+                      <br />
+                      IMAGES:
+                      <br />
+                      SELECTOR:
+                      <br />
+                    </div>
+
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        margin: "0 0 0 10px",
+                        lineHeight: "24.3px",
+                        fontSize: "13.5px",
+                      }}
+                    >
+                      {selectedDeployment[0]["containers"]}
+                      <br />
+                      {selectedDeployment[0]["images"]}
+                      <br />
+                      {selectedDeployment[0]["selector"]}
+                    </div>
+                  </div>
+                  <div
+                    style={{
+                      flexDirection: "row",
+                      justifyContent: "space-between",
+                      margin: "40px 0 0px 0px",
+                      fontSize: "10px",
+                      // border: "1px solid red",
+                    }}
+                  >
+                    <button
+                      className="button3D-pushable"
+                      role="button"
+                      // onClick={handleNodeYamlOpen}
+                      style={{ margin: "0 10px 0 0px" }}
+                    >
+                      <span className="button3D-shadow"></span>
+                      <span
+                        className="button3D-edge"
+                        style={{
+                          background:
+                            theme.palette.mode === "dark"
+                              ? "linear-gradient(to left, hsl(239, 40%, 25%) 0%, hsl(239, 40%, 30%) 8%, hsl(239, 40%, 30%) 92%,  hsl(239, 40%, 25%) 100%)"
+                              : "linear-gradient(to left, hsl(263, 40%, 64%) 0%, hsl(263, 40%, 70%) 8%, hsl(263, 40%, 70%) 92%,hsl(263, 40%, 64%) 100%)",
+                        }}
+                      ></span>
+                      <span
+                        className="button3D-front text"
+                        style={{
+                          fontSize: "12px",
+                          width: "250px",
+                          background:
+                            theme.palette.mode === "dark"
+                              ? "hsl(239, 38%, 51%)"
+                              : "hsl(263, 65%, 80%)",
+                        }}
+                      >
+                        VIEW DEPLOYMENT LOGS
+                      </span>
+                    </button>
+                    <button
+                      className="button3D-pushable"
+                      role="button"
+                      // onClick={handleNodeYamlOpen}
+                      style={{ margin: "0 10px 0 0px" }}
+                    >
+                      <span className="button3D-shadow"></span>
+                      <span
+                        className="button3D-edge"
+                        style={{
+                          background:
+                            theme.palette.mode === "dark"
+                              ? "linear-gradient(to left, hsl(239, 40%, 25%) 0%, hsl(239, 40%, 30%) 8%, hsl(239, 40%, 30%) 92%,  hsl(239, 40%, 25%) 100%)"
+                              : "linear-gradient(to left, hsl(263, 40%, 64%) 0%, hsl(263, 40%, 70%) 8%, hsl(263, 40%, 70%) 92%,hsl(263, 40%, 64%) 100%)",
+                        }}
+                      ></span>
+                      <span
+                        className="button3D-front text"
+                        style={{
+                          fontSize: "12px",
+                          width: "250px",
+                          background:
+                            theme.palette.mode === "dark"
+                              ? "hsl(239, 38%, 51%)"
+                              : "hsl(263, 65%, 80%)",
+                        }}
+                      >
+                        VIEW DEPLOYMENT YAML
+                      </span>
+                    </button>
+                    <button
+                      className="button3D-pushable"
+                      role="button"
+                      // onClick={handleNodeYamlOpen}
+                      style={{ margin: "0 10px 20px 0px" }}
+                    >
+                      <span className="button3D-shadow"></span>
+                      <span
+                        className="button3D-edge"
+                        style={{
+                          background:
+                            theme.palette.mode === "dark"
+                              ? "linear-gradient(to left, hsl(239, 40%, 25%) 0%, hsl(239, 40%, 30%) 8%, hsl(239, 40%, 30%) 92%,  hsl(239, 40%, 25%) 100%)"
+                              : "linear-gradient(to left, hsl(263, 40%, 64%) 0%, hsl(263, 40%, 70%) 8%, hsl(263, 40%, 70%) 92%,hsl(263, 40%, 64%) 100%)",
+                        }}
+                      ></span>
+                      <span
+                        className="button3D-front text"
+                        style={{
+                          fontSize: "12px",
+                          width: "250px",
+                          background:
+                            theme.palette.mode === "dark"
+                              ? "hsl(239, 38%, 51%)"
+                              : "hsl(263, 65%, 80%)",
+                        }}
+                      >
+                        DESCRIBE DEPLOYMENT
+                      </span>
+                    </button>
+                    <button
+                      className="button3D-pushable"
+                      role="button"
+                      // onClick={handleNodeYamlOpen}
+                      style={{ margin: "0 10px 0 0px" }}
+                    >
+                      <span className="button3D-shadow"></span>
+                      <span
+                        className="button3D-edge"
+                        style={{
+                          background:
+                            theme.palette.mode === "dark"
+                              ? "linear-gradient(to left, hsl(239, 40%, 25%) 0%, hsl(239, 40%, 30%) 8%, hsl(239, 40%, 30%) 92%,  hsl(239, 40%, 25%) 100%)"
+                              : "linear-gradient(to left, hsl(263, 40%, 64%) 0%, hsl(263, 40%, 70%) 8%, hsl(263, 40%, 70%) 92%,hsl(263, 40%, 64%) 100%)",
+                        }}
+                      ></span>
+                      <span
+                        className="button3D-front text"
+                        style={{
+                          fontSize: "12px",
+                          width: "250px",
+                          background:
+                            theme.palette.mode === "dark"
+                              ? "hsl(239, 38%, 51%)"
+                              : "hsl(263, 65%, 80%)",
+                        }}
+                      >
+                        VIEW ROLLOUT STATUS
+                      </span>
+                    </button>
+                    <button
+                      className="button3D-pushable"
+                      role="button"
+                      // onClick={handleNodeYamlOpen}
+                      style={{ margin: "0 10px 0 0px" }}
+                    >
+                      <span className="button3D-shadow"></span>
+                      <span
+                        className="button3D-edge"
+                        style={{
+                          background:
+                            theme.palette.mode === "dark"
+                              ? "linear-gradient(to left, hsl(239, 40%, 25%) 0%, hsl(239, 40%, 30%) 8%, hsl(239, 40%, 30%) 92%,  hsl(239, 40%, 25%) 100%)"
+                              : "linear-gradient(to left, hsl(263, 40%, 64%) 0%, hsl(263, 40%, 70%) 8%, hsl(263, 40%, 70%) 92%,hsl(263, 40%, 64%) 100%)",
+                        }}
+                      ></span>
+                      <span
+                        className="button3D-front text"
+                        style={{
+                          fontSize: "12px",
+                          width: "250px",
+                          background:
+                            theme.palette.mode === "dark"
+                              ? "hsl(239, 38%, 51%)"
+                              : "hsl(263, 65%, 80%)",
+                        }}
+                      >
+                        VIEW ROLLOUT HISTORY
+                      </span>
+                    </button>
+                    <button
+                      className="button3D-pushable"
+                      role="button"
+                      // onClick={handleNodeYamlOpen}
+                      style={{ margin: "0 10px 0 0px" }}
+                    >
+                      <span className="button3D-shadow"></span>
+                      <span
+                        className="button3D-edge"
+                        style={{
+                          background:
+                            theme.palette.mode === "dark"
+                              ? "linear-gradient(to left, hsl(239, 40%, 25%) 0%, hsl(239, 40%, 30%) 8%, hsl(239, 40%, 30%) 92%,  hsl(239, 40%, 25%) 100%)"
+                              : "linear-gradient(to left, hsl(263, 40%, 64%) 0%, hsl(263, 40%, 70%) 8%, hsl(263, 40%, 70%) 92%,hsl(263, 40%, 64%) 100%)",
+                        }}
+                      ></span>
+                      <span
+                        className="button3D-front text"
+                        style={{
+                          fontSize: "12px",
+                          width: "250px",
+                          background:
+                            theme.palette.mode === "dark"
+                              ? "hsl(239, 38%, 51%)"
+                              : "hsl(263, 65%, 80%)",
+                        }}
+                      >
+                        ROLLBACK TO PREV. VERSION
+                      </span>
+                    </button>
+
+                    <button
+                      className="button3D-pushable"
+                      role="button"
+                      // onClick={handleNodeYamlOpen}
+                      style={{ margin: "0 10px 0 0px" }}
+                    >
+                      <span className="button3D-shadow"></span>
+                      <span
+                        className="button3D-edge"
+                        style={{
+                          background:
+                            theme.palette.mode === "dark"
+                              ? "linear-gradient(to left, hsl(239, 40%, 25%) 0%, hsl(239, 40%, 30%) 8%, hsl(239, 40%, 30%) 92%,  hsl(239, 40%, 25%) 100%)"
+                              : "linear-gradient(to left, hsl(263, 40%, 64%) 0%, hsl(263, 40%, 70%) 8%, hsl(263, 40%, 70%) 92%,hsl(263, 40%, 64%) 100%)",
+                        }}
+                      ></span>
+                      <span
+                        className="button3D-front text"
+                        style={{
+                          fontSize: "12px",
+                          width: "250px",
+                          background:
+                            theme.palette.mode === "dark"
+                              ? "hsl(239, 38%, 51%)"
+                              : "hsl(263, 65%, 80%)",
+                        }}
+                      >
+                        PERFORM ROLLING RESTART
+                      </span>
+                    </button>
+                    <button
+                      className="button3D-pushable"
+                      role="button"
+                      // onClick={handleNodeYamlOpen}
+                      style={{ margin: "0 10px 0 0px" }}
+                    >
+                      <span className="button3D-shadow"></span>
+                      <span
+                        className="button3D-edge"
+                        style={{
+                          background:
+                            theme.palette.mode === "dark"
+                              ? "linear-gradient(to left, hsl(239, 40%, 25%) 0%, hsl(239, 40%, 30%) 8%, hsl(239, 40%, 30%) 92%,  hsl(239, 40%, 25%) 100%)"
+                              : "linear-gradient(to left, hsl(263, 40%, 64%) 0%, hsl(263, 40%, 70%) 8%, hsl(263, 40%, 70%) 92%,hsl(263, 40%, 64%) 100%)",
+                        }}
+                      ></span>
+                      <span
+                        className="button3D-front text"
+                        style={{
+                          fontSize: "12px",
+                          width: "250px",
+                          background:
+                            theme.palette.mode === "dark"
+                              ? "hsl(239, 38%, 51%)"
+                              : "hsl(263, 65%, 80%)",
+                        }}
+                      >
+                        SCALE DEPLOYMENT
+                      </span>
+                    </button>
+                    <button
+                      className="button3D-pushable"
+                      role="button"
+                      // onClick={handleNodeYamlOpen}
+                      style={{ margin: "20px 10px 0 0px" }}
+                    >
+                      <span className="button3D-shadow"></span>
+                      <span
+                        className="button3D-edge"
+                        style={{
+                          background:
+                            theme.palette.mode === "dark"
+                              ? "linear-gradient(to left, hsl(239, 40%, 25%) 0%, hsl(239, 40%, 30%) 8%, hsl(239, 40%, 30%) 92%,  hsl(239, 40%, 25%) 100%)"
+                              : "linear-gradient(to left, hsl(263, 40%, 64%) 0%, hsl(263, 40%, 70%) 8%, hsl(263, 40%, 70%) 92%,hsl(263, 40%, 64%) 100%)",
+                        }}
+                      ></span>
+                      <span
+                        className="button3D-front text"
+                        style={{
+                          fontSize: "12px",
+                          width: "250px",
+                          background:
+                            theme.palette.mode === "dark"
+                              ? "hsl(239, 38%, 51%)"
+                              : "hsl(263, 65%, 80%)",
+                        }}
+                      >
+                        DELETE / RESTART DEPLOYMENT
+                      </span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Box>
+        </Modal>
       </div>
     </>
   );

@@ -565,7 +565,8 @@ function Start() {
               textAlign: "center",
             }}
           >
-            <Typography
+           <div style={{display:"flex", justifyContent:"center"}}>
+           <Typography
               variant="h2"
               // alignText='center'
               sx={{
@@ -583,6 +584,26 @@ function Start() {
             >
               kaptn
             </Typography>
+            <Typography
+              variant="h2"
+              // alignText='center'
+              sx={{
+                fontWeight: "bold",
+                fontFamily: "Outfit",
+                fontSize: "45px",
+                margin:"35.5px 0 0 15px"
+              }}
+              style={{
+                color: theme.palette.mode === "dark" ? "magenta" : "#3c3c9a",
+                textShadow:
+                  theme.palette.mode === "dark"
+                    ? "1px 1px 5px rgb(0, 0, 0, 0.3)"
+                    : "1px 1px 5px rgb(0, 0, 0, 0.0)",
+              }}
+            >
+              v2.0
+            </Typography>
+           </div>
             <Typography
               variant="h4"
               align="center"
@@ -631,7 +652,7 @@ function Start() {
                     : "",
               }}
             >
-              * If this is your first time, please ensure that{" "}
+              * Please ensure that{" "}
               <a
                 style={{
                   color: theme.palette.mode === "dark" ? "lightgreen" : "green",
@@ -641,7 +662,7 @@ function Start() {
               >
                 kubectl commands are installed
               </a>{" "}
-              and/or clusters are up and running before proceeding.
+              and clusters are up and running in order for Kaptn to work as intended <br/>(including install checks to the left).
             </Typography>
           </div>
           {/* <Button style={{ border: "1px solid blue" }}>Blah</Button> */}

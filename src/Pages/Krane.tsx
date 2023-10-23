@@ -46,13 +46,13 @@ function Krane() {
   const [currDir, setCurrDir] = useState("NONE SELECTED");
 
   const [openPod, setOpenPod] = React.useState(false);
-  
+
   const [openPodLog, setOpenPodLog] = React.useState(false);
   const [podLogs, setPodLogs] = React.useState([]);
-  
+
   const [openPodYaml, setOpenPodYaml] = React.useState(false);
   const [podYaml, setPodYaml] = React.useState([]);
-  
+
   const [openPodDescribe, setOpenPodDescribe] = React.useState(false);
   const [podDescribe, setPodDescribe] = React.useState([]);
 
@@ -111,6 +111,9 @@ function Krane() {
   // ----------------------------------------- get pods info section ------------
 
   function handleClick(event) {
+    // setDeploymentsArr([]);
+    // setNodesArr([]);
+    // setPodsArr([]);
     getDeploymentsInfo();
     getNodesInfo();
     getPodsAndContainers();
@@ -119,6 +122,7 @@ function Krane() {
   const [deploymentsShowStatus, setDeploymentsShowStatus] = useState(false);
 
   function handleDeploymentsShowStatus() {
+    setNodeShowStatus(false);
     setDeploymentsShowStatus(!deploymentsShowStatus);
   }
 
@@ -142,6 +146,7 @@ function Krane() {
   const [nodeShowStatus, setNodeShowStatus] = useState(false);
 
   function handleNodeShowStatus() {
+    setDeploymentsShowStatus(false);
     setNodeShowStatus(!nodeShowStatus);
   }
 
@@ -432,6 +437,34 @@ function Krane() {
           </div>
           <div style={{ display: "flex", margin: "-5px 0 0 0" }}>
             <Button
+              onClick={handleNodeShowStatus}
+              style={{
+                marginLeft: "10px",
+                marginTop: "8px",
+                letterSpacing: ".8px",
+                padding: "12px 10px 12px 10px",
+                border:
+                  theme.palette.mode === "dark" && !nodeShowStatus
+                    ? "1px solid #ffffff"
+                    : theme.palette.mode !== "dark" && !nodeShowStatus
+                    ? "1px solid #00000060"
+                    : "1px solid #8d85f3",
+                // border: "1px solid",
+                fontSize: "12px",
+                // width: "98px",
+                height: "20px",
+                color:
+                  theme.palette.mode === "dark" && !nodeShowStatus
+                    ? "#ffffff"
+                    : theme.palette.mode !== "dark" && !nodeShowStatus
+                    ? "#00000060"
+                    : "white",
+                backgroundColor: !nodeShowStatus ? "transparent" : "#8d85f3",
+              }}
+            >
+              NODES & PODS
+            </Button>
+            <Button
               onClick={handleDeploymentsShowStatus}
               style={{
                 marginLeft: "10px",
@@ -461,34 +494,7 @@ function Krane() {
             >
               DEPLOYMENTS
             </Button>
-            <Button
-              onClick={handleNodeShowStatus}
-              style={{
-                marginLeft: "10px",
-                marginTop: "8px",
-                letterSpacing: ".8px",
-                padding: "12px 10px 12px 10px",
-                border:
-                  theme.palette.mode === "dark" && !nodeShowStatus
-                    ? "1px solid #ffffff"
-                    : theme.palette.mode !== "dark" && !nodeShowStatus
-                    ? "1px solid #00000060"
-                    : "1px solid #8d85f3",
-                // border: "1px solid",
-                fontSize: "12px",
-                // width: "98px",
-                height: "20px",
-                color:
-                  theme.palette.mode === "dark" && !nodeShowStatus
-                    ? "#ffffff"
-                    : theme.palette.mode !== "dark" && !nodeShowStatus
-                    ? "#00000060"
-                    : "white",
-                backgroundColor: !nodeShowStatus ? "transparent" : "#8d85f3",
-              }}
-            >
-              NODES & PODS
-            </Button>
+
             <Button
               // onClick={handleNodeShowStatus}
               style={{
@@ -589,8 +595,8 @@ function Krane() {
 
           {refreshShowDiv}
           <div style={{ marginBottom: "0px", width: "100%" }}>
-            {deploymentsDiv}
             {nodesAndPodsDiv}
+            {deploymentsDiv}
           </div>
         </div>
       </div>

@@ -3315,7 +3315,7 @@ function KranePodList(props) {
           alignItems: "flex-start",
           marginLeft: "0px",
           marginTop: "0px",
-          marginBottom: "0px",
+          marginBottom: "23px",
           textAlign: "center",
           width: "100%",
           // border: "1px solid red",
