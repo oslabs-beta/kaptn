@@ -48,18 +48,54 @@ function KraneDeploymentsList(props) {
     left: "50%",
     transform: "translate(-50%, -50%)",
     width: "90%",
-    height: "92%",
+    height: "68%",
     background: theme.palette.mode === "dark" ? "#0e0727" : "#eeebfb",
     color: theme.palette.mode === "dark" ? "white" : "#47456e",
     boxShadow: 24,
     p: 4,
     padding: "10px",
-    mt: 0.8,
+    mt: 2,
     border:
       theme.palette.mode === "dark" ? "1px solid white" : "2px solid #9075ea",
     borderRadius: "10px",
     overflow: "auto",
     overflowX: "hidden",
+  };
+
+  const logStyle = {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    width: "80%",
+    height: "80%",
+    background: theme.palette.mode === "dark" ? "#0e0727" : "#e6e1fb",
+    color: theme.palette.mode === "dark" ? "white" : "#47456e",
+    boxShadow: 24,
+    p: 4,
+    padding: "10px",
+    border:
+      theme.palette.mode === "dark" ? "1px solid white" : "2px solid #9075ea",
+    borderRadius: "10px",
+    overflow: "scroll",
+  };
+
+  const deploymentDeleteStyle = {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    width: "36%",
+    height: "26%",
+    justifyContent: "center",
+    background: theme.palette.mode === "dark" ? "#0e0727" : "#e6e1fb",
+    color: theme.palette.mode === "dark" ? "white" : "#47456e",
+    boxShadow: 24,
+    p: 4,
+    padding: "10px",
+    border:
+      theme.palette.mode === "dark" ? "1px solid white" : "2px solid #9075ea",
+    borderRadius: "10px",
   };
 
   const [openDeployment, setOpenDeployment] = React.useState(false);
@@ -70,6 +106,29 @@ function KraneDeploymentsList(props) {
     selectedDeploymentReadyColorLight,
     setSelectedDeploymentReadyColorLight,
   ] = useState("");
+
+  const [openDeploymentLog, setOpenDeploymentLog] = React.useState(false);
+  const [deploymentLogs, setDeploymentLogs] = React.useState([]);
+
+  const [openDeploymentYaml, setOpenDeploymentYaml] = React.useState(false);
+  const [deploymentYaml, setDeploymentYaml] = React.useState([]);
+
+  const [openDeploymentDescribe, setOpenDeploymentDescribe] =
+    React.useState(false);
+  const [deploymentDescribe, setDeploymentDescribe] = React.useState([]);
+
+  const [openDeploymentRolloutStatus, setOpenDeploymentRolloutStatus] =
+    React.useState(false);
+  const [deploymentRolloutStatus, setDeploymentRolloutStatus] = React.useState(
+    []
+  );
+
+  const [openDeploymentRolloutHistory, setOpenDeploymentRolloutHistory] =
+    React.useState(false);
+  const [deploymentRolloutHistory, setDeploymentRolloutHistory] =
+    React.useState([]);
+
+  const [openDeploymentDelete, setOpenDeploymentDelete] = React.useState(false);
 
   const [selectedDeployment, setSelectedDeployment] = useState([
     {
@@ -369,7 +428,6 @@ function KraneDeploymentsList(props) {
     // }
 
     setOpenDeployment(true);
-    
 
     // console.log("selectedPodCpuColor is", selectedPodCPUColor);
   };
@@ -391,6 +449,181 @@ function KraneDeploymentsList(props) {
       },
     ]);
     setOpenDeployment(false);
+  };
+
+  const handleDeploymentLogOpen = (pod) => {
+    ipcRenderer.on("deploymentLogsRetrieved", (event, arg) => {
+      let argArr = arg.split("\n");
+      let temp = "";
+      let output = [];
+      console.log("ARG SPLIT ISSSSSS", argArr);
+      for (let i = 0; i < argArr.length; i++) {
+        output.push(<p>{argArr[i]}</p>);
+        // console.log("temp is", temp);
+        // output.push(<p>{temp}</p>);
+      }
+      setDeploymentLogs([...output]);
+    });
+
+    let deploymentLogsCommand = `kubectl logs deployment/${selectedDeployment[0]["name"]}`;
+    //send get pods o wide info commands
+    ipcRenderer.send("deploymentLogs_command", {
+      deploymentLogsCommand,
+      currDir,
+    });
+
+    setOpenDeploymentLog(true);
+  };
+
+  const handleDeploymentLogClose = () => {
+    setOpenDeploymentLog(false);
+  };
+
+  const handleDeploymentYamlOpen = (pod) => {
+    ipcRenderer.on("deploymentYamlRetrieved", (event, arg) => {
+      let argArr = arg.split("/n");
+      let output = [];
+      // console.log("ARG SPLIT ISSSSSS", argArr);
+      for (let i = 0; i < argArr.length; i++) {
+        output.push(
+          <pre>
+            <span>{argArr[i]}</span>
+          </pre>
+        );
+      }
+      setDeploymentYaml(output);
+    });
+
+    let deploymentYamlCommand = `kubectl get deployment/${selectedDeployment[0]["name"]} -o yaml`;
+    //`kubectl top pod ${selectedPod[0]["name"]} --containers`;
+    //send get container info commands
+    ipcRenderer.send("deploymentYaml_command", {
+      deploymentYamlCommand,
+      currDir,
+    });
+
+    setOpenDeploymentYaml(true);
+  };
+
+  const handleDeploymentYamlClose = () => {
+    setOpenDeploymentYaml(false);
+  };
+
+  const handleDeploymentDescribeOpen = (pod) => {
+    ipcRenderer.on("deploymentDescribeRetrieved", (event, arg) => {
+      let argArr = arg.split("/n");
+      let output = [];
+      // console.log("ARG SPLIT ISSSSSS", argArr);
+      for (let i = 0; i < argArr.length; i++) {
+        output.push(
+          <pre>
+            <span>{argArr[i]}</span>
+          </pre>
+        );
+      }
+      setDeploymentDescribe(output);
+    });
+
+    let deploymentDescribeCommand = `kubectl describe deployment/${selectedDeployment[0]["name"]}`;
+    //`kubectl top pod ${selectedPod[0]["name"]} --containers`;
+    //send get container info commands
+    ipcRenderer.send("deploymentDescribe_command", {
+      deploymentDescribeCommand,
+      currDir,
+    });
+
+    setOpenDeploymentDescribe(true);
+  };
+
+  const handleDeploymentDescribeClose = () => {
+    setOpenDeploymentDescribe(false);
+  };
+
+  const handleDeploymentRolloutStatusOpen = (pod) => {
+    ipcRenderer.on("deploymentRolloutStatusRetrieved", (event, arg) => {
+      let argArr = arg.split("/n");
+      let output = [];
+      console.log("ARG SPLIT ISSSSSS", argArr);
+      for (let i = 0; i < argArr.length; i++) {
+        output.push(
+          <pre>
+            <span>{argArr[i]}</span>
+          </pre>
+        );
+      }
+      setDeploymentRolloutStatus(output);
+    });
+
+    let deploymentRolloutStatusCommand = `kubectl rollout status deployment/${selectedDeployment[0]["name"]}`;
+    //`kubectl top pod ${selectedPod[0]["name"]} --containers`;
+    //send get container info commands
+    ipcRenderer.send("deploymentRolloutStatus_command", {
+      deploymentRolloutStatusCommand,
+      currDir,
+    });
+
+    setOpenDeploymentRolloutStatus(true);
+  };
+
+  const handleDeploymentRolloutStatusClose = () => {
+    setOpenDeploymentRolloutStatus(false);
+  };
+
+  const handleDeploymentRolloutHistoryOpen = (pod) => {
+    ipcRenderer.on("deploymentRolloutHistoryRetrieved", (event, arg) => {
+      let argArr = arg.split("/n");
+      let output = [];
+      console.log("ARG SPLIT ISSSSSS", argArr);
+      for (let i = 0; i < argArr.length; i++) {
+        output.push(
+          <pre>
+            <span>{argArr[i]}</span>
+          </pre>
+        );
+      }
+      setDeploymentRolloutHistory(output);
+    });
+
+    let deploymentRolloutHistoryCommand = `kubectl rollout history deployment/${selectedDeployment[0]["name"]}`;
+    //`kubectl top pod ${selectedPod[0]["name"]} --containers`;
+    //send get container info commands
+    ipcRenderer.send("deploymentRolloutHistory_command", {
+      deploymentRolloutHistoryCommand,
+      currDir,
+    });
+
+    setOpenDeploymentRolloutHistory(true);
+  };
+
+  const handleDeploymentDeleteOpen = (pod) => {
+    setOpenDeploymentDelete(true);
+  };
+
+  const handleDeploymentDeleteClose = () => {
+    setOpenDeploymentDelete(false);
+  };
+
+  const handleDeploymentDelete = () => {
+    //listen for pods deleted
+    ipcRenderer.on("deleted_deployment", (event, arg) => {
+      //parse response to check if successful and if so, close modals and refresh list
+
+      props.getNodesInfo();
+
+      setOpenDeploymentDelete(false);
+      setOpenDeployment(false);
+    });
+
+    let deploymentDeleteCommand = `kubectl delete deployment/${selectedDeployment[0]["name"]}`;
+    //send get delete pod command
+    ipcRenderer.send("deleteDeployment_command", {
+      deploymentDeleteCommand,
+      currDir,
+    });
+  };
+
+  const handleDeploymentRolloutHistoryClose = () => {
+    setOpenDeploymentRolloutHistory(false);
   };
 
   let deploymentsList = [];
@@ -742,7 +975,7 @@ function KraneDeploymentsList(props) {
           display: "flex",
           flexDirection: "row",
           justifyContent: "space-between",
-          margin: "-10px 0 0 68px",
+          margin: "-9px 0 0 68px",
           // height: "34px",
           // width: "260%",
           // border: "1px solid red",
@@ -785,7 +1018,7 @@ function KraneDeploymentsList(props) {
           display: "flex",
           flexDirection: "row",
           justifyContent: "flex-start",
-          margin: "0 0 0 68px",
+          margin: "-1px 0 0 68px",
           width: "171%",
         }}
       >
@@ -796,7 +1029,7 @@ function KraneDeploymentsList(props) {
             backgroundColor:
               theme.palette.mode === "dark" ? "#ffffff99" : "#6d6fb4",
             // marginRight: "50px",
-            marginTop: "0px",
+            marginTop: "-1px",
           }}
         ></div>
       </div>
@@ -898,6 +1131,7 @@ function KraneDeploymentsList(props) {
                       // border: "1px solid green",
                       alignItems: "flex-end",
                       margin: "20px 0 0 0",
+                      userSelect: "none",
                     }}
                   >
                     <div
@@ -1000,7 +1234,7 @@ function KraneDeploymentsList(props) {
                           display: "flex",
                           flexDirection: "row",
                           fontFamily: "Roboto Condensed",
-                          fontWeight: "500",
+                          fontWeight: "200",
                           margin: "-16px 0px 0 0px",
                         }}
                       >
@@ -1052,6 +1286,7 @@ function KraneDeploymentsList(props) {
                           theme.palette.mode === "dark"
                             ? "#ffffff99"
                             : "darkpurple",
+                        userSelect: "none",
                       }}
                     >
                       CONTAINERS:
@@ -1090,7 +1325,7 @@ function KraneDeploymentsList(props) {
                     <button
                       className="button3D-pushable"
                       role="button"
-                      // onClick={handleNodeYamlOpen}
+                      onClick={handleDeploymentLogOpen}
                       style={{ margin: "0 10px 0 0px" }}
                     >
                       <span className="button3D-shadow"></span>
@@ -1106,7 +1341,7 @@ function KraneDeploymentsList(props) {
                       <span
                         className="button3D-front text"
                         style={{
-                          fontSize: "12px",
+                          fontSize: "12.5px",
                           width: "250px",
                           background:
                             theme.palette.mode === "dark"
@@ -1117,10 +1352,29 @@ function KraneDeploymentsList(props) {
                         VIEW DEPLOYMENT LOGS
                       </span>
                     </button>
+                    <Modal
+                      open={openDeploymentLog}
+                      onClose={handleDeploymentLogClose}
+                    >
+                      <Box sx={logStyle}>
+                        <div
+                          style={{
+                            fontFamily: "Outfit",
+                            fontSize: "24px",
+                            fontWeight: "700",
+                            textAlign: "center",
+                            marginTop: "10px",
+                          }}
+                        >
+                          DEPLOYMENT LOGS
+                        </div>
+                        {deploymentLogs}
+                      </Box>
+                    </Modal>
                     <button
                       className="button3D-pushable"
                       role="button"
-                      // onClick={handleNodeYamlOpen}
+                      onClick={handleDeploymentYamlOpen}
                       style={{ margin: "0 10px 0 0px" }}
                     >
                       <span className="button3D-shadow"></span>
@@ -1136,7 +1390,7 @@ function KraneDeploymentsList(props) {
                       <span
                         className="button3D-front text"
                         style={{
-                          fontSize: "12px",
+                          fontSize: "12.5px",
                           width: "250px",
                           background:
                             theme.palette.mode === "dark"
@@ -1147,10 +1401,30 @@ function KraneDeploymentsList(props) {
                         VIEW DEPLOYMENT YAML
                       </span>
                     </button>
+                    <Modal
+                      open={openDeploymentYaml}
+                      onClose={handleDeploymentYamlClose}
+                    >
+                      <Box sx={logStyle}>
+                        <div
+                          style={{
+                            fontFamily: "Outfit",
+                            fontSize: "24px",
+                            fontWeight: "700",
+                            textAlign: "center",
+                            marginTop: "10px",
+                          }}
+                        >
+                          DEPLOYMENT YAML
+                        </div>
+                        {deploymentYaml}
+                      </Box>
+                    </Modal>
+
                     <button
                       className="button3D-pushable"
                       role="button"
-                      // onClick={handleNodeYamlOpen}
+                      onClick={handleDeploymentDescribeOpen}
                       style={{ margin: "0 10px 20px 0px" }}
                     >
                       <span className="button3D-shadow"></span>
@@ -1166,7 +1440,7 @@ function KraneDeploymentsList(props) {
                       <span
                         className="button3D-front text"
                         style={{
-                          fontSize: "12px",
+                          fontSize: "12.5px",
                           width: "250px",
                           background:
                             theme.palette.mode === "dark"
@@ -1177,10 +1451,30 @@ function KraneDeploymentsList(props) {
                         DESCRIBE DEPLOYMENT
                       </span>
                     </button>
+                    <Modal
+                      open={openDeploymentDescribe}
+                      onClose={handleDeploymentDescribeClose}
+                    >
+                      <Box sx={logStyle}>
+                        <div
+                          style={{
+                            fontFamily: "Outfit",
+                            fontSize: "24px",
+                            fontWeight: "700",
+                            textAlign: "center",
+                            marginTop: "10px",
+                          }}
+                        >
+                          DEPLOYMENT DESCRIBE
+                        </div>
+                        {deploymentDescribe}
+                      </Box>
+                    </Modal>
+
                     <button
                       className="button3D-pushable"
                       role="button"
-                      // onClick={handleNodeYamlOpen}
+                      onClick={handleDeploymentRolloutStatusOpen}
                       style={{ margin: "0 10px 0 0px" }}
                     >
                       <span className="button3D-shadow"></span>
@@ -1196,7 +1490,7 @@ function KraneDeploymentsList(props) {
                       <span
                         className="button3D-front text"
                         style={{
-                          fontSize: "12px",
+                          fontSize: "12.5px",
                           width: "250px",
                           background:
                             theme.palette.mode === "dark"
@@ -1207,10 +1501,30 @@ function KraneDeploymentsList(props) {
                         VIEW ROLLOUT STATUS
                       </span>
                     </button>
+                    <Modal
+                      open={openDeploymentRolloutStatus}
+                      onClose={handleDeploymentRolloutStatusClose}
+                    >
+                      <Box sx={logStyle}>
+                        <div
+                          style={{
+                            fontFamily: "Outfit",
+                            fontSize: "24px",
+                            fontWeight: "700",
+                            textAlign: "center",
+                            marginTop: "10px",
+                          }}
+                        >
+                          DEPLOYMENT ROLLOUT STATUS
+                        </div>
+                        {deploymentRolloutStatus}
+                      </Box>
+                    </Modal>
+
                     <button
                       className="button3D-pushable"
                       role="button"
-                      // onClick={handleNodeYamlOpen}
+                      onClick={handleDeploymentRolloutHistoryOpen}
                       style={{ margin: "0 10px 0 0px" }}
                     >
                       <span className="button3D-shadow"></span>
@@ -1226,7 +1540,7 @@ function KraneDeploymentsList(props) {
                       <span
                         className="button3D-front text"
                         style={{
-                          fontSize: "12px",
+                          fontSize: "12.5px",
                           width: "250px",
                           background:
                             theme.palette.mode === "dark"
@@ -1237,6 +1551,26 @@ function KraneDeploymentsList(props) {
                         VIEW ROLLOUT HISTORY
                       </span>
                     </button>
+                    <Modal
+                      open={openDeploymentRolloutHistory}
+                      onClose={handleDeploymentRolloutHistoryClose}
+                    >
+                      <Box sx={logStyle}>
+                        <div
+                          style={{
+                            fontFamily: "Outfit",
+                            fontSize: "24px",
+                            fontWeight: "700",
+                            textAlign: "center",
+                            marginTop: "10px",
+                          }}
+                        >
+                          DEPLOYMENT ROLLOUT HISTORY
+                        </div>
+                        {deploymentRolloutHistory}
+                      </Box>
+                    </Modal>
+
                     <button
                       className="button3D-pushable"
                       role="button"
@@ -1256,7 +1590,7 @@ function KraneDeploymentsList(props) {
                       <span
                         className="button3D-front text"
                         style={{
-                          fontSize: "12px",
+                          fontSize: "12.5px",
                           width: "250px",
                           background:
                             theme.palette.mode === "dark"
@@ -1287,7 +1621,7 @@ function KraneDeploymentsList(props) {
                       <span
                         className="button3D-front text"
                         style={{
-                          fontSize: "12px",
+                          fontSize: "12.5px",
                           width: "250px",
                           background:
                             theme.palette.mode === "dark"
@@ -1317,7 +1651,7 @@ function KraneDeploymentsList(props) {
                       <span
                         className="button3D-front text"
                         style={{
-                          fontSize: "12px",
+                          fontSize: "12.5px",
                           width: "250px",
                           background:
                             theme.palette.mode === "dark"
@@ -1331,7 +1665,7 @@ function KraneDeploymentsList(props) {
                     <button
                       className="button3D-pushable"
                       role="button"
-                      // onClick={handleNodeYamlOpen}
+                      onClick={handleDeploymentDeleteOpen}
                       style={{ margin: "20px 10px 0 0px" }}
                     >
                       <span className="button3D-shadow"></span>
@@ -1347,7 +1681,7 @@ function KraneDeploymentsList(props) {
                       <span
                         className="button3D-front text"
                         style={{
-                          fontSize: "12px",
+                          fontSize: "12.5px",
                           width: "250px",
                           background:
                             theme.palette.mode === "dark"
@@ -1355,9 +1689,134 @@ function KraneDeploymentsList(props) {
                               : "hsl(263, 65%, 80%)",
                         }}
                       >
-                        DELETE / RESTART DEPLOYMENT
+                        DELETE DEPLOYMENT
                       </span>
                     </button>
+                    <Modal
+                      open={openDeploymentDelete}
+                      onClose={handleDeploymentDeleteClose}
+                      style={{ overflow: "scroll", height: "100%" }}
+                    >
+                      <Box sx={deploymentDeleteStyle}>
+                        <div
+                          style={{
+                            textAlign: "center",
+                            fontSize: "18px",
+                            fontWeight: "900",
+                            paddingTop: "20px",
+                          }}
+                        >
+                          ARE YOU SURE YOU WANT DELETE?
+                        </div>
+                        <div
+                          style={{
+                            padding: "10px 40px 0 40px",
+                            textAlign: "center",
+                            fontSize: "12px",
+                          }}
+                        >
+                          WARNING: Deleting this depoyment will stop and
+                          delete it immediately. This may cause other pods or functions to stop working.
+                        </div>
+                        <div
+                          style={{
+                            display: "flex",
+                            flexDirection: "row",
+                            marginTop: "30px",
+                            justifyContent: "center",
+                          }}
+                        >
+                          {/* <Button
+                              onClick={handlePodDelete}
+                              style={{
+                                fontSize: "16px",
+                                margin: "0 10px 0 0",
+                                padding: "5px 15px 5px 15px",
+                                border:
+                                  theme.palette.mode === "dark"
+                                    ? "1px solid #8f85fb"
+                                    : "1px solid",
+                                color:
+                                  theme.palette.mode === "dark"
+                                    ? "white"
+                                    : "darkpurple",
+                              }}
+                            >
+                              DELETE POD
+                            </Button>
+                             */}
+                          <button
+                            className="button3D-pushable"
+                            role="button"
+                            onClick={handleDeploymentDelete}
+                            style={{ marginRight: "10px" }}
+                          >
+                            <span className="button3D-shadow"></span>
+                            <span
+                              className="button3D-edge"
+                              style={{
+                                background:
+                                  theme.palette.mode === "dark"
+                                    ? "linear-gradient(to left, hsl(239, 40%, 25%) 0%, hsl(239, 40%, 30%) 8%, hsl(239, 40%, 30%) 92%,  hsl(239, 40%, 25%) 100%)"
+                                    : "linear-gradient(to left, hsl(263, 40%, 64%) 0%, hsl(263, 40%, 70%) 8%, hsl(263, 40%, 70%) 92%,hsl(263, 40%, 64%) 100%)",
+                              }}
+                            ></span>
+                            <span
+                              className="button3D-front text"
+                              style={{
+                                width: "150px",
+                                background:
+                                  theme.palette.mode === "dark"
+                                    ? "hsl(239, 38%, 51%)"
+                                    : "hsl(263, 65%, 80%)",
+                              }}
+                            >
+                              DELETE NODE
+                            </span>
+                          </button>
+                          {/* <Button
+                              onClick={handlePodDeleteClose}
+                              style={{
+                                opacity: "50%",
+                                fontSize: "15px",
+                                margin: "0 0 0 10px",
+                                padding: "5px 10px 5px 10px",
+                                border: "1px solid #ffffff89",
+                              }}
+                            >
+                              CANCEL
+                            </Button> */}
+                          <button
+                            className="button3D-pushable"
+                            role="button"
+                            onClick={handleDeploymentDeleteClose}
+                          >
+                            <span className="button3D-shadow"></span>
+                            <span
+                              className="button3D-edge"
+                              style={{
+                                background:
+                                  theme.palette.mode === "dark"
+                                    ? "linear-gradient(to left, hsl(239, 40%, 20%) 0%, hsl(239, 40%, 25%) 8%, hsl(239, 40%, 25%) 92%,  hsl(239, 40%, 20%) 100%)"
+                                    : "linear-gradient(to left, hsl(263, 40%, 64%) 0%, hsl(263, 40%, 70%) 8%, hsl(263, 40%, 70%) 92%,hsl(263, 40%, 64%) 100%)",
+                              }}
+                            ></span>
+                            <span
+                              className="button3D-front text"
+                              style={{
+                                width: "110px",
+                                background:
+                                  theme.palette.mode === "dark"
+                                    ? "hsl(239, 38%, 31%)"
+                                    : "hsl(263, 65%, 80%)",
+                              }}
+                            >
+                              CANCEL
+                            </span>
+                          </button>
+                        </div>
+                      </Box>
+                    </Modal>
                   </div>
                 </div>
               </div>
@@ -1382,7 +1841,7 @@ function KraneDeploymentsList(props) {
           overflow: "hidden",
           alignItems: "flex-start",
           marginLeft: "0px",
-          marginTop: "-18px",
+          marginTop: "-17px",
           marginBottom: "50px",
           textAlign: "center",
           width: "95.5%",

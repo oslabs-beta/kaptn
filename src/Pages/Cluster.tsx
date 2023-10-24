@@ -1,81 +1,88 @@
-import React, { useState, useEffect } from 'react';
-import Button from '@mui/material/Button';
-import { Typography, useTheme } from '@mui/material';
-const { ipcRenderer } = require('electron');
-import SideNav from '../components/Sidebar.js';
-import LaunchIcon from '@mui/icons-material/Launch';
-import { RadioButtonUnchecked } from '@mui/icons-material';
-import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
-import HighlightOffOutlinedIcon from '@mui/icons-material/HighlightOffOutlined';
-import CircularProgress from '@mui/material/CircularProgress';
-import Tooltip, { TooltipProps, tooltipClasses } from '@mui/material/Tooltip';
-import LightbulbIcon from '@mui/icons-material/Lightbulb';
+import React, { useState, useEffect } from "react";
+import Button from "@mui/material/Button";
+import { Typography, useTheme } from "@mui/material";
+const { ipcRenderer } = require("electron");
+import SideNav from "../components/Sidebar.js";
+import LaunchIcon from "@mui/icons-material/Launch";
+import { RadioButtonUnchecked } from "@mui/icons-material";
+import CheckCircleOutlinedIcon from "@mui/icons-material/CheckCircleOutlined";
+import HighlightOffOutlinedIcon from "@mui/icons-material/HighlightOffOutlined";
+import CircularProgress from "@mui/material/CircularProgress";
+import Tooltip, { TooltipProps, tooltipClasses } from "@mui/material/Tooltip";
+import LightbulbIcon from "@mui/icons-material/Lightbulb";
 
-import { styled } from '@mui/material/styles';
+import { styled } from "@mui/material/styles";
 
 const LightTooltip = styled(({ className, ...props }: TooltipProps) => (
   <Tooltip {...props} classes={{ popper: className }} />
 ))(({ theme }) => ({
   [`& .${tooltipClasses.tooltip}`]: {
-    backgroundColor: theme.palette.mode === 'dark' ? '#5c4d9a' : '#8383de',
-    color: 'white',
+    backgroundColor: theme.palette.mode === "dark" ? "#5c4d9a" : "#8383de",
+    color: "white",
     fontSize: 11,
   },
 }));
 
-function SetupButtons() {
-  const [promStatus, setPromStatus] = useState('no attempt');
-  const [grafStatus, setGrafStatus] = useState('no attempt');
-  const [portForwardStatus, setPortForwardStatus] = useState('no attempt');
-  const [launchStatus, setLaunchStatus] = useState('no attempt');
-  const [log, setLog] = useState('');
+function SetupButtons(props) {
+  const [promStatus, setPromStatus] = useState("no attempt");
+  const [grafStatus, setGrafStatus] = useState("no attempt");
+  const [portForwardStatus, setPortForwardStatus] = useState("no attempt");
+  const [launchStatus, setLaunchStatus] = useState("no attempt");
+  const [log, setLog] = useState("");
 
   const theme = useTheme();
 
   useEffect(() => {
+    if (props.promGrafCheckStatus === "installed") {
+      setPromStatus("true");
+      setGrafStatus("true");
+    }
+  }, []);
+
+  useEffect(() => {
     //Listen to prom_setup event
-    ipcRenderer.on('prom_setup', (event, arg) => {
+    ipcRenderer.on("prom_setup", (event, arg) => {
       setTimeout(() => {
         let returnedValue = arg;
-        setLog(log + 'prom log:' + returnedValue);
-        if (returnedValue.includes('Prom setup complete')) {
-          setPromStatus('true');
+        setLog(log + "prom log:" + returnedValue);
+        if (returnedValue.includes("Prom setup complete")) {
+          setPromStatus("true");
         } else setPromStatus(returnedValue);
         // console.log('prom steup return is: ', returnedValue);
       }, 1000);
     });
 
     //Listen to graph_setup event
-    ipcRenderer.on('graf_setup', (event, arg) => {
+    ipcRenderer.on("graf_setup", (event, arg) => {
       setTimeout(() => {
         let returnedValue = arg;
-        setLog(log + ' GRAF LOG:' + returnedValue);
-        if (returnedValue.includes('Grafana setup complete')) {
-          setGrafStatus('true');
+        setLog(log + " GRAF LOG:" + returnedValue);
+        if (returnedValue.includes("Grafana setup complete")) {
+          setGrafStatus("true");
         } else setGrafStatus(returnedValue);
         // console.log('graf setup return is: ', returnedValue);
       }, 1000);
     });
 
     //Listen to forward_ports event
-    ipcRenderer.on('forward_ports', (event, arg) => {
+    ipcRenderer.on("forward_ports", (event, arg) => {
       setTimeout(() => {
-        setLog(log + 'PORT FORWARD LOG:' + arg);
-        if (arg.includes('stdout: ')) {
-          setPortForwardStatus('true');
+        setLog(log + "PORT FORWARD LOG:" + arg);
+        if (arg.includes("stdout: ")) {
+          setPortForwardStatus("true");
         } else setPortForwardStatus(arg);
         // console.log(arg);
       }, 1000);
     });
 
     //Listen to retrieve_key event
-    ipcRenderer.on('retrieve_key', (event, arg) => {
+    ipcRenderer.on("retrieve_key", (event, arg) => {
       setTimeout(() => {
-        setLog(log + ' LAUNCH LOG:' + arg);
-        if (arg === 'true') {
-          setLaunchStatus('true');
+        setLog(log + " LAUNCH LOG:" + arg);
+        if (arg === "true") {
+          setLaunchStatus("true");
         } else {
-          setLaunchStatus('');
+          setLaunchStatus("");
           // console.log('launch status is now:', launchStatus);
         }
       }, 1000);
@@ -83,79 +90,78 @@ function SetupButtons() {
   });
 
   const handleClick = () => {
-    setPromStatus('loading');
-    ipcRenderer.send('prom_setup');
+    setPromStatus("loading");
+    ipcRenderer.send("prom_setup");
     // fetch('/prom-graf-setup/promsetup').then((res) => console.log(res));
   };
 
   const handleGrafClick = () => {
-    setGrafStatus('loading');
-    ipcRenderer.send('graf_setup');
+    setGrafStatus("loading");
+    ipcRenderer.send("graf_setup");
     // fetch('/prom-graf-setup/grafana').then((res: Response) => console.log(res));
   };
 
   const handleForwardPort = () => {
-    setPortForwardStatus('loading');
-    ipcRenderer.send('forward_ports');
+    setPortForwardStatus("loading");
+    ipcRenderer.send("forward_ports");
     // fetch('/prom-graf-setup/forwardports').then((res) => console.log(res));
   };
 
   const handleCluster = () => {
-    setLaunchStatus('loading');
-    ipcRenderer.send('retrieve_key');
-
+    setLaunchStatus("loading");
+    ipcRenderer.send("retrieve_key");
   };
 
   const handleKillPort = () => {
-    setPortForwardStatus('loading');
-    ipcRenderer.send('kill_port');
-    ipcRenderer.send('forward_ports');
+    setPortForwardStatus("loading");
+    ipcRenderer.send("kill_port");
+    ipcRenderer.send("forward_ports");
   };
 
   let portForwardDiv;
-  if (portForwardStatus === 'no attempt') {
+  if (portForwardStatus === "no attempt") {
     portForwardDiv = (
       <>
         <div>
-          {' '}
+          {" "}
           <RadioButtonUnchecked
-            className='clusterStatusIcons'
+            className="clusterStatusIcons"
             style={{
-              color: theme.palette.mode === 'dark' ? '#353050' : '#8781c9',
+              color: theme.palette.mode === "dark" ? "#353050" : "#8781c9",
             }}
           />
         </div>
         <div
           style={{
-            position: 'relative',
-            top: '-34%',
-            left: '-.2%',
-            marginTop: '0px',
-            fontFamily: 'Outfit',
-            fontSize: '66px',
-            fontWeight: '800',
-            color: theme.palette.mode === 'dark' ? '#353050' : '#8781c9',
+            position: "relative",
+            top: "-34%",
+            left: "-.2%",
+            marginTop: "0px",
+            fontFamily: "Outfit",
+            fontSize: "66px",
+            fontWeight: "800",
+            color: theme.palette.mode === "dark" ? "#353050" : "#8781c9",
           }}
         >
-          {' '}
+          {" "}
           3
         </div>
-        <div style={{ marginTop: '-29px' }}>
+        <div style={{ marginTop: "-29px" }}>
           <Typography
             style={{
-              fontSize: '12px',
-              color: '#585176',
-              fontWeight: '500',
+              fontSize: "12px",
+              color: "#585176",
+              fontWeight: "500",
             }}
           >
-            {' '}
-            FORWARD PORTS TO SEE METRICS{' '}
+            {" "}
+            FORWARD PORTS TO SEE METRICS{" "}
           </Typography>
         </div>
         <br />
         <LightTooltip
-          title='Start forwarding to port 3000'
-          placement='bottom'
+          title="Start forwarding to port 3000"
+          placement="bottom"
           arrow
           enterDelay={1500}
           leaveDelay={100}
@@ -163,12 +169,12 @@ function SetupButtons() {
         >
           <Button
             onClick={handleForwardPort}
-            variant='contained'
+            variant="contained"
             style={{
-              border: '1px solid',
-              height: '60px',
+              border: "1px solid",
+              height: "60px",
               backgroundColor:
-                theme.palette.mode === 'dark' ? '#150f2d' : '#8881ce',
+                theme.palette.mode === "dark" ? "#150f2d" : "#8881ce",
             }}
           >
             Start port forwarding
@@ -176,113 +182,113 @@ function SetupButtons() {
         </LightTooltip>
       </>
     );
-  } else if (portForwardStatus === 'loading') {
+  } else if (portForwardStatus === "loading") {
     portForwardDiv = (
       <>
         <div
           style={{
-            position: 'absolute',
-            top: '25.2%',
-            left: '61.8%',
-            marginTop: '0px',
-            fontFamily: 'Outfit',
-            fontSize: '66px',
-            fontWeight: '800',
-            color: '#353050',
+            position: "absolute",
+            top: "25.2%",
+            left: "61.8%",
+            marginTop: "0px",
+            fontFamily: "Outfit",
+            fontSize: "66px",
+            fontWeight: "800",
+            color: "#353050",
           }}
         >
-          {' '}
+          {" "}
         </div>
         <div>
-          {' '}
+          {" "}
           <CircularProgress
-            className='clusterLoadingIcon'
+            className="clusterLoadingIcon"
             size={116}
             thickness={4.6}
             style={{
-              color: theme.palette.mode === 'dark' ? '#353050' : '#8781c9',
-              marginTop: '-48px',
+              color: theme.palette.mode === "dark" ? "#353050" : "#8781c9",
+              marginTop: "-48px",
             }}
           />
         </div>
-        <div style={{ marginTop: '22.5px' }}>
+        <div style={{ marginTop: "22.5px" }}>
           <Typography
             style={{
-              fontSize: '12px',
-              color: '#585176',
-              fontWeight: '500',
+              fontSize: "12px",
+              color: "#585176",
+              fontWeight: "500",
             }}
           >
-            {' '}
-            FORWARD PORTS TO SEE METRICS{' '}
+            {" "}
+            FORWARD PORTS TO SEE METRICS{" "}
           </Typography>
         </div>
         <br />
         <Button
           onClick={handleForwardPort}
-          variant='contained'
+          variant="contained"
           disabled
           style={{
-            border: '1px solid',
-            height: '60px',
+            border: "1px solid",
+            height: "60px",
             // marginTop: '20px',
             // paddingRight: '8px',
-            color: 'grey',
+            color: "grey",
             backgroundColor:
-              theme.palette.mode === 'dark' ? '#150f2d' : 'transparent',
+              theme.palette.mode === "dark" ? "#150f2d" : "transparent",
           }}
         >
           Start port forwarding
         </Button>
       </>
     );
-  } else if (portForwardStatus === 'true') {
+  } else if (portForwardStatus === "true") {
     portForwardDiv = (
       <>
         <div
           style={{
-            position: 'absolute',
-            top: '25.2%',
-            left: '61.8%',
-            marginTop: '0px',
-            fontFamily: 'Outfit',
-            fontSize: '66px',
-            fontWeight: '800',
-            color: '#353050',
+            position: "absolute",
+            top: "25.2%",
+            left: "61.8%",
+            marginTop: "0px",
+            fontFamily: "Outfit",
+            fontSize: "66px",
+            fontWeight: "800",
+            color: "#353050",
           }}
         >
-          {' '}
+          {" "}
         </div>
         <div>
-          {' '}
+          {" "}
           <CheckCircleOutlinedIcon
-            className='clusterStatusIcons'
-            style={{ color: '#2fc665' }}
+            className="clusterStatusIcons"
+            style={{ color: "#2fc665" }}
           />
         </div>
-        <div style={{ marginTop: '70px' }}>
+        <div style={{ marginTop: "70px" }}>
           <Typography
             style={{
-              fontSize: '12px',
-              color: '#2fc665',
-              fontWeight: '500',
+              fontSize: "12px",
+              color: "#2fc665",
+              fontWeight: "500",
             }}
           >
-            {' '}
-            FORWARD PORTS TO SEE METRICS{' '}
+            {" "}
+            FORWARD PORTS TO SEE METRICS{" "}
           </Typography>
         </div>
         <br />
         <Button
           onClick={handleForwardPort}
-          variant='contained'
+          variant="contained"
           disabled
           style={{
-            border: '1px solid #2fc665',
-            height: '60px',
-            color: '#2fc665',
+            border: "1px solid #2fc665",
+            height: "60px",
+            color: "#2fc665",
             backgroundColor:
-              theme.palette.mode === 'dark' ? '#150f2d' : 'transparent',
+              theme.palette.mode === "dark" ? "#150f2d" : "transparent",
           }}
         >
           Start port forwarding
@@ -294,47 +300,47 @@ function SetupButtons() {
       <>
         <div
           style={{
-            position: 'absolute',
-            top: '25.2%',
-            left: '61.8%',
-            marginTop: '0px',
-            fontFamily: 'Outfit',
-            fontSize: '66px',
-            fontWeight: '800',
-            color: '#353050',
+            position: "absolute",
+            top: "25.2%",
+            left: "61.8%",
+            marginTop: "0px",
+            fontFamily: "Outfit",
+            fontSize: "66px",
+            fontWeight: "800",
+            color: "#353050",
           }}
         >
-          {' '}
+          {" "}
         </div>
         <div>
-          {' '}
+          {" "}
           <HighlightOffOutlinedIcon
-            className='clusterStatusIcons'
-            style={{ color: '#cf485b' }}
+            className="clusterStatusIcons"
+            style={{ color: "#cf485b" }}
           />
         </div>
 
         <div
-          id='killport'
+          id="killport"
           onClick={handleKillPort}
-          style={{ color: '#8f85fb', paddingTop: '73px', fontSize: '10.5px' }}
+          style={{ color: "#8f85fb", paddingTop: "73px", fontSize: "10.5px" }}
         >
           <u>CLICK HERE TO ATTEMPT TO KILL PORT 3000</u>
         </div>
         <br />
         <Button
           onClick={handleForwardPort}
-          variant='contained'
+          variant="contained"
           style={{
-            border: '1px solid',
-            height: '60px',
+            border: "1px solid",
+            height: "60px",
             backgroundColor:
-              theme.palette.mode === 'dark' ? '#150f2d' : '#8881ce',
+              theme.palette.mode === "dark" ? "#150f2d" : "#8881ce",
           }}
         >
           Start port forwarding
         </Button>
-        <div style={{ fontSize: '12px', color: '#cf4848', marginTop: '20px' }}>
+        <div style={{ fontSize: "12px", color: "#cf4848", marginTop: "20px" }}>
           ERROR OCCURRED! PLEASE TRY AGAIN
         </div>
       </>
@@ -342,41 +348,41 @@ function SetupButtons() {
   }
 
   let promStatusDiv;
-  if (promStatus === 'loading') {
+  if (promStatus === "loading") {
     promStatusDiv = (
       <>
         <div
           style={{
-            position: 'absolute',
-            top: '24.3%',
-            left: '14.85%',
-            marginTop: '0px',
-            fontFamily: 'Outfit',
-            fontSize: '66px',
-            fontWeight: '800',
-            color: '#353050',
+            position: "absolute",
+            top: "24.3%",
+            left: "14.85%",
+            marginTop: "0px",
+            fontFamily: "Outfit",
+            fontSize: "66px",
+            fontWeight: "800",
+            color: "#353050",
           }}
         >
-          {' '}
+          {" "}
         </div>
         <div>
-          {' '}
+          {" "}
           <CircularProgress
-            className='clusterLoadingIcon'
+            className="clusterLoadingIcon"
             size={116}
             thickness={4.6}
             style={{
-              color: theme.palette.mode === 'dark' ? '#353050' : '#8781c9',
-              marginTop: '-48px',
+              color: theme.palette.mode === "dark" ? "#353050" : "#8781c9",
+              marginTop: "-48px",
             }}
           />
         </div>
-        <div style={{ marginTop: '22.5px' }}>
+        <div style={{ marginTop: "22.5px" }}>
           <Typography
             style={{
-              fontSize: '12px',
-              color: '#585176',
-              fontWeight: '500',
+              fontSize: "12px",
+              color: "#585176",
+              fontWeight: "500",
             }}
           >
             SET UP PROMETHEUS IN YOUR CLUSTER
@@ -386,56 +392,56 @@ function SetupButtons() {
         <br />
         <Button
           onClick={handleClick}
-          variant='contained'
-          data-disabled='true'
+          variant="contained"
+          data-disabled="true"
           style={{
-            border: '1px solid',
-            height: '60px',
+            border: "1px solid",
+            height: "60px",
             // marginTop: '20px',
             // paddingRight: '8px',
-            color: 'grey',
+            color: "grey",
             backgroundColor:
-              theme.palette.mode === 'dark' ? '#150f2d' : 'transparent',
+              theme.palette.mode === "dark" ? "#150f2d" : "transparent",
           }}
         >
-          {' '}
-          Set up Prometheus{' '}
+          {" "}
+          Set up Prometheus{" "}
         </Button>
       </>
     );
-  } else if (promStatus === 'no attempt') {
+  } else if (promStatus === "no attempt") {
     promStatusDiv = (
       <>
         <div>
-          {' '}
+          {" "}
           <RadioButtonUnchecked
-            className='clusterStatusIcons'
+            className="clusterStatusIcons"
             style={{
-              color: theme.palette.mode === 'dark' ? '#353050' : '#8781c9',
+              color: theme.palette.mode === "dark" ? "#353050" : "#8781c9",
             }}
           />
         </div>
         <div
           style={{
-            position: 'relative',
-            top: '-34%',
-            left: '-1%',
-            marginTop: '0px',
-            fontFamily: 'Outfit',
-            fontSize: '66px',
-            fontWeight: '800',
-            color: theme.palette.mode === 'dark' ? '#353050' : '#8781c9',
+            position: "relative",
+            top: "-34%",
+            left: "-1%",
+            marginTop: "0px",
+            fontFamily: "Outfit",
+            fontSize: "66px",
+            fontWeight: "800",
+            color: theme.palette.mode === "dark" ? "#353050" : "#8781c9",
           }}
         >
-          {' '}
+          {" "}
           1
         </div>
-        <div style={{ marginTop: '-29px' }}>
+        <div style={{ marginTop: "-29px" }}>
           <Typography
             style={{
-              fontSize: '12px',
-              color: '#585176',
-              fontWeight: '500',
+              fontSize: "12px",
+              color: "#585176",
+              fontWeight: "500",
             }}
           >
             SET UP PROMETHEUS IN YOUR CLUSTER
@@ -444,8 +450,8 @@ function SetupButtons() {
 
         <br />
         <LightTooltip
-          title='Set up Prometheus and install Helm'
-          placement='bottom'
+          title="Set up Prometheus and install Helm"
+          placement="bottom"
           arrow
           enterDelay={1500}
           leaveDelay={100}
@@ -453,14 +459,14 @@ function SetupButtons() {
         >
           <Button
             onClick={handleClick}
-            variant='contained'
+            variant="contained"
             style={{
-              border: '1px solid',
-              height: '60px',
+              border: "1px solid",
+              height: "60px",
               // marginTop: '20px',
               // paddingRight: '8px',
               backgroundColor:
-                theme.palette.mode === 'dark' ? '#150f2d' : '#8881ce',
+                theme.palette.mode === "dark" ? "#150f2d" : "#8881ce",
             }}
           >
             Set up Prometheus
@@ -468,36 +474,36 @@ function SetupButtons() {
         </LightTooltip>
       </>
     );
-  } else if (promStatus === '') {
+  } else if (promStatus === "") {
     <>
       <div
         style={{
-          position: 'absolute',
-          top: '25.3%',
-          left: '14.85%',
-          marginTop: '0px',
-          fontFamily: 'Outfit',
-          fontSize: '66px',
-          fontWeight: '800',
-          color: '#353050',
+          position: "absolute",
+          top: "25.3%",
+          left: "14.85%",
+          marginTop: "0px",
+          fontFamily: "Outfit",
+          fontSize: "66px",
+          fontWeight: "800",
+          color: "#353050",
         }}
       >
-        {' '}
+        {" "}
         1
       </div>
       <div>
-        {' '}
+        {" "}
         <CheckCircleOutlinedIcon
-          className='clusterStatusIcons'
-          style={{ color: '#2fc665' }}
+          className="clusterStatusIcons"
+          style={{ color: "#2fc665" }}
         />
       </div>
-      <div style={{ marginTop: '70px' }}>
+      <div style={{ marginTop: "70px" }}>
         <Typography
           style={{
-            fontSize: '12px',
-            color: '#2fc665',
-            fontWeight: '500',
+            fontSize: "12px",
+            color: "#2fc665",
+            fontWeight: "500",
           }}
         >
           SET UP PROMETHEUS IN YOUR CLUSTER
@@ -507,48 +513,48 @@ function SetupButtons() {
       <br />
       <Button
         onClick={handleClick}
-        variant='contained'
+        variant="contained"
         style={{
-          border: '1px solid #2fc665',
-          height: '60px',
-          color: '#2fc665',
+          border: "1px solid #2fc665",
+          height: "60px",
+          color: "#2fc665",
           backgroundColor:
-            theme.palette.mode === 'dark' ? '#150f2d' : '#8881ce',
+            theme.palette.mode === "dark" ? "#150f2d" : "#8881ce",
         }}
       >
         Set up Prometheus
       </Button>
     </>;
-  } else if (promStatus === 'true') {
+  } else if (promStatus === "true") {
     promStatusDiv = (
       <>
         <div
           style={{
-            position: 'absolute',
-            top: '25.3%',
-            left: '14.85%',
-            marginTop: '0px',
-            fontFamily: 'Outfit',
-            fontSize: '66px',
-            fontWeight: '800',
-            color: '#353050',
+            position: "absolute",
+            top: "25.3%",
+            left: "14.85%",
+            marginTop: "0px",
+            fontFamily: "Outfit",
+            fontSize: "66px",
+            fontWeight: "800",
+            color: "#353050",
           }}
         >
-          {' '}
+          {" "}
         </div>
         <div>
-          {' '}
+          {" "}
           <CheckCircleOutlinedIcon
-            className='clusterStatusIcons'
-            style={{ color: '#2fc665' }}
+            className="clusterStatusIcons"
+            style={{ color: "#2fc665" }}
           />
         </div>
-        <div style={{ marginTop: '70px' }}>
+        <div style={{ marginTop: "70px" }}>
           <Typography
             style={{
-              fontSize: '12px',
-              color: '#2fc665',
-              fontWeight: '500',
+              fontSize: "12px",
+              color: "#2fc665",
+              fontWeight: "500",
             }}
           >
             SET UP PROMETHEUS IN YOUR CLUSTER
@@ -558,14 +564,14 @@ function SetupButtons() {
         <br />
         <Button
           onClick={handleClick}
-          variant='contained'
+          variant="contained"
           disabled
           style={{
-            border: '1px solid #2fc665',
-            height: '60px',
-            color: '#2fc665',
+            border: "1px solid #2fc665",
+            height: "60px",
+            color: "#2fc665",
             backgroundColor:
-              theme.palette.mode === 'dark' ? '#150f2d' : 'transparent',
+              theme.palette.mode === "dark" ? "#150f2d" : "transparent",
           }}
         >
           Set up Prometheus
@@ -575,173 +581,173 @@ function SetupButtons() {
   }
 
   let grafStatusDiv;
-  if (grafStatus === 'true') {
+  if (grafStatus === "true") {
     grafStatusDiv = (
       <>
         <div
           style={{
-            position: 'absolute',
-            top: '25.2%',
-            left: '38.1%',
-            marginTop: '0px',
-            fontFamily: 'Outfit',
-            fontSize: '66px',
-            fontWeight: '800',
-            color: '#353050',
+            position: "absolute",
+            top: "25.2%",
+            left: "38.1%",
+            marginTop: "0px",
+            fontFamily: "Outfit",
+            fontSize: "66px",
+            fontWeight: "800",
+            color: "#353050",
           }}
         >
-          {' '}
+          {" "}
         </div>
         <div>
-          {' '}
+          {" "}
           <CheckCircleOutlinedIcon
-            className='clusterStatusIcons'
-            style={{ color: '#2fc665' }}
+            className="clusterStatusIcons"
+            style={{ color: "#2fc665" }}
           />
         </div>
-        <div style={{ marginTop: '70px' }}>
+        <div style={{ marginTop: "70px" }}>
           <Typography
             style={{
-              fontSize: '12px',
-              color: '#2fc665',
-              fontWeight: '500',
+              fontSize: "12px",
+              color: "#2fc665",
+              fontWeight: "500",
             }}
           >
-            {' '}
-            SET UP GRAFANA IN YOUR CLUSTER{' '}
+            {" "}
+            SET UP GRAFANA IN YOUR CLUSTER{" "}
           </Typography>
         </div>
         <br />
         <Button
-          variant='contained'
+          variant="contained"
           onClick={handleGrafClick}
           disabled
           style={{
-            border: '1px solid #2fc665',
-            height: '60px',
-            color: '#2fc665',
+            border: "1px solid #2fc665",
+            height: "60px",
+            color: "#2fc665",
             backgroundColor:
-              theme.palette.mode === 'dark' ? '#150f2d' : 'transparent',
+              theme.palette.mode === "dark" ? "#150f2d" : "transparent",
           }}
         >
           Set up Grafana
         </Button>
       </>
     );
-  } else if (grafStatus === 'loading') {
+  } else if (grafStatus === "loading") {
     grafStatusDiv = (
       <>
         <div
           style={{
-            position: 'absolute',
-            top: '25.2%',
-            left: '38.1%',
-            marginTop: '0px',
-            fontFamily: 'Outfit',
-            fontSize: '66px',
-            fontWeight: '800',
-            color: '#353050',
+            position: "absolute",
+            top: "25.2%",
+            left: "38.1%",
+            marginTop: "0px",
+            fontFamily: "Outfit",
+            fontSize: "66px",
+            fontWeight: "800",
+            color: "#353050",
           }}
         >
-          {' '}
+          {" "}
         </div>
         <div>
-          {' '}
+          {" "}
           <CircularProgress
-            className='clusterLoadingIcon'
+            className="clusterLoadingIcon"
             size={116}
             thickness={4.6}
             style={{
-              color: theme.palette.mode === 'dark' ? '#353050' : '#8781c9',
-              marginTop: '-48px',
+              color: theme.palette.mode === "dark" ? "#353050" : "#8781c9",
+              marginTop: "-48px",
             }}
           />
         </div>
-        <div style={{ marginTop: '22.5px' }}>
+        <div style={{ marginTop: "22.5px" }}>
           <Typography
             style={{
-              fontSize: '12px',
-              color: '#585176',
-              fontWeight: '500',
+              fontSize: "12px",
+              color: "#585176",
+              fontWeight: "500",
             }}
           >
-            {' '}
-            SET UP GRAFANA IN YOUR CLUSTER{' '}
+            {" "}
+            SET UP GRAFANA IN YOUR CLUSTER{" "}
           </Typography>
         </div>
         <br />
         <Button
-          variant='contained'
+          variant="contained"
           onClick={handleGrafClick}
           disabled
           style={{
-            border: '1px solid',
-            height: '60px',
+            border: "1px solid",
+            height: "60px",
             // color: '#2fc665',
             backgroundColor:
-              theme.palette.mode === 'dark' ? '#150f2d' : 'transparent',
+              theme.palette.mode === "dark" ? "#150f2d" : "transparent",
           }}
         >
           Set up Grafana
         </Button>
       </>
     );
-  } else if (grafStatus === 'no attempt') {
+  } else if (grafStatus === "no attempt") {
     grafStatusDiv = (
       <>
         <div>
-          {' '}
+          {" "}
           <RadioButtonUnchecked
-            className='clusterStatusIcons'
+            className="clusterStatusIcons"
             style={{
-              color: theme.palette.mode === 'dark' ? '#353050' : '#8781c9',
+              color: theme.palette.mode === "dark" ? "#353050" : "#8781c9",
             }}
           />
         </div>
         <div
           style={{
-            position: 'relative',
-            top: '-34%',
-            left: '0%',
-            marginTop: '0px',
-            fontFamily: 'Outfit',
-            fontSize: '66px',
-            fontWeight: '800',
-            color: theme.palette.mode === 'dark' ? '#353050' : '#8781c9',
+            position: "relative",
+            top: "-34%",
+            left: "0%",
+            marginTop: "0px",
+            fontFamily: "Outfit",
+            fontSize: "66px",
+            fontWeight: "800",
+            color: theme.palette.mode === "dark" ? "#353050" : "#8781c9",
           }}
         >
-          {' '}
+          {" "}
           2
         </div>
-        <div style={{ marginTop: '-29px' }}>
+        <div style={{ marginTop: "-29px" }}>
           <Typography
             style={{
-              fontSize: '12px',
-              color: '#585176',
-              fontWeight: '500',
+              fontSize: "12px",
+              color: "#585176",
+              fontWeight: "500",
             }}
           >
-            {' '}
-            SET UP GRAFANA IN YOUR CLUSTER{' '}
+            {" "}
+            SET UP GRAFANA IN YOUR CLUSTER{" "}
           </Typography>
         </div>
         <br />
         <LightTooltip
-          title='Install and set up Grafana in your cluster'
-          placement='bottom'
+          title="Install and set up Grafana in your cluster"
+          placement="bottom"
           arrow
           enterDelay={1500}
           leaveDelay={100}
           enterNextDelay={1500}
         >
           <Button
-            variant='contained'
+            variant="contained"
             onClick={handleGrafClick}
             style={{
-              border: '1px solid',
-              height: '60px',
+              border: "1px solid",
+              height: "60px",
               backgroundColor:
-                theme.palette.mode === 'dark' ? '#150f2d' : '#8881ce',
+                theme.palette.mode === "dark" ? "#150f2d" : "#8881ce",
             }}
           >
             Set up Grafana
@@ -754,102 +760,102 @@ function SetupButtons() {
       <>
         <div
           style={{
-            position: 'absolute',
-            top: '25.2%',
-            left: '38.1%',
-            marginTop: '0px',
-            fontFamily: 'Outfit',
-            fontSize: '66px',
-            fontWeight: '800',
-            color: '#353050',
+            position: "absolute",
+            top: "25.2%",
+            left: "38.1%",
+            marginTop: "0px",
+            fontFamily: "Outfit",
+            fontSize: "66px",
+            fontWeight: "800",
+            color: "#353050",
           }}
         >
-          {' '}
+          {" "}
           2
         </div>
         <div>
-          {' '}
+          {" "}
           <HighlightOffOutlinedIcon
-            className='clusterStatusIcons'
-            style={{ color: '#cf485b' }}
+            className="clusterStatusIcons"
+            style={{ color: "#cf485b" }}
           />
         </div>
-        <div style={{ marginTop: '70px' }}>
+        <div style={{ marginTop: "70px" }}>
           <Typography
             style={{
-              fontSize: '12px',
-              color: '#cf485b',
-              fontWeight: '500',
+              fontSize: "12px",
+              color: "#cf485b",
+              fontWeight: "500",
             }}
           >
-            {' '}
-            SET UP GRAFANA IN YOUR CLUSTER{' '}
+            {" "}
+            SET UP GRAFANA IN YOUR CLUSTER{" "}
           </Typography>
         </div>
         <br />
         <Button
-          variant='contained'
+          variant="contained"
           onClick={handleGrafClick}
           style={{
-            border: '1px solid',
-            height: '60px',
+            border: "1px solid",
+            height: "60px",
             backgroundColor:
-              theme.palette.mode === 'dark' ? '#150f2d' : '#8881ce',
+              theme.palette.mode === "dark" ? "#150f2d" : "#8881ce",
           }}
         >
           Set up Grafana
         </Button>
-        <div style={{ fontSize: '12px', color: '#cf4848', marginTop: '20px' }}>
+        <div style={{ fontSize: "12px", color: "#cf4848", marginTop: "20px" }}>
           ERROR OCCURRED! PLEASE TRY AGAIN
         </div>
       </>
     );
 
   let launchStatusDiv;
-  if (launchStatus === 'no attempt') {
+  if (launchStatus === "no attempt") {
     launchStatusDiv = (
       <>
         <div>
-          {' '}
+          {" "}
           <RadioButtonUnchecked
-            className='clusterStatusIcons'
+            className="clusterStatusIcons"
             style={{
-              color: theme.palette.mode === 'dark' ? '#353050' : '#8781c9',
+              color: theme.palette.mode === "dark" ? "#353050" : "#8781c9",
             }}
           />
         </div>
         <div
           style={{
-            position: 'relative',
-            top: '-34%',
-            left: '-1%',
-            marginTop: '0px',
-            fontFamily: 'Outfit',
-            fontSize: '66px',
-            fontWeight: '800',
-            color: theme.palette.mode === 'dark' ? '#353050' : '#8781c9',
+            position: "relative",
+            top: "-34%",
+            left: "-1%",
+            marginTop: "0px",
+            fontFamily: "Outfit",
+            fontSize: "66px",
+            fontWeight: "800",
+            color: theme.palette.mode === "dark" ? "#353050" : "#8781c9",
           }}
         >
-          {' '}
+          {" "}
           4
         </div>
 
-        <div style={{ marginTop: '-29px' }}>
+        <div style={{ marginTop: "-29px" }}>
           <Typography
             style={{
-              fontSize: '12px',
-              color: '#585176',
-              fontWeight: '500',
+              fontSize: "12px",
+              color: "#585176",
+              fontWeight: "500",
             }}
           >
-            {' '}
-            OPEN AND VIEW CLUSTERS{' '}
+            {" "}
+            OPEN AND VIEW CLUSTERS{" "}
           </Typography>
         </div>
         <br />
         <LightTooltip
-          title='Retrieve UID and log in to Cluster Visualizer through your local web browser'
-          placement='bottom'
+          title="Retrieve UID and log in to Cluster Visualizer through your local web browser"
+          placement="bottom"
           arrow
           enterDelay={1500}
           leaveDelay={100}
@@ -857,137 +863,137 @@ function SetupButtons() {
         >
           <Button
             onClick={handleCluster}
-            variant='contained'
+            variant="contained"
             style={{
-              border: '1px solid',
-              height: '60px',
+              border: "1px solid",
+              height: "60px",
               // marginTop: '20px',
-              paddingRight: '8px',
+              paddingRight: "8px",
               backgroundColor:
-                theme.palette.mode === 'dark' ? '#150f2d' : '#8881ce',
+                theme.palette.mode === "dark" ? "#150f2d" : "#8881ce",
             }}
           >
-            LOG IN THROUGH BROWSER{' '}
-            <LaunchIcon fontSize='small' style={{ margin: '0 0 2px 6px' }} />
+            LOG IN THROUGH BROWSER{" "}
+            <LaunchIcon fontSize="small" style={{ margin: "0 0 2px 6px" }} />
           </Button>
         </LightTooltip>
       </>
     );
-  } else if (launchStatus === 'true') {
+  } else if (launchStatus === "true") {
     launchStatusDiv = (
       <>
         <div
           style={{
-            position: 'absolute',
-            top: '25.2%',
-            left: '85%',
-            marginTop: '0px',
-            fontFamily: 'Outfit',
-            fontSize: '66px',
-            fontWeight: '800',
-            color: '#353050',
+            position: "absolute",
+            top: "25.2%",
+            left: "85%",
+            marginTop: "0px",
+            fontFamily: "Outfit",
+            fontSize: "66px",
+            fontWeight: "800",
+            color: "#353050",
           }}
         >
-          {' '}
+          {" "}
         </div>
         <div>
-          {' '}
+          {" "}
           <CheckCircleOutlinedIcon
-            className='clusterStatusIcons'
-            style={{ color: '#2fc665' }}
+            className="clusterStatusIcons"
+            style={{ color: "#2fc665" }}
           />
         </div>
 
-        <div style={{ marginTop: '70px' }}>
+        <div style={{ marginTop: "70px" }}>
           <Typography
             style={{
-              fontSize: '12px',
-              color: '#2fc665',
-              fontWeight: '500',
+              fontSize: "12px",
+              color: "#2fc665",
+              fontWeight: "500",
             }}
           >
-            {' '}
-            OPEN AND VIEW CLUSTERS{' '}
+            {" "}
+            OPEN AND VIEW CLUSTERS{" "}
           </Typography>
         </div>
         <br />
         <Button
           onClick={handleCluster}
-          variant='contained'
+          variant="contained"
           // disabled
           style={{
-            border: '1px solid #2fc665',
-            height: '60px',
+            border: "1px solid #2fc665",
+            height: "60px",
             // marginTop: '20px',
-            paddingRight: '8px',
+            paddingRight: "8px",
             backgroundColor:
-              theme.palette.mode === 'dark' ? '#150f2d' : '#d0ccfc',
-            color: '#2fc665',
+              theme.palette.mode === "dark" ? "#150f2d" : "#d0ccfc",
+            color: "#2fc665",
           }}
         >
-          LOG IN THROUGH BROWSER{' '}
-          <LaunchIcon fontSize='small' style={{ margin: '0 0 2px 6px' }} />
+          LOG IN THROUGH BROWSER{" "}
+          <LaunchIcon fontSize="small" style={{ margin: "0 0 2px 6px" }} />
         </Button>
       </>
     );
-  } else if (launchStatus === 'loading') {
+  } else if (launchStatus === "loading") {
     launchStatusDiv = (
       <>
         <div
           style={{
-            position: 'absolute',
-            top: '25.2%',
-            left: '85%',
-            marginTop: '0px',
-            fontFamily: 'Outfit',
-            fontSize: '66px',
-            fontWeight: '800',
-            color: '#353050',
+            position: "absolute",
+            top: "25.2%",
+            left: "85%",
+            marginTop: "0px",
+            fontFamily: "Outfit",
+            fontSize: "66px",
+            fontWeight: "800",
+            color: "#353050",
           }}
         >
-          {' '}
+          {" "}
         </div>
         <div>
-          {' '}
+          {" "}
           <CircularProgress
-            className='clusterLoadingIcon'
+            className="clusterLoadingIcon"
             size={116}
             thickness={4.6}
             style={{
-              color: theme.palette.mode === 'dark' ? '#353050' : '#8781c9',
-              marginTop: '-48px',
+              color: theme.palette.mode === "dark" ? "#353050" : "#8781c9",
+              marginTop: "-48px",
             }}
           />
         </div>
 
-        <div style={{ marginTop: '22.5px' }}>
+        <div style={{ marginTop: "22.5px" }}>
           <Typography
             style={{
-              fontSize: '12px',
-              color: '#585176',
-              fontWeight: '500',
+              fontSize: "12px",
+              color: "#585176",
+              fontWeight: "500",
             }}
           >
-            {' '}
-            OPEN AND VIEW CLUSTERS{' '}
+            {" "}
+            OPEN AND VIEW CLUSTERS{" "}
           </Typography>
         </div>
         <br />
         <Button
           onClick={handleCluster}
-          variant='contained'
+          variant="contained"
           disabled
           style={{
-            border: '1px solid',
-            height: '60px',
+            border: "1px solid",
+            height: "60px",
             // marginTop: '20px',
-            paddingRight: '8px',
+            paddingRight: "8px",
             backgroundColor:
-              theme.palette.mode === 'dark' ? '#150f2d' : 'transparent',
+              theme.palette.mode === "dark" ? "#150f2d" : "transparent",
           }}
         >
-          LOG IN THROUGH BROWSER{' '}
-          <LaunchIcon fontSize='small' style={{ margin: '0 0 2px 6px' }} />
+          LOG IN THROUGH BROWSER{" "}
+          <LaunchIcon fontSize="small" style={{ margin: "0 0 2px 6px" }} />
         </Button>
       </>
     );
@@ -996,55 +1002,55 @@ function SetupButtons() {
       <>
         <div
           style={{
-            position: 'absolute',
-            top: '25.2%',
-            left: '85%',
-            marginTop: '0px',
-            fontFamily: 'Outfit',
-            fontSize: '66px',
-            fontWeight: '800',
-            color: '#353050',
+            position: "absolute",
+            top: "25.2%",
+            left: "85%",
+            marginTop: "0px",
+            fontFamily: "Outfit",
+            fontSize: "66px",
+            fontWeight: "800",
+            color: "#353050",
           }}
         >
-          {' '}
+          {" "}
         </div>
         <div>
-          {' '}
+          {" "}
           <HighlightOffOutlinedIcon
-            className='clusterStatusIcons'
-            style={{ color: '#cf485b' }}
+            className="clusterStatusIcons"
+            style={{ color: "#cf485b" }}
           />
         </div>
 
-        <div style={{ marginTop: '70px' }}>
+        <div style={{ marginTop: "70px" }}>
           <Typography
             style={{
-              fontSize: '12px',
-              color: '#cf4848',
-              fontWeight: '500',
+              fontSize: "12px",
+              color: "#cf4848",
+              fontWeight: "500",
             }}
           >
-            {' '}
-            OPEN AND VIEW CLUSTERS{' '}
+            {" "}
+            OPEN AND VIEW CLUSTERS{" "}
           </Typography>
         </div>
         <br />
         <Button
           onClick={handleCluster}
-          variant='contained'
+          variant="contained"
           style={{
-            border: '1px solid',
-            height: '60px',
+            border: "1px solid",
+            height: "60px",
             // marginTop: '20px',
-            paddingRight: '8px',
+            paddingRight: "8px",
             backgroundColor:
-              theme.palette.mode === 'dark' ? '#150f2d' : '#8881ce',
+              theme.palette.mode === "dark" ? "#150f2d" : "#8881ce",
           }}
         >
-          LAUNCH IN BROWSER{' '}
-          <LaunchIcon fontSize='small' style={{ margin: '0 0 2px 6px' }} />
+          LAUNCH IN BROWSER{" "}
+          <LaunchIcon fontSize="small" style={{ margin: "0 0 2px 6px" }} />
         </Button>
-        <div style={{ fontSize: '12px', color: '#cf4848', marginTop: '20px' }}>
+        <div style={{ fontSize: "12px", color: "#cf4848", marginTop: "20px" }}>
           ERROR OCCURRED! PLEASE TRY AGAIN
         </div>
       </>
@@ -1056,28 +1062,28 @@ function SetupButtons() {
       {/* ----------------MAIN CONTENT---------------- */}
 
       <div
-        data-height='100%'
+        data-height="100%"
         // spacing={1}
         style={{
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center',
-          marginLeft: '.8%',
-          marginTop: '5%',
-          textAlign: 'center',
-          width: '100%',
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+          marginLeft: ".8%",
+          marginTop: "5%",
+          textAlign: "center",
+          width: "100%",
         }}
       >
         <div
           style={{
-            fontFamily: 'Outfit',
-            fontWeight: '800',
-            fontSize: '43px',
-            justifyContent: 'flex-start',
-            width: '100%',
-            letterSpacing: '1px',
-            color: theme.palette.mode === 'dark' ? 'white' : '#6466b2',
+            fontFamily: "Outfit",
+            fontWeight: "800",
+            fontSize: "43px",
+            justifyContent: "flex-start",
+            width: "100%",
+            letterSpacing: "1px",
+            color: theme.palette.mode === "dark" ? "white" : "#6466b2",
           }}
         >
           CLUSTER METRICS VISUALIZER
@@ -1085,55 +1091,55 @@ function SetupButtons() {
         <div
           style={{
             // fontFamily: 'Outfit',
-            fontWeight: '400',
-            fontSize: '14px',
-            justifyContent: 'flex-start',
-            width: '100%',
-            letterSpacing: '1px',
-            color: theme.palette.mode === 'dark' ? 'white' : 'grey',
+            fontWeight: "400",
+            fontSize: "14px",
+            justifyContent: "flex-start",
+            width: "100%",
+            letterSpacing: "1px",
+            color: theme.palette.mode === "dark" ? "white" : "grey",
           }}
         >
           PLEASE FOLLOW THE STEPS BELOW IN ORDER:
         </div>
         <div
           style={{
-            display: 'flex',
-            flexDirection: 'row',
-            width: '100%',
-            margin: '4.8% 1% 0 1%',
+            display: "flex",
+            flexDirection: "row",
+            width: "100%",
+            margin: "4.8% 1% 0 1%",
           }}
         >
           <div
             style={{
-              width: '160%',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'flex-start',
-              margin: '50px 10px 50px 50px',
+              width: "160%",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "flex-start",
+              margin: "50px 10px 50px 50px",
             }}
           >
-            {' '}
+            {" "}
             {promStatusDiv}
           </div>
 
           <div
             style={{
-              width: '160%',
-              display: 'flex',
-              flexDirection: 'column',
-              margin: '50px 10px 50px 10px',
+              width: "160%",
+              display: "flex",
+              flexDirection: "column",
+              margin: "50px 10px 50px 10px",
             }}
           >
-            {' '}
+            {" "}
             {grafStatusDiv}
           </div>
 
           <div
             style={{
-              width: '160%',
-              display: 'flex',
-              flexDirection: 'column',
-              margin: '50px 10px 50px 10px',
+              width: "160%",
+              display: "flex",
+              flexDirection: "column",
+              margin: "50px 10px 50px 10px",
             }}
           >
             {portForwardDiv}
@@ -1141,10 +1147,10 @@ function SetupButtons() {
 
           <div
             style={{
-              width: '160%',
-              display: 'flex',
-              flexDirection: 'column',
-              margin: '50px 30px 50px 10px',
+              width: "160%",
+              display: "flex",
+              flexDirection: "column",
+              margin: "50px 30px 50px 10px",
             }}
           >
             {launchStatusDiv}
@@ -1153,44 +1159,44 @@ function SetupButtons() {
         </div>
         <div
           style={{
-            width: '450px',
-            height: '190px',
-            position: 'absolute',
-            bottom: '40px',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'left',
-            alignItems: 'start',
-            padding: '17px 10px 10px 20px',
-            marginTop: '0px',
-            marginLeft: '20px',
-            borderRadius: '10px',
+            width: "450px",
+            height: "190px",
+            position: "absolute",
+            bottom: "40px",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "left",
+            alignItems: "start",
+            padding: "17px 10px 10px 20px",
+            marginTop: "0px",
+            marginLeft: "20px",
+            borderRadius: "10px",
             backgroundColor:
-              theme.palette.mode === 'dark' ? '#2a2152' : '#dedafc',
+              theme.palette.mode === "dark" ? "#2a2152" : "#dedafc",
           }}
         >
-          {' '}
+          {" "}
           <div
             style={{
-              display: 'flex',
-              flexDirection: 'row',
-              justifyContent: 'flex-start',
-              alignItems: 'center',
+              display: "flex",
+              flexDirection: "row",
+              justifyContent: "flex-start",
+              alignItems: "center",
             }}
           >
             <LightbulbIcon
               // fontSize='large'
-              style={{ fontSize: '25px', color: '#8f85fb', marginRight: '8px' }}
+              style={{ fontSize: "25px", color: "#8f85fb", marginRight: "8px" }}
             />
             <div
               style={{
-                color: '#8f85fb',
-                fontSize: '22px',
-                fontFamily: 'Outfit',
-                fontWeight: '800',
-                letterSpacing: '2px',
-                paddingTop: '0px',
-                lineHeight: '5px',
+                color: "#8f85fb",
+                fontSize: "22px",
+                fontFamily: "Outfit",
+                fontWeight: "800",
+                letterSpacing: "2px",
+                paddingTop: "0px",
+                lineHeight: "5px",
               }}
             >
               HELPFUL TIP!
@@ -1198,9 +1204,9 @@ function SetupButtons() {
           </div>
           <div
             style={{
-              textAlign: 'left',
-              margin: '14px 0 0 10px',
-              fontSize: '15px',
+              textAlign: "left",
+              margin: "14px 0 0 10px",
+              fontSize: "15px",
             }}
           >
             If this is your first time visualizing your clusters, use the
@@ -1208,22 +1214,22 @@ function SetupButtons() {
           </div>
           <div
             style={{
-              display: 'flex',
-              flexDirection: 'row',
-              textAlign: 'left',
-              alignItems: 'center',
-              margin: '10px 0 0 10px',
-              fontSize: '15px',
+              display: "flex",
+              flexDirection: "row",
+              textAlign: "left",
+              alignItems: "center",
+              margin: "10px 0 0 10px",
+              fontSize: "15px",
             }}
           >
-            username:{' '}
+            username:{" "}
             <div
               style={{
-                fontFamily: 'outfit',
-                fontWeight: '600',
-                fontSize: '18px',
-                marginLeft: '5px',
-                color: '#8f85fb',
+                fontFamily: "outfit",
+                fontWeight: "600",
+                fontSize: "18px",
+                marginLeft: "5px",
+                color: "#8f85fb",
               }}
             >
               admin
@@ -1231,22 +1237,22 @@ function SetupButtons() {
           </div>
           <div
             style={{
-              display: 'flex',
-              flexDirection: 'row',
-              textAlign: 'left',
-              alignItems: 'center',
-              margin: '10px 0 0 10px',
-              fontSize: '15px',
+              display: "flex",
+              flexDirection: "row",
+              textAlign: "left",
+              alignItems: "center",
+              margin: "10px 0 0 10px",
+              fontSize: "15px",
             }}
           >
-            password:{' '}
+            password:{" "}
             <div
               style={{
-                fontFamily: 'outfit',
-                fontWeight: '600',
-                fontSize: '18px',
-                marginLeft: '5px',
-                color: '#8f85fb',
+                fontFamily: "outfit",
+                fontWeight: "600",
+                fontSize: "18px",
+                marginLeft: "5px",
+                color: "#8f85fb",
               }}
             >
               prom-operator

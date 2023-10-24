@@ -17,7 +17,7 @@ function Topbar(): JSX.Element {
         width: "100%",
         justifyContent: "left",
         backgroundColor: theme.palette.mode === "dark" ? "#170b49" : "#9d8edc",
-        zIndex: "1000",
+        zIndex: "14000",
       }}
     >
       <div

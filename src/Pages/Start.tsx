@@ -10,7 +10,7 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CheckIcon from "@mui/icons-material/Check";
 import LinearProgress from "@mui/material/LinearProgress";
 
-function Start() {
+function Start(props) {
   //for light/dark mode toggle
   const theme = useTheme();
 
@@ -22,7 +22,6 @@ function Start() {
   const [metricsCheckStatus, setMetricsCheckStatus] = useState("checking");
   // const [metricsVersion, setMetricsVersion] = useState("");
 
-  const [promGrafCheckStatus, setPromGrafCheckStatus] = useState("checking");
   const [grafVersion, setGrafVersion] = useState("");
   const [promVersion, setPromVersion] = useState("");
 
@@ -66,11 +65,11 @@ function Start() {
     }
     if (promVersion === "installed" && grafVersion === "installed") {
       setTimeout(() => {
-        setPromGrafCheckStatus("installed");
+        props.setPromGrafCheckStatus("installed");
       }, 2400);
     } else {
       setTimeout(() => {
-        setPromGrafCheckStatus("not_installed");
+        props.setPromGrafCheckStatus("not_installed");
       }, 2400);
     }
   });
@@ -168,7 +167,8 @@ function Start() {
           // border: "1px solid green",
           display: "flex",
           flexDirection: "row",
-          color: theme.palette.mode === "dark" ? "" :  "#3c3c9a",
+          color: theme.palette.mode === "dark" ? "" : "#3c3c9a",
+          userSelect: "none",
         }}
       >
         kubectl client v{kubectlClientVersion} and server v
@@ -187,7 +187,8 @@ function Start() {
           // border: "1px solid green",
           display: "flex",
           flexDirection: "row",
-          color: theme.palette.mode === "dark" ? "" :  "#3c3c9a",
+          color: theme.palette.mode === "dark" ? "" : "#3c3c9a",
+          userSelect: "none",
         }}
       >
         kubectl commands found
@@ -205,7 +206,7 @@ function Start() {
           // border: "1px solid green",
           display: "flex",
           flexDirection: "row",
-          color: theme.palette.mode === "dark" ? "" :  "#3c3c9a",
+          color: theme.palette.mode === "dark" ? "" : "#3c3c9a",
         }}
       >
         ... checking if kubectl commands are installed ...
@@ -219,7 +220,7 @@ function Start() {
           // border: "1px solid green",
           display: "flex",
           flexDirection: "row",
-          color: theme.palette.mode === "dark" ? "" :  "#3c3c9a",
+          color: theme.palette.mode === "dark" ? "" : "#3c3c9a",
         }}
       >
         kubectl commands not found. Please install using the link to the right.
@@ -233,7 +234,7 @@ function Start() {
           // border: "1px solid green",
           display: "flex",
           flexDirection: "row",
-          color: theme.palette.mode === "dark" ? "" :  "#3c3c9a",
+          color: theme.palette.mode === "dark" ? "" : "#3c3c9a",
         }}
       >
         Warning: If you not installed kubectl, please use the link to the right.
@@ -250,7 +251,8 @@ function Start() {
           // border: "1px solid green",
           display: "flex",
           flexDirection: "row",
-          color: theme.palette.mode === "dark" ? "" :  "#3c3c9a",
+          color: theme.palette.mode === "dark" ? "" : "#3c3c9a",
+          userSelect: "none",
         }}
       >
         metrics server found{" "}
@@ -268,7 +270,8 @@ function Start() {
           // border: "1px solid green",
           display: "flex",
           flexDirection: "row",
-          color: theme.palette.mode === "dark" ? "" :  "#3c3c9a",
+          color: theme.palette.mode === "dark" ? "" : "#3c3c9a",
+          userSelect: "none",
         }}
       >
         Metrics server not installed. Kluster Manager requires metrics.{" "}
@@ -289,7 +292,8 @@ function Start() {
           // border: "1px solid green",
           display: "flex",
           flexDirection: "row",
-          color: theme.palette.mode === "dark" ? "" :  "#3c3c9a",
+          color: theme.palette.mode === "dark" ? "" : "#3c3c9a",
+          userSelect: "none",
         }}
       >
         metrics server install attempted. if problems persist, visit{" "}
@@ -314,7 +318,8 @@ function Start() {
           // border: "1px solid green",
           display: "flex",
           flexDirection: "row",
-          color: theme.palette.mode === "dark" ? "" :  "#3c3c9a",
+          color: theme.palette.mode === "dark" ? "" : "#3c3c9a",
+          userSelect: "none",
         }}
       >
         ... checking if metrics server is installed ...
@@ -323,7 +328,7 @@ function Start() {
   }
 
   let promGrafInstallDiv;
-  if (promGrafCheckStatus === "not_installed") {
+  if (props.promGrafCheckStatus === "not_installed") {
     promGrafInstallDiv = (
       <div
         style={{
@@ -331,14 +336,15 @@ function Start() {
           // border: "1px solid green",
           display: "flex",
           flexDirection: "row",
-          color: theme.palette.mode === "dark" ? "" :  "#3c3c9a",
+          color: theme.palette.mode === "dark" ? "" : "#3c3c9a",
+          userSelect: "none",
         }}
       >
         prometheus and grafana not found. Install on the Metrics Visualizer
         page.
       </div>
     );
-  } else if (promGrafCheckStatus === "installed") {
+  } else if (props.promGrafCheckStatus === "installed") {
     promGrafInstallDiv = (
       <div
         style={{
@@ -346,7 +352,8 @@ function Start() {
           // border: "1px solid green",
           display: "flex",
           flexDirection: "row",
-          color: theme.palette.mode === "dark" ? "" :  "#3c3c9a",
+          color: theme.palette.mode === "dark" ? "" : "#3c3c9a",
+          userSelect: "none",
         }}
       >
         grafana and prometheus found{" "}
@@ -356,7 +363,7 @@ function Start() {
         />
       </div>
     );
-  } else if (promGrafCheckStatus === "checking") {
+  } else if (props.promGrafCheckStatus === "checking") {
     promGrafInstallDiv = (
       <div
         style={{
@@ -364,7 +371,8 @@ function Start() {
           // border: "1px solid green",
           display: "flex",
           flexDirection: "row",
-          color: theme.palette.mode === "dark" ? "" :  "#3c3c9a",
+          color: theme.palette.mode === "dark" ? "" : "#3c3c9a",
+          userSelect: "none",
         }}
       >
         ... checking if prometheus and grafana are installed ...
@@ -374,7 +382,7 @@ function Start() {
 
   let loadingStatusDiv;
   if (
-    promGrafCheckStatus !== "checking" &&
+    props.promGrafCheckStatus !== "checking" &&
     kubectlCheckStatus !== "checking" &&
     metricsCheckStatus !== "checking"
   ) {
@@ -501,6 +509,7 @@ function Start() {
                 justifyContent: "center",
                 alignItems: "center",
                 WebkitUserSelect: "none",
+                userSelect: "none",
               }}
               component="img"
               width="50%"
@@ -563,47 +572,48 @@ function Start() {
               height: "100%",
               // border: "1px solid blue",
               textAlign: "center",
+              userSelect: "none",
             }}
           >
-           <div style={{display:"flex", justifyContent:"center"}}>
-           <Typography
-              variant="h2"
-              // alignText='center'
-              sx={{
-                fontWeight: "bold",
-                fontFamily: "Outfit",
-                fontSize: "82px",
-              }}
-              style={{
-                color: theme.palette.mode === "dark" ? "white" : "#3c3c9a",
-                textShadow:
-                  theme.palette.mode === "dark"
-                    ? "1px 1px 5px rgb(0, 0, 0, 0.3)"
-                    : "1px 1px 5px rgb(0, 0, 0, 0.0)",
-              }}
-            >
-              kaptn
-            </Typography>
-            <Typography
-              variant="h2"
-              // alignText='center'
-              sx={{
-                fontWeight: "bold",
-                fontFamily: "Outfit",
-                fontSize: "45px",
-                margin:"35.5px 0 0 15px"
-              }}
-              style={{
-                color: theme.palette.mode === "dark" ? "magenta" : "#3c3c9a",
-                textShadow:
-                  theme.palette.mode === "dark"
-                    ? "1px 1px 5px rgb(0, 0, 0, 0.3)"
-                    : "1px 1px 5px rgb(0, 0, 0, 0.0)",
-              }}
-            >
-              v2.0
-            </Typography>
-           </div>
+            <div style={{ display: "flex", justifyContent: "center" }}>
+              <Typography
+                variant="h2"
+                // alignText='center'
+                sx={{
+                  fontWeight: "bold",
+                  fontFamily: "Outfit",
+                  fontSize: "82px",
+                }}
+                style={{
+                  color: theme.palette.mode === "dark" ? "white" : "#3c3c9a",
+                  textShadow:
+                    theme.palette.mode === "dark"
+                      ? "1px 1px 5px rgb(0, 0, 0, 0.3)"
+                      : "1px 1px 5px rgb(0, 0, 0, 0.0)",
+                }}
+              >
+                kaptn
+              </Typography>
+              <Typography
+                variant="h2"
+                // alignText='center'
+                sx={{
+                  fontWeight: "bold",
+                  fontFamily: "Outfit",
+                  fontSize: "45px",
+                  margin: "35.5px 0 0 15px",
+                }}
+                style={{
+                  color: theme.palette.mode === "dark" ? "magenta" : "#3c3c9a",
+                  textShadow:
+                    theme.palette.mode === "dark"
+                      ? "1px 1px 5px rgb(0, 0, 0, 0.3)"
+                      : "1px 1px 5px rgb(0, 0, 0, 0.0)",
+                }}
+              >
+                v2.0
+              </Typography>
+            </div>
             <Typography
               variant="h4"
               align="center"
@@ -623,6 +633,7 @@ function Start() {
                   theme.palette.mode === "dark"
                     ? "1px 1px 5px rgb(0, 0, 0, 0.3)"
                     : "",
+                userSelect: "none",
               }}
             >
               {" "}
@@ -650,9 +661,11 @@ function Start() {
                   theme.palette.mode === "dark"
                     ? "1px 1px 5px rgb(0, 0, 0, 0.3)"
                     : "",
+                userSelect: "none",
               }}
             >
-              * Please ensure that{" "}
+              * In order for Kaptn to work as intended (including install checks
+              to the left), please ensure that{" "}
               <a
                 style={{
                   color: theme.palette.mode === "dark" ? "lightgreen" : "green",
@@ -661,8 +674,9 @@ function Start() {
                 href="https://kubernetes.io/docs/tasks/tools/"
               >
                 kubectl commands are installed
-              </a>{" "}
-              and clusters are up and running in order for Kaptn to work as intended <br/>(including install checks to the left).
+              </a>
+              , <br />
+              and clusters are up and running.
             </Typography>
           </div>
           {/* <Button style={{ border: "1px solid blue" }}>Blah</Button> */}
@@ -680,6 +694,7 @@ function Start() {
             color: theme.palette.mode === "dark" ? "#ffffff" : "#3c3c9a",
             paddingTop: "10px",
             width: "95%",
+            userSelect: "none",
           }}
         >
           QUICKSTART :
@@ -757,7 +772,21 @@ function Start() {
                       textTransform: "none",
                     }}
                   >
-                    <div>KAPTN KRANE — NEW!</div>
+                    <div style={{ display: "flex", flexDirection: "row" }}>
+                      KAPTN KRANE —
+                      <div
+                        style={{
+                          margin: "0 0 0 6px",
+                          color:
+                            theme.palette.mode === "dark"
+                              ? "magenta"
+                              : "#3c3c9a",
+                        }}
+                      >
+                        {" "}
+                        NEW!
+                      </div>
+                    </div>
 
                     <div
                       style={{

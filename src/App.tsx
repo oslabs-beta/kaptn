@@ -8,9 +8,12 @@ import Topbar from "./components/Topbar.js";
 import Setup from "./Pages/Setup.js";
 import { ColorModeContext, useMode } from "./theme.js";
 import { CssBaseline, ThemeProvider } from "@mui/material";
+import React, { useState } from "react";
 
 function App() {
   const [theme, colorMode] = useMode();
+
+  const [promGrafCheckStatus, setPromGrafCheckStatus] = useState("checking");
 
   // Hash router is used here to optimize for static file serving from Electron
   // More information here: https://reactrouter.com/en/main/router-components/hash-router
@@ -23,12 +26,28 @@ function App() {
             <Topbar />
             <main className="content">
               <Routes>
-                <Route path="/" element={<Start />} />
+                <Route
+                  path="/"
+                  element={
+                    <Start
+                      promGrafCheckStatus={promGrafCheckStatus}
+                      setPromGrafCheckStatus={setPromGrafCheckStatus}
+                    />
+                  }
+                />
                 <Route path="/welcome" element={<WelcomeModal />} />
                 <Route path="/krane" element={<KlusterManager />} />
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/setup" element={<Setup />} />
-                <Route path="/cluster" element={<Cluster />} />
+                <Route
+                  path="/cluster"
+                  element={
+                    <Cluster
+                      promGrafCheckStatus={promGrafCheckStatus}
+                      setPromGrafCheckStatus={setPromGrafCheckStatus}
+                    />
+                  }
+                />
               </Routes>
             </main>
           </div>

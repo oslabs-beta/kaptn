@@ -118,7 +118,7 @@ function KraneNodeList(props) {
     boxShadow: 24,
     p: 4,
     padding: "10px",
-    mt: 0.8,
+    mt: 2,
     border:
       theme.palette.mode === "dark" ? "1px solid white" : "2px solid #9075ea",
     borderRadius: "10px",
@@ -2759,7 +2759,7 @@ function KraneNodeList(props) {
                               marginTop: "10px",
                             }}
                           >
-                            NODE YAML OUTPUT
+                            NODE YAML
                           </div>
                           {nodeYaml}
                         </Box>
@@ -4350,7 +4350,7 @@ function KraneNodeList(props) {
                                         marginTop: "10px",
                                       }}
                                     >
-                                      POD YAML OUTPUT
+                                      POD YAML
                                     </div>
                                     {props.podYaml}
                                   </Box>
@@ -4685,7 +4685,7 @@ function KraneNodeList(props) {
           overflow: "hidden",
           alignItems: "flex-start",
           marginLeft: "0px",
-          marginTop: "-18px",
+          marginTop: "-16px",
           marginBottom: "0px",
           textAlign: "center",
           width: "95.5%",

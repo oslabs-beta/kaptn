@@ -73,7 +73,7 @@ function KranePodList(props) {
     boxShadow: 24,
     p: 4,
     padding: "10px",
-    mt: 0.8,
+    mt: 2,
     border:
       theme.palette.mode === "dark" ? "1px solid white" : "2px solid #9075ea",
     borderRadius: "10px",
@@ -2997,7 +2997,7 @@ function KranePodList(props) {
                               marginTop: "10px",
                             }}
                           >
-                            POD YAML OUTPUT
+                            POD YAML
                           </div>
                           {props.podYaml}
                         </Box>
