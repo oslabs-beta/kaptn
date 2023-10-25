@@ -611,7 +611,7 @@ function KranePodList(props) {
           podMemoryLimitsArr.push("0");
           podMemoryLimitsArr.push("0");
         }
-        // console.log("podMemoryLimitsDisplayArr is:", podMemoryLimitsDisplayArr);
+        console.log("podMemoryLimitsDisplayArr is:", podMemoryLimitsDisplayArr);
         i += 3;
       }
 
@@ -1026,6 +1026,8 @@ function KranePodList(props) {
         podContainers: [],
       },
     ]);
+    console.log("podsArr[0] is", props.podsArr[0]);
+
     props.setOpenPod(false);
   };
 
@@ -2713,7 +2715,11 @@ function KranePodList(props) {
                           <br />
                           CPU LIMIT:{" "}
                           <strong>
-                            {props.selectedPod[0]["podCpuLimit"].toUpperCase()}m
+                            {props.selectedPod[0]["podCpuLimit"] === "NONE"
+                              ? "NONE"
+                              : `${props.selectedPod[0][
+                                  "podCpuLimit"
+                                ].toUpperCase()}m`}
                           </strong>
                         </div>
                       </div>
@@ -2872,7 +2878,10 @@ function KranePodList(props) {
                           <br />
                           MEM. LIMIT:{" "}
                           <strong>
-                            {props.selectedPod[0]["podMemoryLimitDisplay"]}
+                            {props.selectedPod[0]["podMemoryLimitDisplay"] ===
+                            ""
+                              ? "NONE"
+                              : props.selectedPod[0]["podMemoryLimitDisplay"]}
                           </strong>
                         </div>
                       </div>

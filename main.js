@@ -513,6 +513,131 @@ ipcMain.on("deleteDeployment_command", (event, arg) => {
 });
 
 
+//Listen for command to view deployment rollout status
+ipcMain.on("rollbackPreviousDeployment_command", (event, arg) => {
+  const { deploymentRollbackPreviousCommand, currDir } = arg;
+
+  // if kubectl command is entered with no directory chosen, use ZDOTDIR as directory address when calling exec command --- otherwise ("else" on line further down) submit command normally
+  if (currDir === "NONE SELECTED") {
+    let kubDir = process.env.ZDOTDIR;
+    exec(
+      ` ${deploymentRollbackPreviousCommand}`,
+      { cwd: kubDir },
+      (err, stdout, stderr) => {
+        // Handle failed command execution
+        if (err) {
+          let output = err;
+        }
+        // Handle successful command execution but returned error (stderr)
+        if (stderr) {
+          return event.sender.send("rolledBackPrevious_deployment", stderr);
+        }
+        // Handle successful command execution with no errors
+        return event.sender.send("rolledBackPrevious_deployment", stdout);
+      }
+    );
+  } else {
+    exec(
+      ` ${deploymentRollbackPreviousCommand}`,
+      { cwd: currDir },
+      (err, stdout, stderr) => {
+        // Handle failed command execution
+        if (err) {
+          let output = err;
+        }
+        // Handle successful command execution but returned error (stderr)
+        if (stderr) {
+          return event.sender.send("rolledBackPrevious_deployment", stderr);
+        }
+        // Handle successful command execution with no errors
+        return event.sender.send("rolledBackPrevious_deployment", stdout);
+      }
+    );
+  }
+});
+
+
+
+//Listen for command to rolling restart deployment
+ipcMain.on("rollingRestartDeployment_command", (event, arg) => {
+  const { deploymentRollingRestartCommand, currDir } = arg;
+
+  // if kubectl command is entered with no directory chosen, use ZDOTDIR as directory address when calling exec command --- otherwise ("else" on line further down) submit command normally
+  if (currDir === "NONE SELECTED") {
+    let kubDir = process.env.ZDOTDIR;
+    exec(
+      ` ${deploymentRollingRestartCommand}`,
+      { cwd: kubDir },
+      (err, stdout, stderr) => {
+        // Handle failed command execution
+        if (err) {
+          let output = err;
+        }
+        // Handle successful command execution but returned error (stderr)
+        if (stderr) {
+          return event.sender.send("completedRollingRestart_deployment", stderr);
+        }
+        // Handle successful command execution with no errors
+        return event.sender.send("completedRollingRestart_deployment", stdout);
+      }
+    );
+  } else {
+    exec(
+      ` ${deploymentRollingRestartCommand}`,
+      { cwd: currDir },
+      (err, stdout, stderr) => {
+        // Handle failed command execution
+        if (err) {
+          let output = err;
+        }
+        // Handle successful command execution but returned error (stderr)
+        if (stderr) {
+          return event.sender.send("completedRollingRestart_deployment", stderr);
+        }
+        // Handle successful command execution with no errors
+        return event.sender.send("completedRollingRestart_deployment", stdout);
+      }
+    );
+  }
+});
+
+
+//Listen for command to delete/restart a node
+ipcMain.on("scaleDeployment_command", (event, arg) => {
+  const { deploymentScaleCommand, currDir } = arg;
+
+  // if kubectl command is entered with no directory chosen, use ZDOTDIR as directory address when calling exec command --- otherwise ("else" on line further down) submit command normally
+  if (currDir === "NONE SELECTED") {
+    let kubDir = process.env.ZDOTDIR;
+    exec(` ${deploymentScaleCommand}`, { cwd: kubDir }, (err, stdout, stderr) => {
+      // Handle failed command execution
+      if (err) {
+        let output = err;
+      }
+      // Handle successful command execution but returned error (stderr)
+      if (stderr) {
+        return event.sender.send("scaled_deployment", stderr);
+      }
+      // Handle successful command execution with no errors
+      return event.sender.send("scaled_deployment", stdout);
+    });
+  } else {
+    exec(` ${deploymentScaleCommand}`, { cwd: currDir }, (err, stdout, stderr) => {
+      // Handle failed command execution
+      if (err) {
+        let output = err;
+      }
+      // Handle successful command execution but returned error (stderr)
+      if (stderr) {
+        return event.sender.send("scaled_deployment", stderr);
+      }
+      // Handle successful command execution with no errors
+      return event.sender.send("scaled_deployment", stdout);
+    });
+  }
+});
+
+
 
 //Listen for command to get a pod containers
 ipcMain.on("podContainers_command", (event, arg) => {

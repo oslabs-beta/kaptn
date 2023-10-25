@@ -1,6 +1,13 @@
 import React, { useState, useEffect } from "react";
 import Button from "@mui/material/Button";
-import { Typography, useTheme, Box, Modal, Checkbox } from "@mui/material";
+import {
+  Typography,
+  useTheme,
+  Box,
+  Modal,
+  Checkbox,
+  TextField,
+} from "@mui/material";
 const { ipcRenderer } = require("electron");
 import SideNav from "./Sidebar.js";
 import LaunchIcon from "@mui/icons-material/Launch";
@@ -85,9 +92,64 @@ function KraneDeploymentsList(props) {
     top: "50%",
     left: "50%",
     transform: "translate(-50%, -50%)",
-    width: "36%",
-    height: "26%",
+    width: "38%",
+    height: "27%",
     justifyContent: "center",
+    background: theme.palette.mode === "dark" ? "#0e0727" : "#e6e1fb",
+    color: theme.palette.mode === "dark" ? "white" : "#47456e",
+    boxShadow: 24,
+    p: 4,
+    padding: "10px",
+    border:
+      theme.palette.mode === "dark" ? "1px solid white" : "2px solid #9075ea",
+    borderRadius: "10px",
+  };
+
+  const deploymentRollbackPreviousStyle = {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    width: "45%",
+    height: "23%",
+    justifyContent: "center",
+    background: theme.palette.mode === "dark" ? "#0e0727" : "#e6e1fb",
+    color: theme.palette.mode === "dark" ? "white" : "#47456e",
+    boxShadow: 24,
+    p: 4,
+    padding: "10px",
+    border:
+      theme.palette.mode === "dark" ? "1px solid white" : "2px solid #9075ea",
+    borderRadius: "10px",
+  };
+
+  const deploymentRollingRestartStyle = {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    width: "55%",
+    height: "23%",
+    justifyContent: "center",
+    background: theme.palette.mode === "dark" ? "#0e0727" : "#e6e1fb",
+    color: theme.palette.mode === "dark" ? "white" : "#47456e",
+    boxShadow: 24,
+    p: 4,
+    padding: "10px",
+    border:
+      theme.palette.mode === "dark" ? "1px solid white" : "2px solid #9075ea",
+    borderRadius: "10px",
+  };
+
+  const deploymentScaleStyle = {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    width: "40%",
+    height: "38%",
+    justifyContent: "center",
+    alignItems: "center",
     background: theme.palette.mode === "dark" ? "#0e0727" : "#e6e1fb",
     color: theme.palette.mode === "dark" ? "white" : "#47456e",
     boxShadow: 24,
@@ -129,6 +191,16 @@ function KraneDeploymentsList(props) {
     React.useState([]);
 
   const [openDeploymentDelete, setOpenDeploymentDelete] = React.useState(false);
+
+  const [openDeploymentRollbackPrevious, setOpenDeploymentRollbackPrevious] =
+    React.useState(false);
+
+  const [openDeploymentRollingRestart, setOpenDeploymentRollingRestart] =
+    React.useState(false);
+
+  const [openDeploymentScale, setOpenDeploymentScale] = React.useState(false);
+
+  const [deploymentScaleNumber, setDeploymentScaleNumber] = React.useState(0);
 
   const [selectedDeployment, setSelectedDeployment] = useState([
     {
@@ -595,6 +667,10 @@ function KraneDeploymentsList(props) {
     setOpenDeploymentRolloutHistory(true);
   };
 
+  const handleDeploymentRolloutHistoryClose = () => {
+    setOpenDeploymentRolloutHistory(false);
+  };
+
   const handleDeploymentDeleteOpen = (pod) => {
     setOpenDeploymentDelete(true);
   };
@@ -608,7 +684,7 @@ function KraneDeploymentsList(props) {
     ipcRenderer.on("deleted_deployment", (event, arg) => {
       //parse response to check if successful and if so, close modals and refresh list
 
-      props.getNodesInfo();
+      props.getDeploymentsInfo();
 
       setOpenDeploymentDelete(false);
       setOpenDeployment(false);
@@ -622,8 +698,89 @@ function KraneDeploymentsList(props) {
     });
   };
 
-  const handleDeploymentRolloutHistoryClose = () => {
-    setOpenDeploymentRolloutHistory(false);
+  const handleDeploymentRollbackPreviousOpen = (pod) => {
+    setOpenDeploymentRollbackPrevious(true);
+  };
+
+  const handleDeploymentRollbackPreviousClose = () => {
+    setOpenDeploymentRollbackPrevious(false);
+  };
+
+  const handleDeploymentRollbackPrevious = () => {
+    //listen for pods deleted
+    ipcRenderer.on("rolledBackPrevious_deployment", (event, arg) => {
+      //parse response to check if successful and if so, close modals and refresh list
+
+      props.getDeploymentsInfo();
+
+      setOpenDeploymentRollbackPrevious(false);
+      setOpenDeployment(false);
+    });
+
+    let deploymentRollbackPreviousCommand = `kubectl rollout undo deployment/${selectedDeployment[0]["name"]}`;
+    //send get delete pod command
+    ipcRenderer.send("rollbackPreviousDeployment_command", {
+      deploymentRollbackPreviousCommand,
+      currDir,
+    });
+  };
+
+  const handleDeploymentRollingRestartOpen = (pod) => {
+    setOpenDeploymentRollingRestart(true);
+  };
+
+  const handleDeploymentRollingRestartClose = () => {
+    setOpenDeploymentRollingRestart(false);
+  };
+
+  const handleDeploymentRollingRestart = () => {
+    //listen for pods deleted
+    ipcRenderer.on("completedRollingRestart_deployment", (event, arg) => {
+      //parse response to check if successful and if so, close modals and refresh list
+
+      props.getDeploymentsInfo();
+
+      setOpenDeploymentRollingRestart(false);
+      setOpenDeployment(false);
+    });
+
+    let deploymentRollingRestartCommand = `kubectl rollout restart deployment/${selectedDeployment[0]["name"]}`;
+    //send get delete pod command
+    ipcRenderer.send("rollingRestartDeployment_command", {
+      deploymentRollingRestartCommand,
+      currDir,
+    });
+  };
+
+  const handleDeploymentScaleOpen = (pod) => {
+    setOpenDeploymentScale(true);
+  };
+
+  const handleDeploymentScaleClose = () => {
+    setOpenDeploymentScale(false);
+  };
+
+  const handleDeploymentScale = () => {
+    //listen for pods deleted
+    ipcRenderer.on("scaled_deployment", (event, arg) => {
+      //parse response to check if successful and if so, close modals and refresh list
+
+      props.getDeploymentsInfo();
+
+      setOpenDeploymentScale(false);
+      setOpenDeployment(false);
+    });
+
+    let deploymentScaleCommand = `kubectl scale --replicas=${deploymentScaleNumber} deployment/${selectedDeployment[0]["name"]}`;
+    //send get delete pod command
+    ipcRenderer.send("scaleeDeployment_command", {
+      deploymentScaleCommand,
+      currDir,
+    });
+  };
+
+  const handleSetDeploymentScaleNumber = (e) => {
+    setDeploymentScaleNumber(e.target.value);
   };
 
   let deploymentsList = [];
@@ -1574,7 +1731,7 @@ function KraneDeploymentsList(props) {
                     <button
                       className="button3D-pushable"
                       role="button"
-                      // onClick={handleNodeYamlOpen}
+                      onClick={handleDeploymentRollbackPreviousOpen}
                       style={{ margin: "0 10px 0 0px" }}
                     >
                       <span className="button3D-shadow"></span>
@@ -1601,11 +1758,136 @@ function KraneDeploymentsList(props) {
                         ROLLBACK TO PREV. VERSION
                       </span>
                     </button>
+                    <Modal
+                      open={openDeploymentRollbackPrevious}
+                      onClose={handleDeploymentDeleteClose}
+                      style={{ overflow: "scroll", height: "100%" }}
+                    >
+                      <Box sx={deploymentRollbackPreviousStyle}>
+                        <div
+                          style={{
+                            textAlign: "center",
+                            fontSize: "18px",
+                            fontWeight: "900",
+                            paddingTop: "20px",
+                          }}
+                        >
+                          ARE YOU SURE YOU WANT TO ROLLBACK?
+                        </div>
+                        <div
+                          style={{
+                            padding: "10px 40px 0 40px",
+                            textAlign: "center",
+                            fontSize: "12px",
+                          }}
+                        >
+                          Please note: This will rollback this deployment to the
+                          previous version.
+                        </div>
+                        <div
+                          style={{
+                            display: "flex",
+                            flexDirection: "row",
+                            marginTop: "30px",
+                            justifyContent: "center",
+                          }}
+                        >
+                          {/* <Button
+                              onClick={handlePodDelete}
+                              style={{
+                                fontSize: "16px",
+                                margin: "0 10px 0 0",
+                                padding: "5px 15px 5px 15px",
+                                border:
+                                  theme.palette.mode === "dark"
+                                    ? "1px solid #8f85fb"
+                                    : "1px solid",
+                                color:
+                                  theme.palette.mode === "dark"
+                                    ? "white"
+                                    : "darkpurple",
+                              }}
+                            >
+                              DELETE POD
+                            </Button>
+                             */}
+                          <button
+                            className="button3D-pushable"
+                            role="button"
+                            onClick={handleDeploymentRollbackPrevious}
+                            style={{ marginRight: "10px" }}
+                          >
+                            <span className="button3D-shadow"></span>
+                            <span
+                              className="button3D-edge"
+                              style={{
+                                background:
+                                  theme.palette.mode === "dark"
+                                    ? "linear-gradient(to left, hsl(239, 40%, 25%) 0%, hsl(239, 40%, 30%) 8%, hsl(239, 40%, 30%) 92%,  hsl(239, 40%, 25%) 100%)"
+                                    : "linear-gradient(to left, hsl(263, 40%, 64%) 0%, hsl(263, 40%, 70%) 8%, hsl(263, 40%, 70%) 92%,hsl(263, 40%, 64%) 100%)",
+                              }}
+                            ></span>
+                            <span
+                              className="button3D-front text"
+                              style={{
+                                width: "300px",
+                                background:
+                                  theme.palette.mode === "dark"
+                                    ? "hsl(239, 38%, 51%)"
+                                    : "hsl(263, 65%, 80%)",
+                              }}
+                            >
+                              ROLLBACK TO PREVIOUS VERSION
+                            </span>
+                          </button>
+                          {/* <Button
+                              onClick={handlePodDeleteClose}
+                              style={{
+                                opacity: "50%",
+                                fontSize: "15px",
+                                margin: "0 0 0 10px",
+                                padding: "5px 10px 5px 10px",
+                                border: "1px solid #ffffff89",
+                              }}
+                            >
+                              CANCEL
+                            </Button> */}
+                          <button
+                            className="button3D-pushable"
+                            role="button"
+                            onClick={handleDeploymentRollbackPreviousClose}
+                          >
+                            <span className="button3D-shadow"></span>
+                            <span
+                              className="button3D-edge"
+                              style={{
+                                background:
+                                  theme.palette.mode === "dark"
+                                    ? "linear-gradient(to left, hsl(239, 40%, 20%) 0%, hsl(239, 40%, 25%) 8%, hsl(239, 40%, 25%) 92%,  hsl(239, 40%, 20%) 100%)"
+                                    : "linear-gradient(to left, hsl(263, 40%, 64%) 0%, hsl(263, 40%, 70%) 8%, hsl(263, 40%, 70%) 92%,hsl(263, 40%, 64%) 100%)",
+                              }}
+                            ></span>
+                            <span
+                              className="button3D-front text"
+                              style={{
+                                width: "110px",
+                                background:
+                                  theme.palette.mode === "dark"
+                                    ? "hsl(239, 38%, 31%)"
+                                    : "hsl(263, 65%, 80%)",
+                              }}
+                            >
+                              CANCEL
+                            </span>
+                          </button>
+                        </div>
+                      </Box>
+                    </Modal>
 
                     <button
                       className="button3D-pushable"
                       role="button"
-                      // onClick={handleNodeYamlOpen}
+                      onClick={handleDeploymentRollingRestartOpen}
                       style={{ margin: "0 10px 0 0px" }}
                     >
                       <span className="button3D-shadow"></span>
@@ -1632,10 +1914,136 @@ function KraneDeploymentsList(props) {
                         PERFORM ROLLING RESTART
                       </span>
                     </button>
+                    <Modal
+                      open={openDeploymentRollingRestart}
+                      onClose={handleDeploymentRollingRestartClose}
+                      style={{ overflow: "scroll", height: "100%" }}
+                    >
+                      <Box sx={deploymentRollingRestartStyle}>
+                        <div
+                          style={{
+                            textAlign: "center",
+                            fontSize: "18px",
+                            fontWeight: "900",
+                            paddingTop: "20px",
+                          }}
+                        >
+                          ARE YOU SURE YOU WANT TO PERFORM ROLLING RESTART?
+                        </div>
+                        <div
+                          style={{
+                            padding: "10px 40px 0 40px",
+                            textAlign: "center",
+                            fontSize: "12px",
+                          }}
+                        >
+                          Please note: This will safely stop all your pods
+                          before restarting the deployment.
+                        </div>
+                        <div
+                          style={{
+                            display: "flex",
+                            flexDirection: "row",
+                            marginTop: "30px",
+                            justifyContent: "center",
+                          }}
+                        >
+                          {/* <Button
+                              onClick={handlePodDelete}
+                              style={{
+                                fontSize: "16px",
+                                margin: "0 10px 0 0",
+                                padding: "5px 15px 5px 15px",
+                                border:
+                                  theme.palette.mode === "dark"
+                                    ? "1px solid #8f85fb"
+                                    : "1px solid",
+                                color:
+                                  theme.palette.mode === "dark"
+                                    ? "white"
+                                    : "darkpurple",
+                              }}
+                            >
+                              DELETE POD
+                            </Button>
+                             */}
+                          <button
+                            className="button3D-pushable"
+                            role="button"
+                            onClick={handleDeploymentRollingRestart}
+                            style={{ marginRight: "10px" }}
+                          >
+                            <span className="button3D-shadow"></span>
+                            <span
+                              className="button3D-edge"
+                              style={{
+                                background:
+                                  theme.palette.mode === "dark"
+                                    ? "linear-gradient(to left, hsl(239, 40%, 25%) 0%, hsl(239, 40%, 30%) 8%, hsl(239, 40%, 30%) 92%,  hsl(239, 40%, 25%) 100%)"
+                                    : "linear-gradient(to left, hsl(263, 40%, 64%) 0%, hsl(263, 40%, 70%) 8%, hsl(263, 40%, 70%) 92%,hsl(263, 40%, 64%) 100%)",
+                              }}
+                            ></span>
+                            <span
+                              className="button3D-front text"
+                              style={{
+                                width: "300px",
+                                background:
+                                  theme.palette.mode === "dark"
+                                    ? "hsl(239, 38%, 51%)"
+                                    : "hsl(263, 65%, 80%)",
+                              }}
+                            >
+                              PERFORM ROLLING RESTART
+                            </span>
+                          </button>
+                          {/* <Button
+                              onClick={handlePodDeleteClose}
+                              style={{
+                                opacity: "50%",
+                                fontSize: "15px",
+                                margin: "0 0 0 10px",
+                                padding: "5px 10px 5px 10px",
+                                border: "1px solid #ffffff89",
+                              }}
+                            >
+                              CANCEL
+                            </Button> */}
+                          <button
+                            className="button3D-pushable"
+                            role="button"
+                            onClick={handleDeploymentRollingRestartClose}
+                          >
+                            <span className="button3D-shadow"></span>
+                            <span
+                              className="button3D-edge"
+                              style={{
+                                background:
+                                  theme.palette.mode === "dark"
+                                    ? "linear-gradient(to left, hsl(239, 40%, 20%) 0%, hsl(239, 40%, 25%) 8%, hsl(239, 40%, 25%) 92%,  hsl(239, 40%, 20%) 100%)"
+                                    : "linear-gradient(to left, hsl(263, 40%, 64%) 0%, hsl(263, 40%, 70%) 8%, hsl(263, 40%, 70%) 92%,hsl(263, 40%, 64%) 100%)",
+                              }}
+                            ></span>
+                            <span
+                              className="button3D-front text"
+                              style={{
+                                width: "110px",
+                                background:
+                                  theme.palette.mode === "dark"
+                                    ? "hsl(239, 38%, 31%)"
+                                    : "hsl(263, 65%, 80%)",
+                              }}
+                            >
+                              CANCEL
+                            </span>
+                          </button>
+                        </div>
+                      </Box>
+                    </Modal>
+
                     <button
                       className="button3D-pushable"
                       role="button"
-                      // onClick={handleNodeYamlOpen}
+                      onClick={handleDeploymentScaleOpen}
                       style={{ margin: "0 10px 0 0px" }}
                     >
                       <span className="button3D-shadow"></span>
@@ -1662,6 +2070,125 @@ function KraneDeploymentsList(props) {
                         SCALE DEPLOYMENT
                       </span>
                     </button>
+                    <Modal
+                      open={openDeploymentScale}
+                      onClose={handleDeploymentScaleClose}
+                      style={{ overflow: "scroll", height: "100%" }}
+                    >
+                      <Box sx={deploymentScaleStyle}>
+                        <div
+                          style={{
+                            textAlign: "center",
+                            fontSize: "18px",
+                            fontWeight: "900",
+                            paddingTop: "20px",
+                          }}
+                        >
+                          SCALE YOUR DEPLOYMENT
+                        </div>
+                        <div
+                          style={{
+                            padding: "10px 40px 0 40px",
+                            justifyContent: "center",
+                            textAlign: "center",
+                            fontSize: "12px",
+                          }}
+                        >
+                          Please select the new number to scale your deployment's replicas
+                          to.
+                        </div>
+                        <div style={{textAlign: "center", margin: "10px 0 10px 0"}}>Current replicas is: {selectedDeployment[0]["available"]}</div>
+                        <TextField
+                          onChange={handleSetDeploymentScaleNumber}
+                          inputProps={{
+                            inputMode: "numeric",
+                            pattern: "[0-9]*",
+                            placeholder: `${selectedDeployment[0]["available"]}`,
+                          }}
+                          type="number"
+                          style={{ width: "60px", margin: "10px 0 0 170px" }}
+                        ></TextField>
+                        <div
+                          style={{
+                            display: "flex",
+                            flexDirection: "row",
+                            marginTop: "30px",
+                            justifyContent: "center",
+                          }}
+                        >
+                          <button
+                            className="button3D-pushable"
+                            role="button"
+                            onClick={handleDeploymentScale}
+                            style={{ marginRight: "10px" }}
+                          >
+                            <span className="button3D-shadow"></span>
+                            <span
+                              className="button3D-edge"
+                              style={{
+                                background:
+                                  theme.palette.mode === "dark"
+                                    ? "linear-gradient(to left, hsl(239, 40%, 25%) 0%, hsl(239, 40%, 30%) 8%, hsl(239, 40%, 30%) 92%,  hsl(239, 40%, 25%) 100%)"
+                                    : "linear-gradient(to left, hsl(263, 40%, 64%) 0%, hsl(263, 40%, 70%) 8%, hsl(263, 40%, 70%) 92%,hsl(263, 40%, 64%) 100%)",
+                              }}
+                            ></span>
+                            <span
+                              className="button3D-front text"
+                              style={{
+                                width: "220px",
+                                background:
+                                  theme.palette.mode === "dark"
+                                    ? "hsl(239, 38%, 51%)"
+                                    : "hsl(263, 65%, 80%)",
+                              }}
+                            >
+                              SCALE DEPLOYMENT
+                            </span>
+                          </button>
+                          {/* <Button
+                              onClick={handlePodDeleteClose}
+                              style={{
+                                opacity: "50%",
+                                fontSize: "15px",
+                                margin: "0 0 0 10px",
+                                padding: "5px 10px 5px 10px",
+                                border: "1px solid #ffffff89",
+                              }}
+                            >
+                              CANCEL
+                            </Button> */}
+                          <button
+                            className="button3D-pushable"
+                            role="button"
+                            onClick={handleDeploymentScaleClose}
+                          >
+                            <span className="button3D-shadow"></span>
+                            <span
+                              className="button3D-edge"
+                              style={{
+                                background:
+                                  theme.palette.mode === "dark"
+                                    ? "linear-gradient(to left, hsl(239, 40%, 20%) 0%, hsl(239, 40%, 25%) 8%, hsl(239, 40%, 25%) 92%,  hsl(239, 40%, 20%) 100%)"
+                                    : "linear-gradient(to left, hsl(263, 40%, 64%) 0%, hsl(263, 40%, 70%) 8%, hsl(263, 40%, 70%) 92%,hsl(263, 40%, 64%) 100%)",
+                              }}
+                            ></span>
+                            <span
+                              className="button3D-front text"
+                              style={{
+                                width: "110px",
+                                background:
+                                  theme.palette.mode === "dark"
+                                    ? "hsl(239, 38%, 31%)"
+                                    : "hsl(263, 65%, 80%)",
+                              }}
+                            >
+                              CANCEL
+                            </span>
+                          </button>
+                        </div>
+                      </Box>
+                    </Modal>
+
                     <button
                       className="button3D-pushable"
                       role="button"
@@ -1715,8 +2242,9 @@ function KraneDeploymentsList(props) {
                             fontSize: "12px",
                           }}
                         >
-                          WARNING: Deleting this depoyment will stop and
-                          delete it immediately. This may cause other pods or functions to stop working.
+                          WARNING: Deleting this depoyment will stop and delete
+                          it immediately. This may cause other pods or functions
+                          to stop working.
                         </div>
                         <div
                           style={{
@@ -1764,14 +2292,14 @@ function KraneDeploymentsList(props) {
                             <span
                               className="button3D-front text"
                               style={{
-                                width: "150px",
+                                width: "220px",
                                 background:
                                   theme.palette.mode === "dark"
                                     ? "hsl(239, 38%, 51%)"
                                     : "hsl(263, 65%, 80%)",
                               }}
                             >
-                              DELETE NODE
+                              DELETE DEPLOYMENT
                             </span>
                           </button>
                           {/* <Button
