@@ -55,7 +55,7 @@ function KraneDeploymentsList(props) {
     left: "50%",
     transform: "translate(-50%, -50%)",
     width: "90%",
-    height: "68%",
+    height: "88%",
     background: theme.palette.mode === "dark" ? "#0e0727" : "#eeebfb",
     color: theme.palette.mode === "dark" ? "white" : "#47456e",
     boxShadow: 24,
@@ -202,6 +202,10 @@ function KraneDeploymentsList(props) {
 
   const [deploymentScaleNumber, setDeploymentScaleNumber] = React.useState(0);
 
+  const [kubeSystemDeploymentsCheck, setKubeSystemDeploymentsCheck] =
+    React.useState(false);
+  const [kubeSystemDeployments, setKubeSystemDeployments] = React.useState([]);
+
   const [selectedDeployment, setSelectedDeployment] = useState([
     {
       index: "",
@@ -221,7 +225,7 @@ function KraneDeploymentsList(props) {
   //Listen to "get deployments" return event and set pods array
   ipcRenderer.on("got_deployments", (event, arg) => {
     let argArr = arg.split("");
-    console.log("argArr is", argArr);
+    // console.log("argArr is", argArr);
 
     let filteredDeployments = [];
 
@@ -234,6 +238,7 @@ function KraneDeploymentsList(props) {
     i++;
 
     for (let j = 0; i < argArr.length; i++) {
+      let namespaceOutput: any = [];
       let nameOutput: any = [];
       let readyNumeratorOutput: any = [];
       let readyDenominatorOutput: any = [];
@@ -243,6 +248,16 @@ function KraneDeploymentsList(props) {
       let containersOutput: any = [];
       let imagesOutput: any = [];
       let selectorOutput: any = [];
+
+      //saves namespace
+      while (arg[i] !== " ") {
+        namespaceOutput.push(arg[i]);
+        i++;
+      }
+      //skips spaces
+      while (arg[i] === " ") {
+        i++;
+      }
 
       //saves name
       while (arg[i] !== " ") {
@@ -326,6 +341,7 @@ function KraneDeploymentsList(props) {
 
       let deployment = {
         index: j,
+        namespace: namespaceOutput.join(""),
         name: nameOutput.join(""),
         readyNumerator: Number(readyNumeratorOutput.join("")),
         readyDenominator: Number(readyDenominatorOutput.join("")),
@@ -361,14 +377,25 @@ function KraneDeploymentsList(props) {
     i++;
 
     for (let j = 0; i < argArr.length; i++) {
+      let namespaceOutput: any = [];
       let nameOutput: any = [];
       let desiredOutput: any = [];
       let currentOutput: any = [];
-      let availableOutput: any = [];
+      let readyOutput: any = [];
       let ageOutput: any = [];
       let containersOutput: any = [];
       let imagesOutput: any = [];
       let selectorOutput: any = [];
+
+      //saves namespace
+      while (arg[i] !== " ") {
+        namespaceOutput.push(arg[i]);
+        i++;
+      }
+      //skips spaces
+      while (arg[i] === " ") {
+        i++;
+      }
 
       //saves name
       while (arg[i] !== " ") {
@@ -403,7 +430,7 @@ function KraneDeploymentsList(props) {
 
       //saves available
       while (arg[i] !== " ") {
-        availableOutput.push(arg[i]);
+        readyOutput.push(arg[i]);
         i++;
       }
       //skips spaces
@@ -447,10 +474,11 @@ function KraneDeploymentsList(props) {
 
       let replicaSet = {
         index: j,
+        namespace: namespaceOutput.join(""),
         name: nameOutput.join(""),
         desired: desiredOutput.join(""),
         current: currentOutput.join(""),
-        available: availableOutput.join(""),
+        ready: readyOutput.join(""),
         age: ageOutput.join(""),
         containers: containersOutput.join(""),
         images: imagesOutput.join(""),
@@ -467,8 +495,22 @@ function KraneDeploymentsList(props) {
       tempDeploys[i]["replicaSets"] = filteredReplicaSets[i];
     }
 
-    //set new deployments Arr state
-    props.setDeploymentsArr(tempDeploys);
+    // //set new deployments Arr state, based on if kube system checkbox
+    if (kubeSystemDeploymentsCheck === false) {
+      //if false, separate out kube system pods and then set state
+      let kubeDeployments = tempDeploys.filter(
+        (deployment) => deployment.namespace === "kube-system"
+      );
+      setKubeSystemDeployments([...kubeDeployments]);
+
+      let kubeFilteredDeployments = tempDeploys.filter(
+        (deployment) => deployment.namespace !== "kube-system"
+      );
+      props.setDeploymentsArr([...kubeFilteredDeployments]);
+    } else {
+      //else if checkbox is true set deployments array with kube system as well
+      props.setDeploymentsArr([...tempDeploys]);
+    }
     console.log("deployments Arr is:", props.deploymentsArr);
   }); //--------------------------------------end of ipc to parse replicaSets --------
 
@@ -528,7 +570,7 @@ function KraneDeploymentsList(props) {
       let argArr = arg.split("\n");
       let temp = "";
       let output = [];
-      console.log("ARG SPLIT ISSSSSS", argArr);
+      // console.log("ARG SPLIT ISSSSSS", argArr);
       for (let i = 0; i < argArr.length; i++) {
         output.push(<p>{argArr[i]}</p>);
         // console.log("temp is", temp);
@@ -773,7 +815,7 @@ function KraneDeploymentsList(props) {
 
     let deploymentScaleCommand = `kubectl scale --replicas=${deploymentScaleNumber} deployment/${selectedDeployment[0]["name"]}`;
     //send get delete pod command
-    ipcRenderer.send("scaleeDeployment_command", {
+    ipcRenderer.send("scaleDeployment_command", {
       deploymentScaleCommand,
       currDir,
     });
@@ -782,6 +824,31 @@ function KraneDeploymentsList(props) {
   const handleSetDeploymentScaleNumber = (e) => {
     setDeploymentScaleNumber(e.target.value);
   };
+
+  function handleKubeSystemChangeDeployments() {
+    //switch state of checkmark to turn on / off
+    props.getDeploymentsInfo();
+    setKubeSystemDeploymentsCheck(!kubeSystemDeploymentsCheck);
+
+    //if checkmark state is true, desired outcome is to merge kube pods in and sort by index
+    if (kubeSystemDeploymentsCheck === true) {
+      let tempDeployments = [...props.deploymentsArr, ...kubeSystemDeployments];
+      let finalTemp = tempDeployments.sort((a, b) => a.index - b.index);
+      props.setDeploymentsArr([...finalTemp]);
+    } else {
+      //if removing kube pods, first set them in separate array for ability to re-merge later
+      let kubeDeployments = props.deploymentsArr.filter(
+        (deployment) => deployment.namespace === "kube-system"
+      );
+      setKubeSystemDeployments([...kubeDeployments]);
+      //filter out kube system pods and set new deployments Arr
+      let tempDeployments = props.deploymentsArr.filter(
+        (deployment) => deployment.namespace !== "kube-system"
+      );
+      props.setDeploymentsArr([...tempDeployments]);
+    }
+    // setSortedByDisplay(sortedByDisplayArray[0]);
+  }
 
   let deploymentsList = [];
   for (let i = 0; i < props.deploymentsArr.length; i++) {
@@ -962,8 +1029,8 @@ function KraneDeploymentsList(props) {
                 <div
                   style={{
                     fontSize: "22px",
-                    fontWeight: "500",
                     margin: "-8.9px 0 0px -10px",
+                    fontWeight: "500",
                   }}
                 >
                   {props.deploymentsArr[i]["upToDate"]}
@@ -1190,12 +1257,46 @@ function KraneDeploymentsList(props) {
           }}
         ></div>
       </div>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "flex-end",
+          margin: "5px -10px 0 0px",
+        }}
+      >
+        <div style={{ display: "flex" }}>
+          {" "}
+          <div
+            onClick={handleKubeSystemChangeDeployments}
+            style={{
+              cursor: "pointer",
+              fontSize: "10px",
+              margin: "3px 0px 0 10px",
+              color: theme.palette.mode === "dark" ? "#ffffff99" : "grey",
+              userSelect: "none",
+            }}
+          >
+            show kube-system
+          </div>{" "}
+          <Checkbox
+            //@ts-ignore
+            size="small"
+            value="start"
+            checked={kubeSystemDeploymentsCheck}
+            onChange={handleKubeSystemChangeDeployments}
+            style={{
+              marginTop: "-7px",
+              color: theme.palette.mode === "dark" ? "" : "#00000050",
+            }}
+          />
+        </div>
+      </div>
 
       <div
         style={{
           display: "flex",
           flexWrap: "wrap",
-          margin: "-5px 0 0 50px",
+          margin: "-35px 0 0 50px",
           // border: "1px solid blue",
           width: "100%",
         }}
@@ -1287,6 +1388,7 @@ function KraneDeploymentsList(props) {
                       flexDirection: "row",
                       // border: "1px solid green",
                       alignItems: "flex-end",
+                      fontWeight:"500",
                       margin: "20px 0 0 0",
                       userSelect: "none",
                     }}
@@ -1305,7 +1407,7 @@ function KraneDeploymentsList(props) {
                       <div
                         style={{
                           fontSize: "19px",
-                          fontWeight: "500",
+                          fontWeight: "300",
                           margin: "-5px 0 0px 0",
                         }}
                       >
@@ -1329,7 +1431,7 @@ function KraneDeploymentsList(props) {
                       <div
                         style={{
                           fontSize: "22px",
-                          fontWeight: "500",
+                          fontWeight: "300",
                           margin: "-8.9px 0 0px -10px",
                         }}
                       >
@@ -1359,7 +1461,7 @@ function KraneDeploymentsList(props) {
                       <div
                         style={{
                           fontSize: "22px",
-                          fontWeight: "500",
+                          fontWeight: "300",
                           margin: "-8.9px 0 0px 0",
                         }}
                       >
@@ -1446,6 +1548,9 @@ function KraneDeploymentsList(props) {
                         userSelect: "none",
                       }}
                     >
+                      {" "}
+                      NAMESPACE:
+                      <br />
                       CONTAINERS:
                       <br />
                       IMAGES:
@@ -1463,6 +1568,8 @@ function KraneDeploymentsList(props) {
                         fontSize: "13.5px",
                       }}
                     >
+                      {selectedDeployment[0]["namespace"]}
+                      <br />
                       {selectedDeployment[0]["containers"]}
                       <br />
                       {selectedDeployment[0]["images"]}
@@ -2094,14 +2201,23 @@ function KraneDeploymentsList(props) {
                             fontSize: "12px",
                           }}
                         >
-                          Please select the new number to scale your deployment's replicas
-                          to.
+                          Please select the new number to scale your
+                          deployment's replicas to.
                         </div>
-                        <div style={{textAlign: "center", margin: "10px 0 10px 0"}}>Current replicas is: {selectedDeployment[0]["available"]}</div>
+                        <div
+                          style={{
+                            textAlign: "center",
+                            margin: "10px 0 10px 0",
+                          }}
+                        >
+                          Current replicas is:{" "}
+                          {selectedDeployment[0]["available"]}
+                        </div>
                         <TextField
-                          onChange={handleSetDeploymentScaleNumber}
+                          onChange={(e) => handleSetDeploymentScaleNumber(e)}
                           inputProps={{
                             inputMode: "numeric",
+                            min: 1,
                             pattern: "[0-9]*",
                             placeholder: `${selectedDeployment[0]["available"]}`,
                           }}
@@ -2345,6 +2461,186 @@ function KraneDeploymentsList(props) {
                         </div>
                       </Box>
                     </Modal>
+                  </div>
+                </div>
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "row",
+                  justifyContent: "flex-start",
+                  alignItems: "flex-end",
+                  margin: "20px 0 0 140px",
+                }}
+              >
+                <div
+                  style={{
+                    fontFamily: "Outfit",
+                    fontSize: "20px",
+                    fontWeight: "900",
+                    letterSpacing: "3px",
+                    // border: "1px solid white",
+                    textAlign: "left",
+                    // color: "#ffffff",
+                    paddingTop: "10px",
+                    userSelect: "none",
+                  }}
+                >
+                  REPLICA SETS
+                </div>
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "row",
+                  justifyContent: "flex-start",
+                  alignItems: "center",
+                  margin: "0 0 0 140px",
+                }}
+              >
+                <div
+                  style={{
+                    height: "1px",
+                    width: "100%",
+                    backgroundColor: "#ffffff99",
+                    // border: "1px solid white",
+                    // marginRight: "50px",
+                    marginRight: "20px",
+                    marginTop: "5px",
+                  }}
+                ></div>
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "row",
+                  justifyContent: "flex-start",
+                  alignItems: "flex-start",
+                  margin: "10px 0 0 140px",
+                }}
+              >
+                <img
+                  style={{
+                    width: "50px",
+                    margin: "10px 0 0 0",
+                    // border: "1px solid blue",
+                  }}
+                  src="../../rs.svg"
+                ></img>
+                <span
+                  style={{
+                    margin: "16px 0 0 15px",
+                    width: "385px",
+                    lineHeight: "23px",
+                    fontSize: "18px",
+                    textTransform: "none",
+                    // border: "1px solid blue",
+                  }}
+                >
+                  {selectedDeployment[0]["replicaSets"]["name"]}
+                </span>
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "flex-end",
+                    alignItems: "center",
+                    margin: "10px 0 0 0px",
+                    height: "60px",
+                    width: "85px",
+                    lineHeight: "23px",
+                    fontSize: "26px",
+                    textTransform: "none",
+                    fontWeight: "300",
+                    // border: "1px solid blue",
+                  }}
+                >
+                  <div>{selectedDeployment[0]["replicaSets"]["desired"]}</div>
+                  <div
+                    style={{
+                      fontSize: "11px",
+                      fontWeight: "400",
+                    }}
+                  >
+                    DESIRED
+                  </div>
+                </div>
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "flex-end",
+                    alignItems: "center",
+                    margin: "10px 0 0 0px",
+                    height: "60px",
+                    width: "85px",
+                    lineHeight: "23px",
+                    fontSize: "26px",
+                    textTransform: "none",
+                    fontWeight: "300",
+                    // border: "1px solid blue",
+                  }}
+                >
+                  <div>{selectedDeployment[0]["replicaSets"]["current"]}</div>
+                  <div
+                    style={{
+                      fontSize: "11px",
+                      fontWeight: "400",
+                    }}
+                  >
+                    CURRENT
+                  </div>
+                </div>
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "flex-end",
+                    alignItems: "center",
+                    margin: "10px 0 0 0px",
+                    height: "60px",
+                    width: "85px",
+                    lineHeight: "23px",
+                    fontSize: "26px",
+                    textTransform: "none",
+                    fontWeight: "300",
+                    // border: "1px solid blue",
+                  }}
+                >
+                  <div>{selectedDeployment[0]["replicaSets"]["ready"]}</div>
+                  <div
+                    style={{
+                      fontSize: "11px",
+                      fontWeight: "400",
+                    }}
+                  >
+                    READY
+                  </div>
+                </div>
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "flex-end",
+                    alignItems: "center",
+                    margin: "10px 0 0 0px",
+                    height: "60px",
+                    width: "85px",
+                    lineHeight: "23px",
+                    fontSize: "22px",
+                    textTransform: "none",
+                    fontWeight: "300",
+                    // border: "1px solid blue",
+                  }}
+                >
+                  <div>{selectedDeployment[0]["replicaSets"]["age"]}</div>
+                  <div
+                    style={{
+                      fontSize: "11px",
+                      fontWeight: "400",
+                    }}
+                  >
+                    AGE
                   </div>
                 </div>
               </div>

@@ -1538,7 +1538,9 @@ function KranePodList(props) {
                     : props.podsArr[i]["podCpuLimit"] === "NONE"
                     ? "-55px"
                     : "-60px",
-                  marginLeft: "-8px",
+                  marginLeft: props.podsArr[i]["podCpuLimit"] === "NONE"
+                    ? "-10px"
+                    : "-8px",
                   // border: "2px solid red",
                   color:
                     theme.palette.mode === "dark"
@@ -1646,7 +1648,7 @@ function KranePodList(props) {
                   top: "-48px",
                   left: "5px",
                   fontWeight: "500",
-                  marginLeft: "-10px",
+                  marginLeft: props.podsArr[i]["podMemoryPercent"] === "N/A" ? "-11px" : "-10px",
                   fontSize: !props.podsArr[i]["podMemoryLimit"]
                     ? "13px"
                     : props.podsArr[i]["podMemoryLimit"] === "NONE"

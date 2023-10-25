@@ -14,7 +14,7 @@ import { styled } from "@mui/material/styles";
 import { JsxElement } from "typescript";
 import KraneNodeList from "../components/KraneNodeList.js";
 import KranePodList from "../components/KranePodList.js";
-import KraneDeploymentsList from "../components/KraneDeploymentsList.tsx";
+import KraneDeploymentsList from "../components/KraneDeploymentsList";
 
 const LightTooltip = styled(({ className, ...props }: TooltipProps) => (
   <Tooltip {...props} classes={{ popper: className }} />
@@ -127,14 +127,15 @@ function Krane() {
   }
 
   function getDeploymentsInfo() {
-    let deploymentsCommand: string = "kubectl get deployments -o wide";
+    let deploymentsCommand: string =
+      "kubectl get deployments -o wide --all-namespaces";
     //send krane command to get all nodes
     ipcRenderer.send("getDeployments_command", {
       deploymentsCommand,
       currDir,
     });
 
-    let getReplicasCommand: string = `kubectl get rs -o wide`;
+    let getReplicasCommand: string = `kubectl get rs -o wide --all-namespaces`;
     setTimeout(() => {
       ipcRenderer.send("getReplicas_command", {
         getReplicasCommand,

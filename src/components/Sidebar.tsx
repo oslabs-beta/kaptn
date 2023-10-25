@@ -1,3 +1,4 @@
+import React from "react";
 import { Sidebar, Menu, MenuItem } from "react-pro-sidebar";
 import { useState, useContext } from "react";
 import { Box, IconButton, useTheme } from "@mui/material";
@@ -12,14 +13,14 @@ import {
   BorderColor,
 } from "@mui/icons-material";
 import Grid from "@mui/system/Unstable_Grid";
-import { ColorModeContext } from "../theme.ts";
+import { ColorModeContext } from "../theme";
 import Tooltip, { TooltipProps, tooltipClasses } from "@mui/material/Tooltip";
 import { styled } from "@mui/material/styles";
 import HomeRoundedIcon from "@mui/icons-material/HomeRounded";
 import PrecisionManufacturingIcon from "@mui/icons-material/PrecisionManufacturing";
 import ScatterPlotIcon from "@mui/icons-material/ScatterPlot";
 import LensBlurIcon from "@mui/icons-material/LensBlur";
-import TerminalIcon from '@mui/icons-material/Terminal';
+import TerminalIcon from "@mui/icons-material/Terminal";
 
 function SideNav(props) {
   // Color theme is toggled here with the light/dark mode menu item
