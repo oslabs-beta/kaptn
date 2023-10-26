@@ -2,8 +2,8 @@ import WelcomeModal from "./Pages/WelcomeModal.jsx";
 import Start from "./Pages/Start.jsx";
 import Cluster from "./Pages/Cluster.jsx";
 import { HashRouter, Route, Routes } from "react-router-dom";
-import Dashboard from "./Pages/Dashboard.tsx";
-import KlusterManager from "./Pages/Krane.tsx";
+import Dashboard from "./Pages/Dashboard";
+import KlusterManager from "./Pages/Krane";
 import Topbar from "./components/Topbar.js";
 import Setup from "./Pages/Setup.js";
 import { ColorModeContext, useMode } from "./theme.js";
@@ -14,6 +14,8 @@ function App() {
   const [theme, colorMode] = useMode();
 
   const [promGrafCheckStatus, setPromGrafCheckStatus] = useState("checking");
+  const [grafVersion, setGrafVersion] = useState("");
+  const [promVersion, setPromVersion] = useState("");
 
   // Hash router is used here to optimize for static file serving from Electron
   // More information here: https://reactrouter.com/en/main/router-components/hash-router
@@ -32,19 +34,66 @@ function App() {
                     <Start
                       promGrafCheckStatus={promGrafCheckStatus}
                       setPromGrafCheckStatus={setPromGrafCheckStatus}
+                      grafVersion={grafVersion}
+                      setGrafVersion={setGrafVersion}
+                      promVersion={promVersion}
+                      setPromVersion={setPromVersion}
                     />
                   }
                 />
                 <Route path="/welcome" element={<WelcomeModal />} />
-                <Route path="/krane" element={<KlusterManager />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/setup" element={<Setup />} />
+                <Route
+                  path="/krane"
+                  element={
+                    <KlusterManager
+                      //@ts-expect-error
+                      promGrafCheckStatus={promGrafCheckStatus}
+                      setPromGrafCheckStatus={setPromGrafCheckStatus}
+                      grafVersion={grafVersion}
+                      setGrafVersion={setGrafVersion}
+                      promVersion={promVersion}
+                      setPromVersion={setPromVersion}
+                    />
+                  }
+                />
+                <Route
+                  path="/dashboard"
+                  element={
+                    <Dashboard
+                      //@ts-expect-error
+                      promGrafCheckStatus={promGrafCheckStatus}
+                      setPromGrafCheckStatus={setPromGrafCheckStatus}
+                      grafVersion={grafVersion}
+                      setGrafVersion={setGrafVersion}
+                      promVersion={promVersion}
+                      setPromVersion={setPromVersion}
+                    />
+                  }
+                />
+                <Route
+                  path="/setup"
+                  element={
+                    <Setup
+                      //@ts-expect-error
+                      promGrafCheckStatus={promGrafCheckStatus}
+                      setPromGrafCheckStatus={setPromGrafCheckStatus}
+                      grafVersion={grafVersion}
+                      setGrafVersion={setGrafVersion}
+                      promVersion={promVersion}
+                      setPromVersion={setPromVersion}
+                    />
+                  }
+                />
                 <Route
                   path="/cluster"
                   element={
                     <Cluster
                       promGrafCheckStatus={promGrafCheckStatus}
                       setPromGrafCheckStatus={setPromGrafCheckStatus}
+                      grafVersion={grafVersion}
+                      setGrafVersion={setGrafVersion}
+                      promVersion={promVersion}
+                      setPromVersion={setPromVersion}
                     />
                   }
                 />

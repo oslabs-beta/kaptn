@@ -19,7 +19,7 @@ import {
 } from "@mui/material";
 import { Box, styled, lighten, darken } from "@mui/system";
 import Grid from "@mui/system/Unstable_Grid";
-import CommandLine from "../components/CommandLine.jsx";
+import SetupCommandLine from "../components/SetupCommandLine.jsx";
 import Terminal from "../components/Terminal.js";
 import Sidebar from "../components/Sidebar.jsx";
 import EastIcon from "@mui/icons-material/East";
@@ -143,6 +143,8 @@ function Setup() {
     "-A",
     "--all-namespaces",
     "-v",
+    "-o json",
+    "-o yaml",
   ];
 
   // Set flag list state
@@ -294,6 +296,8 @@ function Setup() {
     { label: "configmap" },
     { label: "deployment" },
     { label: "events" },
+    { label: "rs" },
+    { label: "replicaSets" },
     { label: "secret" },
     { label: "service" },
     { label: "services" },
@@ -665,7 +669,7 @@ function Setup() {
             marginLeft: "310px",
           }}
         >
-          <Terminal response={response} />
+          <Terminal response={response} setResponse={setResponse} />
         </div>
         <div
           style={{
@@ -685,7 +689,7 @@ function Setup() {
             zIndex: "100",
           }}
         >
-          <CommandLine
+          <SetupCommandLine
             handleSubmit={handleSubmit}
             setUserInput={setUserInput}
             setVerb={setVerb}
@@ -696,6 +700,8 @@ function Setup() {
             command={command}
             setCommand={setCommand}
             border="0px transparent"
+            shortDir={shortDir}
+            handleUploadDirectory={handleUploadDirectory}
           />
         </div>
 

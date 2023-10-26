@@ -22,9 +22,6 @@ function Start(props) {
   const [metricsCheckStatus, setMetricsCheckStatus] = useState("checking");
   // const [metricsVersion, setMetricsVersion] = useState("");
 
-  const [grafVersion, setGrafVersion] = useState("");
-  const [promVersion, setPromVersion] = useState("");
-
   let argOut = "";
 
   // command for check if metrics server installed is: kubectl get pods --all-namespaces | grep metrics-server
@@ -44,7 +41,7 @@ function Start(props) {
         arg[i + 5] === "n" &&
         arg[i + 6] === "a"
       ) {
-        setGrafVersion("installed");
+        props.setGrafVersion("installed");
         //metrics not installed, save metrics status as not installed
       }
       if (
@@ -59,11 +56,14 @@ function Start(props) {
         arg[i + 8] === "u" &&
         arg[i + 9] === "s"
       ) {
-        setPromVersion("installed");
+        props.setPromVersion("installed");
         //metrics not installed, save metrics status as not installed
       }
     }
-    if (promVersion === "installed" && grafVersion === "installed") {
+    if (
+      props.promVersion === "installed" &&
+      props.grafVersion === "installed"
+    ) {
       setTimeout(() => {
         props.setPromGrafCheckStatus("installed");
       }, 2400);
@@ -150,11 +150,13 @@ function Start(props) {
       currDir,
     });
 
-    // send check prom anf graf installed command
-    ipcRenderer.send("check_promgraf_installed", {
-      kubectlCheckPromGrafInstallCommand,
-      currDir,
-    });
+    if (props.promGrafCheckStatus !== "installed") {
+      // send check prom anf graf installed command
+      ipcRenderer.send("check_promgraf_installed", {
+        kubectlCheckPromGrafInstallCommand,
+        currDir,
+      });
+    }
   }, []);
 
   //set the kubectl install div based on its check status

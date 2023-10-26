@@ -1,4 +1,11 @@
-import { InputAdornment, Button, TextField, useTheme } from "@mui/material";
+import {
+  InputAdornment,
+  Button,
+  TextField,
+  useTheme,
+  Box,
+  Grid,
+} from "@mui/material";
 // import { clipboard } from 'electron';
 
 const CommandLine = (props) => {
@@ -40,11 +47,15 @@ const CommandLine = (props) => {
   return (
     <div
       style={{
+        display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        borderColor: "transparent",
+        // border: "1px solid blue",
+        margin: "0px 0 0 0px",
       }}
     >
+      {" "}
+      
       <form
         onSubmit={props.handleSubmit}
         data-value={props.command}
@@ -53,6 +64,7 @@ const CommandLine = (props) => {
           justifyContent: "center",
           alignItems: "center",
           borderColor: "transparent",
+          marginLeft:"0px"
         }}
       >
         <TextField
@@ -69,7 +81,17 @@ const CommandLine = (props) => {
           }}
           InputProps={{
             startAdornment: (
-              <InputAdornment position="start">$ </InputAdornment>
+              <InputAdornment
+                position="start"
+                style={{
+                  color:
+                    theme.palette.mode === "dark"
+                      ? "rgb(109, 233, 68)"
+                      : "#685aef",
+                }}
+              >
+                <strong> $ </strong>
+              </InputAdornment>
             ),
           }}
           onChange={(e) => {

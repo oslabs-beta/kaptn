@@ -119,6 +119,15 @@ function Krane() {
     getPodsAndContainers();
   }
 
+  const handleChooseKubeConfig = (event) => {
+    let path = event.target.files[0].path.split("");
+    while (path[path.length - 1] !== "/") {
+      path.pop();
+    }
+    let absPath = path.join("");
+    setCurrDir(absPath);
+  };
+
   const [deploymentsShowStatus, setDeploymentsShowStatus] = useState(false);
 
   function handleDeploymentsShowStatus() {
@@ -314,6 +323,7 @@ function Krane() {
   }
 
   let refreshShowDiv;
+  let noneChosenDiv;
   if (nodeShowStatus || deploymentsShowStatus) {
     refreshShowDiv = (
       <>
@@ -363,6 +373,57 @@ function Krane() {
             onClick={handleClick}
           >
             Refresh stats
+          </Button>
+        </div>
+      </>
+    );
+  } else {
+    noneChosenDiv = (
+      <>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            fontFamily: "Outfit",
+            margin: "20% 0 0 0",
+            fontSize: "28px",
+            fontWeight: "900",
+            letterSpacing: "1px",
+            textTransform: "uppercase",
+            color: theme.palette.mode === "dark" ? "" : "#00000070",
+          }}
+        >
+          Choose Above to View Your Clusters
+        </div>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            fontFamily: "Outfit",
+            margin: "25% 0 0 0",
+            fontSize: "8px",
+            fontWeight: "900",
+            opacity: ".42",
+            letterSpacing: "1px",
+            textTransform: "uppercase",
+            color: theme.palette.mode === "dark" ? "" : "#000000",
+          }}
+        >
+          CLUSTERS STILL NOT APPEARING AFTER CHOOSING?
+          <Button
+            variant="contained"
+            component="label"
+            style={{
+              backgroundColor: "transparent",
+              fontFamily: "Outfit",
+              margin: "-7.5px 0 0 -10px",
+              fontSize: "8px",
+              fontWeight: "900",
+              color: theme.palette.mode === "dark" ? "" : "#000000",
+            }}
+          >
+            CLICK HERE TO LOAD A CUSTOM .KUBE/CONFIG FILE
+            <input type="file" hidden onChange={handleChooseKubeConfig} />
           </Button>
         </div>
       </>
@@ -600,6 +661,7 @@ function Krane() {
             {deploymentsDiv}
           </div>
         </div>
+        {noneChosenDiv}
       </div>
     </>
   );

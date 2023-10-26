@@ -16,7 +16,7 @@ import {
 } from "@mui/material";
 import Grid from "@mui/system/Unstable_Grid";
 import SideNav from "../components/Sidebar";
-import CommandLine from "../components/CommandLine";
+import DashboardCommandLine from "../components/DashboardCommandLine";
 import Terminal from "../components/Terminal";
 const { ipcRenderer } = require("electron");
 import commands from "../components/commands";
@@ -143,19 +143,19 @@ function Dashboard(): JSX.Element {
     for (let i = absArr.length - 2; absArr[i] !== "/"; i--) {
       shortArr.unshift(absArr[i]);
     }
-    shortArr.unshift("/");
-    let shortPath = shortArr.join("") + "/";
-    setShortDir("..." + shortPath);
+    // shortArr.unshift("/");
+    let shortPath = shortArr.join("");
+    setShortDir(shortPath);
   };
 
   // Clear the input box
   const handleClear = (e) => {
     e.preventDefault();
 
-    setUserInput('');
-    setVerb('');
-    setType('');
-    setName('');
+    setUserInput("");
+    setVerb("");
+    setType("");
+    setName("");
     setFlags([]);
   };
 
@@ -207,6 +207,16 @@ function Dashboard(): JSX.Element {
     };
   }
 
+  useEffect(() => {
+    let temp = process.env.ZDOTDIR;
+    setCurrDir(temp);
+    let output = [];
+    for (let j = temp.length - 1; temp[j] !== "/"; j--) {
+      output.unshift(temp[j]);
+    }
+    setShortDir(output.join(""));
+  }, []);
+
   // Set the command state based on current inputs
   useEffect(() => {
     // Listen to post_command response
@@ -234,8 +244,22 @@ function Dashboard(): JSX.Element {
   // Handle the command input submit event
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (tool === "" && currDir === "NONE SELECTED") {
-      return alert("Please choose working directory");
+
+    console.log("short dir is:", shortDir);
+    console.log("CURR DIR IS:", currDir);
+
+    if (command.slice(0, 3) === " cd ") {
+      let temp = command.slice(4, -1);
+      console.log("temp:", temp);
+      if (temp.slice(0, 2) === "../") {
+        console.log("short dir is:", shortDir);
+        console.log("CURR DIR IS:", currDir);
+        //parse and change currDir and shortDir to one directory higher
+      } else if (temp.slice(0, 2) === "./") {
+        //ignore or slice and parse going down levels
+        console.log("short dir is:", shortDir);
+        console.log("CURR DIR IS:", currDir);
+      }
     } else ipcRenderer.send("post_command", { command, currDir });
   };
 
@@ -257,13 +281,25 @@ function Dashboard(): JSX.Element {
     { label: "configmap" },
     { label: "deployment" },
     { label: "events" },
+    { label: "rs" },
+    { label: "replicaSets" },
     { label: "secret" },
     { label: "service" },
     { label: "services" },
   ];
 
   // Flag list options
-  const flagList: string[] = ["-o wide", "--force", "-f", "-o default", "-v"];
+  const flagList: string[] = [
+    "-o wide",
+    "--force",
+    "-f",
+    "-o default",
+    "-A",
+    "--all-namespaces",
+    "-v",
+    "-o json",
+    "-o yaml",
+  ];
 
   return (
     <>
@@ -294,7 +330,11 @@ function Dashboard(): JSX.Element {
           style={{ marginLeft: "5.5%", marginTop: "25px" }}
         >
           {/* ----------------TERMINAL---------------- */}
-          <Terminal response={response} />
+          <Terminal
+            response={response}
+            shortDir={shortDir}
+            setResponse={setResponse}
+          />
 
           {/* ----------------BELOW TERMINAL---------------- */}
           <Grid
@@ -309,7 +349,7 @@ function Dashboard(): JSX.Element {
             width="100%"
           >
             {/* ----------------CHOOSE DIRECTORY---------------- */}
-            <Grid
+            {/* <Grid
               id="directory"
               container
               width="100%"
@@ -362,7 +402,7 @@ function Dashboard(): JSX.Element {
                   />
                 </Button>
               </Grid>
-            </Grid>
+            </Grid> */}
 
             {/* ----------------INPUT BOXES---------------- */}
 
@@ -371,8 +411,8 @@ function Dashboard(): JSX.Element {
               style={{
                 display: "flex",
                 flexDirection: "row",
-                width: "90%",
-                marginTop: "6px",
+                width: "95%",
+                marginTop: "25px",
                 justifyContent: "space-around",
                 alignItems: "center",
               }}
@@ -454,9 +494,10 @@ function Dashboard(): JSX.Element {
                   </div>
                 </div>
               </LightTooltip>
+              {/* ---------------- COMMANDS FIELD ------------------------------------- */}
               <div
                 id="commands"
-                style={{ width: "25%", margin: "0 5px 0 5px" }}
+                style={{ width: "24%", margin: "0 5px 0 5px" }}
               >
                 <Autocomplete
                   disablePortal
@@ -507,7 +548,7 @@ function Dashboard(): JSX.Element {
 
               {/* ---------------- TYPES FIELD ------------------------------------- */}
 
-              <div id="types" style={{ width: "20%" }}>
+              <div id="types" style={{ width: "19%" }}>
                 <Autocomplete
                   disablePortal
                   id="combo-box-demo"
@@ -530,7 +571,7 @@ function Dashboard(): JSX.Element {
 
               {/* ---------------- NAMES FIELD ------------------------------------- */}
 
-              <div id="name" style={{ width: "25%", margin: "0 5px 0 5px" }}>
+              <div id="name" style={{ width: "32%", margin: "0 5px 0 5px" }}>
                 <form
                   onChange={handleNameChange}
                   onSubmit={(e) => {
@@ -548,7 +589,7 @@ function Dashboard(): JSX.Element {
 
               {/* ---------------- FLAGS DROPDOWN ------------------------------------- */}
 
-              <div id="flag" style={{ width: "15%", marginLeft: "0px" }}>
+              <div id="flag" style={{ width: "12%", marginLeft: "0px" }}>
                 <FormControl fullWidth>
                   <InputLabel id="flag-label">Flags</InputLabel>
                   <Select
@@ -583,14 +624,14 @@ function Dashboard(): JSX.Element {
               style={{
                 display: "flex",
                 flexDirection: "column",
-                width: "72%",
-                marginLeft: "25px",
+                width: "92%",
+                margin: "0 0 0 70px",
                 justifyContent: "center",
               }}
             >
               <div style={{ marginTop: "20px" }}>
-                <CommandLine
-                  width="100%"
+                <DashboardCommandLine
+                  // width="50%"
                   handleSubmit={handleSubmit}
                   setUserInput={setUserInput}
                   setVerb={setVerb}
@@ -600,10 +641,12 @@ function Dashboard(): JSX.Element {
                   userInput={userInput}
                   command={command}
                   handleClear={handleClear}
+                  shortDir={shortDir}
+                  handleUploadDirectory={handleUploadDirectory}
                 />
               </div>
               {/* ---------- INSTANT HELP DESK SECTION BEGINS ------------- */}
-              <div
+              {/* <div
                 style={{
                   display: "flex",
                   flexDirection: "column",
@@ -777,7 +820,7 @@ function Dashboard(): JSX.Element {
                     </Box>
                   </Modal>
                 </div>
-              </div>
+              </div> */}
             </div>
           </Grid>
         </Grid>
