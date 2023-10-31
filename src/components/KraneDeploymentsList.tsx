@@ -496,15 +496,15 @@ function KraneDeploymentsList(props) {
     }
 
     // //set new deployments Arr state, based on if kube system checkbox
-    if (kubeSystemDeploymentsCheck === false) {
+    if (props.selectedNamespace !== "ALL") {
       //if false, separate out kube system pods and then set state
       let kubeDeployments = tempDeploys.filter(
-        (deployment) => deployment.namespace === "kube-system"
+        (deployment) => deployment.namespace !== props.selectedNamespace
       );
       setKubeSystemDeployments([...kubeDeployments]);
 
       let kubeFilteredDeployments = tempDeploys.filter(
-        (deployment) => deployment.namespace !== "kube-system"
+        (deployment) => deployment.namespace === props.selectedNamespace
       );
       props.setDeploymentsArr([...kubeFilteredDeployments]);
     } else {
@@ -1266,8 +1266,8 @@ function KraneDeploymentsList(props) {
       >
         <div style={{ display: "flex" }}>
           {" "}
-          <div
-            onClick={handleKubeSystemChangeDeployments}
+          {/* <div
+            // onClick={handleKubeSystemChangeDeployments}
             style={{
               cursor: "pointer",
               fontSize: "10px",
@@ -1288,7 +1288,7 @@ function KraneDeploymentsList(props) {
               marginTop: "-7px",
               color: theme.palette.mode === "dark" ? "" : "#00000050",
             }}
-          />
+          /> */}
         </div>
       </div>
 
@@ -1296,9 +1296,9 @@ function KraneDeploymentsList(props) {
         style={{
           display: "flex",
           flexWrap: "wrap",
-          margin: "-35px 0 0 50px",
+          margin: "5px 0 0 50px",
           // border: "1px solid blue",
-          width: "100%",
+          width: "1200px",
         }}
       >
         {deploymentsList}
@@ -1388,7 +1388,7 @@ function KraneDeploymentsList(props) {
                       flexDirection: "row",
                       // border: "1px solid green",
                       alignItems: "flex-end",
-                      fontWeight:"500",
+                      fontWeight: "500",
                       margin: "20px 0 0 0",
                       userSelect: "none",
                     }}

@@ -40,9 +40,17 @@ type ArrPodObjs = {
 let filteredPods: any = [];
 
 function Krane() {
+  const [namespacesArr, setNamespacesArr] = useState(["ALL"]);
+  const [namespaceIndex, setNamespaceIndex] = useState(0);
+  const [selectedNamespace, setSelectedNamespace] = useState(
+    namespacesArr[namespaceIndex]
+  );
+
   const [deploymentsArr, setDeploymentsArr] = useState([]);
   const [podsArr, setPodsArr] = useState([]);
+  const [allPodsArr, setAllPodsArr] = useState([]);
   const [nodesArr, setNodesArr] = useState([]);
+  const [podsContainersArr, setPodsContainersArr] = useState([]);
   const [currDir, setCurrDir] = useState("NONE SELECTED");
 
   const [openPod, setOpenPod] = React.useState(false);
@@ -107,6 +115,40 @@ function Krane() {
       theme.palette.mode === "dark" ? "1px solid white" : "2px solid #9075ea",
     borderRadius: "10px",
   };
+
+  ipcRenderer.on("got_namespaces", (event, arg) => {
+    let argArr = arg.split("");
+    console.log("argArr is", argArr);
+
+    let namespaceArrayOutput = [];
+
+    let i: number = 0;
+
+    //skip row of column titles
+    while (arg[i] !== "\n") {
+      i++;
+    }
+    i++;
+
+    for (let j = 0; i < argArr.length; i++) {
+      let namespaceOutput: any = [];
+
+      //saves namespace
+      while (arg[i] !== " ") {
+        namespaceOutput.push(arg[i]);
+        i++;
+      }
+      let output = namespaceOutput.join("");
+      let prevNamespaces = [...namespacesArr];
+      namespaceArrayOutput.push(output);
+      //skips spaces
+      while (arg[i] !== "\n") {
+        i++;
+      }
+    }
+    setNamespacesArr(["ALL", ...namespaceArrayOutput]);
+  });
+  console.log("ns array is:", namespacesArr);
 
   // ----------------------------------------- get pods info section ------------
 
@@ -188,7 +230,7 @@ function Krane() {
     }, 600);
 
     // send command to get selected pods containers info
-    let podContainersCommand = `kubectl top pod --containers`;
+    let podContainersCommand = `kubectl top pod --containers `;
     //send get pods o wide info commands
     ipcRenderer.send(
       "podContainers_command",
@@ -226,12 +268,33 @@ function Krane() {
     }, 400);
   }
 
+  function getNamespaces() {
+    let namespacesCommand: string = "kubectl get ns";
+    //send krane command to get all nodes
+    ipcRenderer.send("getNamespaces_command", {
+      namespacesCommand,
+      currDir,
+    });
+  }
+
+  useEffect(() => {
+    getNamespaces();
+  }, []);
+
+  function handleNamespaceChange() {
+    let newNamespaceIndex = (namespaceIndex + 1) % namespacesArr.length;
+    setSelectedNamespace(namespacesArr[newNamespaceIndex]);
+    setNamespaceIndex(newNamespaceIndex);
+    handleClick(null);
+  }
+
   // ---------------------------------------------------------- START OF IF CONDITION TO DETERMINE MAIN DIV'S JSX --------
   let deploymentsDiv;
   if (deploymentsShowStatus) {
     deploymentsDiv = (
       <>
         <KraneDeploymentsList
+          selectedNamespace={selectedNamespace}
           getDeploymentsInfo={getDeploymentsInfo}
           deploymentsArr={deploymentsArr}
           setDeploymentsArr={setDeploymentsArr}
@@ -249,6 +312,10 @@ function Krane() {
           setNodesArr={setNodesArr}
           podsArr={podsArr}
           setPodsArr={setPodsArr}
+          allPodsArr={allPodsArr}
+          setAllPodsArr={setAllPodsArr}
+          podsContainersArr={podsContainersArr}
+          setPodsContainersArr={setPodsContainersArr}
           getNodesInfo={getNodesInfo}
           openPod={openPod}
           setOpenPod={setOpenPod}
@@ -282,11 +349,16 @@ function Krane() {
           setSelectedPod={setSelectedPod}
         />
         <KranePodList
+          selectedNamespace={selectedNamespace}
           podsArr={podsArr}
           setPodsArr={setPodsArr}
+          allPodsArr={allPodsArr}
+          setAllPodsArr={setAllPodsArr}
           getPodsAndContainers={getPodsAndContainers}
           currDir={currDir}
           setCurrDir={setCurrDir}
+          podsContainersArr={podsContainersArr}
+          setPodsContainersArr={setPodsContainersArr}
           openPod={openPod}
           setOpenPod={setOpenPod}
           openPodDelete={openPodDelete}
@@ -375,6 +447,48 @@ function Krane() {
             Refresh stats
           </Button>
         </div>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            width: "91%",
+            height: "30px",
+            fontSize: "9px",
+            fontWeight: "400",
+            letterSpacing: "1px",
+            lineHeight: "12px",
+            // border: "1px solid white",
+            paddingBottom: "0px",
+            textAlign: "right",
+            color: "#ffffff99",
+            marginRight: "0px",
+            marginTop: "0px",
+            justifyContent: "flex-end",
+            marginBottom: "-29px",
+          }}
+        >
+          <Button
+            onClick={handleNamespaceChange}
+            style={{
+              display: "flex",
+              // fontFamily: "Outfit",
+              fontSize: "9px",
+              fontWeight: "900",
+              letterSpacing: ".5px",
+              border: "1px solid",
+              height: "16px",
+              textAlign: "left",
+              color: theme.palette.mode === "dark" ? "white" : "#00000099",
+              marginTop: "23px",
+              marginLeft: "0px",
+              marginRight: "2px",
+              padding: "8px 4px 8px 6px",
+              marginBottom: "-40px",
+            }}
+          >
+            NAMESPACE: {selectedNamespace}
+          </Button>
+        </div>
       </>
     );
   } else {
@@ -393,7 +507,7 @@ function Krane() {
             color: theme.palette.mode === "dark" ? "" : "#00000070",
           }}
         >
-          Choose Above to View Your Clusters
+          Choose Above to Begin
         </div>
         <div
           style={{

@@ -122,7 +122,7 @@ function KranePodList(props) {
 
   // ----------------------------------------- get pods info section ------------
 
-  const [podsContainersArr, setPodsContainersArr] = useState([]);
+  // const [podsContainersArr, setPodsContainersArr] = useState([]);
 
   function handleClick(event) {
     // setPodsArr(filteredPods);
@@ -359,6 +359,7 @@ function KranePodList(props) {
 
     // console.log("filteredPods is", filteredPods);
     props.setPodsArr([...filteredPods]);
+    props.setAllPodsArr([...filteredPods]);
     // console.log("podsArr is", podsArr);
   }); // --------------------------end of ipc render to get all pods o wide info  -
 
@@ -497,6 +498,7 @@ function KranePodList(props) {
     );
 
     props.setPodsArr([...filteredPods]);
+    props.setAllPodsArr([...filteredPods]);
 
     for (let j = 0; j < finalPodUsageArr.length; j++) {
       filteredPods[j]["podCpuUsed"] = finalPodUsageArr[j]["podCpuUsed"];
@@ -635,6 +637,7 @@ function KranePodList(props) {
     );
 
     props.setPodsArr([...filteredPods]);
+    props.setAllPodsArr([...filteredPods]);
     // console.log("LAST PODS ARR LENGTH IS", lastPodsArr.length);
 
     for (let j = 0; j < lastPodsArr.length; j++) {
@@ -688,15 +691,20 @@ function KranePodList(props) {
         }
       }
 
-      let kubePods = filteredPods.filter(
-        (pod) => pod.namespace === "kube-system"
-      );
-      setKubeSystemPods([...kubePods]);
+      if (props.selectedNamespace !== "ALL") {
+        let kubePods = filteredPods.filter(
+          (pod) => pod.namespace !== props.selectedNamespace
+        );
+        setKubeSystemPods([...kubePods]);
 
-      let kubeFilteredPods = filteredPods.filter(
-        (pod) => pod.namespace !== "kube-system"
-      );
-      props.setPodsArr([...kubeFilteredPods]);
+        let kubeFilteredPods = filteredPods.filter(
+          (pod) => pod.namespace === props.selectedNamespace
+        );
+        props.setPodsArr([...kubeFilteredPods]);
+      } else if (props.selectedNamespace !== "ALL") {
+        props.setPodsArr([...filteredPods]);
+        props.setAllPodsArr([...filteredPods]);
+      }
     } //end of for loop
   }); //-------------------   end of ipc render function to get podcpu and memory limits
 
@@ -789,7 +797,7 @@ function KranePodList(props) {
       output.push(container);
     } //end of for loop over containers
 
-    setPodsContainersArr([...output]);
+    props.setPodsContainersArr([...output]);
     // let outputIndex = 0;
     // filteredPods = [...podsArr];
 
@@ -1538,9 +1546,10 @@ function KranePodList(props) {
                     : props.podsArr[i]["podCpuLimit"] === "NONE"
                     ? "-55px"
                     : "-60px",
-                  marginLeft: props.podsArr[i]["podCpuLimit"] === "NONE"
-                    ? "-10px"
-                    : "-8px",
+                  marginLeft:
+                    props.podsArr[i]["podCpuLimit"] === "NONE"
+                      ? "-10px"
+                      : "-8px",
                   // border: "2px solid red",
                   color:
                     theme.palette.mode === "dark"
@@ -1648,7 +1657,10 @@ function KranePodList(props) {
                   top: "-48px",
                   left: "5px",
                   fontWeight: "500",
-                  marginLeft: props.podsArr[i]["podMemoryPercent"] === "N/A" ? "-11px" : "-10px",
+                  marginLeft:
+                    props.podsArr[i]["podMemoryPercent"] === "N/A"
+                      ? "-11px"
+                      : "-10px",
                   fontSize: !props.podsArr[i]["podMemoryLimit"]
                     ? "13px"
                     : props.podsArr[i]["podMemoryLimit"] === "NONE"
@@ -1701,7 +1713,7 @@ function KranePodList(props) {
   // ---------------------------------------- END OF FOR LOOP TO CREATE EACH POD"S JSX --------
 
   let podContainerList = [];
-  let tempContainerList = podsContainersArr.filter(
+  let tempContainerList = props.podsContainersArr.filter(
     (container) => props.selectedPod[0]["name"] === container["podName"]
   );
   console.log("temp container list is:", tempContainerList);
@@ -2340,7 +2352,7 @@ function KranePodList(props) {
         >
           <div style={{ display: "flex" }}>
             {" "}
-            <div
+            {/* <div
               onClick={handleKubeSystemChange}
               style={{
                 cursor: "pointer",
@@ -2362,14 +2374,14 @@ function KranePodList(props) {
                 marginTop: "-7px",
                 color: theme.palette.mode === "dark" ? "" : "#00000050",
               }}
-            />
+            /> */}
           </div>
         </div>
         <div
           style={{
             display: "flex",
             flexWrap: "wrap",
-            margin: "-30px 0 0 50px",
+            margin: "-6px 0 0 50px",
           }}
         >
           {podsList}

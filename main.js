@@ -213,6 +213,41 @@ ipcMain.on("install_metrics_server_command", (event, arg) => {
 //***               KRANE PAGE ipc methods                 *** */
 //************************************************************ */
 
+//Listen for command to get namespaces
+ipcMain.on("getNamespaces_command", (event, arg) => {
+  const { namespacesCommand, currDir } = arg;
+
+  // if kubectl command is entered with no directory chosen, use ZDOTDIR as directory address when calling exec command --- otherwise ("else" on line further down) submit command normally
+  if (currDir === "NONE SELECTED") {
+    let kubDir = process.env.ZDOTDIR;
+    exec(` ${namespacesCommand}`, { cwd: kubDir }, (err, stdout, stderr) => {
+      // Handle failed command execution
+      if (err) {
+        let output = err;
+      }
+      // Handle successful command execution but returned error (stderr)
+      if (stderr) {
+        return event.sender.send("got_namespaces", stderr);
+      }
+      // Handle successful command execution with no errors
+      return event.sender.send("got_namespaces", stdout);
+    });
+  } else {
+    exec(` ${namespacesCommand}`, { cwd: currDir }, (err, stdout, stderr) => {
+      // Handle failed command execution
+      if (err) {
+        let output = err;
+      }
+      // Handle successful command execution but returned error (stderr)
+      if (stderr) {
+        return event.sender.send("got_namespaces", stderr);
+      }
+      // Handle successful command execution with no errors
+      return event.sender.send("got_namespaces", stdout);
+    });
+  }
+});
+
 //Listen for command to get deployments info
 ipcMain.on("getDeployments_command", (event, arg) => {
   const { deploymentsCommand, currDir } = arg;
@@ -484,34 +519,41 @@ ipcMain.on("deleteDeployment_command", (event, arg) => {
   // if kubectl command is entered with no directory chosen, use ZDOTDIR as directory address when calling exec command --- otherwise ("else" on line further down) submit command normally
   if (currDir === "NONE SELECTED") {
     let kubDir = process.env.ZDOTDIR;
-    exec(` ${deploymentDeleteCommand}`, { cwd: kubDir }, (err, stdout, stderr) => {
-      // Handle failed command execution
-      if (err) {
-        let output = err;
+    exec(
+      ` ${deploymentDeleteCommand}`,
+      { cwd: kubDir },
+      (err, stdout, stderr) => {
+        // Handle failed command execution
+        if (err) {
+          let output = err;
+        }
+        // Handle successful command execution but returned error (stderr)
+        if (stderr) {
+          return event.sender.send("deleted_deployment", stderr);
+        }
+        // Handle successful command execution with no errors
+        return event.sender.send("deleted_deployment", stdout);
       }
-      // Handle successful command execution but returned error (stderr)
-      if (stderr) {
-        return event.sender.send("deleted_deployment", stderr);
-      }
-      // Handle successful command execution with no errors
-      return event.sender.send("deleted_deployment", stdout);
-    });
+    );
   } else {
-    exec(` ${deploymentDeleteCommand}`, { cwd: currDir }, (err, stdout, stderr) => {
-      // Handle failed command execution
-      if (err) {
-        let output = err;
+    exec(
+      ` ${deploymentDeleteCommand}`,
+      { cwd: currDir },
+      (err, stdout, stderr) => {
+        // Handle failed command execution
+        if (err) {
+          let output = err;
+        }
+        // Handle successful command execution but returned error (stderr)
+        if (stderr) {
+          return event.sender.send("deleted_deployment", stderr);
+        }
+        // Handle successful command execution with no errors
+        return event.sender.send("deleted_deployment", stdout);
       }
-      // Handle successful command execution but returned error (stderr)
-      if (stderr) {
-        return event.sender.send("deleted_deployment", stderr);
-      }
-      // Handle successful command execution with no errors
-      return event.sender.send("deleted_deployment", stdout);
-    });
+    );
   }
 });
-
 
 //Listen for command to view deployment rollout status
 ipcMain.on("rollbackPreviousDeployment_command", (event, arg) => {
@@ -556,8 +598,6 @@ ipcMain.on("rollbackPreviousDeployment_command", (event, arg) => {
   }
 });
 
-
-
 //Listen for command to rolling restart deployment
 ipcMain.on("rollingRestartDeployment_command", (event, arg) => {
   const { deploymentRollingRestartCommand, currDir } = arg;
@@ -575,7 +615,10 @@ ipcMain.on("rollingRestartDeployment_command", (event, arg) => {
         }
         // Handle successful command execution but returned error (stderr)
         if (stderr) {
-          return event.sender.send("completedRollingRestart_deployment", stderr);
+          return event.sender.send(
+            "completedRollingRestart_deployment",
+            stderr
+          );
         }
         // Handle successful command execution with no errors
         return event.sender.send("completedRollingRestart_deployment", stdout);
@@ -592,7 +635,10 @@ ipcMain.on("rollingRestartDeployment_command", (event, arg) => {
         }
         // Handle successful command execution but returned error (stderr)
         if (stderr) {
-          return event.sender.send("completedRollingRestart_deployment", stderr);
+          return event.sender.send(
+            "completedRollingRestart_deployment",
+            stderr
+          );
         }
         // Handle successful command execution with no errors
         return event.sender.send("completedRollingRestart_deployment", stdout);
@@ -601,7 +647,6 @@ ipcMain.on("rollingRestartDeployment_command", (event, arg) => {
   }
 });
 
-
 //Listen for command to delete/restart a node
 ipcMain.on("scaleDeployment_command", (event, arg) => {
   const { deploymentScaleCommand, currDir } = arg;
@@ -609,35 +654,41 @@ ipcMain.on("scaleDeployment_command", (event, arg) => {
   // if kubectl command is entered with no directory chosen, use ZDOTDIR as directory address when calling exec command --- otherwise ("else" on line further down) submit command normally
   if (currDir === "NONE SELECTED") {
     let kubDir = process.env.ZDOTDIR;
-    exec(` ${deploymentScaleCommand}`, { cwd: kubDir }, (err, stdout, stderr) => {
-      // Handle failed command execution
-      if (err) {
-        let output = err;
+    exec(
+      ` ${deploymentScaleCommand}`,
+      { cwd: kubDir },
+      (err, stdout, stderr) => {
+        // Handle failed command execution
+        if (err) {
+          let output = err;
+        }
+        // Handle successful command execution but returned error (stderr)
+        if (stderr) {
+          return event.sender.send("scaled_deployment", stderr);
+        }
+        // Handle successful command execution with no errors
+        return event.sender.send("scaled_deployment", stdout);
       }
-      // Handle successful command execution but returned error (stderr)
-      if (stderr) {
-        return event.sender.send("scaled_deployment", stderr);
-      }
-      // Handle successful command execution with no errors
-      return event.sender.send("scaled_deployment", stdout);
-    });
+    );
   } else {
-    exec(` ${deploymentScaleCommand}`, { cwd: currDir }, (err, stdout, stderr) => {
-      // Handle failed command execution
-      if (err) {
-        let output = err;
+    exec(
+      ` ${deploymentScaleCommand}`,
+      { cwd: currDir },
+      (err, stdout, stderr) => {
+        // Handle failed command execution
+        if (err) {
+          let output = err;
+        }
+        // Handle successful command execution but returned error (stderr)
+        if (stderr) {
+          return event.sender.send("scaled_deployment", stderr);
+        }
+        // Handle successful command execution with no errors
+        return event.sender.send("scaled_deployment", stdout);
       }
-      // Handle successful command execution but returned error (stderr)
-      if (stderr) {
-        return event.sender.send("scaled_deployment", stderr);
-      }
-      // Handle successful command execution with no errors
-      return event.sender.send("scaled_deployment", stdout);
-    });
+    );
   }
 });
-
-
 
 //Listen for command to get a pod containers
 ipcMain.on("podContainers_command", (event, arg) => {

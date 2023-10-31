@@ -1657,7 +1657,7 @@ function KraneNodeList(props) {
   }
 
   let nodesPodsList = [];
-  let tempPodList = props.podsArr.filter(
+  let tempPodList = props.allPodsArr.filter(
     (pod) => selectedNode[0]["name"] === pod["node"]
   );
   for (let i = 0; i < tempPodList.length; i++) {
@@ -1727,7 +1727,7 @@ function KraneNodeList(props) {
         <Button
           key={i}
           id="podButt"
-          onClick={() => handlePodOpen(props.podsArr[i])}
+          onClick={() => handlePodOpen(props.allPodsArr[i])}
           style={{
             display: "flex",
             flexDirection: "column",
@@ -2115,6 +2115,526 @@ function KraneNodeList(props) {
       </div>
     );
   }
+
+  let podContainerList = [];
+  let tempContainerList = props.podsContainersArr.filter(
+    (container) => props.selectedPod[0]["name"] === container["podName"]
+  );
+  console.log("temp container list is:", tempContainerList);
+  // filteredPods = podsArrOutput.filter(
+  //   (ele: any, ind: number) =>
+  //     ind === podsArrOutput.findIndex((elem) => elem.name === ele.name)
+  // );
+  for (let i = 0; i < tempContainerList.length; i++) {
+    let containerStatusColor;
+    let containerCpuPercentColor;
+    let containerCpuPercentColorLight;
+    let containerMemoryColor;
+    let containerMemoryColorLight;
+
+    if (props.selectedPod[0]["status"] === "Running") {
+      containerStatusColor = "#2fc665";
+    } else {
+      containerStatusColor = "rgba(210, 223, 61)";
+    }
+
+    if (props.selectedPod[0]["podCpuLimit"] === "NONE") {
+      containerCpuPercentColor = "#ffffff80";
+      containerCpuPercentColorLight = "#00000040";
+    } else if (
+      (100 * Number(tempContainerList[i]["cpuUsage"].slice(0, -1))) /
+        Number(`${props.selectedPod[0]["podCpuLimit"]}`) <
+      90
+    ) {
+      containerCpuPercentColor = "#2fc665";
+      containerCpuPercentColorLight = "#2fc665";
+    } else {
+      containerCpuPercentColor = "#cf4848";
+      containerCpuPercentColorLight = "#cf4848";
+    }
+
+    if (props.selectedPod[0]["podMemoryLimit"] === "NONE") {
+      containerMemoryColor = "#ffffff80";
+      containerMemoryColorLight = "#00000040";
+    } else if (
+      Math.min(
+        Math.round(
+          100 *
+            (Number(tempContainerList[i]["memoryUsageMath"]) /
+              Number(props.selectedPod[0]["podMemoryLimit"])) *
+            10
+        ) / 10,
+
+        100
+      ) < 90
+    ) {
+      containerMemoryColor = "#2fc665";
+      containerMemoryColorLight = "#2fc665";
+    } else {
+      containerMemoryColor = "#cf4848";
+      containerMemoryColorLight = "#cf4848";
+    }
+
+    // if (selectedPod[0]["podMemoryLimit"] === "NONE")
+    // {containerMemoryColor = "#ffffff80"}
+    //else if (
+    // Math.min())
+    // : Math.min(
+    //     Math.round(
+    //       100 *
+    //         (Number(selectedPodContainers[i]["memoryUsageMath"]) /
+    //           Number(selectedPod[0]["podMemoryLimit"])) *
+    //         10
+    //     ) / 10,
+
+    //     100
+    //   )
+
+    // selectedPod[0]["podCpuLimit"] === "NONE"
+    // ? 0
+    // : ((100 *
+    //     Number(
+    //       selectedPodContainers[i]["cpuUsage"].slice(0, -1)
+    //     )) /
+    //     Number(`${selectedPod[0]["podCpuLimit"]}`))
+
+    // if (selectedPodContainers[i]["status"] === "Running"){
+    //   containerStatusColor = "#2fc665";
+    // } else {
+    //   containerStatusColor = "rgba(210, 223, 61)";
+    // }
+
+    // if (selectedPodContainers[i]["podCpuPercent"] === "N/A") {
+    //   containerCpuPercentColor = "#ffffff80";
+    // } else if (selectedPodContainers[i]["podCpuPercent"] < 90) {
+    //   containerCpuPercentColor = "#2fc665";
+    // } else {
+    //   containerCpuPercentColor = "#cf4848";
+    // }
+
+    // if (selectedPodContainers[i]["podMemoryPercent"] === "N/A") {
+    //   containerMemoryColor = "#ffffff80";
+    // } else if (selectedPodContainers[i]["podMemoryPercent"] < 90) {
+    //   containerMemoryColor = "#2fc665";
+    // } else {
+    //   containerMemoryColor = "#cf4848";
+    // }
+
+    podContainerList.push(
+      <div
+        key={i}
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          fontFamily: "Outfit",
+          fontWeight: "400",
+          fontSize: "17px",
+          justifyContent: "flex-start",
+          alignItems: "flex-start",
+          textAlign: "left",
+          width: "auto",
+          margin: "17px 0px 0px 0px",
+          padding: "0 30px 0px 0",
+          letterSpacing: "1px",
+          color: theme.palette.mode === "dark" ? "#8f85fb" : "#9075ea",
+          textShadow:
+            theme.palette.mode === "dark"
+              ? "1px 1px 2px black"
+              : "1px 1px 1px #00000000",
+          // border: "2px solid red",
+        }}
+      >
+        CONTAINER {i + 1}
+        <Button
+          key={i}
+          id="podButt"
+          // onClick={() => handlePodOpen(podsArr[i])}
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            width: "380px",
+            height: "115px",
+            fontSize: "16px",
+            // border: "1px solid white",
+            justifyContent: "center",
+            textAlign: "left",
+            alignItems: "space-between",
+            margin: "2px 0 0 0",
+            padding: "5px 0px 0px 0px",
+            color: theme.palette.mode === "dark" ? "white" : "grey",
+            border:
+              theme.palette.mode === "dark"
+                ? "1.3px solid white"
+                : "1.3px solid grey",
+            borderRadius: "5px",
+            boxShadow:
+              theme.palette.mode === "dark"
+                ? "10px 9px 2px #00000060"
+                : "10px 10px 1px #00000000",
+            background: theme.palette.mode === "dark" ? "#0e0727" : "#e6e1fb",
+          }}
+        >
+          {" "}
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              justifyContent: "flex-start",
+              // border: "1px solid yellow",
+              width: "350px",
+              margin: "30px 0 0 0",
+            }}
+          >
+            <img
+              style={{ width: "45px", marginLeft: "0px" }}
+              src="../../container.png"
+            ></img>
+            <span
+              style={{
+                margin: "5px 0 0 15px",
+                width: "250px",
+                lineHeight: "23px",
+                textTransform: "none",
+                fontSize: "17px",
+              }}
+            >
+              {tempContainerList[i]["name"]}
+            </span>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                textAlign: "right",
+                alignItems: "flex-end",
+                justifyContent: "right",
+                margin: "0px 0px 0 28px",
+              }}
+            >
+              <div
+                style={{
+                  width: "12px",
+                  height: "12px",
+                  borderRadius: "15px",
+                  backgroundColor: `${containerStatusColor}`,
+                  justifyContent: "right",
+                  margin: "0px 0 0px 0",
+                  // border: ".5px solid white",
+                }}
+              ></div>
+            </div>
+          </div>
+          {/*---------------------------------------------------------------- */}
+          {/*                  beginng of row of stats below conatiner name   */}
+          {/*---------------------------------------------------------------- */}
+          <span
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              // border: "1px solid green",
+              textAlign: "center",
+              justifyContent: "left",
+              alignItems: "flex-start",
+              width: "100%",
+              // height:"100px",
+              alignContent: "flex-end",
+              // border: "2px solid red",
+              padding: "0px 0px 0px 70px",
+              margin: "5px 0px 0px 0px",
+              fontSize: "15px",
+            }}
+          >
+            <br />
+            <div
+              style={{
+                flexDirection: "column",
+                justifyContent: "left",
+                textAlign: "left",
+                width: "200px",
+                fontSize: "11.5px",
+                padding: "0px 0px 0 0px",
+                fontWeight: "400",
+                marginTop: "0px",
+                // border: "1px solid blue",
+                lineHeight: "16px",
+                textTransform: "none",
+                opacity: ".5",
+                // color: `${readyStatusRunning}`,
+              }}
+            >
+              CPU USAGE: {tempContainerList[i]["cpuUsage"]}
+              <br />
+              MEMORY USAGE: {tempContainerList[i]["memoryUsage"]}
+            </div>
+
+            <div
+              style={{
+                flexDirection: "column",
+                justifyContent: "center",
+                textAlign: "center",
+                alignItems: "center",
+                width: "70px",
+                height: "70px",
+                fontSize: "4",
+                padding: "0px 0px 0px 0px",
+                fontWeight: "400",
+                marginRight: "18px",
+                marginTop: "3px",
+                marginBottom: "0px",
+                // border: "1px solid red",
+                // color: `${readyStatusRunning}`,
+              }}
+            >
+              <div
+                style={
+                  {
+                    // border: "1px solid yellow"
+                  }
+                }
+              >
+                <CircularProgress
+                  variant="determinate"
+                  // @ts-nocheck
+                  thickness={1.35}
+                  value={100 * 0.73}
+                  style={{
+                    marginTop: "0px",
+                    marginLeft: "10.5px",
+                    rotate: "-131deg",
+                    color:
+                      theme.palette.mode === "dark" ? "#ffffff40" : "#00000015",
+
+                    width: "60px",
+                    // border: "1px solid red",
+                    // filter: "drop-shadow(10px 10px 10px #000000)",
+                  }}
+                />
+                <CircularProgress
+                  variant="determinate"
+                  // @ts-nocheck
+                  thickness={1.35}
+                  value={
+                    props.selectedPod[0]["podCpuLimit"] === "NONE"
+                      ? 0
+                      : ((100 *
+                          Number(
+                            tempContainerList[i]["cpuUsage"].slice(0, -1)
+                          )) /
+                          Number(`${props.selectedPod[0]["podCpuLimit"]}`)) *
+                        0.73
+                  }
+                  //Number(`${podsArr[i]["podCpuLimit"]}`)
+
+                  // Number(
+                  //   selectedPodContainers[i]["cpuUsage"].slice(0, -1)
+                  // )  / Number(`${podsArr[i]["podCpuLimit"]}`)
+                  style={{
+                    position: "relative",
+                    top: "-48px",
+                    left: "5.5px",
+                    rotate: "-131deg",
+                    color:
+                      theme.palette.mode === "dark"
+                        ? `${containerCpuPercentColor}`
+                        : `${containerCpuPercentColorLight}`,
+
+                    width: "60px",
+                    // border: "1px solid red",
+                    // filter: "drop-shadow(10px 10px 10px #000000)",
+                  }}
+                />
+              </div>
+              <div
+                style={{
+                  position: "relative",
+                  top: "-43px",
+                  left: "5px",
+                  fontSize:
+                    props.selectedPod[0]["podCpuLimit"] === "NONE"
+                      ? "13px"
+                      : "16px",
+                  fontWeight: "500",
+                  marginTop:
+                    props.selectedPod[0]["podCpuLimit"] === "NONE"
+                      ? "-55px"
+                      : "-60px",
+                  marginLeft: "-8px",
+                  // border: "2px solid red",
+                  color:
+                    theme.palette.mode === "dark"
+                      ? `${containerCpuPercentColor}`
+                      : `${containerCpuPercentColorLight}`,
+                }}
+              >
+                {props.selectedPod[0]["podCpuLimit"] === "NONE"
+                  ? `no max`
+                  : `${
+                      (Number(tempContainerList[i]["cpuUsage"].slice(0, -1)) /
+                        Number(props.selectedPod[0]["podCpuLimit"])) *
+                      100
+                    }%`}
+              </div>
+              <div
+                style={{
+                  fontSize: "9px",
+                  position: "relative",
+                  top: "-43px",
+                  left: "-1.5px",
+                  // border: "1px solid red",
+
+                  marginRight: "-2px",
+                  fontWeight: "500",
+                  marginTop: "-8px",
+                  color:
+                    theme.palette.mode === "dark"
+                      ? `${containerCpuPercentColor}`
+                      : `${containerCpuPercentColorLight}`,
+                }}
+              >
+                CPU
+              </div>
+            </div>
+
+            <div
+              style={{
+                flexDirection: "column",
+                justifyContent: "center",
+                textAlign: "center",
+                alignItems: "center",
+                width: "70px",
+                height: "40px",
+                fontSize: "4",
+                padding: "0px 0px 0 0px",
+                fontWeight: "400",
+                marginRight: "18px",
+                marginTop: "3px",
+                // border: "1px solid red",
+                // color: `${readyStatusRunning}`,
+              }}
+            >
+              <div
+                style={
+                  {
+                    // border: "1px solid yellow"
+                  }
+                }
+              >
+                <CircularProgress
+                  variant="determinate"
+                  // @ts-nocheck
+                  thickness={1.35}
+                  value={100 * 0.73}
+                  style={{
+                    marginTop: "0px",
+                    marginLeft: "9.5px",
+                    rotate: "-131deg",
+                    color:
+                      theme.palette.mode === "dark" ? "#ffffff40" : "#00000015",
+
+                    width: "60px",
+                    // border: "1px solid red",
+                    // filter: "drop-shadow(10px 10px 10px #000000)",
+                  }}
+                />
+                <CircularProgress
+                  variant="determinate"
+                  // @ts-nocheck
+                  thickness={1.35}
+                  value={
+                    props.selectedPod[0]["podMemoryLimit"] === "NONE"
+                      ? 0
+                      : Math.min(
+                          73,
+                          (73 *
+                            Number(tempContainerList[i]["memoryUsageMath"])) /
+                            Number(`${props.selectedPod[0]["podMemoryLimit"]}`)
+                        )
+                  }
+                  // selectedPod[0]["podCpuLimit"] === "NONE"
+                  // ? 0
+                  // : ((100 *
+                  //     Number(
+                  //       selectedPodContainers[i]["memoryUsageMath"]
+                  //     )) /
+                  //     Number(`${selectedPod[0]["podMemoryLimit"]}`)) *
+                  //   0.73
+                  style={{
+                    position: "relative",
+                    top: "-48px",
+                    left: "4.8px",
+                    rotate: "-131deg",
+                    color:
+                      theme.palette.mode === "dark"
+                        ? `${containerMemoryColor}`
+                        : `${containerMemoryColorLight}`,
+
+                    width: "60px",
+                    // border: "1px solid red",
+                    // filter: "drop-shadow(10px 10px 10px #000000)",
+                  }}
+                />
+              </div>
+              <div
+                style={{
+                  position: "relative",
+                  top: "-43px",
+                  left: "5px",
+                  fontWeight: "500",
+                  marginLeft: "-11px",
+                  fontSize:
+                    props.selectedPod[0]["podMemoryLimit"] === "NONE"
+                      ? "13px"
+                      : "16px",
+                  marginTop:
+                    props.selectedPod[0]["podMemoryLimit"] === "NONE"
+                      ? "-55px"
+                      : "-60px",
+                  // border: "2px solid red",
+                  color:
+                    theme.palette.mode === "dark"
+                      ? `${containerMemoryColor}`
+                      : `${containerMemoryColorLight}`,
+                }}
+              >
+                {props.selectedPod[0]["podMemoryLimit"] === "NONE"
+                  ? `no max`
+                  : `${Math.min(
+                      Math.round(
+                        100 *
+                          (Number(tempContainerList[i]["memoryUsageMath"]) /
+                            Number(props.selectedPod[0]["podMemoryLimit"])) *
+                          10
+                      ) / 10,
+
+                      100
+                    )}%`}
+              </div>
+              <div
+                style={{
+                  fontSize: "9px",
+                  position: "relative",
+                  top: "-43px",
+                  left: "-2.5px",
+                  // border: "1px solid red",
+
+                  marginRight: "-2px",
+                  fontWeight: "500",
+                  marginTop: "-8px",
+                  color:
+                    theme.palette.mode === "dark"
+                      ? `${containerMemoryColor}`
+                      : `${containerMemoryColorLight}`,
+                }}
+              >
+                MEMORY
+              </div>
+            </div>
+          </span>
+          {}
+        </Button>
+      </div>
+    );
+  }
+
   // ---------------------------------------------------------- START OF IF CONDITION TO DETERMINE MAIN DIV'S JSX --------
   let nodeListDiv;
   if (props.nodesArr[0]) {
@@ -2314,7 +2834,7 @@ function KraneNodeList(props) {
                               : "darkpurple",
                           margin: "-10px 0 20px 0px",
                           fontSize: "17px",
-                          fontWeight: "200",
+                          fontWeight: "400",
                           // border: "2px solid green",
                         }}
                       >
@@ -4582,7 +5102,7 @@ function KraneNodeList(props) {
                                   margin: "0 0 0 0px",
                                 }}
                               >
-                                {/* {podContainerList} */}
+                                {podContainerList}
                               </div>
                             </div>
                           </div>

@@ -677,8 +677,8 @@ function Start(props) {
               >
                 kubectl commands are installed
               </a>
-              , <br />
-              and clusters are up and running.
+               <br />
+              and clusters are up and running before proceeding.
             </Typography>
           </div>
           {/* <Button style={{ border: "1px solid blue" }}>Blah</Button> */}

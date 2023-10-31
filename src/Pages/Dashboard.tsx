@@ -27,6 +27,7 @@ import React from "react";
 import Switch from "@mui/material/Switch";
 import Tooltip, { TooltipProps, tooltipClasses } from "@mui/material/Tooltip";
 import { styled } from "@mui/material/styles";
+import { Bolt } from "@mui/icons-material";
 
 const LightTooltip = styled(({ className, ...props }: TooltipProps) => (
   <Tooltip {...props} classes={{ popper: className }} />
@@ -248,7 +249,9 @@ function Dashboard(): JSX.Element {
     console.log("short dir is:", shortDir);
     console.log("CURR DIR IS:", currDir);
 
-    if (command.slice(0, 3) === " cd ") {
+    if (command === ` clear`) {
+      setResponse([]);
+    } else if (command.slice(0, 3) === " cd ") {
       let temp = command.slice(4, -1);
       console.log("temp:", temp);
       if (temp.slice(0, 2) === "../") {
@@ -425,197 +428,377 @@ function Dashboard(): JSX.Element {
                 leaveDelay={100}
                 enterNextDelay={3000}
               >
-                <div
-                  id="k8tool"
-                  style={k8toolStyle}
-                  onMouseEnter={toggleK8ToolHover}
-                  onMouseLeave={toggleK8ToolHover}
-                >
+                <div style={{ display: "flex", flexDirection: "column" }}>
                   <div
-                    onClick={() => {
-                      if (tool === "kubectl") {
-                        setTool("");
-                        setChecked(!checked);
-                      } else setTool("kubectl");
-                      setChecked(!checked);
-                    }}
-                    style={{
-                      padding: "0px 4px 0 6px",
-                      fontSize: "15px",
-                      color:
-                        theme.palette.mode === "dark" && k8tool === "ON"
-                          ? "white"
-                          : theme.palette.mode === "dark" && k8tool === "OFF"
-                          ? "#ffffff99"
-                          : theme.palette.mode === "light" && k8tool === "ON"
-                          ? "#3f42c3"
-                          : "#00000082",
-                      letterSpacing: "-.2px",
-                      WebkitUserSelect: "none" /* Safari */,
-                      MozUserSelect: "none" /* Firefox */,
-                      msUserSelect: "none" /* IE10+/Edge */,
-                      userSelect: "none",
-                    }}
+                    id="k8tool"
+                    style={k8toolStyle}
+                    onMouseEnter={toggleK8ToolHover}
+                    onMouseLeave={toggleK8ToolHover}
                   >
-                    kubectl
+                    <div
+                      onClick={() => {
+                        if (tool === "kubectl") {
+                          setTool("");
+                          setChecked(!checked);
+                        } else setTool("kubectl");
+                        setChecked(!checked);
+                      }}
+                      style={{
+                        padding: "0px 4px 0 6px",
+                        fontSize: "15px",
+                        color:
+                          theme.palette.mode === "dark" && k8tool === "ON"
+                            ? "white"
+                            : theme.palette.mode === "dark" && k8tool === "OFF"
+                            ? "#ffffff99"
+                            : theme.palette.mode === "light" && k8tool === "ON"
+                            ? "#3f42c3"
+                            : "#00000082",
+                        letterSpacing: "-.2px",
+                        WebkitUserSelect: "none" /* Safari */,
+                        MozUserSelect: "none" /* Firefox */,
+                        msUserSelect: "none" /* IE10+/Edge */,
+                        userSelect: "none",
+                      }}
+                    >
+                      kubectl
+                    </div>
+                    <Switch
+                      size="small"
+                      checked={checked}
+                      onChange={handleK8ToolChange}
+                      inputProps={{ "aria-label": "controlled" }}
+                    />
+                    <div
+                      onClick={() => {
+                        if (tool === "kubectl") {
+                          setTool("");
+                          setChecked(!checked);
+                        } else setTool("kubectl");
+                        setChecked(!checked);
+                      }}
+                      style={{
+                        padding: "4.5px 1px 0 1px",
+                        fontSize: "10px",
+                        color:
+                          k8tool === "OFF" && theme.palette.mode === "light"
+                            ? "grey"
+                            : k8tool === "ON" && theme.palette.mode === "light"
+                            ? ""
+                            : k8tool === "OFF" && theme.palette.mode === "dark"
+                            ? "#ffffff99"
+                            : "",
+                        WebkitUserSelect: "none" /* Safari */,
+                        MozUserSelect: "none" /* Firefox */,
+                        msUserSelect: "none" /* IE10+/Edge */,
+                        userSelect: "none",
+                      }}
+                    >
+                      {k8tool}
+                    </div>
                   </div>
-                  <Switch
-                    size="small"
-                    checked={checked}
-                    onChange={handleK8ToolChange}
-                    inputProps={{ "aria-label": "controlled" }}
-                  />
+
                   <div
-                    onClick={() => {
-                      if (tool === "kubectl") {
-                        setTool("");
-                        setChecked(!checked);
-                      } else setTool("kubectl");
-                      setChecked(!checked);
-                    }}
                     style={{
-                      padding: "4.5px 1px 0 1px",
-                      fontSize: "10px",
-                      color:
-                        k8tool === "OFF" && theme.palette.mode === "light"
-                          ? "grey"
-                          : k8tool === "ON" && theme.palette.mode === "light"
-                          ? ""
-                          : k8tool === "OFF" && theme.palette.mode === "dark"
-                          ? "#ffffff99"
-                          : "",
-                      WebkitUserSelect: "none" /* Safari */,
-                      MozUserSelect: "none" /* Firefox */,
-                      msUserSelect: "none" /* IE10+/Edge */,
-                      userSelect: "none",
+                      height: "15px",
+                      padding: "5px 0 0 0",
                     }}
                   >
-                    {k8tool}
+                    {helpDesk.hasOwnProperty(verb) ? "" : ""}
                   </div>
                 </div>
               </LightTooltip>
               {/* ---------------- COMMANDS FIELD ------------------------------------- */}
+
               <div
-                id="commands"
-                style={{ width: "24%", margin: "0 5px 0 5px" }}
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  width: "25%",
+                }}
               >
-                <Autocomplete
-                  disablePortal
-                  id="combo-box-demo"
-                  options={options.sort(
-                    (a, b) => -b.firstLetter.localeCompare(a.firstLetter)
-                  )}
-                  groupBy={(option) => option.category}
-                  getOptionLabel={(option) => option.title}
-                  onInputChange={(e, newInputValue) => {
-                    setVerb(newInputValue);
-                    const newCommand = verb + " " + type + " " + name;
-                    setCommand(newCommand);
-                    setHelpList([newInputValue, type]);
-                    // setCommand(newInputValue);
+                <div id="commands" style={{ margin: "0 5px 0 5px" }}>
+                  <Autocomplete
+                    disablePortal
+                    id="combo-box-demo"
+                    options={options.sort(
+                      (a, b) => -b.firstLetter.localeCompare(a.firstLetter)
+                    )}
+                    groupBy={(option) => option.category}
+                    getOptionLabel={(option) => option.title}
+                    onInputChange={(e, newInputValue) => {
+                      setVerb(newInputValue);
+                      const newCommand = verb + " " + type + " " + name;
+                      setCommand(newCommand);
+                      setHelpList([newInputValue, type]);
+                      // setCommand(newInputValue);
+                    }}
+                    renderInput={(params) => (
+                      <TextField {...params} label="Commands" />
+                    )}
+                    renderGroup={(params) => (
+                      <li
+                        style={{
+                          color: "#ffffff",
+                          fontSize: "13px",
+                        }}
+                        key={params.key}
+                      >
+                        <BeginnerHeader
+                          style={{
+                            color: "#ffffff",
+                            fontSize: "14px",
+                          }}
+                        >
+                          {params.group}
+                        </BeginnerHeader>
+                        <GroupItems
+                          style={{
+                            color: "#ffffff",
+                            fontSize: "14px",
+                          }}
+                        >
+                          {params.children}
+                        </GroupItems>
+                      </li>
+                    )}
+                  />
+                </div>
+                <Button
+                  onClick={handleCommandOpen}
+                  style={{
+                    display: "flex",
+                    height: "15px",
+                    padding: "15px 0 0 0",
+                    justifyContent: "center",
+                    textTransform: "uppercase",
+                    fontWeight: "900",
                   }}
-                  renderInput={(params) => (
-                    <TextField {...params} label="Commands" />
+                >
+                  {helpDesk.hasOwnProperty(verb) ? (
+                    <>
+                      <BoltIcon fontSize="small" /> INSTANT HELP{" "}
+                      <BoltIcon fontSize="small" />
+                    </>
+                  ) : (
+                    ""
                   )}
-                  renderGroup={(params) => (
-                    <li
+                </Button>
+                <Modal
+                  open={openCommand}
+                  onClose={handleCommandClose}
+                  style={{ overflow: "scroll", height: "100%" }}
+                  aria-labelledby="modal-modal-title"
+                  aria-describedby="modal-modal-description"
+                >
+                  <Box sx={style}>
+                    <Typography
+                      id="modal-modal-title"
+                      // variant='h6'
+                      // component='h2'
+                    ></Typography>
+                    <Typography
+                      id="modal-modal-description"
                       style={{
-                        color: "#ffffff",
-                        fontSize: "13px",
+                        top: "0",
+                        left: "0",
+                        overflow: "auto",
+                        height: "100%",
+                        width: "100%",
+                        paddingLeft: "20px",
+                        zIndex: "1350",
                       }}
-                      key={params.key}
+                      sx={{ mt: 0 }}
                     >
-                      <BeginnerHeader
+                      <pre
                         style={{
-                          color: "#ffffff",
-                          fontSize: "14px",
+                          fontFamily: "Outfit,monospace",
+                          fontSize: "24px",
+                          overflow: "auto",
                         }}
                       >
-                        {params.group}
-                      </BeginnerHeader>
-                      <GroupItems
+                        Kubetcl{"  "}
+                        <strong style={{ fontSize: "38px" }}>{verb}</strong> :
+                      </pre>
+                      <pre
                         style={{
-                          color: "#ffffff",
                           fontSize: "14px",
+                          overflow: "auto",
                         }}
                       >
-                        {params.children}
-                      </GroupItems>
-                    </li>
-                  )}
-                />
+                        {helpDesk[`${verb}`]}
+                      </pre>
+                    </Typography>
+                  </Box>
+                </Modal>
               </div>
 
               {/* ---------------- TYPES FIELD ------------------------------------- */}
 
-              <div id="types" style={{ width: "19%" }}>
-                <Autocomplete
-                  disablePortal
-                  id="combo-box-demo"
-                  options={types}
-                  componentsProps={{
-                    paper: {
-                      sx: { backgroundColor: "#5c4d9a", color: "white" },
-                    },
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  width: "19%",
+                }}
+              >
+                <div id="types" style={{}}>
+                  <Autocomplete
+                    disablePortal
+                    id="combo-box-demo"
+                    options={types}
+                    componentsProps={{
+                      paper: {
+                        sx: { backgroundColor: "#5c4d9a", color: "white" },
+                      },
+                    }}
+                    onInputChange={(e, newInputValue) => {
+                      setHelpList([verb, newInputValue]);
+                      setType(newInputValue);
+                      // setHelpList([verb, newInputValue]);
+                    }}
+                    renderInput={(params) => (
+                      <TextField {...params} label="Types" />
+                    )}
+                  />
+                </div>
+                <Button
+                  onClick={handleTypeOpen}
+                  style={{
+                    display: "flex",
+                    height: "15px",
+                    padding: "15px 0 0 0",
+                    justifyContent: "center",
+                    textTransform: "uppercase",
+                    fontWeight: "900",
                   }}
-                  onInputChange={(e, newInputValue) => {
-                    setHelpList([verb, newInputValue]);
-                    setType(newInputValue);
-                    // setHelpList([verb, newInputValue]);
-                  }}
-                  renderInput={(params) => (
-                    <TextField {...params} label="Types" />
+                >
+                  {helpDesk.hasOwnProperty(type) ? (
+                    <>
+                      <BoltIcon fontSize="small" /> INSTANT HELP{" "}
+                      <BoltIcon fontSize="small" />
+                    </>
+                  ) : (
+                    ""
                   )}
-                />
+                </Button>
+                <Modal
+                  open={openType}
+                  onClose={handleTypeClose}
+                  aria-labelledby="modal-modal-title"
+                  aria-describedby="modal-modal-description"
+                >
+                  <Box sx={style}>
+                    <Typography
+                      id="modal-modal-title"
+                      // variant='h6'
+                      // component='h2'
+                    ></Typography>
+                    <Typography
+                      id="modal-modal-description"
+                      style={{
+                        top: "0",
+                        left: "0",
+                        overflow: "auto",
+                        height: "100%",
+                        width: "100%",
+                        paddingLeft: "20px",
+                        zIndex: "1350",
+                      }}
+                      sx={{ mt: 0 }}
+                    >
+                      <pre
+                        style={{
+                          fontFamily: "Outfit,monospace",
+                          fontSize: "24px",
+                          overflow: "auto",
+                        }}
+                      >
+                        Kubetcl Type: {"  "}
+                        <strong style={{ fontSize: "38px" }}>{type}</strong>
+                      </pre>
+                      <pre
+                        style={{
+                          fontSize: "14px",
+                          overflow: "auto",
+                        }}
+                      >
+                        {helpDesk[`${type}`]}
+                      </pre>
+                    </Typography>
+                  </Box>
+                </Modal>
               </div>
 
               {/* ---------------- NAMES FIELD ------------------------------------- */}
 
-              <div id="name" style={{ width: "32%", margin: "0 5px 0 5px" }}>
-                <form
-                  onChange={handleNameChange}
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                  }}
-                >
-                  <TextField
-                    id="outlined-basic"
-                    label="Name"
-                    variant="outlined"
-                    style={{ width: "100%" }}
-                  />
-                </form>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  width: "32%",
+                }}
+              >
+                <div id="name" style={{ margin: "0 5px 0 5px" }}>
+                  <form
+                    onChange={handleNameChange}
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                    }}
+                  >
+                    <TextField
+                      id="outlined-basic"
+                      label="Name"
+                      variant="outlined"
+                      style={{ width: "100%" }}
+                    />
+                  </form>
+                </div>
+                <div style={{ height: "15px", padding: "5px 0 0 0" }}>
+                  {helpDesk.hasOwnProperty(verb) ? "" : ""}
+                </div>
               </div>
 
               {/* ---------------- FLAGS DROPDOWN ------------------------------------- */}
 
-              <div id="flag" style={{ width: "12%", marginLeft: "0px" }}>
-                <FormControl fullWidth>
-                  <InputLabel id="flag-label">Flags</InputLabel>
-                  <Select
-                    labelId="flag-label"
-                    id="flag-label"
-                    multiple
-                    value={flags}
-                    onChange={handleFlags}
-                    input={<OutlinedInput label="Flags" />}
-                    renderValue={(selected) => selected.join(", ")}
-                  >
-                    {flagList.map((name) => (
-                      <MenuItem
-                        key={name}
-                        value={name}
-                        style={{
-                          backgroundColor: "#5c4d9a",
-                          color: "white",
-                        }}
-                      >
-                        <Checkbox checked={flags.indexOf(name) > -1} />
-                        <ListItemText primary={name} />
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  width: "12%",
+                }}
+              >
+                <div id="flag" style={{ marginLeft: "0px" }}>
+                  <FormControl fullWidth>
+                    <InputLabel id="flag-label">Flags</InputLabel>
+                    <Select
+                      labelId="flag-label"
+                      id="flag-label"
+                      multiple
+                      value={flags}
+                      onChange={handleFlags}
+                      input={<OutlinedInput label="Flags" />}
+                      renderValue={(selected) => selected.join(", ")}
+                    >
+                      {flagList.map((name) => (
+                        <MenuItem
+                          key={name}
+                          value={name}
+                          style={{
+                            backgroundColor: "#5c4d9a",
+                            color: "white",
+                          }}
+                        >
+                          <Checkbox checked={flags.indexOf(name) > -1} />
+                          <ListItemText primary={name} />
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </div>
+                <div style={{ height: "15px", padding: "5px 0 0 0" }}>
+                  {helpDesk.hasOwnProperty(verb) ? "" : ""}
+                </div>
               </div>
             </div>
 
@@ -625,7 +808,7 @@ function Dashboard(): JSX.Element {
                 display: "flex",
                 flexDirection: "column",
                 width: "92%",
-                margin: "0 0 0 70px",
+                margin: "-15px 0 0 70px",
                 justifyContent: "center",
               }}
             >
