@@ -48,7 +48,6 @@ function SetupButtons(props) {
         if (returnedValue.includes("Prom setup complete")) {
           setPromStatus("true");
         } else setPromStatus(returnedValue);
-        // console.log('prom steup return is: ', returnedValue);
       }, 1000);
     });
 
@@ -60,7 +59,6 @@ function SetupButtons(props) {
         if (returnedValue.includes("Grafana setup complete")) {
           setGrafStatus("true");
         } else setGrafStatus(returnedValue);
-        // console.log('graf setup return is: ', returnedValue);
       }, 1000);
     });
 
@@ -71,7 +69,6 @@ function SetupButtons(props) {
         if (arg.includes("stdout: ")) {
           setPortForwardStatus("true");
         } else setPortForwardStatus(arg);
-        // console.log(arg);
       }, 1000);
     });
 
@@ -83,7 +80,6 @@ function SetupButtons(props) {
           setLaunchStatus("true");
         } else {
           setLaunchStatus("");
-          // console.log('launch status is now:', launchStatus);
         }
       }, 1000);
     });
@@ -92,19 +88,16 @@ function SetupButtons(props) {
   const handleClick = () => {
     setPromStatus("loading");
     ipcRenderer.send("prom_setup");
-    // fetch('/prom-graf-setup/promsetup').then((res) => console.log(res));
   };
 
   const handleGrafClick = () => {
     setGrafStatus("loading");
     ipcRenderer.send("graf_setup");
-    // fetch('/prom-graf-setup/grafana').then((res: Response) => console.log(res));
   };
 
   const handleForwardPort = () => {
     setPortForwardStatus("loading");
     ipcRenderer.send("forward_ports");
-    // fetch('/prom-graf-setup/forwardports').then((res) => console.log(res));
   };
 
   const handleCluster = () => {
@@ -231,8 +224,6 @@ function SetupButtons(props) {
           style={{
             border: "1px solid",
             height: "60px",
-            // marginTop: '20px',
-            // paddingRight: '8px',
             color: "grey",
             backgroundColor:
               theme.palette.mode === "dark" ? "#150f2d" : "transparent",
@@ -397,8 +388,6 @@ function SetupButtons(props) {
           style={{
             border: "1px solid",
             height: "60px",
-            // marginTop: '20px',
-            // paddingRight: '8px',
             color: "grey",
             backgroundColor:
               theme.palette.mode === "dark" ? "#150f2d" : "transparent",
@@ -463,8 +452,6 @@ function SetupButtons(props) {
             style={{
               border: "1px solid",
               height: "60px",
-              // marginTop: '20px',
-              // paddingRight: '8px',
               backgroundColor:
                 theme.palette.mode === "dark" ? "#150f2d" : "#8881ce",
             }}
@@ -683,7 +670,6 @@ function SetupButtons(props) {
           style={{
             border: "1px solid",
             height: "60px",
-            // color: '#2fc665',
             backgroundColor:
               theme.palette.mode === "dark" ? "#150f2d" : "transparent",
           }}
@@ -867,7 +853,6 @@ function SetupButtons(props) {
             style={{
               border: "1px solid",
               height: "60px",
-              // marginTop: '20px',
               paddingRight: "8px",
               backgroundColor:
                 theme.palette.mode === "dark" ? "#150f2d" : "#8881ce",
@@ -920,11 +905,9 @@ function SetupButtons(props) {
         <Button
           onClick={handleCluster}
           variant="contained"
-          // disabled
           style={{
             border: "1px solid #2fc665",
             height: "60px",
-            // marginTop: '20px',
             paddingRight: "8px",
             backgroundColor:
               theme.palette.mode === "dark" ? "#150f2d" : "#d0ccfc",
@@ -986,7 +969,6 @@ function SetupButtons(props) {
           style={{
             border: "1px solid",
             height: "60px",
-            // marginTop: '20px',
             paddingRight: "8px",
             backgroundColor:
               theme.palette.mode === "dark" ? "#150f2d" : "transparent",
@@ -1041,7 +1023,6 @@ function SetupButtons(props) {
           style={{
             border: "1px solid",
             height: "60px",
-            // marginTop: '20px',
             paddingRight: "8px",
             backgroundColor:
               theme.palette.mode === "dark" ? "#150f2d" : "#8881ce",
@@ -1063,7 +1044,6 @@ function SetupButtons(props) {
 
       <div
         data-height="100%"
-        // spacing={1}
         style={{
           display: "flex",
           flexDirection: "column",
@@ -1090,7 +1070,6 @@ function SetupButtons(props) {
         </div>
         <div
           style={{
-            // fontFamily: 'Outfit',
             fontWeight: "400",
             fontSize: "14px",
             justifyContent: "flex-start",
@@ -1185,7 +1164,6 @@ function SetupButtons(props) {
             }}
           >
             <LightbulbIcon
-              // fontSize='large'
               style={{ fontSize: "25px", color: "#8f85fb", marginRight: "8px" }}
             />
             <div
@@ -1259,7 +1237,6 @@ function SetupButtons(props) {
             </div>
           </div>
         </div>
-        {/* {log} */}
       </div>
     </>
   );

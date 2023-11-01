@@ -1,25 +1,9 @@
 import React, { useState, useEffect } from "react";
 import Button from "@mui/material/Button";
-import {
-  Typography,
-  useTheme,
-  Box,
-  Modal,
-  Checkbox,
-  TextField,
-} from "@mui/material";
+import { useTheme, Box, Modal, TextField } from "@mui/material";
 const { ipcRenderer } = require("electron");
-import SideNav from "./Sidebar.js";
-import LaunchIcon from "@mui/icons-material/Launch";
-import { RadioButtonUnchecked } from "@mui/icons-material";
-import CheckCircleOutlinedIcon from "@mui/icons-material/CheckCircleOutlined";
-import HighlightOffOutlinedIcon from "@mui/icons-material/HighlightOffOutlined";
-import CircularProgress from "@mui/material/CircularProgress";
 import Tooltip, { TooltipProps, tooltipClasses } from "@mui/material/Tooltip";
-import LightbulbIcon from "@mui/icons-material/Lightbulb";
 import { styled } from "@mui/material/styles";
-import { JsxElement } from "typescript";
-import SortIcon from "@mui/icons-material/Sort";
 
 const LightTooltip = styled(({ className, ...props }: TooltipProps) => (
   <Tooltip {...props} classes={{ popper: className }} />
@@ -30,19 +14,6 @@ const LightTooltip = styled(({ className, ...props }: TooltipProps) => (
     fontSize: 11,
   },
 }));
-
-type ArrPodObjs = {
-  name: string;
-  ready: string;
-  status: string;
-  restarts: string;
-  lastRestart: string;
-  age: string;
-  CpuPercent: number;
-  memoryPercent: number;
-};
-
-// let filteredPods: any = [];
 
 function KraneDeploymentsList(props) {
   const theme = useTheme();
@@ -225,7 +196,6 @@ function KraneDeploymentsList(props) {
   //Listen to "get deployments" return event and set pods array
   ipcRenderer.on("got_deployments", (event, arg) => {
     let argArr = arg.split("");
-    // console.log("argArr is", argArr);
 
     let filteredDeployments = [];
 
@@ -358,13 +328,11 @@ function KraneDeploymentsList(props) {
       j++;
     } //end of for loop parsing deployments return
     props.setDeploymentsArr(filteredDeployments);
-    // console.log("deployments Arr is:", deploymentsArr);
   }); //--------------------------------------end of ipc to parse deployments --------
 
   //Listen to "get replicaSets" return event and set pods array
   ipcRenderer.on("got_rs", (event, arg) => {
     let argArr = arg.split("");
-    // console.log("argArr RS is", argArr);
 
     let filteredReplicaSets = [];
 
@@ -511,7 +479,6 @@ function KraneDeploymentsList(props) {
       //else if checkbox is true set deployments array with kube system as well
       props.setDeploymentsArr([...tempDeploys]);
     }
-    console.log("deployments Arr is:", props.deploymentsArr);
   }); //--------------------------------------end of ipc to parse replicaSets --------
 
   useEffect(() => {
@@ -528,22 +495,7 @@ function KraneDeploymentsList(props) {
     }
     setSelectedDeployment([deployment]);
 
-    // if (typeof props.selectedPod[0]["podCpuPercent"] === "string") {
-    //   if (props.selectedPod[0]["podCpuPercent"] === "N/A") {
-    //     // props.setSelectedPodCPUColor("#ffffff80");
-    //     // props.setSelectedPodCPUColorLight("#ffffff80");
-    //   }
-    // } else if (props.selectedPod[0]["podCpuPercent"] < 90) {
-    //   // props.setSelectedPodCPUColor("#2fc665");
-    //   // props.setSelectedPodCPUColorLight("#2fc665");
-    // } else {
-    //   // props.setSelectedPodCPUColor("#cf4848");
-    //   // props.setSelectedPodCPUColorLight("#cf4848");
-    // }
-
     setOpenDeployment(true);
-
-    // console.log("selectedPodCpuColor is", selectedPodCPUColor);
   };
 
   const handleDeploymentClose = () => {
@@ -570,11 +522,8 @@ function KraneDeploymentsList(props) {
       let argArr = arg.split("\n");
       let temp = "";
       let output = [];
-      // console.log("ARG SPLIT ISSSSSS", argArr);
       for (let i = 0; i < argArr.length; i++) {
         output.push(<p>{argArr[i]}</p>);
-        // console.log("temp is", temp);
-        // output.push(<p>{temp}</p>);
       }
       setDeploymentLogs([...output]);
     });
@@ -597,7 +546,6 @@ function KraneDeploymentsList(props) {
     ipcRenderer.on("deploymentYamlRetrieved", (event, arg) => {
       let argArr = arg.split("/n");
       let output = [];
-      // console.log("ARG SPLIT ISSSSSS", argArr);
       for (let i = 0; i < argArr.length; i++) {
         output.push(
           <pre>
@@ -609,8 +557,7 @@ function KraneDeploymentsList(props) {
     });
 
     let deploymentYamlCommand = `kubectl get deployment/${selectedDeployment[0]["name"]} -o yaml`;
-    //`kubectl top pod ${selectedPod[0]["name"]} --containers`;
-    //send get container info commands
+    //send get deployments yaml command
     ipcRenderer.send("deploymentYaml_command", {
       deploymentYamlCommand,
       currDir,
@@ -627,7 +574,7 @@ function KraneDeploymentsList(props) {
     ipcRenderer.on("deploymentDescribeRetrieved", (event, arg) => {
       let argArr = arg.split("/n");
       let output = [];
-      // console.log("ARG SPLIT ISSSSSS", argArr);
+
       for (let i = 0; i < argArr.length; i++) {
         output.push(
           <pre>
@@ -639,8 +586,7 @@ function KraneDeploymentsList(props) {
     });
 
     let deploymentDescribeCommand = `kubectl describe deployment/${selectedDeployment[0]["name"]}`;
-    //`kubectl top pod ${selectedPod[0]["name"]} --containers`;
-    //send get container info commands
+    //send get deployment describe command
     ipcRenderer.send("deploymentDescribe_command", {
       deploymentDescribeCommand,
       currDir,
@@ -657,7 +603,7 @@ function KraneDeploymentsList(props) {
     ipcRenderer.on("deploymentRolloutStatusRetrieved", (event, arg) => {
       let argArr = arg.split("/n");
       let output = [];
-      console.log("ARG SPLIT ISSSSSS", argArr);
+
       for (let i = 0; i < argArr.length; i++) {
         output.push(
           <pre>
@@ -669,8 +615,7 @@ function KraneDeploymentsList(props) {
     });
 
     let deploymentRolloutStatusCommand = `kubectl rollout status deployment/${selectedDeployment[0]["name"]}`;
-    //`kubectl top pod ${selectedPod[0]["name"]} --containers`;
-    //send get container info commands
+    //send get deployment rollout status command
     ipcRenderer.send("deploymentRolloutStatus_command", {
       deploymentRolloutStatusCommand,
       currDir,
@@ -687,7 +632,6 @@ function KraneDeploymentsList(props) {
     ipcRenderer.on("deploymentRolloutHistoryRetrieved", (event, arg) => {
       let argArr = arg.split("/n");
       let output = [];
-      console.log("ARG SPLIT ISSSSSS", argArr);
       for (let i = 0; i < argArr.length; i++) {
         output.push(
           <pre>
@@ -699,8 +643,7 @@ function KraneDeploymentsList(props) {
     });
 
     let deploymentRolloutHistoryCommand = `kubectl rollout history deployment/${selectedDeployment[0]["name"]}`;
-    //`kubectl top pod ${selectedPod[0]["name"]} --containers`;
-    //send get container info commands
+    //send get deployment rollout history command
     ipcRenderer.send("deploymentRolloutHistory_command", {
       deploymentRolloutHistoryCommand,
       currDir,
@@ -847,7 +790,6 @@ function KraneDeploymentsList(props) {
       );
       props.setDeploymentsArr([...tempDeployments]);
     }
-    // setSortedByDisplay(sortedByDisplayArray[0]);
   }
 
   let deploymentsList = [];
@@ -890,7 +832,6 @@ function KraneDeploymentsList(props) {
                 ? "1px 1px 2px black"
                 : "1px 1px 1px #00000000",
             userSelect: "none",
-            // border:"1px solid red"
           }}
         >
           DEPLOYMENT {i + 1}
@@ -904,7 +845,6 @@ function KraneDeploymentsList(props) {
               width: "450px",
               height: "105px",
               fontSize: "16px",
-              // border: "1px solid white",
               justifyContent: "flex-start",
               textAlign: "left",
               alignItems: "space-between",
@@ -928,7 +868,6 @@ function KraneDeploymentsList(props) {
                 flexDirection: "row",
                 width: "440px",
                 justifyContent: "flex-start",
-                // border: "1px solid green",
               }}
             >
               <img
@@ -936,7 +875,6 @@ function KraneDeploymentsList(props) {
                   width: "40px",
                   marginRight: "0px",
                   marginLeft: "10.8px",
-                  // border: "1px solid blue",
                 }}
                 src="../../deploy-2.svg"
               ></img>
@@ -947,7 +885,6 @@ function KraneDeploymentsList(props) {
                   lineHeight: "23px",
                   fontSize: "18px",
                   textTransform: "none",
-                  // border: "1px solid blue",
                 }}
               >
                 {props.deploymentsArr[i]["name"]}
@@ -960,8 +897,6 @@ function KraneDeploymentsList(props) {
                   alignItems: "flex-end",
                   justifyContent: "right",
                   margin: "0px 10px 0 10px",
-
-                  // border: "1px solid blue",
                 }}
               >
                 <div
@@ -974,8 +909,6 @@ function KraneDeploymentsList(props) {
                         ? deploymentReadyColor
                         : deploymentReadyColorLight,
                     justifyContent: "right",
-                    // margin: "0px 0 2px 0",
-                    // border: ".5px solid white",
                   }}
                 ></div>
               </div>
@@ -987,7 +920,6 @@ function KraneDeploymentsList(props) {
                 marginLeft: "70px",
                 justifyContent: "space-around",
                 alignItems: "start",
-                // border: ".5px solid white",
                 width: "380px",
                 height: "40px",
                 marginTop: "0px",
@@ -1114,62 +1046,12 @@ function KraneDeploymentsList(props) {
                     fontSize: "10px",
                     fontWeight: "500",
                     margin: "-12.5px 0px 0 1px",
-                    // color: "white",
                   }}
                 >
                   READY
                 </div>
               </div>
-              {/* <div
-                style={{
-                  
-                  flexDirection: "column",
-                  justifyContent: "flex-end",
-                  alignItems: "center",
-                  textTransform: "none",
-                  margin: "0 20px 0 20px",
-                }}
-              >
-                <div
-                  style={{
-                    fontSize: "25px",
-                    fontWeight: "500",
-                    margin: "-23px 0 0px 0px",
-                  }}
-                >
-                  {props.deploymentsArr[i]["readyNumerator"]} 
-                  
-                  </div> 
-                  <div
-                  style={{
-                    position:"relative",
-                    top:"-40px",
-                    left:"20px",
-                    fontSize: "25px",
-                    fontWeight: "500",
-                    // margin: "-40px 0 0px 20px",
-                  }}
-                >
-                  /</div>
-                  <div
-                  style={{
-                    position:"relative",
-                    top:"-75px",
-                    left:"35px",
-                    fontSize: "25px",
-                    fontWeight: "500",
-                    // margin: "-40px 0 0px 50px",
-                  }}
-                >
-                  {props.deploymentsArr[i]["readyDenominator"]}
-                  
-                </div>
-                <div style={{ fontSize: "10px", position:"relative",
-                    top:"-75px",
-                    left:"20px", margin: "-11px 0 0 -12px" }}>
-                  READY
-                </div>
-              </div> */}
+
               <div
                 style={{
                   display: "flex",
@@ -1177,11 +1059,6 @@ function KraneDeploymentsList(props) {
                   justifyContent: "flex-start",
                   fontSize: "10px",
                   margin: "0px 0 0 20px",
-                  // color: "#2fc665",
-                  // color:
-                  //   theme.palette.mode === "dark"
-                  //     ? `${nodeReadyStatusRunning}`
-                  //     : `${nodeReadyStatusRunningLight}`,
                 }}
               ></div>
             </div>
@@ -1200,9 +1077,6 @@ function KraneDeploymentsList(props) {
           flexDirection: "row",
           justifyContent: "space-between",
           margin: "-9px 0 0 68px",
-          // height: "34px",
-          // width: "260%",
-          // border: "1px solid red",
         }}
       >
         <div style={{ display: "flex", flexDirection: "row", width: "100%" }}>
@@ -1214,9 +1088,7 @@ function KraneDeploymentsList(props) {
               fontSize: "24px",
               fontWeight: "900",
               letterSpacing: "2.8px",
-              // border: "1px solid white",
               textAlign: "left",
-              // color: "#ffffff",
               paddingTop: "0px",
               color: theme.palette.mode === "dark" ? "" : "#6d6fb4",
               userSelect: "none",
@@ -1252,7 +1124,6 @@ function KraneDeploymentsList(props) {
             width: "70%",
             backgroundColor:
               theme.palette.mode === "dark" ? "#ffffff99" : "#6d6fb4",
-            // marginRight: "50px",
             marginTop: "-1px",
           }}
         ></div>
@@ -1264,32 +1135,7 @@ function KraneDeploymentsList(props) {
           margin: "5px -10px 0 0px",
         }}
       >
-        <div style={{ display: "flex" }}>
-          {" "}
-          {/* <div
-            // onClick={handleKubeSystemChangeDeployments}
-            style={{
-              cursor: "pointer",
-              fontSize: "10px",
-              margin: "3px 0px 0 10px",
-              color: theme.palette.mode === "dark" ? "#ffffff99" : "grey",
-              userSelect: "none",
-            }}
-          >
-            show kube-system
-          </div>{" "}
-          <Checkbox
-            //@ts-ignore
-            size="small"
-            value="start"
-            checked={kubeSystemDeploymentsCheck}
-            onChange={handleKubeSystemChangeDeployments}
-            style={{
-              marginTop: "-7px",
-              color: theme.palette.mode === "dark" ? "" : "#00000050",
-            }}
-          /> */}
-        </div>
+        <div style={{ display: "flex" }}> </div>
       </div>
 
       <div
@@ -1297,7 +1143,6 @@ function KraneDeploymentsList(props) {
           display: "flex",
           flexWrap: "wrap",
           margin: "5px 0 0 50px",
-          // border: "1px solid blue",
           width: "1200px",
         }}
       >
@@ -1315,7 +1160,6 @@ function KraneDeploymentsList(props) {
                 style={{
                   display: "flex",
                   flexDirection: "row",
-                  // border: "1px solid white",
                 }}
               >
                 <div style={{ width: "140px", height: "400px" }}>
@@ -1327,21 +1171,12 @@ function KraneDeploymentsList(props) {
                     }}
                     src="../../deploy-2.svg"
                   ></img>
-                  {/* <img
-                      style={{
-                        width: "100px",
-                        height: "100px",
-                        margin: "15px 25px 0 20px",
-                      }}
-                      src="../../pod.svg"
-                    ></img> */}
                 </div>
                 {"  "}
                 <div
                   style={{
                     display: "flex",
                     flexDirection: "column",
-                    // border: "1px solid green",
                   }}
                 >
                   <div
@@ -1350,7 +1185,6 @@ function KraneDeploymentsList(props) {
                       flexDirection: "row",
                       width: "820px",
                       alignItems: "flex-start",
-                      // border: "1px solid yellow",
                     }}
                   >
                     <div
@@ -1361,7 +1195,6 @@ function KraneDeploymentsList(props) {
                         lineHeight: "40px",
                         margin: "30px 0 0 0",
                         padding: "00px -10px 10px 10px",
-                        // border: "1px solid yellow",
                         width: "790px",
                       }}
                     >
@@ -1378,7 +1211,6 @@ function KraneDeploymentsList(props) {
                             : selectedDeploymentReadyColorLight,
                         justifyContent: "right",
                         margin: "4px 0 0px 10px",
-                        // border: ".5px solid white",
                       }}
                     ></div>
                   </div>
@@ -1386,7 +1218,6 @@ function KraneDeploymentsList(props) {
                     style={{
                       display: "flex",
                       flexDirection: "row",
-                      // border: "1px solid green",
                       alignItems: "flex-end",
                       fontWeight: "500",
                       margin: "20px 0 0 0",
@@ -1519,7 +1350,6 @@ function KraneDeploymentsList(props) {
                           fontSize: "10px",
                           fontWeight: "500",
                           margin: "-12.5px 0px 0 1px",
-                          // color: "white",
                         }}
                       >
                         READY
@@ -1532,7 +1362,6 @@ function KraneDeploymentsList(props) {
                       flexDirection: "row",
                       fontWeight: "800",
                       margin: "50px 0 0 0",
-                      // border: "1px solid green",
                     }}
                   >
                     <div
@@ -1583,7 +1412,6 @@ function KraneDeploymentsList(props) {
                       justifyContent: "space-between",
                       margin: "40px 0 0px 0px",
                       fontSize: "10px",
-                      // border: "1px solid red",
                     }}
                   >
                     <button
@@ -1899,25 +1727,6 @@ function KraneDeploymentsList(props) {
                             justifyContent: "center",
                           }}
                         >
-                          {/* <Button
-                              onClick={handlePodDelete}
-                              style={{
-                                fontSize: "16px",
-                                margin: "0 10px 0 0",
-                                padding: "5px 15px 5px 15px",
-                                border:
-                                  theme.palette.mode === "dark"
-                                    ? "1px solid #8f85fb"
-                                    : "1px solid",
-                                color:
-                                  theme.palette.mode === "dark"
-                                    ? "white"
-                                    : "darkpurple",
-                              }}
-                            >
-                              DELETE POD
-                            </Button>
-                             */}
                           <button
                             className="button3D-pushable"
                             role="button"
@@ -1947,18 +1756,7 @@ function KraneDeploymentsList(props) {
                               ROLLBACK TO PREVIOUS VERSION
                             </span>
                           </button>
-                          {/* <Button
-                              onClick={handlePodDeleteClose}
-                              style={{
-                                opacity: "50%",
-                                fontSize: "15px",
-                                margin: "0 0 0 10px",
-                                padding: "5px 10px 5px 10px",
-                                border: "1px solid #ffffff89",
-                              }}
-                            >
-                              CANCEL
-                            </Button> */}
+
                           <button
                             className="button3D-pushable"
                             role="button"
@@ -2055,25 +1853,6 @@ function KraneDeploymentsList(props) {
                             justifyContent: "center",
                           }}
                         >
-                          {/* <Button
-                              onClick={handlePodDelete}
-                              style={{
-                                fontSize: "16px",
-                                margin: "0 10px 0 0",
-                                padding: "5px 15px 5px 15px",
-                                border:
-                                  theme.palette.mode === "dark"
-                                    ? "1px solid #8f85fb"
-                                    : "1px solid",
-                                color:
-                                  theme.palette.mode === "dark"
-                                    ? "white"
-                                    : "darkpurple",
-                              }}
-                            >
-                              DELETE POD
-                            </Button>
-                             */}
                           <button
                             className="button3D-pushable"
                             role="button"
@@ -2103,18 +1882,7 @@ function KraneDeploymentsList(props) {
                               PERFORM ROLLING RESTART
                             </span>
                           </button>
-                          {/* <Button
-                              onClick={handlePodDeleteClose}
-                              style={{
-                                opacity: "50%",
-                                fontSize: "15px",
-                                margin: "0 0 0 10px",
-                                padding: "5px 10px 5px 10px",
-                                border: "1px solid #ffffff89",
-                              }}
-                            >
-                              CANCEL
-                            </Button> */}
+
                           <button
                             className="button3D-pushable"
                             role="button"
@@ -2210,20 +1978,40 @@ function KraneDeploymentsList(props) {
                             margin: "10px 0 10px 0",
                           }}
                         >
-                          Current replicas is:{" "}
+                          CURRENT REPLICAS IS:{" "}
                           {selectedDeployment[0]["available"]}
                         </div>
-                        <TextField
-                          onChange={(e) => handleSetDeploymentScaleNumber(e)}
-                          inputProps={{
-                            inputMode: "numeric",
-                            min: 1,
-                            pattern: "[0-9]*",
-                            placeholder: `${selectedDeployment[0]["available"]}`,
+
+                        <div
+                          style={{
+                            display: "flex",
+                            flexDirection: "row",
+                            justifyContent: "center",
                           }}
-                          type="number"
-                          style={{ width: "60px", margin: "10px 0 0 170px" }}
-                        ></TextField>
+                        >
+                          {" "}
+                          <div
+                            style={{
+                              fontSize: "16px",
+                              fontWeight: "900",
+                              padding: "25px 10px 0 0px",
+                            }}
+                          >
+                            SCALE TO:
+                          </div>{" "}
+                          <TextField
+                            onChange={(e) => handleSetDeploymentScaleNumber(e)}
+                            inputProps={{
+                              inputMode: "numeric",
+                              min: 1,
+                              pattern: "[0-9]*",
+                              placeholder: `${selectedDeployment[0]["available"]}`,
+                            }}
+                            type="number"
+                            style={{ width: "60px", margin: "10px 0 0 0px" }}
+                          ></TextField>
+                        </div>
+
                         <div
                           style={{
                             display: "flex",
@@ -2261,18 +2049,7 @@ function KraneDeploymentsList(props) {
                               SCALE DEPLOYMENT
                             </span>
                           </button>
-                          {/* <Button
-                              onClick={handlePodDeleteClose}
-                              style={{
-                                opacity: "50%",
-                                fontSize: "15px",
-                                margin: "0 0 0 10px",
-                                padding: "5px 10px 5px 10px",
-                                border: "1px solid #ffffff89",
-                              }}
-                            >
-                              CANCEL
-                            </Button> */}
+
                           <button
                             className="button3D-pushable"
                             role="button"
@@ -2370,25 +2147,6 @@ function KraneDeploymentsList(props) {
                             justifyContent: "center",
                           }}
                         >
-                          {/* <Button
-                              onClick={handlePodDelete}
-                              style={{
-                                fontSize: "16px",
-                                margin: "0 10px 0 0",
-                                padding: "5px 15px 5px 15px",
-                                border:
-                                  theme.palette.mode === "dark"
-                                    ? "1px solid #8f85fb"
-                                    : "1px solid",
-                                color:
-                                  theme.palette.mode === "dark"
-                                    ? "white"
-                                    : "darkpurple",
-                              }}
-                            >
-                              DELETE POD
-                            </Button>
-                             */}
                           <button
                             className="button3D-pushable"
                             role="button"
@@ -2418,18 +2176,7 @@ function KraneDeploymentsList(props) {
                               DELETE DEPLOYMENT
                             </span>
                           </button>
-                          {/* <Button
-                              onClick={handlePodDeleteClose}
-                              style={{
-                                opacity: "50%",
-                                fontSize: "15px",
-                                margin: "0 0 0 10px",
-                                padding: "5px 10px 5px 10px",
-                                border: "1px solid #ffffff89",
-                              }}
-                            >
-                              CANCEL
-                            </Button> */}
+
                           <button
                             className="button3D-pushable"
                             role="button"
@@ -2479,9 +2226,7 @@ function KraneDeploymentsList(props) {
                     fontSize: "20px",
                     fontWeight: "900",
                     letterSpacing: "3px",
-                    // border: "1px solid white",
                     textAlign: "left",
-                    // color: "#ffffff",
                     paddingTop: "10px",
                     userSelect: "none",
                   }}
@@ -2503,8 +2248,6 @@ function KraneDeploymentsList(props) {
                     height: "1px",
                     width: "100%",
                     backgroundColor: "#ffffff99",
-                    // border: "1px solid white",
-                    // marginRight: "50px",
                     marginRight: "20px",
                     marginTop: "5px",
                   }}
@@ -2523,7 +2266,6 @@ function KraneDeploymentsList(props) {
                   style={{
                     width: "50px",
                     margin: "10px 0 0 0",
-                    // border: "1px solid blue",
                   }}
                   src="../../rs.svg"
                 ></img>
@@ -2534,7 +2276,6 @@ function KraneDeploymentsList(props) {
                     lineHeight: "23px",
                     fontSize: "18px",
                     textTransform: "none",
-                    // border: "1px solid blue",
                   }}
                 >
                   {selectedDeployment[0]["replicaSets"]["name"]}
@@ -2552,7 +2293,6 @@ function KraneDeploymentsList(props) {
                     fontSize: "26px",
                     textTransform: "none",
                     fontWeight: "300",
-                    // border: "1px solid blue",
                   }}
                 >
                   <div>{selectedDeployment[0]["replicaSets"]["desired"]}</div>
@@ -2578,7 +2318,6 @@ function KraneDeploymentsList(props) {
                     fontSize: "26px",
                     textTransform: "none",
                     fontWeight: "300",
-                    // border: "1px solid blue",
                   }}
                 >
                   <div>{selectedDeployment[0]["replicaSets"]["current"]}</div>
@@ -2604,7 +2343,6 @@ function KraneDeploymentsList(props) {
                     fontSize: "26px",
                     textTransform: "none",
                     fontWeight: "300",
-                    // border: "1px solid blue",
                   }}
                 >
                   <div>{selectedDeployment[0]["replicaSets"]["ready"]}</div>
@@ -2630,7 +2368,6 @@ function KraneDeploymentsList(props) {
                     fontSize: "22px",
                     textTransform: "none",
                     fontWeight: "300",
-                    // border: "1px solid blue",
                   }}
                 >
                   <div>{selectedDeployment[0]["replicaSets"]["age"]}</div>
@@ -2657,7 +2394,6 @@ function KraneDeploymentsList(props) {
 
       <div
         data-height="100%"
-        // spacing={1}
         style={{
           display: "flex",
           flexDirection: "column",
@@ -2670,8 +2406,6 @@ function KraneDeploymentsList(props) {
           textAlign: "center",
           width: "95.5%",
           height: "auto",
-          // border: "1px solid green",
-          // overflow:"scroll"
         }}
       >
         <div>{deploymentsListDiv}</div>

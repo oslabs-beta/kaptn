@@ -118,7 +118,6 @@ function Krane() {
 
   ipcRenderer.on("got_namespaces", (event, arg) => {
     let argArr = arg.split("");
-    console.log("argArr is", argArr);
 
     let namespaceArrayOutput = [];
 
@@ -148,7 +147,6 @@ function Krane() {
     }
     setNamespacesArr(["ALL", ...namespaceArrayOutput]);
   });
-  console.log("ns array is:", namespacesArr);
 
   // ----------------------------------------- get pods info section ------------
 
@@ -401,7 +399,6 @@ function Krane() {
       <>
         <div
           style={{
-            // fontFamily: "Outfit",
             display: "flex",
             flexDirection: "row",
             width: "91%",
@@ -410,43 +407,31 @@ function Krane() {
             fontWeight: "400",
             letterSpacing: "1px",
             lineHeight: "12px",
-            // border: "1px solid white",
             paddingBottom: "0px",
             textAlign: "right",
             color: "#ffffff99",
             marginRight: "0px",
             marginTop: "0px",
             justifyContent: "flex-end",
-            // paddingTop: "50px",
           }}
         >
-          {/* <div
-              style={{
-                marginTop: "5px",
-              }}
-            >
-              <i> STATS AUTOMATICALLY REFRESH EVERY 30 SECONDS</i>
-            </div> */}
           <Button
             style={{
               marginLeft: "10px",
               marginTop: "8px",
               marginBottom: "0px",
               letterSpacing: ".8px",
-              // padding:"0 0 0 0",
-              // border: "1px solid #ffffff99",
               border: "1px solid",
               fontSize: "9px",
               width: "98px",
               height: "20px",
-
-              // color: "#ffffff99",
             }}
             onClick={handleClick}
           >
             Refresh stats
           </Button>
         </div>
+
         <div
           style={{
             display: "flex",
@@ -457,7 +442,6 @@ function Krane() {
             fontWeight: "400",
             letterSpacing: "1px",
             lineHeight: "12px",
-            // border: "1px solid white",
             paddingBottom: "0px",
             textAlign: "right",
             color: "#ffffff99",
@@ -467,27 +451,35 @@ function Krane() {
             marginBottom: "-29px",
           }}
         >
-          <Button
-            onClick={handleNamespaceChange}
-            style={{
-              display: "flex",
-              // fontFamily: "Outfit",
-              fontSize: "9px",
-              fontWeight: "900",
-              letterSpacing: ".5px",
-              border: "1px solid",
-              height: "16px",
-              textAlign: "left",
-              color: theme.palette.mode === "dark" ? "white" : "#00000099",
-              marginTop: "23px",
-              marginLeft: "0px",
-              marginRight: "2px",
-              padding: "8px 4px 8px 6px",
-              marginBottom: "-40px",
-            }}
+          <LightTooltip
+            title="View resources from a specific namespace. These options are populated using the 'kubectl get namespaces' command. Please note: Some namespaces may not have visible pods or deployments."
+            placement="bottom"
+            arrow
+            enterDelay={1800}
+            leaveDelay={100}
+            enterNextDelay={3000}
           >
-            NAMESPACE: {selectedNamespace}
-          </Button>
+            <Button
+              onClick={handleNamespaceChange}
+              style={{
+                display: "flex",
+                fontSize: "9px",
+                fontWeight: "900",
+                letterSpacing: ".5px",
+                border: "1px solid",
+                height: "16px",
+                textAlign: "left",
+                color: theme.palette.mode === "dark" ? "white" : "#00000099",
+                marginTop: "23px",
+                marginLeft: "0px",
+                marginRight: "2px",
+                padding: "8px 4px 8px 6px",
+                marginBottom: "-40px",
+              }}
+            >
+              NAMESPACE: {selectedNamespace}
+            </Button>
+          </LightTooltip>
         </div>
       </>
     );
@@ -507,7 +499,7 @@ function Krane() {
             color: theme.palette.mode === "dark" ? "" : "#00000070",
           }}
         >
-          Choose Above to Begin
+          Choose From Above to Begin
         </div>
         <div
           style={{
@@ -544,8 +536,6 @@ function Krane() {
     );
   }
 
-  // console.log("selected pod 3 is ", selectedPod);
-
   return (
     <>
       <div style={{ overflow: "hidden" }}>
@@ -567,7 +557,6 @@ function Krane() {
             marginBottom: "20px",
             textAlign: "center",
             width: "100%",
-            // border: "1px solid red",
           }}
         >
           <div
@@ -582,7 +571,6 @@ function Krane() {
               width: "100%",
               letterSpacing: "0px",
               color: theme.palette.mode === "dark" ? "white" : "#6466b2",
-              // border: "1px solid pink",
               textShadow:
                 theme.palette.mode === "dark" ? "5px 5px 2px #00000060" : "",
             }}
@@ -591,7 +579,6 @@ function Krane() {
           </div>
           <div
             style={{
-              // fontFamily: 'Outfit',
               fontWeight: "400",
               fontSize: "14.5px",
               alignItems: "center",
@@ -601,7 +588,6 @@ function Krane() {
               width: "100%",
               letterSpacing: "-.1px",
               color: theme.palette.mode === "dark" ? "white" : "grey",
-              // border: "1px solid green",
               textShadow:
                 theme.palette.mode === "dark" ? "2px 2px 2px #00000040" : "",
             }}
@@ -609,7 +595,6 @@ function Krane() {
             Easily manage your clusters, nodes, and containers.
             <br />
             <p></p>
-            {/* <div>CHOOSE ONE OR MORE:</div> */}
           </div>
           <div style={{ display: "flex", margin: "-5px 0 0 0" }}>
             <Button
@@ -625,9 +610,7 @@ function Krane() {
                     : theme.palette.mode !== "dark" && !nodeShowStatus
                     ? "1px solid #00000060"
                     : "1px solid #8d85f3",
-                // border: "1px solid",
                 fontSize: "12px",
-                // width: "98px",
                 height: "20px",
                 color:
                   theme.palette.mode === "dark" && !nodeShowStatus
@@ -647,7 +630,6 @@ function Krane() {
                 marginTop: "8px",
                 letterSpacing: ".8px",
                 padding: "12px 10px 12px 10px",
-                // border: "1px solid #ffffff99",
                 border:
                   theme.palette.mode === "dark" && !deploymentsShowStatus
                     ? "1px solid #ffffff"
@@ -655,7 +637,6 @@ function Krane() {
                     ? "1px solid #00000060"
                     : "1px solid #8d85f3",
                 fontSize: "12px",
-                // width: "98px",
                 height: "20px",
                 color:
                   theme.palette.mode === "dark" && !deploymentsShowStatus
@@ -682,13 +663,10 @@ function Krane() {
                   theme.palette.mode === "dark"
                     ? "1px solid #ffffff80"
                     : "1px solid #00000060",
-                // border: "1px solid",
                 fontSize: "12px",
-                // width: "98px",
                 height: "20px",
                 color:
                   theme.palette.mode === "dark" ? "#ffffff80" : "#00000060",
-                // backgroundColor: !nodeShowStatus ? "transparent" : "#8d85f3",
               }}
             >
               DAEMONSETS
@@ -704,13 +682,10 @@ function Krane() {
                   theme.palette.mode === "dark"
                     ? "1px solid #ffffff80"
                     : "1px solid #00000060",
-                // border: "1px solid",
                 fontSize: "12px",
-                // width: "98px",
                 height: "20px",
                 color:
                   theme.palette.mode === "dark" ? "#ffffff80" : "#00000060",
-                // backgroundColor: !nodeShowStatus ? "transparent" : "#8d85f3",
               }}
             >
               SERVICES
@@ -726,13 +701,10 @@ function Krane() {
                   theme.palette.mode === "dark"
                     ? "1px solid #ffffff80"
                     : "1px solid #00000060",
-                // border: "1px solid",
                 fontSize: "12px",
-                // width: "98px",
                 height: "20px",
                 color:
                   theme.palette.mode === "dark" ? "#ffffff80" : "#00000060",
-                // backgroundColor: !nodeShowStatus ? "transparent" : "#8d85f3",
               }}
             >
               NAMESPACES
@@ -745,7 +717,6 @@ function Krane() {
               color: theme.palette.mode === "dark" ? "#ffffff80" : "#00000060",
               fontSize: "9px",
               letterSpacing: ".5px",
-              // border:"1px solid red"
             }}
           >
             <div

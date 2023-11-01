@@ -69,8 +69,18 @@ a {
 }
 
 #runButt:hover {
-  border: 1.5px solid #685aef !important;
-  color: #685aef !important;
+  /* border: 1.5px solid #685aef !important; */
+  /* color: #685aef !important; */
+  filter: brightness(120%);
+  -webkit-filter: brightness(120%);
+}
+
+#clear-button:hover {
+  /* border: 1.5px solid #685aef !important; */
+  /* color: #685aef !important; */
+  filter: brightness(120%);
+  -webkit-filter: brightness(120%);
+  border: 1px solid gray !important;
 }
 
 #nodeButt:hover {
@@ -164,7 +174,7 @@ a {
   padding: 12px 27px;
   border-radius: 7px;
   /* border: 1px solid rgb(29, 38, 127); */
-  font-size: .9rem;
+  font-size: 0.9rem;
   color: white;
   /* background: hsl(239, 38%, 51%); */
   will-change: transform;
@@ -173,7 +183,7 @@ a {
   filter: brightness(100%);
   -webkit-filter: brightness(100%);
   font-family: Roboto;
-  font-weight: 500
+  font-weight: 500;
 }
 
 .button3D-pushable:hover {

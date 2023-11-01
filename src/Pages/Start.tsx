@@ -30,40 +30,11 @@ function Start(props) {
     "kubectl get pods --all-namespaces | grep metrics-server";
 
   ipcRenderer.on("checked_promgraf_installed", (event, arg) => {
-    // console.log("attempted to check if promgraf installed:", arg);
-    for (let i = 0; i < arg.length; i++) {
-      if (
-        arg[i] === "g" &&
-        arg[i + 1] === "r" &&
-        arg[i + 2] === "a" &&
-        arg[i + 3] === "f" &&
-        arg[i + 4] === "a" &&
-        arg[i + 5] === "n" &&
-        arg[i + 6] === "a"
-      ) {
-        props.setGrafVersion("installed");
-        //metrics not installed, save metrics status as not installed
-      }
-      if (
-        arg[i] === "p" &&
-        arg[i + 1] === "r" &&
-        arg[i + 2] === "o" &&
-        arg[i + 3] === "m" &&
-        arg[i + 4] === "e" &&
-        arg[i + 5] === "t" &&
-        arg[i + 6] === "h" &&
-        arg[i + 7] === "e" &&
-        arg[i + 8] === "u" &&
-        arg[i + 9] === "s"
-      ) {
-        props.setPromVersion("installed");
-        //metrics not installed, save metrics status as not installed
-      }
-    }
-    if (
-      props.promVersion === "installed" &&
-      props.grafVersion === "installed"
-    ) {
+    console.log(arg.includes("grafana"));
+
+    if (arg.includes("grafana") && arg.includes("prometheus")) {
+      props.setGrafVersion("installed");
+      props.setPromVersion("installed");
       setTimeout(() => {
         props.setPromGrafCheckStatus("installed");
       }, 2400);
@@ -75,27 +46,36 @@ function Start(props) {
   });
 
   ipcRenderer.on("checked_metrics_installed", (event, arg) => {
-    // console.log("attempted to check if metrics installed:", arg);
     if (!arg.length) {
       //metrics not installed, save metrics status as not installed
       setTimeout(() => {
-        // setMetricsVersion("installed");
         setMetricsCheckStatus("not_installed");
       }, 1500);
     } else {
       setTimeout(() => {
-        // setMetricsVersion("installed");
         setMetricsCheckStatus("installed");
       }, 1500);
     }
   });
 
   ipcRenderer.on("checked_kubectl_installed", (event, arg) => {
-    argOut = arg;
+    argOut = JSON.parse(arg);
     let kubectlClientVersionArr = [];
     let kubectlServerVersionArr = [];
-    //if first letter is "W" you are getting version warning, so this parses version warning output
-    if (arg[0] === "W") {
+    //@ts-expect-error
+    if (argOut.clientVersion.gitVersion) {
+      //@ts-expect-error
+      let temp = argOut.clientVersion.gitVersion.slice(1, -2);
+      setKubectlClientVersion(temp);
+      //@ts-expect-error
+      temp = argOut.serverVersion.gitVersion.slice(1, -2);
+      setKubectlServerVersion(temp);
+
+      setTimeout(() => {
+        setKubectlCheckStatus("Installed");
+      }, 800);
+    } else if (arg[0] === "W") {
+      //if first letter is "W" you are getting version warning, so this parses version warning output
       let i = 44;
       while (arg[i] !== ")") {
         kubectlClientVersionArr.push(arg[i]);
@@ -107,22 +87,15 @@ function Start(props) {
         i++;
       }
       setKubectlClientVersion(`${kubectlClientVersionArr.join("")}`);
-      // console.log("kubectl client is:", kubectlClientVersion);
 
       setKubectlServerVersion(`${kubectlServerVersionArr.join("")}`);
-      // console.log("kubectl server is:", kubectlServerVersion);
 
       setTimeout(() => {
         setKubectlCheckStatus("Installed");
       }, 800);
     }
     //need to parse json object below this line and save client and server versions for when you dont have version +-1 sync warning (like i currently do).
-    else if (typeof arg === "object") {
-      //parse json object potentially, but for now just setting to installed without number to hopefully allow all json returns to move forward without confusion.
-      setTimeout(() => {
-        setKubectlCheckStatus("InstalledUncertain");
-      }, 800);
-    } else if (arg[0] === "e" && arg[1] === "r" && arg[2] === "r") {
+    else if (arg[0] === "e" && arg[1] === "r" && arg[2] === "r") {
       setTimeout(() => {
         setKubectlCheckStatus("not_installed");
       }, 800);
@@ -166,7 +139,6 @@ function Start(props) {
       <div
         style={{
           fontSize: "11px",
-          // border: "1px solid green",
           display: "flex",
           flexDirection: "row",
           color: theme.palette.mode === "dark" ? "" : "#3c3c9a",
@@ -186,7 +158,6 @@ function Start(props) {
       <div
         style={{
           fontSize: "11px",
-          // border: "1px solid green",
           display: "flex",
           flexDirection: "row",
           color: theme.palette.mode === "dark" ? "" : "#3c3c9a",
@@ -205,7 +176,6 @@ function Start(props) {
       <div
         style={{
           fontSize: "11px",
-          // border: "1px solid green",
           display: "flex",
           flexDirection: "row",
           color: theme.palette.mode === "dark" ? "" : "#3c3c9a",
@@ -219,7 +189,6 @@ function Start(props) {
       <div
         style={{
           fontSize: "11px",
-          // border: "1px solid green",
           display: "flex",
           flexDirection: "row",
           color: theme.palette.mode === "dark" ? "" : "#3c3c9a",
@@ -233,7 +202,6 @@ function Start(props) {
       <div
         style={{
           fontSize: "11px",
-          // border: "1px solid green",
           display: "flex",
           flexDirection: "row",
           color: theme.palette.mode === "dark" ? "" : "#3c3c9a",
@@ -250,7 +218,6 @@ function Start(props) {
       <div
         style={{
           fontSize: "11px",
-          // border: "1px solid green",
           display: "flex",
           flexDirection: "row",
           color: theme.palette.mode === "dark" ? "" : "#3c3c9a",
@@ -269,7 +236,6 @@ function Start(props) {
       <div
         style={{
           fontSize: "11px",
-          // border: "1px solid green",
           display: "flex",
           flexDirection: "row",
           color: theme.palette.mode === "dark" ? "" : "#3c3c9a",
@@ -291,7 +257,6 @@ function Start(props) {
       <div
         style={{
           fontSize: "11px",
-          // border: "1px solid green",
           display: "flex",
           flexDirection: "row",
           color: theme.palette.mode === "dark" ? "" : "#3c3c9a",
@@ -317,7 +282,6 @@ function Start(props) {
       <div
         style={{
           fontSize: "11px",
-          // border: "1px solid green",
           display: "flex",
           flexDirection: "row",
           color: theme.palette.mode === "dark" ? "" : "#3c3c9a",
@@ -335,7 +299,6 @@ function Start(props) {
       <div
         style={{
           fontSize: "11px",
-          // border: "1px solid green",
           display: "flex",
           flexDirection: "row",
           color: theme.palette.mode === "dark" ? "" : "#3c3c9a",
@@ -351,7 +314,6 @@ function Start(props) {
       <div
         style={{
           fontSize: "11px",
-          // border: "1px solid green",
           display: "flex",
           flexDirection: "row",
           color: theme.palette.mode === "dark" ? "" : "#3c3c9a",
@@ -370,7 +332,6 @@ function Start(props) {
       <div
         style={{
           fontSize: "11px",
-          // border: "1px solid green",
           display: "flex",
           flexDirection: "row",
           color: theme.palette.mode === "dark" ? "" : "#3c3c9a",
@@ -396,7 +357,6 @@ function Start(props) {
           alignItems: "center",
           width: "55px",
           height: "20px",
-          // border: "1px solid yellow",
           margin: "0px 0px 10px 0",
         }}
       >
@@ -405,7 +365,6 @@ function Start(props) {
           style={{
             height: "2px",
             width: "55px",
-            // border: "1px solid yellow"
           }}
         ></div>
         {}
@@ -421,7 +380,6 @@ function Start(props) {
           width: "55px",
           height: "20px",
           margin: "0px 0px 10px 0",
-          // border: "1px solid yellow",
         }}
       >
         <LinearProgress
@@ -436,21 +394,8 @@ function Start(props) {
 
   // END OF CHECK KUBECTL INSTALLED SECTION
 
-  // let argOut = "";
-
-  // let kubectlMetricsServerInstallCommand =
-  //   "kubectl apply -f https://raw.githubusercontent.com/pythianarora/total-practice/master/sample-kubernetes-code/metrics-server.yaml";
-
-  // let currDir = "NONE SELECTED";
-
-  // ipcRenderer.send("install_metrics_server_command", {
-  //   kubectlMetricsServerInstallCommand,
-  //   currDir,
-  // });
-
   ipcRenderer.on("installed_metrics", (event, arg) => {
     argOut = arg;
-    // console.log("attempted to install metrics server:", arg);
     setMetricsCheckStatus("now_installed");
   });
 
@@ -474,7 +419,6 @@ function Start(props) {
           flexDirection: "column",
           width: "auto",
           height: "768px",
-          // border: "1px solid red",
           margin: "12px 0 0 0",
           justifyContent: "center",
           alignItems: "center",
@@ -486,7 +430,6 @@ function Start(props) {
             flexDirection: "row",
             width: "90%",
             height: "522px",
-            // border: "1px solid white",
             justifyContent: "center",
             alignItems: "center",
           }}
@@ -497,7 +440,6 @@ function Start(props) {
               flexDirection: "column",
               width: "50%",
               height: "100%",
-              // border: "1px solid green",
               justifyContent: "flex-start",
               alignItems: "center",
             }}
@@ -520,49 +462,9 @@ function Start(props) {
             {loadingStatusDiv}
 
             {kubectlInstalledDiv}
-            {/* <div
-              style={{
-                fontSize: "11px",
-                // border: "1px solid green",
-                display: "flex",
-                flexDirection: "row",
-              }}
-            >
-              kubectl version 1.12 found
-              <CheckIcon
-                fontSize="small"
-                style={{ margin: "-1px 0 0 5px", color: "lightgreen" }}
-              />
-            </div> */}
-            {/* 
-            <div
-              style={{
-                fontSize: "11px",
-                // border: "1px solid green",
-                display: "flex",
-                flexDirection: "row",
-              }}
-            >
-              Metrics server not installed. Kluster Manager requires metrics.{" "}
-              <a href="" style={{ marginLeft: "2px", color: "lightgreen" }}>
-                Install metrics server now
-              </a>
-            </div> */}
+
             {metricsInstalledDiv}
-            {/* <div
-              style={{
-                fontSize: "11px",
-                // border: "1px solid green",
-                display: "flex",
-                flexDirection: "row",
-              }}
-            >
-              Grafana and Prometheus version 1.45 found{" "}
-              <CheckIcon
-                fontSize="small"
-                style={{ margin: "-1px 0 0 5px", color: "lightgreen" }}
-              />
-            </div> */}
+
             {promGrafInstallDiv}
           </div>
           <div
@@ -572,7 +474,6 @@ function Start(props) {
               justifyContent: "flex-end",
               width: "50%",
               height: "100%",
-              // border: "1px solid blue",
               textAlign: "center",
               userSelect: "none",
             }}
@@ -580,7 +481,6 @@ function Start(props) {
             <div style={{ display: "flex", justifyContent: "center" }}>
               <Typography
                 variant="h2"
-                // alignText='center'
                 sx={{
                   fontWeight: "bold",
                   fontFamily: "Outfit",
@@ -598,7 +498,6 @@ function Start(props) {
               </Typography>
               <Typography
                 variant="h2"
-                // alignText='center'
                 sx={{
                   fontWeight: "bold",
                   fontFamily: "Outfit",
@@ -640,8 +539,6 @@ function Start(props) {
             >
               {" "}
               take command of kubernetes
-              {/* Unlock the full power of the kubernetes command kubectl, while
-              easily initializing and monitoring kubernetes clusters */}
             </Typography>
             <br />
             <Typography
@@ -677,11 +574,10 @@ function Start(props) {
               >
                 kubectl commands are installed
               </a>
-               <br />
+              <br />
               and clusters are up and running before proceeding.
             </Typography>
           </div>
-          {/* <Button style={{ border: "1px solid blue" }}>Blah</Button> */}
         </div>
 
         <div
@@ -691,7 +587,6 @@ function Start(props) {
             fontWeight: "700",
             letterSpacing: "2px",
             margin: "15px 0 0 8.3%",
-            // border: "1px solid white",
             textAlign: "left",
             color: theme.palette.mode === "dark" ? "#ffffff" : "#3c3c9a",
             paddingTop: "10px",
@@ -710,14 +605,12 @@ function Start(props) {
             width: "100%",
             height: "172px",
             margin: "0 0 0% -2%",
-            // border: "1px solid yellow",
           }}
         >
           <div>
             <Link to="/krane">
               <Button
                 id="podButt"
-                // onClick={() => handleCommandOpen(podsArr[i])}
                 style={{
                   display: "flex",
                   flexDirection: "column",
@@ -725,7 +618,6 @@ function Start(props) {
                   height: "115px",
                   fontSize: "16px",
                   textTransform: "none",
-                  // border: "1px solid white",
                   justifyContent: "space-around",
                   textAlign: "left",
                   alignItems: "space-between",
@@ -750,7 +642,6 @@ function Start(props) {
                   style={{
                     display: "flex",
                     flexDirection: "row",
-                    // border: "1px solid green",
                     width: "100%",
                   }}
                 >
@@ -813,7 +704,6 @@ function Start(props) {
             <Link to="/dashboard">
               <Button
                 id="podButt"
-                // onClick={() => handleCommandOpen(podsArr[i])}
                 style={{
                   display: "flex",
                   flexDirection: "column",
@@ -821,7 +711,6 @@ function Start(props) {
                   height: "115px",
                   fontSize: "16px",
                   textTransform: "none",
-                  // border: "1px solid white",
                   justifyContent: "space-around",
                   textAlign: "left",
                   alignItems: "space-between",
@@ -846,7 +735,6 @@ function Start(props) {
                   style={{
                     display: "flex",
                     flexDirection: "row",
-                    // border: "1px solid green",
                     width: "100%",
                   }}
                 >
@@ -894,14 +782,12 @@ function Start(props) {
             width: "100%",
             height: "172px",
             margin: "0 0 2% -2%",
-            // border: "1px solid yellow",
           }}
         >
           <div>
             <Link to="/setup">
               <Button
                 id="podButt"
-                // onClick={() => handleCommandOpen(podsArr[i])}
                 style={{
                   display: "flex",
                   flexDirection: "column",
@@ -909,7 +795,6 @@ function Start(props) {
                   height: "115px",
                   fontSize: "16px",
                   textTransform: "none",
-                  // border: "1px solid white",
                   justifyContent: "space-around",
                   textAlign: "left",
                   alignItems: "space-between",
@@ -934,7 +819,6 @@ function Start(props) {
                   style={{
                     display: "flex",
                     flexDirection: "row",
-                    // border: "1px solid green",
                     width: "100%",
                   }}
                 >
@@ -981,7 +865,6 @@ function Start(props) {
             <Link to="/cluster">
               <Button
                 id="podButt"
-                // onClick={() => handleCommandOpen(podsArr[i])}
                 style={{
                   display: "flex",
                   flexDirection: "column",
@@ -989,7 +872,6 @@ function Start(props) {
                   height: "115px",
                   fontSize: "16px",
                   textTransform: "none",
-                  // border: "1px solid white",
                   justifyContent: "space-around",
                   textAlign: "left",
                   alignItems: "space-between",
@@ -1014,13 +896,12 @@ function Start(props) {
                   style={{
                     display: "flex",
                     flexDirection: "row",
-                    // border: "1px solid green",
                     width: "100%",
                   }}
                 >
                   <img
                     style={{
-                      width: "28.2%",
+                      width: "29.9%",
                       marginLeft: "0px",
                       borderRadius: "5px",
                     }}
@@ -1049,7 +930,8 @@ function Start(props) {
                       }}
                     >
                       Sync with Grafana and Prometheus for real-time
-                      visualization of your clusters health
+                      visualization of your <br />
+                      clusters health
                     </div>
                   </div>
                 </div>

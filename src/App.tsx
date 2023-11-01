@@ -1,4 +1,3 @@
-import WelcomeModal from "./Pages/WelcomeModal.jsx";
 import Start from "./Pages/Start.jsx";
 import Cluster from "./Pages/Cluster.jsx";
 import { HashRouter, Route, Routes } from "react-router-dom";
@@ -41,7 +40,6 @@ function App() {
                     />
                   }
                 />
-                <Route path="/welcome" element={<WelcomeModal />} />
                 <Route
                   path="/krane"
                   element={

@@ -1,11 +1,4 @@
-import {
-  InputAdornment,
-  Button,
-  TextField,
-  useTheme,
-  Box,
-  Grid,
-} from "@mui/material";
+import { InputAdornment, Button, TextField, useTheme } from "@mui/material";
 import Tooltip, { TooltipProps, tooltipClasses } from "@mui/material/Tooltip";
 import { styled, lighten, darken } from "@mui/system";
 // import { clipboard } from 'electron';
@@ -26,7 +19,7 @@ const DashboardCommandLine = (props) => {
   // Add/remove functionality in text box
   const handleChange = (e) => {
     let newUserInput = "";
-    // console.log('e.nativeEvent.inputType is: ', e.nativeEvent.inputType);
+
     if (e.nativeEvent.inputType === "deleteContentBackward") {
       newUserInput = props.userInput.slice(0, props.userInput.length - 1);
     } else {
@@ -64,7 +57,6 @@ const DashboardCommandLine = (props) => {
         justifyContent: "center",
         alignItems: "center",
         width: "105%",
-        // border: "1px solid blue",
         margin: "15px 0 0 0px",
       }}
     >
@@ -92,7 +84,6 @@ const DashboardCommandLine = (props) => {
               padding: "0 0 0 0px",
               backgroundColor:
                 theme.palette.mode === "dark" ? "#120838" : "transparent",
-              // border: "1.4px solid yellow",
               zIndex: "100",
               margin: "-5px 0 0 5px",
             }}
@@ -128,7 +119,6 @@ const DashboardCommandLine = (props) => {
               color:
                 theme.palette.mode === "dark" ? "rgb(109, 233, 68)" : "#685aef",
               textTransform: "none",
-              // width: "140px",
             }}
           >
             <input
@@ -142,71 +132,6 @@ const DashboardCommandLine = (props) => {
           </Button>
         </div>
       </LightTooltip>
-
-      {/* {" "}
-      <LightTooltip
-        title="Click to change your working directory."
-        placement="bottom"
-        arrow
-        enterDelay={1800}
-        leaveDelay={100}
-        enterNextDelay={3000}
-      >
-        <Grid id="directory-item">
-          <Button
-            variant="contained"
-            component="label"
-            style={{
-              border: "1.4px solid white",
-              borderRadius: "3px",
-              background:
-                theme.palette.mode === "dark" ? "transparent" : "#e6e1fb",
-              height: "54px",
-              marginBottom: "10px",
-              marginTop: "11px",
-              marginRight: "10px",
-              fontSize: "14px",
-              letterSpacing: ".5px",
-              color:
-                theme.palette.mode === "dark" ? "rgb(109, 233, 68)" : "#685aef",
-              textTransform: "none",
-            }}
-          >
-            <input
-              type="file"
-              // @ts-expect-error
-              webkitdirectory=""
-              hidden
-              onChange={props.handleUploadDirectory}
-            />{" "}
-            {props.shortDir}
-          </Button>
-        </Grid>
-      </LightTooltip>
-      <div
-        style={{
-          position: "relative",
-          top: -28,
-          left: -114,
-          fontSize: "10px",
-          width: "100px",
-          height: "20px",
-          padding: "0 0 0 0px",
-          backgroundColor: "#120838",
-        }}
-      ></div>
-      <div
-        style={{
-          position: "relative",
-          top: -27,
-          left: -196,
-          fontSize: "10px",
-          width: "111px",
-          padding: "0 0 0 0px",
-        }}
-      >
-        Working Directory
-      </div> */}
 
       <div
         style={{
@@ -224,7 +149,6 @@ const DashboardCommandLine = (props) => {
             padding: "0 0 0 0px",
             backgroundColor:
               theme.palette.mode === "dark" ? "#120838" : "#f6f4fe",
-            // border: "1.4px solid yellow",
             zIndex: "100",
             margin: "-5px 0 0 5px",
           }}
@@ -237,7 +161,6 @@ const DashboardCommandLine = (props) => {
             padding: "0 0 0 0px",
             backgroundColor:
               theme.palette.mode === "dark" ? "#120838" : "transparent",
-            // border: "1.4px solid yellow",
             zIndex: "100",
             margin: "-10px 0 0 5px",
           }}
@@ -274,7 +197,6 @@ const DashboardCommandLine = (props) => {
               border: "1px solid white",
               borderRadius: "3px",
               background: theme.palette.mode === "dark" ? "#0e0727" : "#e6e1fb",
-              // borderColor: 'transparent',
             }}
             InputProps={{
               startAdornment: (
@@ -306,15 +228,11 @@ const DashboardCommandLine = (props) => {
             variant="contained"
             style={{
               margin: "1px 6px 0 8px",
-              background: "transparent",
               fontSize: "16px",
               height: "53px",
               width: "90px",
-              color: theme.palette.mode === "dark" ? "white" : "#685aef",
-              border:
-                theme.palette.mode === "dark"
-                  ? "1px solid white"
-                  : "1.5px solid #685aef",
+              color: "white",
+              backgroundColor: "#685aef",
             }}
           >
             Run

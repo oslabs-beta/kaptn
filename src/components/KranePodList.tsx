@@ -122,12 +122,7 @@ function KranePodList(props) {
 
   // ----------------------------------------- get pods info section ------------
 
-  // const [podsContainersArr, setPodsContainersArr] = useState([]);
-
   function handleClick(event) {
-    // setPodsArr(filteredPods);
-    // console.log("launch is", launch);
-    // console.log("podsArr IN HANDLECLICK FOR LAUNCH is", podsArr);
     props.getPodsAndContainers();
   } // ---------------------- end of handle click function to refresh pods
 
@@ -135,9 +130,7 @@ function KranePodList(props) {
 
   //Listen to "get pods" return event and set pods array
   ipcRenderer.on("got_pods", (event, arg) => {
-    // console.log("ARG is", arg);
     let argArr = arg.split("");
-    // console.log("argArr length is", argArr.length);
 
     let i: number = 0;
 
@@ -357,17 +350,13 @@ function KranePodList(props) {
         ind === podsArrOutput.findIndex((elem) => elem.name === ele.name)
     );
 
-    // console.log("filteredPods is", filteredPods);
     props.setPodsArr([...filteredPods]);
     props.setAllPodsArr([...filteredPods]);
-    // console.log("podsArr is", podsArr);
   }); // --------------------------end of ipc render to get all pods o wide info  -
 
   // ----------------------------------- Listen to "get cpuUsed" return event
   ipcRenderer.on("got_cpuUsed", (event, arg) => {
-    // console.log("ARG ISSSSSS", arg);
     let argArr = arg.split("");
-    // console.log("arg arr is", argArr);
     let podUsageArray = [];
 
     let pod = {};
@@ -407,7 +396,6 @@ function KranePodList(props) {
       }
 
       //   // //save cpu(cores) to array to parse at end of loops
-      // console.log("ARG ARR at i is", argArr[i]);
       while (
         argArr[i] === "1" ||
         argArr[i] === "2" ||
@@ -472,8 +460,7 @@ function KranePodList(props) {
         i++;
       }
       i++;
-      // console.log(" podCpuUsedArr is ", podCpuUsedArr);
-      // console.log(" podMemoryUsedArr is ", podMemoryUsedArr);
+
       //join used values and add them to object
       pod = {
         podCpuUsed: podCpuUsedArr.join(""),
@@ -482,8 +469,7 @@ function KranePodList(props) {
       };
 
       j++;
-      // console.log("after used values i is", i, "and arg i is", arg[i]);
-      // console.log(" POD IS ", pod);
+
       podUsageArray.push(pod);
     } //end of for loop
 
@@ -506,14 +492,11 @@ function KranePodList(props) {
       filteredPods[j]["podMemoryUsedDisplay"] =
         finalPodUsageArr[j]["podMemoryUsedDisplay"];
     }
-    // console.log("filtered pods is", filteredPods);
   }); // -------------------- end of ipc render function for get pods cpu used
 
   //Listen to "get cpuUsed" return event
   ipcRenderer.on("got_cpuLimits", (event, arg) => {
-    // console.log("ARG ISSSSSS", arg);
     let argArr = arg.split("");
-    // console.log("arg arr is", argArr);
     let podLimitsArray = [];
 
     let pod = {};
@@ -543,13 +526,11 @@ function KranePodList(props) {
         i++;
       }
 
-      // console.log("I IS:", i, " .... ARG ARRAY AT I IS:", argArr[i]);
       if (argArr[i] === "<") {
         podCpuLimitsArr = ["N", "O", "N", "E"];
         i += 7;
       } else {
         //   //   // //save cpu-limits to array to parse at end of loops
-        //   console.log("ARG ARR at i is", argArr[i]);
         while (
           argArr[i] === "1" ||
           argArr[i] === "2" ||
@@ -565,7 +546,6 @@ function KranePodList(props) {
           podCpuLimitsArr.push(argArr[i]);
           i++;
         }
-        // console.log("podCpuLimitsArr is", podCpuLimitsArr);
         // i++;
       }
 
@@ -613,7 +593,7 @@ function KranePodList(props) {
           podMemoryLimitsArr.push("0");
           podMemoryLimitsArr.push("0");
         }
-        console.log("podMemoryLimitsDisplayArr is:", podMemoryLimitsDisplayArr);
+
         i += 3;
       }
 
@@ -638,7 +618,6 @@ function KranePodList(props) {
 
     props.setPodsArr([...filteredPods]);
     props.setAllPodsArr([...filteredPods]);
-    // console.log("LAST PODS ARR LENGTH IS", lastPodsArr.length);
 
     for (let j = 0; j < lastPodsArr.length; j++) {
       let currentCpu = lastPodsArr[j]["podCpuLimit"];
@@ -647,15 +626,6 @@ function KranePodList(props) {
       filteredPods[j]["podCpuLimit"] = currentCpu;
       filteredPods[j]["podMemoryLimit"] = currentMemory;
       filteredPods[j]["podMemoryLimitDisplay"] = currentMemoryDisplay;
-
-      // filteredPods[j]["podCpuPercent"] = currentCpu;
-
-      // let log = Number(filteredPods[j]["podCpuUsed"]);
-      // console.log("filterd cpu limit is ", filteredPods[j]["podCpuLimit"]);
-      // console.log(
-      //   "filterd memory limit is ",
-      //   filteredPods[j]["podMemoryLimit"]
-      // );
 
       if (currentCpu === "NONE") {
         filteredPods[j]["podCpuPercent"] = "N/A";
@@ -708,8 +678,6 @@ function KranePodList(props) {
     } //end of for loop
   }); //-------------------   end of ipc render function to get podcpu and memory limits
 
-  // console.log(props.podsArr);
-
   //handle returned pod container info
   ipcRenderer.on("podContainersRetrieved", (event, arg) => {
     let argArr = arg.split("");
@@ -721,8 +689,6 @@ function KranePodList(props) {
       i++;
     }
     i++;
-
-    // console.log("ARG SPLIT ISSSSSS", argArr);
 
     for (let j = 0; i < argArr.length; i++) {
       let podName = "";
@@ -798,33 +764,7 @@ function KranePodList(props) {
     } //end of for loop over containers
 
     props.setPodsContainersArr([...output]);
-    // let outputIndex = 0;
-    // filteredPods = [...podsArr];
-
-    // console.log("output is: ", output);
-    // console.log("PodsArr is: ", podsArr);
-    // let tempFilteredPods = [...podsArr];
-
-    // // if (filteredPods[0]) {
-    //   for (let k = 0; k < output.length; k++) {
-    //     // console.log("output at k is:", output[k])
-    //     //   // console.log("output is: ", output);
-    //     // console.log("podsArr is: ", podsArr);
-    //     let containers = [];
-    //     console.log("fil pods is: ", filteredPods);
-    //     // let temp = tempFilteredPods[k];
-    //     while (filteredPods[k]["name"] === output[outputIndex]["podName"]) {
-    //       containers.push(output[outputIndex]);
-    //       outputIndex++;
-    //     }
-    //     filteredPods[k]["podContainers"] = [...containers];
-    //   }
-
-    // }
-
-    // console.log("temp filtered is: ", tempFilteredPods);
   });
-  // console.log(" podsContainersArr is: ", podsContainersArr);
 
   useEffect(() => {
     props.getPodsAndContainers();
@@ -864,16 +804,9 @@ function KranePodList(props) {
   function handleSort(event) {
     let tempPods = [...props.podsArr];
     sortIncrement += 1;
-    // console.log("sort increment is", sortIncrement);
     let thisIndex = sortIncrement % 6;
     setSortedBy(sortedByArray[thisIndex]);
     setSortedByDisplay(sortedByDisplayArray[thisIndex]);
-    // console.log(
-    //   "sortedByDisplayArray[index] is: ",
-    //   sortedByDisplayArray[thisIndex]
-    // );
-    // console.log("sortedByArray[index] is: ", sortedByArray[thisIndex]);
-    // console.log("index is: ", thisIndex);
 
     if (sortedByDisplayArray[thisIndex] === "") {
       tempPods.sort((a, b) => a.index - b.index);
@@ -884,10 +817,6 @@ function KranePodList(props) {
       let numberArr = [];
       let stringArr = [];
       for (let k = 0; k < props.podsArr.length; k++) {
-        // console.log(
-        //   `typeof podsArr[k]["podCpuPercent"] === "number" is: `,
-        //   typeof podsArr[k]["podCpuPercent"]
-        // );
         if (typeof props.podsArr[k]["podCpuPercent"] === "number") {
           numberArr.push(props.podsArr[k]);
         } else stringArr.push(props.podsArr[k]);
@@ -901,10 +830,6 @@ function KranePodList(props) {
       let numberArr = [];
       let stringArr = [];
       for (let k = 0; k < props.podsArr.length; k++) {
-        // console.log(
-        //   `typeof podsArr[k]["podMemoryPercent"] === "number" is: `,
-        //   typeof podsArr[k]["podMemoryPercent"]
-        // );
         if (typeof props.podsArr[k]["podMemoryPercent"] === "number") {
           numberArr.push(props.podsArr[k]);
         } else stringArr.push(props.podsArr[k]);
@@ -912,33 +837,6 @@ function KranePodList(props) {
       numberArr.sort((a, b) => a["podMemoryPercent"] - b["podMemoryPercent"]);
       tempPods = [...stringArr, ...numberArr];
       tempPods.reverse();
-      // //reset to sorted by index
-      // tempPods.sort((a, b) => a.name.localeCompare(b.name));
-      // //sort by highest memory percent
-      // tempPods.sort((a, b) => {
-      //   const aIsNumber = !isNaN(a.podMemoryPercent); // isNaN = is Not a Number
-      //   const bIsNumber = !isNaN(b.podMemoryPercent);
-
-      //   if (
-      //     typeof a.podMemoryPercent === "number" &&
-      //     typeof b.podMemoryPercent === "string"
-      //   ) {
-      //     return -1; // numbers should be sorted before letters
-      //   } else if (
-      //     typeof a.podMemoryPercent === "string" &&
-      //     typeof b.podMemoryPercent === "number"
-      //   ) {
-      //     return 1; // letters should be sorted after numbers
-      //   } else if (
-      //     typeof a.podMemoryPercent === "number" &&
-      //     typeof b.podMemoryPercent === "number"
-      //   ) {
-      //     return a + b; // sort numbers reverse numerically
-      //   } else {
-      //     return a.podMemoryPercent.localeCompare(b.podMemoryPercent); // sort letters alphabetically
-      //   }
-      // });
-      // // tempPods.reverse();
     } else {
       //reset to sorted by index
       tempPods.sort((a, b) => a.index - b.index);
@@ -947,25 +845,8 @@ function KranePodList(props) {
         a[sortedByArray[thisIndex]].localeCompare(b[sortedByArray[thisIndex]])
       );
     }
-    // console.log("TEMP PODS ARR IS: ", tempPods);
+
     props.setPodsArr([...tempPods]);
-    console.log("PODS ARR IS: ", props.podsArr);
-    // console.log("sortedBy is: ", sortedBy);
-    // function compare(a, b) {
-    //   //   if (sortedBy === "podCpuPercent" || sortedBy === "podMemoryPercent"){
-
-    //   //   }
-
-    //   if (a[sortedBy] < b[sortedBy]) {
-    //     return -1;
-    //   }
-    //   if (a[sortedBy] < b[sortedBy]) {
-    //     return 1;
-    //   }
-    //   return 0;
-    // }
-
-    // podsArr.sort(compare);
   }
 
   const [selectedPodContainers, setSelectedPodContainers] = useState([]);
@@ -979,12 +860,7 @@ function KranePodList(props) {
       props.setSelectedPodStatusColorLight("rgba(210, 223, 61)");
     }
     props.setSelectedPod([pod]);
-    // console.log("selected pod is ", pod);
 
-    // console.log(
-    //   `selectedPod[0]["podCpuPercent"] is`,
-    //   selectedPod[0]["podCpuPercent"]
-    // );
     if (typeof props.selectedPod[0]["podCpuPercent"] === "string") {
       if (props.selectedPod[0]["podCpuPercent"] === "N/A") {
         props.setSelectedPodCPUColor("#ffffff80");
@@ -997,18 +873,7 @@ function KranePodList(props) {
       props.setSelectedPodCPUColor("#cf4848");
       props.setSelectedPodCPUColorLight("#cf4848");
     }
-    // console.log(pod);
-
-    // console.log(selectedPodStatusColor);
-    // if (podsArr[i]["status"] === "Running") {
-    //   readyStatusRunning = "#2fc665";
-    // } else {
-    //   readyStatusRunning = "rgba(210, 223, 61)";
-    // }
-
     props.setOpenPod(true);
-
-    // console.log("selectedPodCpuColor is", selectedPodCPUColor);
   };
 
   const handlePodClose = () => {
@@ -1034,7 +899,6 @@ function KranePodList(props) {
         podContainers: [],
       },
     ]);
-    console.log("podsArr[0] is", props.podsArr[0]);
 
     props.setOpenPod(false);
   };
@@ -1044,13 +908,11 @@ function KranePodList(props) {
       let argArr = arg.split("");
       let temp = "";
       let output = [];
-      // console.log("ARG SPLIT ISSSSSS", argArr);
       for (let i = 0; i < argArr.length; i++) {
         while (argArr[i] !== "\n") {
           temp += argArr[i];
           i++;
         }
-        // console.log("temp is", temp);
         output.push(<p>{temp}</p>);
       }
       props.setPodLogs(output);
@@ -1074,7 +936,6 @@ function KranePodList(props) {
     ipcRenderer.on("podYamlRetrieved", (event, arg) => {
       let argArr = arg.split("/n");
       let output = [];
-      // console.log("ARG SPLIT ISSSSSS", argArr);
       for (let i = 0; i < argArr.length; i++) {
         output.push(
           <pre>
@@ -1086,7 +947,7 @@ function KranePodList(props) {
     });
 
     let podYamlCommand = `kubectl get pod ${props.selectedPod[0]["name"]} -o yaml`;
-    //`kubectl top pod ${selectedPod[0]["name"]} --containers`;
+
     //send get container info commands
     ipcRenderer.send("podYaml_command", {
       podYamlCommand,
@@ -1104,7 +965,7 @@ function KranePodList(props) {
     ipcRenderer.on("podDescribeRetrieved", (event, arg) => {
       let argArr = arg.split("/n");
       let output = [];
-      // console.log("ARG SPLIT ISSSSSS", argArr);
+
       for (let i = 0; i < argArr.length; i++) {
         output.push(
           <pre>
@@ -1116,7 +977,6 @@ function KranePodList(props) {
     });
 
     let podDescribeCommand = `kubectl describe pod ${props.selectedPod[0]["name"]}`;
-    //`kubectl top pod ${selectedPod[0]["name"]} --containers`;
     //send get container info commands
     ipcRenderer.send("podDescribe_command", {
       podDescribeCommand,
@@ -1218,7 +1078,6 @@ function KranePodList(props) {
       props.setPodsArr([...tempPods]);
     }
     setKubeSystemCheck(!kubeSystemCheck);
-    // setSortedByDisplay(sortedByDisplayArray[0]);
   }
 
   //--------------------------------------------- end of expand pods section ---
@@ -1231,34 +1090,6 @@ function KranePodList(props) {
     let PodCpuPercentColorLight;
     let PodMemoryPercentColor;
     let PodMemoryPercentColorLight;
-    // let numerator = 0;
-    // let denominator = "";
-
-    // let z = i;
-
-    // let current = podsArr[i]["ready"];
-    // current = current.split("");
-    console.log("current is", props.podsArr[1]);
-
-    // let podsArrReadyLength = podsArr[i]["ready"].length;
-
-    // let curr;
-    // while (current[j] !== "/") {
-    // curr = current[j];
-
-    //   let numerString = numerator.toString();
-    //   numerator = Number((numerString += curr.concat()));
-    // }
-
-    // for (let j = 0; current[j] !== "/"; j++) {
-    //   curr = current[j];
-    //   // console.log("curr is", curr);
-
-    //   let numerString = numerator.toString();
-    //   numerator = Number((numerString += curr.concat()));
-    // }
-
-    // console.log("numerator is", Number(numerator));
 
     if (props.podsArr[i]["status"] === "Running") {
       readyStatusRunning = "#5eba62";
@@ -1331,7 +1162,6 @@ function KranePodList(props) {
             width: "450px",
             height: "145px",
             fontSize: "16px",
-            // border: "1px solid white",
             justifyContent: "space-around",
             textAlign: "left",
             alignItems: "space-between",
@@ -1389,7 +1219,6 @@ function KranePodList(props) {
                   backgroundColor: `${readyStatusRunning}`,
                   justifyContent: "right",
                   margin: "5px 0 2px 0",
-                  // border: ".5px solid white",
                 }}
               ></div>
               <div style={{ fontSize: "10px", color: `${readyStatusRunning}` }}>
@@ -1413,13 +1242,10 @@ function KranePodList(props) {
             style={{
               display: "flex",
               flexDirection: "row",
-              // border: "1px solid green",
               textAlign: "center",
               justifyContent: "left",
               alignItems: "flex-start",
               width: "100%",
-              // alignContent: "flex-end",
-              // border: "2px solid red",
               padding: "0px 0px 0px 70px",
               margin: "5px 0px 0px 0px",
               fontSize: "15px",
@@ -1436,12 +1262,10 @@ function KranePodList(props) {
                 padding: "0px 0px 0 0px",
                 fontWeight: theme.palette.mode === "dark" ? "400" : "500",
                 marginTop: "-2px",
-                // border: "1px solid blue",
                 lineHeight: "13.5px",
                 textTransform: "none",
                 opacity: ".5",
                 color: theme.palette.mode === "dark" ? "" : "#00000099",
-                // color: `${readyStatusRunning}`,
               }}
             >
               {" "}
@@ -1477,17 +1301,9 @@ function KranePodList(props) {
                 fontWeight: "400",
                 marginRight: "18px",
                 marginTop: "3px",
-                // border: "1px solid red",
-                // color: `${readyStatusRunning}`,
               }}
             >
-              <div
-                style={
-                  {
-                    // border: "1px solid yellow"
-                  }
-                }
-              >
+              <div>
                 <CircularProgress
                   variant="determinate"
                   // @ts-nocheck
@@ -1499,10 +1315,7 @@ function KranePodList(props) {
                     rotate: "-131deg",
                     color:
                       theme.palette.mode === "dark" ? "#ffffff40" : "#00000015",
-
                     width: "68px",
-                    // border: "1px solid red",
-                    // filter: "drop-shadow(10px 10px 10px #000000)",
                   }}
                 />
                 <CircularProgress
@@ -1523,10 +1336,7 @@ function KranePodList(props) {
                       theme.palette.mode === "dark"
                         ? `${PodCpuPercentColor}`
                         : `${PodCpuPercentColorLight}`,
-
                     width: "68px",
-                    // border: "1px solid red",
-                    // filter: "drop-shadow(10px 10px 10px #000000)",
                   }}
                 />
               </div>
@@ -1550,7 +1360,6 @@ function KranePodList(props) {
                     props.podsArr[i]["podCpuLimit"] === "NONE"
                       ? "-10px"
                       : "-8px",
-                  // border: "2px solid red",
                   color:
                     theme.palette.mode === "dark"
                       ? `${PodCpuPercentColor}`
@@ -1562,9 +1371,6 @@ function KranePodList(props) {
                   : props.podsArr[i]["podCpuLimit"] === "NONE"
                   ? `no max`
                   : `${props.podsArr[i]["podCpuPercent"]}%`}
-                {/* {podsArr[i]["podCpuLimit"] === "NONE"
-                  ? `no max`
-                  : `${podsArr[i]["podCpuPercent"]}%`} */}
               </div>
               <div
                 style={{
@@ -1572,8 +1378,6 @@ function KranePodList(props) {
                   position: "relative",
                   top: "-48px",
                   left: "-1.5px",
-                  // border: "1px solid red",
-
                   marginRight: "-2px",
                   fontWeight: "500",
                   marginTop: "-8px",
@@ -1599,17 +1403,9 @@ function KranePodList(props) {
                 fontWeight: "400",
                 marginRight: "18px",
                 marginTop: "3px",
-                // border: "1px solid red",
-                // color: `${readyStatusRunning}`,
               }}
             >
-              <div
-                style={
-                  {
-                    // border: "1px solid yellow"
-                  }
-                }
-              >
+              <div>
                 <CircularProgress
                   variant="determinate"
                   // @ts-nocheck
@@ -1621,10 +1417,7 @@ function KranePodList(props) {
                     rotate: "-131deg",
                     color:
                       theme.palette.mode === "dark" ? "#ffffff40" : "#00000015",
-
                     width: "68px",
-                    // border: "1px solid red",
-                    // filter: "drop-shadow(10px 10px 10px #000000)",
                   }}
                 />
                 <CircularProgress
@@ -1646,8 +1439,6 @@ function KranePodList(props) {
                         ? `${PodMemoryPercentColor}`
                         : `${PodMemoryPercentColorLight}`,
                     width: "68px",
-                    // border: "1px solid red",
-                    // filter: "drop-shadow(10px 10px 10px #000000)",
                   }}
                 />
               </div>
@@ -1671,7 +1462,6 @@ function KranePodList(props) {
                     : props.podsArr[i]["podMemoryLimit"] === "NONE"
                     ? "-55px"
                     : "-60px",
-                  // border: "2px solid red",
                   color:
                     theme.palette.mode === "dark"
                       ? `${PodMemoryPercentColor}`
@@ -1690,8 +1480,6 @@ function KranePodList(props) {
                   position: "relative",
                   top: "-48px",
                   left: "-.5px",
-                  // border: "1px solid red",
-
                   marginRight: "-2px",
                   fontWeight: "500",
                   marginTop: "-8px",
@@ -1716,11 +1504,7 @@ function KranePodList(props) {
   let tempContainerList = props.podsContainersArr.filter(
     (container) => props.selectedPod[0]["name"] === container["podName"]
   );
-  console.log("temp container list is:", tempContainerList);
-  // filteredPods = podsArrOutput.filter(
-  //   (ele: any, ind: number) =>
-  //     ind === podsArrOutput.findIndex((elem) => elem.name === ele.name)
-  // );
+
   for (let i = 0; i < tempContainerList.length; i++) {
     let containerStatusColor;
     let containerCpuPercentColor;
@@ -1771,51 +1555,6 @@ function KranePodList(props) {
       containerMemoryColorLight = "#cf4848";
     }
 
-    // if (selectedPod[0]["podMemoryLimit"] === "NONE")
-    // {containerMemoryColor = "#ffffff80"}
-    //else if (
-    // Math.min())
-    // : Math.min(
-    //     Math.round(
-    //       100 *
-    //         (Number(selectedPodContainers[i]["memoryUsageMath"]) /
-    //           Number(selectedPod[0]["podMemoryLimit"])) *
-    //         10
-    //     ) / 10,
-
-    //     100
-    //   )
-
-    // selectedPod[0]["podCpuLimit"] === "NONE"
-    // ? 0
-    // : ((100 *
-    //     Number(
-    //       selectedPodContainers[i]["cpuUsage"].slice(0, -1)
-    //     )) /
-    //     Number(`${selectedPod[0]["podCpuLimit"]}`))
-
-    // if (selectedPodContainers[i]["status"] === "Running"){
-    //   containerStatusColor = "#2fc665";
-    // } else {
-    //   containerStatusColor = "rgba(210, 223, 61)";
-    // }
-
-    // if (selectedPodContainers[i]["podCpuPercent"] === "N/A") {
-    //   containerCpuPercentColor = "#ffffff80";
-    // } else if (selectedPodContainers[i]["podCpuPercent"] < 90) {
-    //   containerCpuPercentColor = "#2fc665";
-    // } else {
-    //   containerCpuPercentColor = "#cf4848";
-    // }
-
-    // if (selectedPodContainers[i]["podMemoryPercent"] === "N/A") {
-    //   containerMemoryColor = "#ffffff80";
-    // } else if (selectedPodContainers[i]["podMemoryPercent"] < 90) {
-    //   containerMemoryColor = "#2fc665";
-    // } else {
-    //   containerMemoryColor = "#cf4848";
-    // }
-
     podContainerList.push(
       <div
         key={i}
@@ -1837,21 +1576,18 @@ function KranePodList(props) {
             theme.palette.mode === "dark"
               ? "1px 1px 2px black"
               : "1px 1px 1px #00000000",
-          // border: "2px solid red",
         }}
       >
         CONTAINER {i + 1}
         <Button
           key={i}
           id="podButt"
-          // onClick={() => handlePodOpen(podsArr[i])}
           style={{
             display: "flex",
             flexDirection: "column",
             width: "380px",
             height: "115px",
             fontSize: "16px",
-            // border: "1px solid white",
             justifyContent: "center",
             textAlign: "left",
             alignItems: "space-between",
@@ -1876,7 +1612,6 @@ function KranePodList(props) {
               display: "flex",
               flexDirection: "row",
               justifyContent: "flex-start",
-              // border: "1px solid yellow",
               width: "350px",
               margin: "30px 0 0 0",
             }}
@@ -1914,7 +1649,6 @@ function KranePodList(props) {
                   backgroundColor: `${containerStatusColor}`,
                   justifyContent: "right",
                   margin: "0px 0 0px 0",
-                  // border: ".5px solid white",
                 }}
               ></div>
             </div>
@@ -1926,14 +1660,11 @@ function KranePodList(props) {
             style={{
               display: "flex",
               flexDirection: "row",
-              // border: "1px solid green",
               textAlign: "center",
               justifyContent: "left",
               alignItems: "flex-start",
               width: "100%",
-              // height:"100px",
               alignContent: "flex-end",
-              // border: "2px solid red",
               padding: "0px 0px 0px 70px",
               margin: "5px 0px 0px 0px",
               fontSize: "15px",
@@ -1950,11 +1681,9 @@ function KranePodList(props) {
                 padding: "0px 0px 0 0px",
                 fontWeight: "400",
                 marginTop: "0px",
-                // border: "1px solid blue",
                 lineHeight: "16px",
                 textTransform: "none",
                 opacity: ".5",
-                // color: `${readyStatusRunning}`,
               }}
             >
               CPU USAGE: {tempContainerList[i]["cpuUsage"]}
@@ -1976,17 +1705,9 @@ function KranePodList(props) {
                 marginRight: "18px",
                 marginTop: "3px",
                 marginBottom: "0px",
-                // border: "1px solid red",
-                // color: `${readyStatusRunning}`,
               }}
             >
-              <div
-                style={
-                  {
-                    // border: "1px solid yellow"
-                  }
-                }
-              >
+              <div>
                 <CircularProgress
                   variant="determinate"
                   // @ts-nocheck
@@ -1998,10 +1719,7 @@ function KranePodList(props) {
                     rotate: "-131deg",
                     color:
                       theme.palette.mode === "dark" ? "#ffffff40" : "#00000015",
-
                     width: "60px",
-                    // border: "1px solid red",
-                    // filter: "drop-shadow(10px 10px 10px #000000)",
                   }}
                 />
                 <CircularProgress
@@ -2018,11 +1736,6 @@ function KranePodList(props) {
                           Number(`${props.selectedPod[0]["podCpuLimit"]}`)) *
                         0.73
                   }
-                  //Number(`${podsArr[i]["podCpuLimit"]}`)
-
-                  // Number(
-                  //   selectedPodContainers[i]["cpuUsage"].slice(0, -1)
-                  // )  / Number(`${podsArr[i]["podCpuLimit"]}`)
                   style={{
                     position: "relative",
                     top: "-48px",
@@ -2032,10 +1745,7 @@ function KranePodList(props) {
                       theme.palette.mode === "dark"
                         ? `${containerCpuPercentColor}`
                         : `${containerCpuPercentColorLight}`,
-
                     width: "60px",
-                    // border: "1px solid red",
-                    // filter: "drop-shadow(10px 10px 10px #000000)",
                   }}
                 />
               </div>
@@ -2054,7 +1764,6 @@ function KranePodList(props) {
                       ? "-55px"
                       : "-60px",
                   marginLeft: "-8px",
-                  // border: "2px solid red",
                   color:
                     theme.palette.mode === "dark"
                       ? `${containerCpuPercentColor}`
@@ -2075,8 +1784,6 @@ function KranePodList(props) {
                   position: "relative",
                   top: "-43px",
                   left: "-1.5px",
-                  // border: "1px solid red",
-
                   marginRight: "-2px",
                   fontWeight: "500",
                   marginTop: "-8px",
@@ -2103,17 +1810,9 @@ function KranePodList(props) {
                 fontWeight: "400",
                 marginRight: "18px",
                 marginTop: "3px",
-                // border: "1px solid red",
-                // color: `${readyStatusRunning}`,
               }}
             >
-              <div
-                style={
-                  {
-                    // border: "1px solid yellow"
-                  }
-                }
-              >
+              <div>
                 <CircularProgress
                   variant="determinate"
                   // @ts-nocheck
@@ -2125,10 +1824,7 @@ function KranePodList(props) {
                     rotate: "-131deg",
                     color:
                       theme.palette.mode === "dark" ? "#ffffff40" : "#00000015",
-
                     width: "60px",
-                    // border: "1px solid red",
-                    // filter: "drop-shadow(10px 10px 10px #000000)",
                   }}
                 />
                 <CircularProgress
@@ -2145,14 +1841,6 @@ function KranePodList(props) {
                             Number(`${props.selectedPod[0]["podMemoryLimit"]}`)
                         )
                   }
-                  // selectedPod[0]["podCpuLimit"] === "NONE"
-                  // ? 0
-                  // : ((100 *
-                  //     Number(
-                  //       selectedPodContainers[i]["memoryUsageMath"]
-                  //     )) /
-                  //     Number(`${selectedPod[0]["podMemoryLimit"]}`)) *
-                  //   0.73
                   style={{
                     position: "relative",
                     top: "-48px",
@@ -2162,10 +1850,7 @@ function KranePodList(props) {
                       theme.palette.mode === "dark"
                         ? `${containerMemoryColor}`
                         : `${containerMemoryColorLight}`,
-
                     width: "60px",
-                    // border: "1px solid red",
-                    // filter: "drop-shadow(10px 10px 10px #000000)",
                   }}
                 />
               </div>
@@ -2184,7 +1869,6 @@ function KranePodList(props) {
                     props.selectedPod[0]["podMemoryLimit"] === "NONE"
                       ? "-55px"
                       : "-60px",
-                  // border: "2px solid red",
                   color:
                     theme.palette.mode === "dark"
                       ? `${containerMemoryColor}`
@@ -2210,8 +1894,6 @@ function KranePodList(props) {
                   position: "relative",
                   top: "-43px",
                   left: "-2.5px",
-                  // border: "1px solid red",
-
                   marginRight: "-2px",
                   fontWeight: "500",
                   marginTop: "-8px",
@@ -2243,7 +1925,6 @@ function KranePodList(props) {
             justifyContent: "flex-end",
             margin: "-10px 0 0 0px",
             width: "95.5%",
-            // border:"1px solid red"
           }}
         >
           <div
@@ -2252,7 +1933,6 @@ function KranePodList(props) {
               flexDirection: "row",
               justifyContent: "space-between",
               width: "100%",
-              // border:"1px solid green"
             }}
           >
             <div style={{ display: "flex" }}>
@@ -2262,7 +1942,6 @@ function KranePodList(props) {
                   fontSize: "24px",
                   fontWeight: "900",
                   letterSpacing: "3px",
-                  // border: "1px solid white",
                   textAlign: "left",
                   color: theme.palette.mode === "dark" ? "" : "#6d6fb4",
                   paddingTop: "15px",
@@ -2295,7 +1974,6 @@ function KranePodList(props) {
                 onClick={handleSort}
                 style={{
                   display: "flex",
-                  // fontFamily: "Outfit",
                   fontSize: "9px",
                   fontWeight: "900",
                   letterSpacing: ".5px",
@@ -2336,9 +2014,6 @@ function KranePodList(props) {
               width: "95%",
               backgroundColor:
                 theme.palette.mode === "dark" ? "#ffffff99" : "#6d6fb4",
-
-              // border: "1px solid white",
-              // marginRight: "50px",
               marginTop: "-7px",
             }}
           ></div>
@@ -2350,32 +2025,7 @@ function KranePodList(props) {
             margin: "-3px 4.1% 0 0px",
           }}
         >
-          <div style={{ display: "flex" }}>
-            {" "}
-            {/* <div
-              onClick={handleKubeSystemChange}
-              style={{
-                cursor: "pointer",
-                fontSize: "10px",
-                margin: "3px -3px 0 10px",
-                color: theme.palette.mode === "dark" ? "#ffffff99" : "grey",
-                userSelect: "none",
-              }}
-            >
-              show kube-system
-            </div>{" "}
-            <Checkbox
-              //@ts-ignore
-              size="small"
-              value="start"
-              checked={kubeSystemCheck}
-              onChange={handleKubeSystemChange}
-              style={{
-                marginTop: "-7px",
-                color: theme.palette.mode === "dark" ? "" : "#00000050",
-              }}
-            /> */}
-          </div>
+          <div style={{ display: "flex" }}> </div>
         </div>
         <div
           style={{
@@ -2398,7 +2048,6 @@ function KranePodList(props) {
                   style={{
                     display: "flex",
                     flexDirection: "row",
-                    // border: "1px solid white",
                   }}
                 >
                   <div style={{ width: "140px", height: "400px" }}>
@@ -2410,21 +2059,12 @@ function KranePodList(props) {
                       }}
                       src="../../pod.svg"
                     ></img>
-                    {/* <img
-                      style={{
-                        width: "100px",
-                        height: "100px",
-                        margin: "15px 25px 0 20px",
-                      }}
-                      src="../../pod.svg"
-                    ></img> */}
                   </div>
                   {"  "}
                   <div
                     style={{
                       display: "flex",
                       flexDirection: "column",
-                      // border: "1px solid green",
                     }}
                   >
                     <div
@@ -2432,7 +2072,6 @@ function KranePodList(props) {
                         display: "flex",
                         flexDirection: "row",
                         width: "820px",
-                        // border: "1px solid yellow",
                       }}
                     >
                       <div
@@ -2442,7 +2081,6 @@ function KranePodList(props) {
                           letterSpacing: ".1px",
                           lineHeight: "40px",
                           padding: "10px 0 10px 10px",
-                          // border: "1px solid yellow",
                           width: "900px",
                         }}
                       >
@@ -2457,8 +2095,6 @@ function KranePodList(props) {
                           alignItems: "flex-end",
                           justifyContent: "right",
                           margin: "15px 15px 0 20px",
-                          // border: "1px solid green",
-                          // width:"200px"
                         }}
                       >
                         <div
@@ -2469,7 +2105,6 @@ function KranePodList(props) {
                             backgroundColor: `${props.selectedPodStatusColor}`,
                             justifyContent: "right",
                             margin: "0px 0 2px 0",
-                            // border: "5px solid white",
                           }}
                         ></div>
                         <div
@@ -2498,7 +2133,6 @@ function KranePodList(props) {
                       style={{
                         display: "flex",
                         flexDirection: "row",
-                        // border: "1px solid pink",
                         width: "100%",
                         marginTop: "40px",
                       }}
@@ -2514,7 +2148,6 @@ function KranePodList(props) {
                           margin: "-10px 0 20px 0px",
                           fontSize: "17px",
                           fontWeight: "200",
-                          // border: "2px solid green",
                         }}
                       >
                         <div style={{ paddingLeft: "5px" }}>
@@ -2548,31 +2181,6 @@ function KranePodList(props) {
                         </div>
                       </div>
 
-                      {/* <div style={{ flexDirection: "column", width: "220px" }}>
-                        <div
-                          style={{ paddingLeft: "0px", color: "#ffffff99" }}
-                        >
-                          <br />
-                          CPU USED: {selectedPod[0]["podCpuUsed"].toUpperCase()}
-                          m
-                          <br />
-                          CPU LIMIT:{" "}
-                          {selectedPod[0]["podCpuLimit"].toUpperCase()}m
-                          <br />
-                          CPU PERCENTAGE: {selectedPod[0]["podCpuPercent"]}%
-                          <br />
-                          MEMORY USED:{" "}
-                          {selectedPod[0]["podMemoryUsed"].toUpperCase()}
-                          Mi
-                          <br />
-                          MEMORY LIMIT:
-                          {selectedPod[0]["podMemoryLimit"].toUpperCase()}Mi
-                          <br />
-                          MEMORY PERCENTAGE:{selectedPod[0]["podMemoryPercent"]}
-                          %
-                        </div>{" "}
-                      </div> */}
-
                       <div
                         style={{
                           display: "flex",
@@ -2581,7 +2189,6 @@ function KranePodList(props) {
                           alignItems: "center",
                           marginRight: "35px",
                           marginLeft: "5px",
-                          // border: "1px solid yellow",
                         }}
                       >
                         <CircularProgress
@@ -2597,10 +2204,7 @@ function KranePodList(props) {
                               theme.palette.mode === "dark"
                                 ? "#ffffff40"
                                 : "#00000015",
-
                             width: "180px",
-                            // border: "1px solid red",
-                            // filter: "drop-shadow(10px 10px 10px #000000)",
                           }}
                         />
                         <CircularProgress
@@ -2608,7 +2212,6 @@ function KranePodList(props) {
                           // @ts-nocheck
                           thickness={1.35}
                           value={
-                            // 2 *
                             props.selectedPod[0]["podCpuLimit"] === "NONE"
                               ? 0
                               : Number(
@@ -2633,9 +2236,6 @@ function KranePodList(props) {
                                 ? "#cf4848"
                                 : "yellow",
                             width: "180px",
-
-                            // border: "1px solid red",
-                            // filter: "drop-shadow(10px 10px 10px #000000)",
                           }}
                         />
                         <div
@@ -2650,7 +2250,6 @@ function KranePodList(props) {
                             fontWeight: "800",
                             marginTop: "-60px",
                             marginLeft: "-37px",
-                            // border: "2px solid blue",
                             color:
                               props.selectedPod[0]["podCpuPercent"] === "N/A"
                                 ? "#ffffff80"
@@ -2662,7 +2261,7 @@ function KranePodList(props) {
                                     props.selectedPod[0]["podCpuPercent"]
                                   ) > 90
                                 ? "#cf4848"
-                                : "yellow", //`${PodMemoryPercentColor}`,
+                                : "yellow",
                           }}
                         >
                           {props.selectedPod[0]["podCpuPercent"] === "N/A"
@@ -2675,8 +2274,6 @@ function KranePodList(props) {
                             position: "relative",
                             top: "-99px",
                             left: "-21px",
-                            // border: "1px solid red",
-
                             marginRight: "-2px",
                             fontWeight: "400",
                             marginTop: "-8px",
@@ -2691,7 +2288,7 @@ function KranePodList(props) {
                                     props.selectedPod[0]["podCpuPercent"]
                                   ) > 90
                                 ? "#cf4848"
-                                : "yellow", //"#cf4848", //`${PodMemoryPercentColor}`,
+                                : "yellow",
                           }}
                         >
                           CPU
@@ -2703,9 +2300,6 @@ function KranePodList(props) {
                             left: -19,
                             fontWeight: "400",
                             fontSize: "16px",
-                            // display: "flex",
-                            // flexDirection: "column",
-                            // margin: "-50px 0 0 -29px",
                             textAlign: "center",
                             color:
                               props.selectedPod[0]["podCpuPercent"] === "N/A"
@@ -2718,7 +2312,7 @@ function KranePodList(props) {
                                     props.selectedPod[0]["podCpuPercent"]
                                   ) > 90
                                 ? "#cf4848"
-                                : "yellow", //"#cf4848", //`${PodMemoryPercentColor}`,
+                                : "yellow",
                           }}
                         >
                           {" "}
@@ -2744,7 +2338,6 @@ function KranePodList(props) {
                           flexDirection: "column",
                           justifyContent: "center",
                           alignItems: "center",
-                          // border: "1px solid yellow",
                         }}
                       >
                         <CircularProgress
@@ -2760,10 +2353,7 @@ function KranePodList(props) {
                               theme.palette.mode === "dark"
                                 ? "#ffffff40"
                                 : "#00000015",
-
                             width: "180px",
-                            // border: "1px solid red",
-                            // filter: "drop-shadow(10px 10px 10px #000000)",
                           }}
                         />
                         <CircularProgress
@@ -2771,7 +2361,6 @@ function KranePodList(props) {
                           // @ts-nocheck
                           thickness={1.35}
                           value={
-                            // 2 *
                             props.selectedPod[0]["podMemoryLimit"] === "NONE"
                               ? 0
                               : Number(
@@ -2796,9 +2385,6 @@ function KranePodList(props) {
                                 ? "#cf4848"
                                 : "yellow",
                             width: "180px",
-
-                            // border: "1px solid red",
-                            // filter: "drop-shadow(10px 10px 10px #000000)",
                           }}
                         />
                         <div
@@ -2813,7 +2399,6 @@ function KranePodList(props) {
                             fontWeight: "800",
                             marginTop: "-60px",
                             marginLeft: "-37px",
-                            // border: "2px solid blue",
                             color:
                               props.selectedPod[0]["podMemoryPercent"] === "N/A"
                                 ? "#ffffff80"
@@ -2825,7 +2410,7 @@ function KranePodList(props) {
                                     props.selectedPod[0]["podMemoryPercent"]
                                   ) > 90
                                 ? "#cf4848"
-                                : "yellow", //`${PodMemoryPercentColor}`,
+                                : "yellow",
                           }}
                         >
                           {props.selectedPod[0]["podMemoryPercent"] === "N/A"
@@ -2838,8 +2423,6 @@ function KranePodList(props) {
                             position: "relative",
                             top: "-99px",
                             left: "-20px",
-                            // border: "1px solid red",
-
                             marginRight: "-2px",
                             fontWeight: "400",
                             marginTop: "-8px",
@@ -2854,7 +2437,7 @@ function KranePodList(props) {
                                     props.selectedPod[0]["podMemoryPercent"]
                                   ) > 90
                                 ? "#cf4848"
-                                : "yellow", //"#cf4848", //`${PodMemoryPercentColor}`,
+                                : "yellow",
                           }}
                         >
                           MEMORY
@@ -2866,9 +2449,6 @@ function KranePodList(props) {
                             left: -19,
                             fontWeight: "400",
                             fontSize: "16px",
-                            // display: "flex",
-                            // flexDirection: "column",
-                            // margin: "-50px 0 0 -29px",
                             textAlign: "center",
                             color:
                               props.selectedPod[0]["podMemoryPercent"] === "N/A"
@@ -2881,7 +2461,7 @@ function KranePodList(props) {
                                     props.selectedPod[0]["podMemoryPercent"]
                                   ) > 90
                                 ? "#cf4848"
-                                : "yellow", //"#cf4848", //`${PodMemoryPercentColor}`,
+                                : "yellow",
                           }}
                         >
                           {" "}
@@ -2905,19 +2485,8 @@ function KranePodList(props) {
                         flexDirection: "row",
                         justifyContent: "space-between",
                         margin: "0 0 0 0px",
-                        // border: "1px solid red",
                       }}
                     >
-                      {/* <Button
-                        onClick={handlePodLogOpen}
-                        style={{
-                          width: "250px",
-                          border: "1px solid",
-                          fontSize: "14px",
-                        }}
-                      >
-                        VIEW LOGS
-                      </Button> */}
                       <button
                         className="button3D-pushable"
                         role="button"
@@ -2966,17 +2535,7 @@ function KranePodList(props) {
                           {props.podLogs}
                         </Box>
                       </Modal>
-                      {/* <Button
-                        onClick={handlePodYamlOpen}
-                        style={{
-                          width: "250px",
-                          border: "1px solid",
-                          fontSize: "14px",
-                          margin: "0 10px 0 25px",
-                        }}
-                      >
-                        VIEW POD YAML
-                      </Button> */}
+
                       <button
                         className="button3D-pushable"
                         role="button"
@@ -3025,17 +2584,7 @@ function KranePodList(props) {
                           {props.podYaml}
                         </Box>
                       </Modal>
-                      {/* <Button
-                        onClick={handlePodDeleteOpen}
-                        style={{
-                          width: "250px",
-                          border: "1px solid",
-                          fontSize: "14px",
-                          margin: "0 10px 0 15px",
-                        }}
-                      >
-                        DELETE / RESTART POD
-                      </Button> */}
+
                       <button
                         className="button3D-pushable"
                         role="button"
@@ -3150,25 +2699,6 @@ function KranePodList(props) {
                               justifyContent: "center",
                             }}
                           >
-                            {/* <Button
-                              onClick={handlePodDelete}
-                              style={{
-                                fontSize: "16px",
-                                margin: "0 10px 0 0",
-                                padding: "5px 15px 5px 15px",
-                                border:
-                                  theme.palette.mode === "dark"
-                                    ? "1px solid #8f85fb"
-                                    : "1px solid",
-                                color:
-                                  theme.palette.mode === "dark"
-                                    ? "white"
-                                    : "darkpurple",
-                              }}
-                            >
-                              DELETE POD
-                            </Button>
-                             */}
                             <button
                               className="button3D-pushable"
                               role="button"
@@ -3198,18 +2728,7 @@ function KranePodList(props) {
                                 DELETE POD
                               </span>
                             </button>
-                            {/* <Button
-                              onClick={handlePodDeleteClose}
-                              style={{
-                                opacity: "50%",
-                                fontSize: "15px",
-                                margin: "0 0 0 10px",
-                                padding: "5px 10px 5px 10px",
-                                border: "1px solid #ffffff89",
-                              }}
-                            >
-                              CANCEL
-                            </Button> */}
+
                             <button
                               className="button3D-pushable"
                               role="button"
@@ -3257,9 +2776,7 @@ function KranePodList(props) {
                           fontSize: "20px",
                           fontWeight: "900",
                           letterSpacing: "3px",
-                          // border: "1px solid white",
                           textAlign: "left",
-                          // color: "#ffffff",
                           paddingTop: "10px",
                           userSelect: "none",
                         }}
@@ -3293,8 +2810,6 @@ function KranePodList(props) {
                             theme.palette.mode === "dark"
                               ? "#ffffff99"
                               : "#6d6fb4",
-                          // border: "1px solid white",
-                          // marginRight: "50px",
                           marginRight: "20px",
                           marginTop: "5px",
                         }}
@@ -3320,16 +2835,12 @@ function KranePodList(props) {
     );
   }
 
-  // console.log("selected pod 3 is ", selectedPod);
-  // console.log(kubeSystemPods);
-
   return (
     <>
       {/* ----------------MAIN CONTENT---------------- */}
 
       <div
         data-height="100%"
-        // spacing={1}
         style={{
           display: "flex",
           flexDirection: "column",
@@ -3341,7 +2852,6 @@ function KranePodList(props) {
           marginBottom: "23px",
           textAlign: "center",
           width: "100%",
-          // border: "1px solid red",
         }}
       >
         <div>{podListDiv}</div>

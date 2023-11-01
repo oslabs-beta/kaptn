@@ -27,7 +27,6 @@ import React from "react";
 import Switch from "@mui/material/Switch";
 import Tooltip, { TooltipProps, tooltipClasses } from "@mui/material/Tooltip";
 import { styled } from "@mui/material/styles";
-import { Bolt } from "@mui/icons-material";
 
 const LightTooltip = styled(({ className, ...props }: TooltipProps) => (
   <Tooltip {...props} classes={{ popper: className }} />
@@ -246,23 +245,21 @@ function Dashboard(): JSX.Element {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    console.log("short dir is:", shortDir);
-    console.log("CURR DIR IS:", currDir);
 
     if (command === ` clear`) {
       setResponse([]);
-    } else if (command.slice(0, 3) === " cd ") {
-      let temp = command.slice(4, -1);
-      console.log("temp:", temp);
-      if (temp.slice(0, 2) === "../") {
-        console.log("short dir is:", shortDir);
-        console.log("CURR DIR IS:", currDir);
-        //parse and change currDir and shortDir to one directory higher
-      } else if (temp.slice(0, 2) === "./") {
-        //ignore or slice and parse going down levels
-        console.log("short dir is:", shortDir);
-        console.log("CURR DIR IS:", currDir);
-      }
+      // } else if (command.slice(0, 3) === " cd ") {
+      //   let temp = command.slice(4, -1);
+      //   console.log("temp:", temp);
+      //   if (temp.slice(0, 2) === "../") {
+      //     console.log("short dir is:", shortDir);
+      //     console.log("CURR DIR IS:", currDir);
+      //     //parse and change currDir and shortDir to one directory higher
+      //   } else if (temp.slice(0, 2) === "./") {
+      //     //ignore or slice and parse going down levels
+      //     console.log("short dir is:", shortDir);
+      //     console.log("CURR DIR IS:", currDir);
+      //   }
     } else ipcRenderer.send("post_command", { command, currDir });
   };
 
@@ -351,62 +348,6 @@ function Dashboard(): JSX.Element {
             alignContent="start"
             width="100%"
           >
-            {/* ----------------CHOOSE DIRECTORY---------------- */}
-            {/* <Grid
-              id="directory"
-              container
-              width="100%"
-              alignItems="flex-end"
-              justifyContent="center"
-              sx={{
-                borderBottom: 1,
-                width: "95%",
-                paddingBottom: "6px",
-                marginBottom: "15px",
-              }}
-            >
-              <Grid id="directory-item" sx={{ pr: 2 }}>
-                <p
-                  style={{
-                    fontFamily: "Outfit",
-                    color: theme.palette.mode === "dark" ? "White" : "#4e50a5",
-                  }}
-                >
-                  WORKING DIRECTORY:
-                </p>
-              </Grid>
-              <Grid id="directory-item" sx={{ pr: 2 }}>
-                <p>{shortDir}</p>
-              </Grid>
-              <Grid id="directory-item">
-                <Button
-                  variant="contained"
-                  component="label"
-                  style={{
-                    backgroundColor: "transparent",
-                    border:
-                      currDir === "NONE SELECTED"
-                        ? "2px solid #8f85fb"
-                        : "1px solid #68617f",
-                    width: "170px",
-                    marginBottom: "10px",
-                    fontSize: "9px",
-                    letterSpacing: "1.5px",
-                    color: theme.palette.mode === "dark" ? "#9e9d9d" : "black",
-                  }}
-                >
-                  CHOOSE DIRECTORY
-                  <input
-                    type="file"
-                    // @ts-expect-error
-                    webkitdirectory=""
-                    hidden
-                    onChange={handleUploadDirectory}
-                  />
-                </Button>
-              </Grid>
-            </Grid> */}
-
             {/* ----------------INPUT BOXES---------------- */}
 
             <div
@@ -415,7 +356,7 @@ function Dashboard(): JSX.Element {
                 display: "flex",
                 flexDirection: "row",
                 width: "95%",
-                marginTop: "25px",
+                marginTop: "30px",
                 justifyContent: "space-around",
                 alignItems: "center",
               }}
@@ -501,7 +442,7 @@ function Dashboard(): JSX.Element {
                   <div
                     style={{
                       height: "15px",
-                      padding: "5px 0 0 0",
+                      margin: "5px 0 0 0",
                     }}
                   >
                     {helpDesk.hasOwnProperty(verb) ? "" : ""}
@@ -531,7 +472,6 @@ function Dashboard(): JSX.Element {
                       const newCommand = verb + " " + type + " " + name;
                       setCommand(newCommand);
                       setHelpList([newInputValue, type]);
-                      // setCommand(newInputValue);
                     }}
                     renderInput={(params) => (
                       <TextField {...params} label="Commands" />
@@ -569,7 +509,7 @@ function Dashboard(): JSX.Element {
                   style={{
                     display: "flex",
                     height: "15px",
-                    padding: "15px 0 0 0",
+                    margin: "5px 0 0 0",
                     justifyContent: "center",
                     textTransform: "uppercase",
                     fontWeight: "900",
@@ -592,11 +532,7 @@ function Dashboard(): JSX.Element {
                   aria-describedby="modal-modal-description"
                 >
                   <Box sx={style}>
-                    <Typography
-                      id="modal-modal-title"
-                      // variant='h6'
-                      // component='h2'
-                    ></Typography>
+                    <Typography id="modal-modal-title"></Typography>
                     <Typography
                       id="modal-modal-description"
                       style={{
@@ -655,7 +591,6 @@ function Dashboard(): JSX.Element {
                     onInputChange={(e, newInputValue) => {
                       setHelpList([verb, newInputValue]);
                       setType(newInputValue);
-                      // setHelpList([verb, newInputValue]);
                     }}
                     renderInput={(params) => (
                       <TextField {...params} label="Types" />
@@ -667,7 +602,7 @@ function Dashboard(): JSX.Element {
                   style={{
                     display: "flex",
                     height: "15px",
-                    padding: "15px 0 0 0",
+                    margin: "5px 0 0 0",
                     justifyContent: "center",
                     textTransform: "uppercase",
                     fontWeight: "900",
@@ -689,11 +624,7 @@ function Dashboard(): JSX.Element {
                   aria-describedby="modal-modal-description"
                 >
                   <Box sx={style}>
-                    <Typography
-                      id="modal-modal-title"
-                      // variant='h6'
-                      // component='h2'
-                    ></Typography>
+                    <Typography id="modal-modal-title"></Typography>
                     <Typography
                       id="modal-modal-description"
                       style={{
@@ -754,7 +685,7 @@ function Dashboard(): JSX.Element {
                     />
                   </form>
                 </div>
-                <div style={{ height: "15px", padding: "5px 0 0 0" }}>
+                <div style={{ height: "15px", margin: "5px 0 0 0" }}>
                   {helpDesk.hasOwnProperty(verb) ? "" : ""}
                 </div>
               </div>
@@ -796,7 +727,7 @@ function Dashboard(): JSX.Element {
                     </Select>
                   </FormControl>
                 </div>
-                <div style={{ height: "15px", padding: "5px 0 0 0" }}>
+                <div style={{ height: "15px", margin: "5px 0 0 0" }}>
                   {helpDesk.hasOwnProperty(verb) ? "" : ""}
                 </div>
               </div>
@@ -808,13 +739,12 @@ function Dashboard(): JSX.Element {
                 display: "flex",
                 flexDirection: "column",
                 width: "92%",
-                margin: "-15px 0 0 70px",
+                margin: "-25px 0 0 70px",
                 justifyContent: "center",
               }}
             >
               <div style={{ marginTop: "20px" }}>
                 <DashboardCommandLine
-                  // width="50%"
                   handleSubmit={handleSubmit}
                   setUserInput={setUserInput}
                   setVerb={setVerb}
@@ -828,182 +758,6 @@ function Dashboard(): JSX.Element {
                   handleUploadDirectory={handleUploadDirectory}
                 />
               </div>
-              {/* ---------- INSTANT HELP DESK SECTION BEGINS ------------- */}
-              {/* <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  height: "80px",
-                  width: "75%",
-                  backgroundColor:
-                    theme.palette.mode === "dark" ? "#2f2f6d" : "#e1dbfe",
-                  marginLeft: "10%",
-                  marginTop: "17px",
-                  borderRadius: "3px",
-                  textAlign: "center",
-                  padding: "3px 0 0 0",
-                  fontFamily: "Outfit",
-                  fontWeight: "900",
-                  letterSpacing: "1px",
-                  alignItems: "center",
-                  fontSize: "12px",
-                  color: theme.palette.mode === "dark" ? "white" : "#4e50a5",
-                }}
-              >
-                {" "}
-                <div
-                  style={{
-                    display: "flex",
-                    marginTop: "2px",
-                    alignItems: "center",
-                  }}
-                >
-                  {" "}
-                  <BoltIcon fontSize="small" />
-                  <div style={{ width: "5px" }} />
-                  <div style={{}}>INSTANT HELP DESK</div>
-                  <div style={{ width: "5px" }} />
-                  <BoltIcon fontSize="small" />
-                </div>
-                <div
-                  style={{
-                    fontFamily: "Roboto",
-                    fontWeight: "400",
-                    fontSize: "9px",
-                    letterSpacing: ".6px",
-                    margin: "4px 0 0 0",
-                  }}
-                >
-                  <em>
-                    CHOOSE ANY "COMMAND" OR "TYPE" THEN CLICK BELOW TO SEE
-                    DOCUMENTATION AND HELP INFO
-                  </em>
-                </div>
-                <div style={{ display: "flex", paddingRight: "10px" }}>
-                  <Button
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      // backgroundColor: '#a494d7',
-                      margin: "0px 0px 0 0",
-                      // color: 'white',
-                      fontFamily: "Outfit",
-                      fontSize: "14px",
-                    }}
-                    onClick={handleCommandOpen}
-                  >
-                    {verb}
-                  </Button>
-                  <Modal
-                    open={openCommand}
-                    onClose={handleCommandClose}
-                    style={{ overflow: "scroll", height: "100%" }}
-                    aria-labelledby="modal-modal-title"
-                    aria-describedby="modal-modal-description"
-                  >
-                    <Box sx={style}>
-                      <Typography
-                        id="modal-modal-title"
-                        // variant='h6'
-                        // component='h2'
-                      ></Typography>
-                      <Typography
-                        id="modal-modal-description"
-                        style={{
-                          top: "0",
-                          left: "0",
-                          overflow: "auto",
-                          height: "100%",
-                          width: "100%",
-                          paddingLeft: "20px",
-                          zIndex: "1350",
-                        }}
-                        sx={{ mt: 0 }}
-                      >
-                        <pre
-                          style={{
-                            fontFamily: "Outfit,monospace",
-                            fontSize: "24px",
-                            overflow: "auto",
-                          }}
-                        >
-                          Kubetcl{"  "}
-                          <strong style={{ fontSize: "38px" }}>{verb}</strong> :
-                        </pre>
-                        <pre
-                          style={{
-                            fontSize: "14px",
-                            overflow: "auto",
-                          }}
-                        >
-                          {helpDesk[`${verb}`]}
-                        </pre>
-                      </Typography>
-                    </Box>
-                  </Modal>
-
-                  <Button
-                    style={{
-                      display: "flex",
-                      flexDirection: "row",
-                      // backgroundColor: '#a494d7',
-                      margin: "0px 0px 0 0",
-                      // color: 'white',
-                      fontFamily: "Outfit",
-                      fontSize: "14px",
-                    }}
-                    onClick={handleTypeOpen}
-                  >
-                    {type}
-                  </Button>
-                  <Modal
-                    open={openType}
-                    onClose={handleTypeClose}
-                    aria-labelledby="modal-modal-title"
-                    aria-describedby="modal-modal-description"
-                  >
-                    <Box sx={style}>
-                      <Typography
-                        id="modal-modal-title"
-                        // variant='h6'
-                        // component='h2'
-                      ></Typography>
-                      <Typography
-                        id="modal-modal-description"
-                        style={{
-                          top: "0",
-                          left: "0",
-                          overflow: "auto",
-                          height: "100%",
-                          width: "100%",
-                          paddingLeft: "20px",
-                          zIndex: "1350",
-                        }}
-                        sx={{ mt: 0 }}
-                      >
-                        <pre
-                          style={{
-                            fontFamily: "Outfit,monospace",
-                            fontSize: "24px",
-                            overflow: "auto",
-                          }}
-                        >
-                          Kubetcl Type: {"  "}
-                          <strong style={{ fontSize: "38px" }}>{type}</strong>
-                        </pre>
-                        <pre
-                          style={{
-                            fontSize: "14px",
-                            overflow: "auto",
-                          }}
-                        >
-                          {helpDesk[`${type}`]}
-                        </pre>
-                      </Typography>
-                    </Box>
-                  </Modal>
-                </div>
-              </div> */}
             </div>
           </Grid>
         </Grid>

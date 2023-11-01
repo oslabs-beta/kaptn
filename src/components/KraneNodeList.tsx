@@ -24,19 +24,6 @@ const LightTooltip = styled(({ className, ...props }: TooltipProps) => (
   },
 }));
 
-type ArrPodObjs = {
-  name: string;
-  ready: string;
-  status: string;
-  restarts: string;
-  lastRestart: string;
-  age: string;
-  CpuPercent: number;
-  memoryPercent: number;
-};
-
-// let filteredPods: any = [];
-
 function KraneNodeList(props) {
   const [openNode, setOpenNode] = React.useState(false);
 
@@ -255,9 +242,6 @@ function KraneNodeList(props) {
   };
 
   function handleClick(event) {
-    // setPodsArr(filteredPods);
-    // console.log("launch is", launch);
-    // console.log("podsArr IN HANDLECLICK FOR LAUNCH is", podsArr);
     props.getNodesInfo();
   } // ---------------------- end of handle click function to refresh pods
 
@@ -268,12 +252,7 @@ function KraneNodeList(props) {
       setSelectedNodeStatusColor("rgba(210, 223, 61)");
     }
     setSelectedNode([node]);
-    // console.log("selected pod is ", pod);
 
-    // console.log(
-    //   `selectedNode[0]["podCpuPercent"] is`,
-    //   selectedNode[0]["podCpuPercent"]
-    // );
     if (typeof selectedNode[0]["podCpuPercent"] === "string") {
       if (selectedNode[0]["podCpuPercent"] === "N/A") {
         setSelectedNodeCPUColor("#ffffff80");
@@ -283,18 +262,8 @@ function KraneNodeList(props) {
     } else {
       setSelectedNodeCPUColor("#cf4848");
     }
-    // console.log(pod);
-
-    // console.log(selectedNodeStatusColor);
-    // if (podsArr[i]["status"] === "Running") {
-    //   readyStatusRunning = "#2fc665";
-    // } else {
-    //   readyStatusRunning = "rgba(210, 223, 61)";
-    // }
 
     setOpenNode(true);
-
-    // console.log("selectedNodeCpuColor is", selectedNodeCPUColor);
   };
 
   const handleNodeClose = () => {
@@ -331,12 +300,7 @@ function KraneNodeList(props) {
       props.setSelectedPodStatusColor("rgba(210, 223, 61)");
     }
     props.setSelectedPod([pod]);
-    // console.log("selected pod is ", pod);
 
-    // console.log(
-    //   `selectedPod[0]["podCpuPercent"] is`,
-    //   selectedPod[0]["podCpuPercent"]
-    // );
     if (typeof props.selectedPod[0]["podCpuPercent"] === "string") {
       if (props.selectedPod[0]["podCpuPercent"] === "N/A") {
         props.setSelectedPodCPUColor("#ffffff80");
@@ -346,18 +310,8 @@ function KraneNodeList(props) {
     } else {
       props.setSelectedPodCPUColor("#cf4848");
     }
-    // console.log(pod);
-
-    // console.log(selectedPodStatusColor);
-    // if (podsArr[i]["status"] === "Running") {
-    //   readyStatusRunning = "#2fc665";
-    // } else {
-    //   readyStatusRunning = "rgba(210, 223, 61)";
-    // }
 
     props.setOpenPod(true);
-
-    // console.log("selectedPodCpuColor is", selectedPodCPUColor);
   };
 
   const handlePodClose = () => {
@@ -391,20 +345,20 @@ function KraneNodeList(props) {
       let argArr = arg.split("");
       let temp = "";
       let output = [];
-      // console.log("ARG SPLIT ISSSSSS", argArr);
+
       for (let i = 0; i < argArr.length; i++) {
         while (argArr[i] !== "\n") {
           temp += argArr[i];
           i++;
         }
-        // console.log("temp is", temp);
+
         output.push(<p>{temp}</p>);
       }
       props.setPodLogs(output);
     });
 
     let podLogsCommand = `kubectl logs ${props.selectedPod[0]["name"]}`;
-    //send get pods o wide info commands
+    //send get pods logs command
     ipcRenderer.send("podLogs_command", {
       podLogsCommand,
       currDir,
@@ -421,7 +375,7 @@ function KraneNodeList(props) {
     ipcRenderer.on("podYamlRetrieved", (event, arg) => {
       let argArr = arg.split("/n");
       let output = [];
-      // console.log("ARG SPLIT ISSSSSS", argArr);
+
       for (let i = 0; i < argArr.length; i++) {
         output.push(
           <pre>
@@ -433,8 +387,7 @@ function KraneNodeList(props) {
     });
 
     let podYamlCommand = `kubectl get pod ${props.selectedPod[0]["name"]} -o yaml`;
-    //`kubectl top pod ${selectedPod[0]["name"]} --containers`;
-    //send get container info commands
+    //send get pod yaml command
     ipcRenderer.send("podYaml_command", {
       podYamlCommand,
       currDir,
@@ -513,7 +466,14 @@ function KraneNodeList(props) {
     let kernalOutput: any = [];
     let containerRuntimeOutput: any = [];
 
-    let i: number = 145;
+    let i: number = 0;
+
+    //skip row of column titles
+    while (arg[i] !== "\n") {
+      i++;
+    }
+    i++;
+
     let argArr = arg.split("");
     for (let j = 0; i < argArr.length; i++) {
       while (arg[i] !== " ") {
@@ -579,27 +539,12 @@ function KraneNodeList(props) {
       }
 
       while (arg[i] !== " " || arg[i + 1] !== " ") {
-        // if (arg[i] !== " " && arg[i + 1] !== " ") {
         osImageOutput.push(arg[i]);
-        // console.log("osImageOutput is", osImageOutput);
-        // }
         i++;
       }
       if (osImageOutput[osImageOutput.length - 1] === " ") {
         osImageOutput.pop();
       }
-
-      // while (arg[i] === " ") {
-      //   osImageOutput.push(arg[i]);
-      //   i++;
-      // }
-
-      // while (arg[i] !== " ") {
-      //   // if (arg[i] !== " " && arg[i + 1] !== " ") {
-      //   osImageOutput.push(arg[i]);
-      //   // }
-      //   i++;
-      // }
 
       while (arg[i] === " ") {
         i++;
@@ -639,11 +584,9 @@ function KraneNodeList(props) {
         nodeMemoryLimit: "",
         nodeMemoryPercent: "",
       };
-      // console.log("NODE IS", node);
 
       filteredNodes.push(node);
       j++;
-      // console.log("arg Arr is", argArr);
     } // ---------- end of for loop
 
     let finalNodesInfoArr = filteredNodes.filter(
@@ -654,16 +597,13 @@ function KraneNodeList(props) {
         )
     );
     filteredNodes = finalNodesInfoArr;
-    // console.log(" filtered NODES is", filteredNodes);
+
     props.setNodesArr([...filteredNodes]);
-    // console.log(" Nodes Arr is", nodesArr);
   }); // ------------------------------------------ end of ipc render for get nodes command
 
   //Listen to "get cpuUsed" return event
   ipcRenderer.on("got_nodesCpuUsed", (event, arg) => {
-    // console.log("ARG ISSSSSS", arg);
     let argArr = arg.split("");
-    // console.log("arg arr is", argArr);
 
     let nodeUsageArray = [];
 
@@ -692,8 +632,7 @@ function KraneNodeList(props) {
       while (argArr[i] === " ") {
         i++;
       }
-      //   // //save cpu(cores) to array to parse at end of loops
-      // console.log("ARG ARR at i is", argArr[i]);
+      //  save cpu(cores) to array to parse at end of loops
       while (
         argArr[i] === "1" ||
         argArr[i] === "2" ||
@@ -758,7 +697,6 @@ function KraneNodeList(props) {
         nodeMemoryUsedArr.push("0");
       }
       i += 2;
-      // console.log("node mem arr is", nodeMemoryUsedDisplay);
 
       //skip spaces
       while (arg[i] === " ") {
@@ -776,8 +714,6 @@ function KraneNodeList(props) {
         i++;
       }
 
-      // console.log(" podCpuUsedArr is ", podCpuUsedArr);
-      // console.log(" podMemoryUsedArr is ", podMemoryUsedArr);
       //join used values and add them to object
       let node = {
         nodeName: nodeNameArr.join(""),
@@ -790,14 +726,8 @@ function KraneNodeList(props) {
       };
 
       i++;
-      // console.log("arg at i is", arg[i]);
-      // console.log("I is", i);
-      // console.log("node cpu is", nodeMemoryUsedArr.join(""));
-      // console.log("after used values i is", i, "and arg i is", arg[i]);
-      // console.log(" NODE IS ", node);
-      nodeUsageArray.push(node);
 
-      // console.log(" NODE USAGE ARR IS ", nodeUsageArray);
+      nodeUsageArray.push(node);
     } //end of for loop
 
     let finalNodeUsageArr = nodeUsageArray.filter(
@@ -807,10 +737,6 @@ function KraneNodeList(props) {
     );
 
     for (let j = 0; j < finalNodeUsageArr.length; j++) {
-      // console.log(
-      //   `filteredNodes[j]["nodeCpuUsed"] is`,
-      //   filteredNodes[j]["nodeCpuUsed"]
-      // );
       filteredNodes[j]["nodeCpuUsed"] = finalNodeUsageArr[j]["nodeCpuUsed"];
       filteredNodes[j]["nodeCpuPercent"] =
         finalNodeUsageArr[j]["nodeCpuPercent"];
@@ -823,7 +749,6 @@ function KraneNodeList(props) {
       filteredNodes[j]["nodeMemoryUsedDisplay"] =
         finalNodeUsageArr[j]["nodeMemoryUsedDisplay"];
     }
-    // console.log(" FILTERD Nodes AFTER USAGE FETCH IS ", filteredNodes);
 
     props.setNodesArr([...filteredNodes]);
   });
@@ -831,9 +756,7 @@ function KraneNodeList(props) {
   //
   //Listen to "get nodeCpuUsed" return event
   ipcRenderer.on("got_nodesCpuLimits", (event, arg) => {
-    // console.log("ARG ISSSSSS", arg);
     let argArr = arg.split("");
-    // console.log("arg arr is", argArr);
     let nodeLimitsArray = [];
 
     let node = {};
@@ -877,13 +800,11 @@ function KraneNodeList(props) {
         i++;
       }
 
-      // console.log("I IS:", i, " .... ARG ARRAY AT I IS:", argArr[i]);
       if (argArr[i] === "<") {
         nodeCpuLimitsArr = ["N", "O", "N", "E"];
         i += 7;
       } else {
         //   //   // //save cpu-limits to array to parse at end of loops
-        //   console.log("ARG ARR at i is", argArr[i]);
         while (
           argArr[i] === "1" ||
           argArr[i] === "2" ||
@@ -899,7 +820,6 @@ function KraneNodeList(props) {
           nodeCpuLimitsArr.push(argArr[i]);
           i++;
         }
-        // console.log("podCpuLimitsArr is", podCpuLimitsArr);
         // i++;
       }
 
@@ -947,7 +867,6 @@ function KraneNodeList(props) {
         }
 
         i += 3;
-        // console.log("podMemoryLimitsArr is", podMemoryLimitsArr);
       }
 
       //   //join used values and add them to object
@@ -958,15 +877,10 @@ function KraneNodeList(props) {
       };
 
       j++;
-      //   // console.log("after used values i is", i, "and arg i is", arg[i]);
-      // console.log(" POD IS ", pod);
+
       nodeLimitsArray.push(node);
 
-      // console.log("NODE FROM LIMITS is", node);
       node = {};
-      // console.log("arg arr is", argArr);
-      // console.log("arg at i is", arg[i]);
-      // console.log("i is", i);
     } //end of for loop
 
     let lastNodesArr = nodeLimitsArray.filter(
@@ -1001,20 +915,19 @@ function KraneNodeList(props) {
       let argArr = arg.split("");
       let temp = "";
       let output = [];
-      // console.log("ARG SPLIT ISSSSSS", argArr);
+
       for (let i = 0; i < argArr.length; i++) {
         while (argArr[i] !== "\n") {
           temp += argArr[i];
           i++;
         }
-        // console.log("temp is", temp);
         output.push(<p>{temp}</p>);
       }
       setNodeLogs(output);
     });
 
     let nodeLogsCommand = `kubectl logs ${selectedNode[0]["name"]}`;
-    //send get pods o wide info commands
+    //send get nodes logs command
     ipcRenderer.send("nodeLogs_command", {
       nodeLogsCommand,
       currDir,
@@ -1031,7 +944,7 @@ function KraneNodeList(props) {
     ipcRenderer.on("nodeYamlRetrieved", (event, arg) => {
       let argArr = arg.split("/n");
       let output = [];
-      // console.log("ARG SPLIT ISSSSSS", argArr);
+
       for (let i = 0; i < argArr.length; i++) {
         output.push(
           <pre>
@@ -1043,8 +956,8 @@ function KraneNodeList(props) {
     });
 
     let nodeYamlCommand = `kubectl get node ${selectedNode[0]["name"]} -o yaml`;
-    //`kubectl top pod ${selectedPod[0]["name"]} --containers`;
-    //send get container info commands
+
+    //send get nodes yaml command
     ipcRenderer.send("nodeYaml_command", {
       nodeYamlCommand,
       currDir,
@@ -1061,7 +974,7 @@ function KraneNodeList(props) {
     ipcRenderer.on("nodeDescribeRetrieved", (event, arg) => {
       let argArr = arg.split("/n");
       let output = [];
-      // console.log("ARG SPLIT ISSSSSS", argArr);
+
       for (let i = 0; i < argArr.length; i++) {
         output.push(
           <pre>
@@ -1073,8 +986,8 @@ function KraneNodeList(props) {
     });
 
     let nodeDescribeCommand = `kubectl describe node ${selectedNode[0]["name"]}`;
-    //`kubectl top pod ${selectedPod[0]["name"]} --containers`;
-    //send get container info commands
+
+    //send node describe commands
     ipcRenderer.send("nodeDescribe_command", {
       nodeDescribeCommand,
       currDir,
@@ -1198,7 +1111,6 @@ function KraneNodeList(props) {
   //-----------------------------------------------------------START OF FOR LOOP TO PUSH NODE LIST JSX
 
   let nodeList = [];
-  console.log("nodes arr is:", props.nodesArr);
   for (let i = 0; i < props.nodesArr.length; i++) {
     let nodeReadyStatusRunning;
     let nodeReadyStatusRunningLight;
@@ -1215,10 +1127,6 @@ function KraneNodeList(props) {
       nodeReadyStatusRunningLight = "rgba(210, 223, 61)";
     }
 
-    // if (nodesArr[i]["nodeCpuLimit"] === "NONE") {
-    //   nodeCpuPercentColor = "#ffffff80";
-    //   nodeCpuPercentColorLight = "#00000040";
-    // } else
     if (props.nodesArr[i]["nodeCpuPercentMath"] < 90) {
       nodeCpuPercentColor = "#2fc665";
       nodeCpuPercentColorLight = "#5bb57b";
@@ -1227,12 +1135,6 @@ function KraneNodeList(props) {
       nodeCpuPercentColorLight = "#d35656";
     }
 
-    // console.log("color is", nodeCpuPercentColorLight);
-
-    // if (nodesArr[i]["nodeMemoryPercent"] === "N/A") {
-    //   nodeMemoryPercentColor = "#ffffff80";
-    //   nodeMemoryPercentColorLight = "#00000040";
-    // } else
     let temp = Number(props.nodesArr[i]["nodeMemoryPercent"].slice(0, -1));
     if (temp < 90) {
       nodeMemoryPercentColor = "#2fc665";
@@ -1277,7 +1179,6 @@ function KraneNodeList(props) {
             width: "450px",
             height: "145px",
             fontSize: "16px",
-            // border: "1px solid white",
             justifyContent: "flex-start",
             textAlign: "left",
             alignItems: "space-between",
@@ -1301,7 +1202,6 @@ function KraneNodeList(props) {
               flexDirection: "row",
               width: "440px",
               justifyContent: "space-between",
-              // border: "1px solid green",
             }}
           >
             <img
@@ -1309,7 +1209,6 @@ function KraneNodeList(props) {
                 width: "40px",
                 marginRight: "0px",
                 marginLeft: "10.8px",
-                // border: "1px solid blue",
               }}
               src="../../node.svg"
             ></img>
@@ -1332,8 +1231,6 @@ function KraneNodeList(props) {
                 alignItems: "flex-end",
                 justifyContent: "right",
                 margin: "0px 10px 0 0",
-
-                // border: "1px solid blue",
               }}
             >
               <div
@@ -1347,14 +1244,12 @@ function KraneNodeList(props) {
                       : `${nodeReadyStatusRunningLight}`,
                   justifyContent: "right",
                   margin: "0px 0 2px 0",
-                  // border: ".5px solid white",
                 }}
               ></div>
               <div
                 style={{
                   fontSize: "10px",
                   margin: "0px 0 0 0",
-                  // color: "#2fc665",
                   color:
                     theme.palette.mode === "dark"
                       ? `${nodeReadyStatusRunning}`
@@ -1372,13 +1267,10 @@ function KraneNodeList(props) {
             style={{
               display: "flex",
               flexDirection: "row",
-              // border: "1px solid green",
               textAlign: "center",
               justifyContent: "left",
               alignItems: "flex-start",
               width: "100%",
-              // alignContent: "flex-end",
-              // border: "2px solid red",
               padding: "0px 0px 0px 70px",
               margin: "-10px 0px 0px 0px",
               fontSize: "15px",
@@ -1395,7 +1287,6 @@ function KraneNodeList(props) {
                 padding: "5px 0px 0 0px",
                 fontWeight: "400",
                 marginTop: "3px",
-                // border: "1px solid blue",
                 lineHeight: "14px",
                 textTransform: "none",
                 opacity: "",
@@ -1414,7 +1305,7 @@ function KraneNodeList(props) {
                     theme.palette.mode === "dark" ? "#7f78d8" : "#928dd0",
                   padding: "3px 3px 3px 4px",
                   borderRadius: "3px",
-                  width: `${props.nodesArr[i]["role"].length * 8.1}px`, //"105px",
+                  width: `${props.nodesArr[i]["role"].length * 8.1}px`,
                 }}
               >
                 {props.nodesArr[i]["role"].toUpperCase()}
@@ -1448,17 +1339,9 @@ function KraneNodeList(props) {
                 fontWeight: "400",
                 marginRight: "18px",
                 marginTop: "20px",
-                // border: "1px solid red",
-                // color: `${readyStatusRunning}`,
               }}
             >
-              <div
-                style={
-                  {
-                    // border: "1px solid yellow"
-                  }
-                }
-              >
+              <div>
                 <CircularProgress
                   variant="determinate"
                   // @ts-nocheck
@@ -1470,10 +1353,7 @@ function KraneNodeList(props) {
                     rotate: "-131deg",
                     color:
                       theme.palette.mode === "dark" ? "#ffffff40" : "#00000015",
-
                     width: "68px",
-                    // border: "1px solid red",
-                    // filter: "drop-shadow(10px 10px 10px #000000)",
                   }}
                 />
                 <CircularProgress
@@ -1491,8 +1371,6 @@ function KraneNodeList(props) {
                         ? `${nodeCpuPercentColor}`
                         : `${nodeCpuPercentColorLight}`,
                     width: "68px",
-                    // border: "1px solid red",
-                    // filter: "drop-shadow(10px 10px 10px #000000)",
                   }}
                 />
               </div>
@@ -1509,7 +1387,6 @@ function KraneNodeList(props) {
                     ? "-55px"
                     : "-60px",
                   marginLeft: "-8px",
-                  // border: "2px solid red",
                   color:
                     theme.palette.mode === "dark"
                       ? `${nodeCpuPercentColor}`
@@ -1526,8 +1403,6 @@ function KraneNodeList(props) {
                   position: "relative",
                   top: "-48px",
                   left: "-1.5px",
-                  // border: "1px solid red",
-
                   marginRight: "-2px",
                   fontWeight: "500",
                   marginTop: "-8px",
@@ -1553,17 +1428,9 @@ function KraneNodeList(props) {
                 fontWeight: "400",
                 marginRight: "18px",
                 marginTop: "20px",
-                // border: "1px solid red",
-                // color: `${readyStatusRunning}`,
               }}
             >
-              <div
-                style={
-                  {
-                    // border: "1px solid yellow"
-                  }
-                }
-              >
+              <div>
                 <CircularProgress
                   variant="determinate"
                   // @ts-nocheck
@@ -1576,8 +1443,6 @@ function KraneNodeList(props) {
                     color:
                       theme.palette.mode === "dark" ? "#ffffff40" : "#00000015",
                     width: "68px",
-                    // border: "1px solid red",
-                    // filter: "drop-shadow(10px 10px 10px #000000)",
                   }}
                 />
                 <CircularProgress
@@ -1598,10 +1463,7 @@ function KraneNodeList(props) {
                       theme.palette.mode === "dark"
                         ? `${nodeMemoryPercentColor}`
                         : `${nodeMemoryPercentColorLight}`,
-
                     width: "68px",
-                    // border: "1px solid red",
-                    // filter: "drop-shadow(10px 10px 10px #000000)",
                   }}
                 />
               </div>
@@ -1618,7 +1480,6 @@ function KraneNodeList(props) {
                   marginTop: !props.nodesArr[i]["nodeMemoryPercent"]
                     ? "-55px"
                     : "-60px",
-                  // border: "2px solid red",
                   color:
                     theme.palette.mode === "dark"
                       ? `${nodeMemoryPercentColor}`
@@ -1635,8 +1496,6 @@ function KraneNodeList(props) {
                   position: "relative",
                   top: "-48px",
                   left: "-.5px",
-                  // border: "1px solid red",
-
                   marginRight: "-2px",
                   fontWeight: "500",
                   marginTop: "-8px",
@@ -1720,7 +1579,6 @@ function KraneNodeList(props) {
             theme.palette.mode === "dark"
               ? "1px 1px 2px black"
               : "1px 1px 1px #00000000",
-          // border: "2px solid red",
         }}
       >
         POD {i + 1}
@@ -1734,7 +1592,6 @@ function KraneNodeList(props) {
             width: "380px",
             height: "125px",
             fontSize: "16px",
-            // border: "1px solid white",
             justifyContent: "center",
             textAlign: "left",
             alignItems: "space-between",
@@ -1759,7 +1616,6 @@ function KraneNodeList(props) {
               display: "flex",
               flexDirection: "row",
               justifyContent: "flex-start",
-              // border: "1px solid yellow",
               width: "350px",
               margin: "20px 0 0 0",
             }}
@@ -1797,7 +1653,6 @@ function KraneNodeList(props) {
                   backgroundColor: `${nodesPodsStatuColor}`,
                   justifyContent: "right",
                   margin: "-5px 0 0px 0",
-                  // border: ".5px solid white",
                 }}
               ></div>
               <div
@@ -1807,7 +1662,6 @@ function KraneNodeList(props) {
                   fontSize: "9px",
                   margin: "2px 0 0px 0",
                   lineHeight: "10px",
-                  // border: ".5px solid white",
                 }}
               >
                 {tempPodList[i]["ready"]}
@@ -1823,14 +1677,11 @@ function KraneNodeList(props) {
             style={{
               display: "flex",
               flexDirection: "row",
-              // border: "1px solid green",
               textAlign: "center",
               justifyContent: "left",
               alignItems: "flex-start",
               width: "100%",
-              // height:"100px",
               alignContent: "flex-end",
-              // border: "2px solid red",
               padding: "0px 0px 0px 70px",
               margin: "5px 0px 0px 0px",
               fontSize: "15px",
@@ -1847,11 +1698,9 @@ function KraneNodeList(props) {
                 padding: "0px 0px 0 0px",
                 fontWeight: "400",
                 margin: "-3px 0 0 0",
-                // border: "1px solid blue",
                 lineHeight: "13px",
                 textTransform: "none",
                 opacity: ".5",
-                // color: `${readyStatusRunning}`,
               }}
             >
               AGE: {`${tempPodList[i]["age"]}`}
@@ -1879,17 +1728,9 @@ function KraneNodeList(props) {
                 marginRight: "5px",
                 marginTop: "3px",
                 marginBottom: "0px",
-                // border: "1px solid red",
-                // color: `${readyStatusRunning}`,
               }}
             >
-              <div
-                style={
-                  {
-                    // border: "1px solid yellow"
-                  }
-                }
-              >
+              <div>
                 <CircularProgress
                   variant="determinate"
                   // @ts-nocheck
@@ -1902,8 +1743,6 @@ function KraneNodeList(props) {
                     color:
                       theme.palette.mode === "dark" ? "#ffffff40" : "#00000020",
                     width: "60px",
-                    // border: "1px solid red",
-                    // filter: "drop-shadow(10px 10px 10px #000000)",
                   }}
                 />
                 <CircularProgress
@@ -1917,11 +1756,6 @@ function KraneNodeList(props) {
                           Number(`${tempPodList[i]["podCpuLimit"]}`)) *
                         0.73
                   }
-                  //Number(`${podsArr[i]["podCpuLimit"]}`)
-
-                  // Number(
-                  //   selectedNodeContainers[i]["cpuUsage"].slice(0, -1)
-                  // )  / Number(`${podsArr[i]["podCpuLimit"]}`)
                   style={{
                     position: "relative",
                     top: "-48px",
@@ -1931,10 +1765,7 @@ function KraneNodeList(props) {
                       theme.palette.mode === "dark"
                         ? `${nodesPodsCpuPercentColor}`
                         : `${nodesPodsCpuPercentColorLight}`,
-
                     width: "60px",
-                    // border: "1px solid red",
-                    // filter: "drop-shadow(10px 10px 10px #000000)",
                   }}
                 />
               </div>
@@ -1952,7 +1783,6 @@ function KraneNodeList(props) {
                       : "-60px",
                   marginLeft:
                     tempPodList[i]["podCpuLimit"] === "NONE" ? "-12px" : "-8px",
-                  // border: "2px solid red",
                   color:
                     theme.palette.mode === "dark"
                       ? `${nodesPodsCpuPercentColor}`
@@ -1973,8 +1803,6 @@ function KraneNodeList(props) {
                   position: "relative",
                   top: "-43px",
                   left: "-1.5px",
-                  // border: "1px solid red",
-
                   marginRight: "-2px",
                   fontWeight: "500",
                   marginTop: "-8px",
@@ -2001,17 +1829,9 @@ function KraneNodeList(props) {
                 fontWeight: "400",
                 marginRight: "8px",
                 marginTop: "3px",
-                // border: "1px solid red",
-                // color: `${readyStatusRunning}`,
               }}
             >
-              <div
-                style={
-                  {
-                    // border: "1px solid yellow"
-                  }
-                }
-              >
+              <div>
                 <CircularProgress
                   variant="determinate"
                   // @ts-nocheck
@@ -2023,10 +1843,7 @@ function KraneNodeList(props) {
                     rotate: "-131deg",
                     color:
                       theme.palette.mode === "dark" ? "#ffffff40" : "#00000020",
-
                     width: "60px",
-                    // border: "1px solid red",
-                    // filter: "drop-shadow(10px 10px 10px #000000)",
                   }}
                 />
                 <CircularProgress
@@ -2047,10 +1864,7 @@ function KraneNodeList(props) {
                       theme.palette.mode === "dark"
                         ? `${nodesPodsMemoryColor}`
                         : `${nodesPodsMemoryColorLight}`,
-
                     width: "60px",
-                    // border: "1px solid red",
-                    // filter: "drop-shadow(10px 10px 10px #000000)",
                   }}
                 />
               </div>
@@ -2069,7 +1883,6 @@ function KraneNodeList(props) {
                     tempPodList[i]["podMemoryLimit"] === "NONE"
                       ? "-55px"
                       : "-60px",
-                  // border: "2px solid red",
                   color:
                     theme.palette.mode === "dark"
                       ? `${nodesPodsMemoryColor}`
@@ -2095,8 +1908,6 @@ function KraneNodeList(props) {
                   position: "relative",
                   top: "-43px",
                   left: "-2.5px",
-                  // border: "1px solid red",
-
                   marginRight: "-2px",
                   fontWeight: "500",
                   marginTop: "-8px",
@@ -2120,11 +1931,7 @@ function KraneNodeList(props) {
   let tempContainerList = props.podsContainersArr.filter(
     (container) => props.selectedPod[0]["name"] === container["podName"]
   );
-  console.log("temp container list is:", tempContainerList);
-  // filteredPods = podsArrOutput.filter(
-  //   (ele: any, ind: number) =>
-  //     ind === podsArrOutput.findIndex((elem) => elem.name === ele.name)
-  // );
+
   for (let i = 0; i < tempContainerList.length; i++) {
     let containerStatusColor;
     let containerCpuPercentColor;
@@ -2175,51 +1982,6 @@ function KraneNodeList(props) {
       containerMemoryColorLight = "#cf4848";
     }
 
-    // if (selectedPod[0]["podMemoryLimit"] === "NONE")
-    // {containerMemoryColor = "#ffffff80"}
-    //else if (
-    // Math.min())
-    // : Math.min(
-    //     Math.round(
-    //       100 *
-    //         (Number(selectedPodContainers[i]["memoryUsageMath"]) /
-    //           Number(selectedPod[0]["podMemoryLimit"])) *
-    //         10
-    //     ) / 10,
-
-    //     100
-    //   )
-
-    // selectedPod[0]["podCpuLimit"] === "NONE"
-    // ? 0
-    // : ((100 *
-    //     Number(
-    //       selectedPodContainers[i]["cpuUsage"].slice(0, -1)
-    //     )) /
-    //     Number(`${selectedPod[0]["podCpuLimit"]}`))
-
-    // if (selectedPodContainers[i]["status"] === "Running"){
-    //   containerStatusColor = "#2fc665";
-    // } else {
-    //   containerStatusColor = "rgba(210, 223, 61)";
-    // }
-
-    // if (selectedPodContainers[i]["podCpuPercent"] === "N/A") {
-    //   containerCpuPercentColor = "#ffffff80";
-    // } else if (selectedPodContainers[i]["podCpuPercent"] < 90) {
-    //   containerCpuPercentColor = "#2fc665";
-    // } else {
-    //   containerCpuPercentColor = "#cf4848";
-    // }
-
-    // if (selectedPodContainers[i]["podMemoryPercent"] === "N/A") {
-    //   containerMemoryColor = "#ffffff80";
-    // } else if (selectedPodContainers[i]["podMemoryPercent"] < 90) {
-    //   containerMemoryColor = "#2fc665";
-    // } else {
-    //   containerMemoryColor = "#cf4848";
-    // }
-
     podContainerList.push(
       <div
         key={i}
@@ -2241,7 +2003,6 @@ function KraneNodeList(props) {
             theme.palette.mode === "dark"
               ? "1px 1px 2px black"
               : "1px 1px 1px #00000000",
-          // border: "2px solid red",
         }}
       >
         CONTAINER {i + 1}
@@ -2255,7 +2016,6 @@ function KraneNodeList(props) {
             width: "380px",
             height: "115px",
             fontSize: "16px",
-            // border: "1px solid white",
             justifyContent: "center",
             textAlign: "left",
             alignItems: "space-between",
@@ -2280,7 +2040,6 @@ function KraneNodeList(props) {
               display: "flex",
               flexDirection: "row",
               justifyContent: "flex-start",
-              // border: "1px solid yellow",
               width: "350px",
               margin: "30px 0 0 0",
             }}
@@ -2318,7 +2077,6 @@ function KraneNodeList(props) {
                   backgroundColor: `${containerStatusColor}`,
                   justifyContent: "right",
                   margin: "0px 0 0px 0",
-                  // border: ".5px solid white",
                 }}
               ></div>
             </div>
@@ -2330,14 +2088,11 @@ function KraneNodeList(props) {
             style={{
               display: "flex",
               flexDirection: "row",
-              // border: "1px solid green",
               textAlign: "center",
               justifyContent: "left",
               alignItems: "flex-start",
               width: "100%",
-              // height:"100px",
               alignContent: "flex-end",
-              // border: "2px solid red",
               padding: "0px 0px 0px 70px",
               margin: "5px 0px 0px 0px",
               fontSize: "15px",
@@ -2354,11 +2109,9 @@ function KraneNodeList(props) {
                 padding: "0px 0px 0 0px",
                 fontWeight: "400",
                 marginTop: "0px",
-                // border: "1px solid blue",
                 lineHeight: "16px",
                 textTransform: "none",
                 opacity: ".5",
-                // color: `${readyStatusRunning}`,
               }}
             >
               CPU USAGE: {tempContainerList[i]["cpuUsage"]}
@@ -2380,17 +2133,9 @@ function KraneNodeList(props) {
                 marginRight: "18px",
                 marginTop: "3px",
                 marginBottom: "0px",
-                // border: "1px solid red",
-                // color: `${readyStatusRunning}`,
               }}
             >
-              <div
-                style={
-                  {
-                    // border: "1px solid yellow"
-                  }
-                }
-              >
+              <div>
                 <CircularProgress
                   variant="determinate"
                   // @ts-nocheck
@@ -2402,10 +2147,7 @@ function KraneNodeList(props) {
                     rotate: "-131deg",
                     color:
                       theme.palette.mode === "dark" ? "#ffffff40" : "#00000015",
-
                     width: "60px",
-                    // border: "1px solid red",
-                    // filter: "drop-shadow(10px 10px 10px #000000)",
                   }}
                 />
                 <CircularProgress
@@ -2422,11 +2164,6 @@ function KraneNodeList(props) {
                           Number(`${props.selectedPod[0]["podCpuLimit"]}`)) *
                         0.73
                   }
-                  //Number(`${podsArr[i]["podCpuLimit"]}`)
-
-                  // Number(
-                  //   selectedPodContainers[i]["cpuUsage"].slice(0, -1)
-                  // )  / Number(`${podsArr[i]["podCpuLimit"]}`)
                   style={{
                     position: "relative",
                     top: "-48px",
@@ -2438,8 +2175,6 @@ function KraneNodeList(props) {
                         : `${containerCpuPercentColorLight}`,
 
                     width: "60px",
-                    // border: "1px solid red",
-                    // filter: "drop-shadow(10px 10px 10px #000000)",
                   }}
                 />
               </div>
@@ -2458,7 +2193,6 @@ function KraneNodeList(props) {
                       ? "-55px"
                       : "-60px",
                   marginLeft: "-8px",
-                  // border: "2px solid red",
                   color:
                     theme.palette.mode === "dark"
                       ? `${containerCpuPercentColor}`
@@ -2479,8 +2213,6 @@ function KraneNodeList(props) {
                   position: "relative",
                   top: "-43px",
                   left: "-1.5px",
-                  // border: "1px solid red",
-
                   marginRight: "-2px",
                   fontWeight: "500",
                   marginTop: "-8px",
@@ -2507,17 +2239,9 @@ function KraneNodeList(props) {
                 fontWeight: "400",
                 marginRight: "18px",
                 marginTop: "3px",
-                // border: "1px solid red",
-                // color: `${readyStatusRunning}`,
               }}
             >
-              <div
-                style={
-                  {
-                    // border: "1px solid yellow"
-                  }
-                }
-              >
+              <div>
                 <CircularProgress
                   variant="determinate"
                   // @ts-nocheck
@@ -2529,10 +2253,7 @@ function KraneNodeList(props) {
                     rotate: "-131deg",
                     color:
                       theme.palette.mode === "dark" ? "#ffffff40" : "#00000015",
-
                     width: "60px",
-                    // border: "1px solid red",
-                    // filter: "drop-shadow(10px 10px 10px #000000)",
                   }}
                 />
                 <CircularProgress
@@ -2549,14 +2270,6 @@ function KraneNodeList(props) {
                             Number(`${props.selectedPod[0]["podMemoryLimit"]}`)
                         )
                   }
-                  // selectedPod[0]["podCpuLimit"] === "NONE"
-                  // ? 0
-                  // : ((100 *
-                  //     Number(
-                  //       selectedPodContainers[i]["memoryUsageMath"]
-                  //     )) /
-                  //     Number(`${selectedPod[0]["podMemoryLimit"]}`)) *
-                  //   0.73
                   style={{
                     position: "relative",
                     top: "-48px",
@@ -2566,10 +2279,7 @@ function KraneNodeList(props) {
                       theme.palette.mode === "dark"
                         ? `${containerMemoryColor}`
                         : `${containerMemoryColorLight}`,
-
                     width: "60px",
-                    // border: "1px solid red",
-                    // filter: "drop-shadow(10px 10px 10px #000000)",
                   }}
                 />
               </div>
@@ -2588,7 +2298,6 @@ function KraneNodeList(props) {
                     props.selectedPod[0]["podMemoryLimit"] === "NONE"
                       ? "-55px"
                       : "-60px",
-                  // border: "2px solid red",
                   color:
                     theme.palette.mode === "dark"
                       ? `${containerMemoryColor}`
@@ -2614,8 +2323,6 @@ function KraneNodeList(props) {
                   position: "relative",
                   top: "-43px",
                   left: "-2.5px",
-                  // border: "1px solid red",
-
                   marginRight: "-2px",
                   fontWeight: "500",
                   marginTop: "-8px",
@@ -2648,7 +2355,6 @@ function KraneNodeList(props) {
             margin: "-10px 0 0 68px",
             height: "34px",
             width: "250%",
-            // border: "1px solid red",
           }}
         >
           <div style={{ display: "flex", flexDirection: "row", width: "100%" }}>
@@ -2660,9 +2366,7 @@ function KraneNodeList(props) {
                 fontSize: "24px",
                 fontWeight: "900",
                 letterSpacing: "3px",
-                // border: "1px solid white",
                 textAlign: "left",
-                // color: "#ffffff",
                 paddingTop: "0px",
                 color: theme.palette.mode === "dark" ? "" : "#6d6fb4",
                 userSelect: "none",
@@ -2699,8 +2403,6 @@ function KraneNodeList(props) {
               width: "3000px",
               backgroundColor:
                 theme.palette.mode === "dark" ? "#ffffff99" : "#6d6fb4",
-              // border: "1px solid white",
-              // marginRight: "50px",
               marginTop: "0px",
             }}
           ></div>
@@ -2727,7 +2429,6 @@ function KraneNodeList(props) {
                   style={{
                     display: "flex",
                     flexDirection: "row",
-                    // border: "1px solid white",
                   }}
                 >
                   <div style={{ width: "140px", height: "400px" }}>
@@ -2745,7 +2446,6 @@ function KraneNodeList(props) {
                     style={{
                       display: "flex",
                       flexDirection: "column",
-                      // border: "1px solid green",
                     }}
                   >
                     <div
@@ -2753,7 +2453,6 @@ function KraneNodeList(props) {
                         display: "flex",
                         flexDirection: "row",
                         width: "820px",
-                        // border: "1px solid yellow",
                       }}
                     >
                       <div
@@ -2763,7 +2462,6 @@ function KraneNodeList(props) {
                           letterSpacing: ".1px",
                           lineHeight: "40px",
                           padding: "30px 0 10px 10px",
-                          // border: "1px solid yellow",
                           width: "900px",
                         }}
                       >
@@ -2778,8 +2476,6 @@ function KraneNodeList(props) {
                           alignItems: "flex-end",
                           justifyContent: "right",
                           margin: "15px 15px 0 20px",
-                          // border: "1px solid green",
-                          // width:"200px"
                         }}
                       >
                         <div
@@ -2790,7 +2486,6 @@ function KraneNodeList(props) {
                             backgroundColor: `${selectedNodeStatusColor}`,
                             justifyContent: "right",
                             margin: "0px 0 2px 0",
-                            // border: "5px solid white",
                           }}
                         ></div>
                         <div
@@ -2799,9 +2494,7 @@ function KraneNodeList(props) {
                             fontWeight: "500",
                             color: `${selectedNodeStatusColor}`,
                           }}
-                        >
-                          {/* {selectedNode[0]["ready"].toUpperCase()} */}
-                        </div>
+                        ></div>
                         <div
                           style={{
                             fontSize: "20px",
@@ -2819,7 +2512,6 @@ function KraneNodeList(props) {
                       style={{
                         display: "flex",
                         flexDirection: "row",
-                        // border: "1px solid pink",
                         width: "100%",
                         marginTop: "40px",
                       }}
@@ -2835,7 +2527,6 @@ function KraneNodeList(props) {
                           margin: "-10px 0 20px 0px",
                           fontSize: "17px",
                           fontWeight: "400",
-                          // border: "2px solid green",
                         }}
                       >
                         <div
@@ -2854,10 +2545,9 @@ function KraneNodeList(props) {
                                 : "#928dd0",
                             padding: "2px 9px 1px 10px",
                             borderRadius: "3px",
-                            width: `${selectedNode[0]["role"].length * 17.5}px`, //"105px",
+                            width: `${selectedNode[0]["role"].length * 17.5}px`,
                             letterSpacing: ".5px",
                             userSelect: "none",
-                            // webkitUserSelect: "none",
                           }}
                         >
                           {selectedNode[0]["role"].toUpperCase()}
@@ -2888,31 +2578,6 @@ function KraneNodeList(props) {
                         </div>
                       </div>
 
-                      {/* <div style={{ flexDirection: "column", width: "220px" }}>
-                        <div
-                          style={{ paddingLeft: "0px", color: "#ffffff99" }}
-                        >
-                          <br />
-                          CPU USED: {selectedNode[0]["podCpuUsed"].toUpperCase()}
-                          m
-                          <br />
-                          CPU LIMIT:{" "}
-                          {selectedNode[0]["podCpuLimit"].toUpperCase()}m
-                          <br />
-                          CPU PERCENTAGE: {selectedNode[0]["podCpuPercent"]}%
-                          <br />
-                          MEMORY USED:{" "}
-                          {selectedNode[0]["podMemoryUsed"].toUpperCase()}
-                          Mi
-                          <br />
-                          MEMORY LIMIT:
-                          {selectedNode[0]["podMemoryLimit"].toUpperCase()}Mi
-                          <br />
-                          MEMORY PERCENTAGE:{selectedNode[0]["podMemoryPercent"]}
-                          %
-                        </div>{" "}
-                      </div> */}
-
                       <div
                         style={{
                           display: "flex",
@@ -2921,7 +2586,6 @@ function KraneNodeList(props) {
                           alignItems: "center",
                           marginRight: "35px",
                           marginLeft: "5px",
-                          // border: "1px solid yellow",
                         }}
                       >
                         <CircularProgress
@@ -2937,10 +2601,7 @@ function KraneNodeList(props) {
                               theme.palette.mode === "dark"
                                 ? "#ffffff40"
                                 : "#00000015",
-
                             width: "180px",
-                            // border: "1px solid red",
-                            // filter: "drop-shadow(10px 10px 10px #000000)",
                           }}
                         />
                         <CircularProgress
@@ -2948,7 +2609,6 @@ function KraneNodeList(props) {
                           // @ts-nocheck
                           thickness={1.35}
                           value={
-                            // 2 *
                             Number(`${selectedNode[0]["nodeCpuPercentMath"]}`) *
                             0.73
                           }
@@ -2970,9 +2630,6 @@ function KraneNodeList(props) {
                                 ? "#cf4848"
                                 : "yellow",
                             width: "180px",
-
-                            // border: "1px solid red",
-                            // filter: "drop-shadow(10px 10px 10px #000000)",
                           }}
                         />
                         <div
@@ -2984,7 +2641,6 @@ function KraneNodeList(props) {
                             fontWeight: "800",
                             marginTop: "-60px",
                             marginLeft: "-37px",
-                            // border: "2px solid blue",
                             color:
                               Number(selectedNode[0]["nodeCpuPercentMath"]) < 90
                                 ? `#2fc665`
@@ -2992,7 +2648,7 @@ function KraneNodeList(props) {
                                     selectedNode[0]["nodeCpuPercentMath"]
                                   ) > 90
                                 ? "#cf4848"
-                                : "yellow", //`${PodMemoryPercentColor}`,
+                                : "yellow",
                           }}
                         >
                           {`${selectedNode[0]["nodeCpuPercent"]}`}
@@ -3003,8 +2659,6 @@ function KraneNodeList(props) {
                             position: "relative",
                             top: "-99px",
                             left: "-21px",
-                            // border: "1px solid red",
-
                             marginRight: "-2px",
                             fontWeight: "400",
                             marginTop: "-8px",
@@ -3015,7 +2669,7 @@ function KraneNodeList(props) {
                                     selectedNode[0]["nodeCpuPercentMath"]
                                   ) > 90
                                 ? "#cf4848"
-                                : "yellow", //"#cf4848", //`${PodMemoryPercentColor}`,
+                                : "yellow",
                           }}
                         >
                           CPU
@@ -3027,9 +2681,6 @@ function KraneNodeList(props) {
                             left: -19,
                             fontWeight: "400",
                             fontSize: "16px",
-                            // display: "flex",
-                            // flexDirection: "column",
-                            // margin: "-50px 0 0 -29px",
                             textAlign: "center",
                             color:
                               Number(selectedNode[0]["nodeCpuPercentMath"]) < 90
@@ -3038,7 +2689,7 @@ function KraneNodeList(props) {
                                     selectedNode[0]["nodeCpuPercentMath"]
                                   ) > 90
                                 ? "#cf4848"
-                                : "yellow", //"#cf4848", //`${PodMemoryPercentColor}`,
+                                : "yellow",
                           }}
                         >
                           {" "}
@@ -3064,7 +2715,6 @@ function KraneNodeList(props) {
                           flexDirection: "column",
                           justifyContent: "center",
                           alignItems: "center",
-                          // border: "1px solid yellow",
                         }}
                       >
                         <CircularProgress
@@ -3080,10 +2730,7 @@ function KraneNodeList(props) {
                               theme.palette.mode === "dark"
                                 ? "#ffffff40"
                                 : "#00000015",
-
                             width: "180px",
-                            // border: "1px solid red",
-                            // filter: "drop-shadow(10px 10px 10px #000000)",
                           }}
                         />
                         <CircularProgress
@@ -3091,7 +2738,6 @@ function KraneNodeList(props) {
                           // @ts-nocheck
                           thickness={1.35}
                           value={
-                            // 2 *
                             Number(
                               `${selectedNode[0]["nodeMemoryPercent"].slice(
                                 0,
@@ -3121,9 +2767,6 @@ function KraneNodeList(props) {
                                 ? "#cf4848"
                                 : "yellow",
                             width: "180px",
-
-                            // border: "1px solid red",
-                            // filter: "drop-shadow(10px 10px 10px #000000)",
                           }}
                         />
                         <div
@@ -3138,7 +2781,6 @@ function KraneNodeList(props) {
                             fontWeight: "800",
                             marginTop: "-60px",
                             marginLeft: "-37px",
-                            // border: "2px solid blue",
                             color:
                               Number(
                                 selectedNode[0]["nodeMemoryPercent"].slice(
@@ -3154,7 +2796,7 @@ function KraneNodeList(props) {
                                     )
                                   ) > 90
                                 ? "#cf4848"
-                                : "yellow", //`${PodMemoryPercentColor}`,
+                                : "yellow",
                           }}
                         >
                           {selectedNode[0]["nodeMemoryPercent"]}
@@ -3165,8 +2807,6 @@ function KraneNodeList(props) {
                             position: "relative",
                             top: "-99px",
                             left: "-20px",
-                            // border: "1px solid red",
-
                             marginRight: "-2px",
                             fontWeight: "400",
                             marginTop: "-8px",
@@ -3185,7 +2825,7 @@ function KraneNodeList(props) {
                                     )
                                   ) > 90
                                 ? "#cf4848"
-                                : "yellow", //"#cf4848", //`${PodMemoryPercentColor}`,
+                                : "yellow",
                           }}
                         >
                           MEMORY
@@ -3197,9 +2837,6 @@ function KraneNodeList(props) {
                             left: -19,
                             fontWeight: "400",
                             fontSize: "16px",
-                            // display: "flex",
-                            // flexDirection: "column",
-                            // margin: "-50px 0 0 -29px",
                             textAlign: "center",
                             color:
                               Number(
@@ -3216,7 +2853,7 @@ function KraneNodeList(props) {
                                     )
                                   ) > 90
                                 ? "#cf4848"
-                                : "yellow", //"#cf4848", //`${PodMemoryPercentColor}`,
+                                : "yellow",
                           }}
                         >
                           {" "}
@@ -3236,7 +2873,6 @@ function KraneNodeList(props) {
                         flexDirection: "row",
                         justifyContent: "space-between",
                         margin: "0 0 0 0px",
-                        // border: "1px solid red",
                       }}
                     >
                       <button
@@ -3401,25 +3037,6 @@ function KraneNodeList(props) {
                               justifyContent: "center",
                             }}
                           >
-                            {/* <Button
-                              onClick={handlePodDelete}
-                              style={{
-                                fontSize: "16px",
-                                margin: "0 10px 0 0",
-                                padding: "5px 15px 5px 15px",
-                                border:
-                                  theme.palette.mode === "dark"
-                                    ? "1px solid #8f85fb"
-                                    : "1px solid",
-                                color:
-                                  theme.palette.mode === "dark"
-                                    ? "white"
-                                    : "darkpurple",
-                              }}
-                            >
-                              DELETE POD
-                            </Button>
-                             */}
                             <button
                               className="button3D-pushable"
                               role="button"
@@ -3449,18 +3066,7 @@ function KraneNodeList(props) {
                                 DRAIN NODE
                               </span>
                             </button>
-                            {/* <Button
-                              onClick={handlePodDeleteClose}
-                              style={{
-                                opacity: "50%",
-                                fontSize: "15px",
-                                margin: "0 0 0 10px",
-                                padding: "5px 10px 5px 10px",
-                                border: "1px solid #ffffff89",
-                              }}
-                            >
-                              CANCEL
-                            </Button> */}
+
                             <button
                               className="button3D-pushable"
                               role="button"
@@ -3556,25 +3162,6 @@ function KraneNodeList(props) {
                               justifyContent: "center",
                             }}
                           >
-                            {/* <Button
-                              onClick={handlePodDelete}
-                              style={{
-                                fontSize: "16px",
-                                margin: "0 10px 0 0",
-                                padding: "5px 15px 5px 15px",
-                                border:
-                                  theme.palette.mode === "dark"
-                                    ? "1px solid #8f85fb"
-                                    : "1px solid",
-                                color:
-                                  theme.palette.mode === "dark"
-                                    ? "white"
-                                    : "darkpurple",
-                              }}
-                            >
-                              DELETE POD
-                            </Button>
-                             */}
                             <button
                               className="button3D-pushable"
                               role="button"
@@ -3604,18 +3191,7 @@ function KraneNodeList(props) {
                                 CORDON NODE
                               </span>
                             </button>
-                            {/* <Button
-                              onClick={handlePodDeleteClose}
-                              style={{
-                                opacity: "50%",
-                                fontSize: "15px",
-                                margin: "0 0 0 10px",
-                                padding: "5px 10px 5px 10px",
-                                border: "1px solid #ffffff89",
-                              }}
-                            >
-                              CANCEL
-                            </Button> */}
+
                             <button
                               className="button3D-pushable"
                               role="button"
@@ -3711,25 +3287,6 @@ function KraneNodeList(props) {
                               justifyContent: "center",
                             }}
                           >
-                            {/* <Button
-                              onClick={handlePodDelete}
-                              style={{
-                                fontSize: "16px",
-                                margin: "0 10px 0 0",
-                                padding: "5px 15px 5px 15px",
-                                border:
-                                  theme.palette.mode === "dark"
-                                    ? "1px solid #8f85fb"
-                                    : "1px solid",
-                                color:
-                                  theme.palette.mode === "dark"
-                                    ? "white"
-                                    : "darkpurple",
-                              }}
-                            >
-                              DELETE POD
-                            </Button>
-                             */}
                             <button
                               className="button3D-pushable"
                               role="button"
@@ -3759,18 +3316,7 @@ function KraneNodeList(props) {
                                 UNCORDON NODE
                               </span>
                             </button>
-                            {/* <Button
-                              onClick={handlePodDeleteClose}
-                              style={{
-                                opacity: "50%",
-                                fontSize: "15px",
-                                margin: "0 0 0 10px",
-                                padding: "5px 10px 5px 10px",
-                                border: "1px solid #ffffff89",
-                              }}
-                            >
-                              CANCEL
-                            </Button> */}
+
                             <button
                               className="button3D-pushable"
                               role="button"
@@ -3867,25 +3413,6 @@ function KraneNodeList(props) {
                               justifyContent: "center",
                             }}
                           >
-                            {/* <Button
-                              onClick={handlePodDelete}
-                              style={{
-                                fontSize: "16px",
-                                margin: "0 10px 0 0",
-                                padding: "5px 15px 5px 15px",
-                                border:
-                                  theme.palette.mode === "dark"
-                                    ? "1px solid #8f85fb"
-                                    : "1px solid",
-                                color:
-                                  theme.palette.mode === "dark"
-                                    ? "white"
-                                    : "darkpurple",
-                              }}
-                            >
-                              DELETE POD
-                            </Button>
-                             */}
                             <button
                               className="button3D-pushable"
                               role="button"
@@ -3915,18 +3442,7 @@ function KraneNodeList(props) {
                                 DELETE NODE
                               </span>
                             </button>
-                            {/* <Button
-                              onClick={handlePodDeleteClose}
-                              style={{
-                                opacity: "50%",
-                                fontSize: "15px",
-                                margin: "0 0 0 10px",
-                                padding: "5px 10px 5px 10px",
-                                border: "1px solid #ffffff89",
-                              }}
-                            >
-                              CANCEL
-                            </Button> */}
+
                             <button
                               className="button3D-pushable"
                               role="button"
@@ -3958,138 +3474,6 @@ function KraneNodeList(props) {
                           </div>
                         </Box>
                       </Modal>
-                      {/* <Button
-                        // onClick={handlePodLogOpen}
-                        style={{
-                          width: "250px",
-                          border: "1px solid",
-                          fontSize: "14px",
-                        }}
-                      >
-                        VIEW LOGS
-                      </Button> */}
-                      {/* <Modal open={openPodLog} onClose={handlePodLogClose}>
-                        <Box sx={logStyle}>
-                          <div
-                            style={{
-                              fontFamily: "Outfit",
-                              fontSize: "24px",
-                              fontWeight: "700",
-                              textAlign: "center",
-                              marginTop: "10px",
-                            }}
-                          >
-                            POD LOGS
-                          </div>
-                          {podLogs}
-                        </Box>
-                      </Modal>
-                      <Button
-                        onClick={handlePodYamlOpen}
-                        style={{
-                          width: "250px",
-                          border: "1px solid",
-                          fontSize: "14px",
-                          margin: "0 10px 0 25px",
-                        }}
-                      >
-                        VIEW POD YAML
-                      </Button>
-                      <Modal open={openPodYaml} onClose={handlePodYamlClose}>
-                        <Box sx={logStyle}>
-                          <div
-                            style={{
-                              fontFamily: "Outfit",
-                              fontSize: "24px",
-                              fontWeight: "700",
-                              textAlign: "center",
-                              marginTop: "10px",
-                            }}
-                          >
-                            POD YAML OUTPUT
-                          </div>
-                          {podYaml}
-                        </Box>
-                      </Modal>
-                      <Button
-                        onClick={handlePodDeleteOpen}
-                        style={{
-                          width: "250px",
-                          border: "1px solid",
-                          fontSize: "14px",
-                          margin: "0 10px 0 15px",
-                        }}
-                      >
-                        DELETE / RESTART POD
-                      </Button>
-                      <Modal
-                        open={openPodDelete}
-                        onClose={handlePodDeleteClose}
-                        style={{ overflow: "scroll", height: "100%" }}
-                      >
-                        <Box sx={podDeleteStyle}>
-                          <div
-                            style={{
-                              textAlign: "center",
-                              fontSize: "18px",
-                              fontWeight: "900",
-                              paddingTop: "20px",
-                            }}
-                          >
-                            ARE YOU SURE YOU WANT DELETE?
-                          </div>
-                          <div
-                            style={{
-                              padding: "10px 40px 0 40px",
-                              textAlign: "center",
-                              fontSize: "12px",
-                            }}
-                          >
-                            Please note: if this pod is scheduled to be running,
-                            then a new version will replace it after
-                            termination.
-                          </div>
-                          <div
-                            style={{
-                              display: "flex",
-                              flexDirection: "row",
-                              marginTop: "30px",
-                              justifyContent: "center",
-                            }}
-                          >
-                            <Button
-                              onClick={handlePodDelete}
-                              style={{
-                                fontSize: "16px",
-                                margin: "0 10px 0 0",
-                                padding: "5px 15px 5px 15px",
-                                border:
-                                  theme.palette.mode === "dark"
-                                    ? "1px solid #8f85fb"
-                                    : "1px solid",
-                                color:
-                                  theme.palette.mode === "dark"
-                                    ? "white"
-                                    : "darkpurple",
-                              }}
-                            >
-                              DELETE POD
-                            </Button>
-                            <Button
-                              onClick={handlePodDeleteClose}
-                              style={{
-                                opacity: "50%",
-                                fontSize: "15px",
-                                margin: "0 0 0 10px",
-                                padding: "5px 10px 5px 10px",
-                                border: "1px solid #ffffff89",
-                              }}
-                            >
-                              CANCEL
-                            </Button>
-                          </div>
-                        </Box>
-                      </Modal> */}
                     </div>
 
                     <div
@@ -4107,9 +3491,7 @@ function KraneNodeList(props) {
                           fontSize: "20px",
                           fontWeight: "900",
                           letterSpacing: "3px",
-                          // border: "1px solid white",
                           textAlign: "left",
-                          // color: "#ffffff",
                           paddingTop: "10px",
                           userSelect: "none",
                         }}
@@ -4120,7 +3502,6 @@ function KraneNodeList(props) {
                         style={{
                           margin: "0px 0 2px 10px",
                           userSelect: "none",
-                          // color: `${selectedNodeStatusColor}`,
                         }}
                       >
                         ({tempPodList.length} total)
@@ -4139,8 +3520,6 @@ function KraneNodeList(props) {
                           height: "1px",
                           width: "100%",
                           backgroundColor: "#ffffff99",
-                          // border: "1px solid white",
-                          // marginRight: "50px",
                           marginRight: "20px",
                           marginTop: "5px",
                         }}
@@ -4170,7 +3549,6 @@ function KraneNodeList(props) {
                             style={{
                               display: "flex",
                               flexDirection: "row",
-                              // border: "1px solid white",
                             }}
                           >
                             <div style={{ width: "140px", height: "400px" }}>
@@ -4182,21 +3560,12 @@ function KraneNodeList(props) {
                                 }}
                                 src="../../pod.svg"
                               ></img>
-                              {/* <img
-                      style={{
-                        width: "100px",
-                        height: "100px",
-                        margin: "15px 25px 0 20px",
-                      }}
-                      src="../../pod.svg"
-                    ></img> */}
                             </div>
                             {"  "}
                             <div
                               style={{
                                 display: "flex",
                                 flexDirection: "column",
-                                // border: "1px solid green",
                               }}
                             >
                               <div
@@ -4204,7 +3573,6 @@ function KraneNodeList(props) {
                                   display: "flex",
                                   flexDirection: "row",
                                   width: "820px",
-                                  // border: "1px solid yellow",
                                 }}
                               >
                                 <div
@@ -4214,7 +3582,6 @@ function KraneNodeList(props) {
                                     letterSpacing: ".1px",
                                     lineHeight: "40px",
                                     padding: "10px 0 10px 10px",
-                                    // border: "1px solid yellow",
                                     width: "900px",
                                   }}
                                 >
@@ -4229,8 +3596,6 @@ function KraneNodeList(props) {
                                     alignItems: "flex-end",
                                     justifyContent: "right",
                                     margin: "15px 15px 0 20px",
-                                    // border: "1px solid green",
-                                    // width:"200px"
                                   }}
                                 >
                                   <div
@@ -4241,7 +3606,6 @@ function KraneNodeList(props) {
                                       backgroundColor: `${props.selectedPodStatusColor}`,
                                       justifyContent: "right",
                                       margin: "0px 0 2px 0",
-                                      // border: "5px solid white",
                                     }}
                                   ></div>
                                   <div
@@ -4274,7 +3638,6 @@ function KraneNodeList(props) {
                                 style={{
                                   display: "flex",
                                   flexDirection: "row",
-                                  // border: "1px solid pink",
                                   width: "100%",
                                   marginTop: "40px",
                                 }}
@@ -4290,7 +3653,6 @@ function KraneNodeList(props) {
                                     margin: "-10px 0 20px 0px",
                                     fontSize: "17px",
                                     fontWeight: "200",
-                                    // border: "2px solid green",
                                   }}
                                 >
                                   <div style={{ paddingLeft: "5px" }}>
@@ -4334,31 +3696,6 @@ function KraneNodeList(props) {
                                   </div>
                                 </div>
 
-                                {/* <div style={{ flexDirection: "column", width: "220px" }}>
-                        <div
-                          style={{ paddingLeft: "0px", color: "#ffffff99" }}
-                        >
-                          <br />
-                          CPU USED: {selectedPod[0]["podCpuUsed"].toUpperCase()}
-                          m
-                          <br />
-                          CPU LIMIT:{" "}
-                          {selectedPod[0]["podCpuLimit"].toUpperCase()}m
-                          <br />
-                          CPU PERCENTAGE: {selectedPod[0]["podCpuPercent"]}%
-                          <br />
-                          MEMORY USED:{" "}
-                          {selectedPod[0]["podMemoryUsed"].toUpperCase()}
-                          Mi
-                          <br />
-                          MEMORY LIMIT:
-                          {selectedPod[0]["podMemoryLimit"].toUpperCase()}Mi
-                          <br />
-                          MEMORY PERCENTAGE:{selectedPod[0]["podMemoryPercent"]}
-                          %
-                        </div>{" "}
-                      </div> */}
-
                                 <div
                                   style={{
                                     display: "flex",
@@ -4367,7 +3704,6 @@ function KraneNodeList(props) {
                                     alignItems: "center",
                                     marginRight: "35px",
                                     marginLeft: "5px",
-                                    // border: "1px solid yellow",
                                   }}
                                 >
                                   <CircularProgress
@@ -4383,10 +3719,7 @@ function KraneNodeList(props) {
                                         theme.palette.mode === "dark"
                                           ? "#ffffff40"
                                           : "#00000015",
-
                                       width: "180px",
-                                      // border: "1px solid red",
-                                      // filter: "drop-shadow(10px 10px 10px #000000)",
                                     }}
                                   />
                                   <CircularProgress
@@ -4394,7 +3727,6 @@ function KraneNodeList(props) {
                                     // @ts-nocheck
                                     thickness={1.35}
                                     value={
-                                      // 2 *
                                       props.selectedPod[0]["podCpuLimit"] ===
                                       "NONE"
                                         ? 0
@@ -4426,9 +3758,6 @@ function KraneNodeList(props) {
                                           ? "#cf4848"
                                           : "yellow",
                                       width: "180px",
-
-                                      // border: "1px solid red",
-                                      // filter: "drop-shadow(10px 10px 10px #000000)",
                                     }}
                                   />
                                   <div
@@ -4445,7 +3774,6 @@ function KraneNodeList(props) {
                                       fontWeight: "800",
                                       marginTop: "-60px",
                                       marginLeft: "-37px",
-                                      // border: "2px solid blue",
                                       color:
                                         props.selectedPod[0][
                                           "podCpuPercent"
@@ -4463,7 +3791,7 @@ function KraneNodeList(props) {
                                               ]
                                             ) > 90
                                           ? "#cf4848"
-                                          : "yellow", //`${PodMemoryPercentColor}`,
+                                          : "yellow",
                                     }}
                                   >
                                     {props.selectedPod[0]["podCpuPercent"] ===
@@ -4477,7 +3805,6 @@ function KraneNodeList(props) {
                                       position: "relative",
                                       top: "-99px",
                                       left: "-21px",
-                                      // border: "1px solid red",
 
                                       marginRight: "-2px",
                                       fontWeight: "400",
@@ -4499,7 +3826,7 @@ function KraneNodeList(props) {
                                               ]
                                             ) > 90
                                           ? "#cf4848"
-                                          : "yellow", //"#cf4848", //`${PodMemoryPercentColor}`,
+                                          : "yellow",
                                     }}
                                   >
                                     CPU
@@ -4511,9 +3838,6 @@ function KraneNodeList(props) {
                                       left: -19,
                                       fontWeight: "400",
                                       fontSize: "16px",
-                                      // display: "flex",
-                                      // flexDirection: "column",
-                                      // margin: "-50px 0 0 -29px",
                                       textAlign: "center",
                                       color:
                                         props.selectedPod[0][
@@ -4532,7 +3856,7 @@ function KraneNodeList(props) {
                                               ]
                                             ) > 90
                                           ? "#cf4848"
-                                          : "yellow", //"#cf4848", //`${PodMemoryPercentColor}`,
+                                          : "yellow",
                                     }}
                                   >
                                     {" "}
@@ -4560,7 +3884,6 @@ function KraneNodeList(props) {
                                     flexDirection: "column",
                                     justifyContent: "center",
                                     alignItems: "center",
-                                    // border: "1px solid yellow",
                                   }}
                                 >
                                   <CircularProgress
@@ -4576,10 +3899,7 @@ function KraneNodeList(props) {
                                         theme.palette.mode === "dark"
                                           ? "#ffffff40"
                                           : "#00000015",
-
                                       width: "180px",
-                                      // border: "1px solid red",
-                                      // filter: "drop-shadow(10px 10px 10px #000000)",
                                     }}
                                   />
                                   <CircularProgress
@@ -4587,7 +3907,6 @@ function KraneNodeList(props) {
                                     // @ts-nocheck
                                     thickness={1.35}
                                     value={
-                                      // 2 *
                                       props.selectedPod[0]["podMemoryLimit"] ===
                                       "NONE"
                                         ? 0
@@ -4619,9 +3938,6 @@ function KraneNodeList(props) {
                                           ? "#cf4848"
                                           : "yellow",
                                       width: "180px",
-
-                                      // border: "1px solid red",
-                                      // filter: "drop-shadow(10px 10px 10px #000000)",
                                     }}
                                   />
                                   <div
@@ -4638,7 +3954,6 @@ function KraneNodeList(props) {
                                       fontWeight: "800",
                                       marginTop: "-60px",
                                       marginLeft: "-37px",
-                                      // border: "2px solid blue",
                                       color:
                                         props.selectedPod[0][
                                           "podMemoryPercent"
@@ -4656,7 +3971,7 @@ function KraneNodeList(props) {
                                               ]
                                             ) > 90
                                           ? "#cf4848"
-                                          : "yellow", //`${PodMemoryPercentColor}`,
+                                          : "yellow",
                                     }}
                                   >
                                     {props.selectedPod[0][
@@ -4671,8 +3986,6 @@ function KraneNodeList(props) {
                                       position: "relative",
                                       top: "-99px",
                                       left: "-20px",
-                                      // border: "1px solid red",
-
                                       marginRight: "-2px",
                                       fontWeight: "400",
                                       marginTop: "-8px",
@@ -4693,7 +4006,7 @@ function KraneNodeList(props) {
                                               ]
                                             ) > 90
                                           ? "#cf4848"
-                                          : "yellow", //"#cf4848", //`${PodMemoryPercentColor}`,
+                                          : "yellow",
                                     }}
                                   >
                                     MEMORY
@@ -4705,9 +4018,6 @@ function KraneNodeList(props) {
                                       left: -19,
                                       fontWeight: "400",
                                       fontSize: "16px",
-                                      // display: "flex",
-                                      // flexDirection: "column",
-                                      // margin: "-50px 0 0 -29px",
                                       textAlign: "center",
                                       color:
                                         props.selectedPod[0][
@@ -4726,7 +4036,7 @@ function KraneNodeList(props) {
                                               ]
                                             ) > 90
                                           ? "#cf4848"
-                                          : "yellow", //"#cf4848", //`${PodMemoryPercentColor}`,
+                                          : "yellow",
                                     }}
                                   >
                                     {" "}
@@ -4755,19 +4065,8 @@ function KraneNodeList(props) {
                                   flexDirection: "row",
                                   justifyContent: "space-between",
                                   margin: "0 0 0 0px",
-                                  // border: "1px solid red",
                                 }}
                               >
-                                {/* <Button
-                        onClick={handlePodLogOpen}
-                        style={{
-                          width: "250px",
-                          border: "1px solid",
-                          fontSize: "14px",
-                        }}
-                      >
-                        VIEW LOGS
-                      </Button> */}
                                 <button
                                   className="button3D-pushable"
                                   role="button"
@@ -4816,17 +4115,7 @@ function KraneNodeList(props) {
                                     {props.podLogs}
                                   </Box>
                                 </Modal>
-                                {/* <Button
-                        onClick={handlePodYamlOpen}
-                        style={{
-                          width: "250px",
-                          border: "1px solid",
-                          fontSize: "14px",
-                          margin: "0 10px 0 25px",
-                        }}
-                      >
-                        VIEW POD YAML
-                      </Button> */}
+
                                 <button
                                   className="button3D-pushable"
                                   role="button"
@@ -4875,17 +4164,7 @@ function KraneNodeList(props) {
                                     {props.podYaml}
                                   </Box>
                                 </Modal>
-                                {/* <Button
-                        onClick={handlePodDeleteOpen}
-                        style={{
-                          width: "250px",
-                          border: "1px solid",
-                          fontSize: "14px",
-                          margin: "0 10px 0 15px",
-                        }}
-                      >
-                        DELETE / RESTART POD
-                      </Button> */}
+
                                 <button
                                   className="button3D-pushable"
                                   role="button"
@@ -4950,25 +4229,6 @@ function KraneNodeList(props) {
                                         justifyContent: "center",
                                       }}
                                     >
-                                      {/* <Button
-                              onClick={handlePodDelete}
-                              style={{
-                                fontSize: "16px",
-                                margin: "0 10px 0 0",
-                                padding: "5px 15px 5px 15px",
-                                border:
-                                  theme.palette.mode === "dark"
-                                    ? "1px solid #8f85fb"
-                                    : "1px solid",
-                                color:
-                                  theme.palette.mode === "dark"
-                                    ? "white"
-                                    : "darkpurple",
-                              }}
-                            >
-                              DELETE POD
-                            </Button>
-                             */}
                                       <button
                                         className="button3D-pushable"
                                         role="button"
@@ -4998,18 +4258,7 @@ function KraneNodeList(props) {
                                           DELETE POD
                                         </span>
                                       </button>
-                                      {/* <Button
-                              onClick={handlePodDeleteClose}
-                              style={{
-                                opacity: "50%",
-                                fontSize: "15px",
-                                margin: "0 0 0 10px",
-                                padding: "5px 10px 5px 10px",
-                                border: "1px solid #ffffff89",
-                              }}
-                            >
-                              CANCEL
-                            </Button> */}
+
                                       <button
                                         className="button3D-pushable"
                                         role="button"
@@ -5057,9 +4306,7 @@ function KraneNodeList(props) {
                                     fontSize: "20px",
                                     fontWeight: "900",
                                     letterSpacing: "3px",
-                                    // border: "1px solid white",
                                     textAlign: "left",
-                                    // color: "#ffffff",
                                     paddingTop: "10px",
                                   }}
                                 >
@@ -5088,8 +4335,6 @@ function KraneNodeList(props) {
                                     height: "1px",
                                     width: "100%",
                                     backgroundColor: "#ffffff99",
-                                    // border: "1px solid white",
-                                    // marginRight: "50px",
                                     marginRight: "20px",
                                     marginTop: "5px",
                                   }}
@@ -5120,84 +4365,12 @@ function KraneNodeList(props) {
     );
   }
 
-  // <>
-  //     <div
-  //       style={{
-  //         display: "flex",
-  //         fontFamily: "Outfit",
-  //         fontWeight: "400",
-  //         fontSize: "17px",
-  //         height: "auto",
-  //         justifyContent: "center",
-  //         overflow: "hidden",
-  //         alignItems: "center",
-  //         width: "auto",
-  //         padding: "0px 10px 4px 20px",
-  //         letterSpacing: "1px",
-  //         color: theme.palette.mode === "dark" ? "#8f85fb" : "#9075ea",
-  //         textShadow:
-  //           theme.palette.mode === "dark"
-  //             ? "1px 1px 2px black"
-  //             : "2px 2px 0px #00000000",
-  //         // border: "1px solid red",
-  //       }}
-  //     >
-  //       NODE 1
-  //     </div>
-  //     <Button
-  //       id="nodeButt"
-  //       style={{
-  //         fontFamily: "Outfit",
-  //         fontWeight: "200",
-  //         fontSize: "14px",
-  //         justifyContent: "center",
-  //         alignItems: "center",
-  //         width: "300px",
-  //         padding: "10px 10px 10px 20px",
-  //         letterSpacing: "1px",
-  //         color: theme.palette.mode === "dark" ? "white" : "grey",
-  //         border:
-  //           theme.palette.mode === "dark"
-  //             ? "1.2px solid white"
-  //             : "1.2px solid #9075ea",
-  //         borderRadius: "5px",
-  //         boxShadow:
-  //           theme.palette.mode === "dark"
-  //             ? "10px 9px 2px #00000060"
-  //             : "10px 10px 1px #00000020",
-  //         backgroundColor:
-  //           theme.palette.mode === "dark" ? "#0e0727" : "#e6e1fb",
-  //       }}
-  //     >
-  //       <div
-  //         style={{
-  //           width: "500px",
-  //           // border: "1px solid white",
-  //           textAlign: "left",
-  //           alignItems: "center",
-  //         }}
-  //       >
-  //         Name: {nodesArr[0]}
-  //         <br /> Status: {statusArr[0]}
-  //         <br /> Role: {roleArr[0]}
-  //         <br /> Age: {ageArr[0]}
-  //         <br /> Version: {versionArr[0]}
-  //       </div>
-  //     </Button>
-  // </>
-  //
-
-  // console.log("selected pod 3 is ", selectedNode);
-
-  // console.log(" NODES ARR AT END IS ", nodesArr);
-
   return (
     <>
       {/* ----------------MAIN CONTENT---------------- */}
 
       <div
         data-height="100%"
-        // spacing={1}
         style={{
           display: "flex",
           flexDirection: "column",
@@ -5209,7 +4382,6 @@ function KraneNodeList(props) {
           marginBottom: "0px",
           textAlign: "center",
           width: "95.5%",
-          // border: "1px solid green",
         }}
       >
         <div>{nodeListDiv}</div>
@@ -5219,290 +4391,3 @@ function KraneNodeList(props) {
 }
 
 export default KraneNodeList;
-
-// json output of describe or get node -o wide =
-//
-//{
-// "apiVersion": "v1",
-// "kind": "Node",
-// "metadata": {
-//     "annotations": {
-//         "kubeadm.alpha.kubernetes.io/cri-socket": "unix:///var/run/cri-dockerd.sock",
-//         "node.alpha.kubernetes.io/ttl": "0",
-//         "volumes.kubernetes.io/controller-managed-attach-detach": "true"
-//     },
-//     "creationTimestamp": "2023-05-01T18:47:55Z",
-//     "labels": {
-//         "beta.kubernetes.io/arch": "arm64",
-//         "beta.kubernetes.io/os": "linux",
-//         "kubernetes.io/arch": "arm64",
-//         "kubernetes.io/hostname": "docker-desktop",
-//         "kubernetes.io/os": "linux",
-//         "node-role.kubernetes.io/control-plane": "",
-//         "node.kubernetes.io/exclude-from-external-load-balancers": ""
-//     },
-//     "name": "docker-desktop",
-//     "resourceVersion": "1171992",
-//     "uid": "2a49ff81-3780-4a1c-a9ca-e85be82b254f"
-// },
-// "spec": {},
-// "status": {
-//     "addresses": [
-//         {
-//             "address": "192.168.65.4",
-//             "type": "InternalIP"
-//         },
-//         {
-//             "address": "docker-desktop",
-//             "type": "Hostname"
-//         }
-//     ],
-//     "allocatable": {
-//         "cpu": "4",
-//         "ephemeral-storage": "56403987978",
-//         "hugepages-1Gi": "0",
-//         "hugepages-2Mi": "0",
-//         "hugepages-32Mi": "0",
-//         "hugepages-64Ki": "0",
-//         "memory": "7937592Ki",
-//         "pods": "110"
-//     },
-//     "capacity": {
-//         "cpu": "4",
-//         "ephemeral-storage": "61202244Ki",
-//         "hugepages-1Gi": "0",
-//         "hugepages-2Mi": "0",
-//         "hugepages-32Mi": "0",
-//         "hugepages-64Ki": "0",
-//         "memory": "8039992Ki",
-//         "pods": "110"
-//     },
-//     "conditions": [
-//         {
-//             "lastHeartbeatTime": "2023-09-20T22:01:10Z",
-//             "lastTransitionTime": "2023-05-01T18:47:53Z",
-//             "message": "kubelet has sufficient memory available",
-//             "reason": "KubeletHasSufficientMemory",
-//             "status": "False",
-//             "type": "MemoryPressure"
-//         },
-//         {
-//             "lastHeartbeatTime": "2023-09-20T22:01:10Z",
-//             "lastTransitionTime": "2023-05-01T18:47:53Z",
-//             "message": "kubelet has no disk pressure",
-//             "reason": "KubeletHasNoDiskPressure",
-//             "status": "False",
-//             "type": "DiskPressure"
-//         },
-//         {
-//             "lastHeartbeatTime": "2023-09-20T22:01:10Z",
-//             "lastTransitionTime": "2023-05-01T18:47:53Z",
-//             "message": "kubelet has sufficient PID available",
-//             "reason": "KubeletHasSufficientPID",
-//             "status": "False",
-//             "type": "PIDPressure"
-//         },
-//         {
-//             "lastHeartbeatTime": "2023-09-20T22:01:10Z",
-//             "lastTransitionTime": "2023-05-01T18:48:26Z",
-//             "message": "kubelet is posting ready status",
-//             "reason": "KubeletReady",
-//             "status": "True",
-//             "type": "Ready"
-//         }
-//     ],
-//     "daemonEndpoints": {
-//         "kubeletEndpoint": {
-//             "Port": 10250
-//         }
-//     },
-//     "images": [
-//         {
-//             "names": [
-//                 "hubproxy.docker.internal:5555/docker/desktop-kubernetes@sha256:f1573ffb14599a41a50fc9bd6f15c0f4060ed6ade929e9f2c458e5e3cc36cf68",
-//                 "hubproxy.docker.internal:5555/docker/desktop-kubernetes:kubernetes-v1.25.9-cni-v1.1.1-critools-v1.25.0-cri-dockerd-v0.2.6-1-debian"
-//             ],
-//             "sizeBytes": 385396541
-//         },
-//         {
-//             "names": [
-//                 "grafana/grafana@sha256:00a4d2889c2b32f86c50673b1a82cb5b45349f1c24b0a882d11a53518e2ecae4",
-//                 "grafana/grafana:9.5.1"
-//             ],
-//             "sizeBytes": 297448929
-//         },
-//         {
-//             "names": [
-//                 "quay.io/prometheus/prometheus@sha256:d2ab0a27783fd4ad96a8853e2847b99a0be0043687b8a5d1ebfb2dd3fa4fd1b8",
-//                 "quay.io/prometheus/prometheus:v2.42.0"
-//             ],
-//             "sizeBytes": 225839649
-//         },
-//         {
-//             "names": [
-//                 "registry.k8s.io/etcd:3.5.6-0"
-//             ],
-//             "sizeBytes": 180688846
-//         },
-//         {
-//             "names": [
-//                 "registry.k8s.io/etcd:3.5.5-0"
-//             ],
-//             "sizeBytes": 178899047
-//         },
-//         {
-//             "names": [
-//                 "registry.k8s.io/kube-apiserver:v1.25.9"
-//             ],
-//             "sizeBytes": 123299566
-//         },
-//         {
-//             "names": [
-//                 "registry.k8s.io/kube-apiserver:v1.25.4"
-//             ],
-//             "sizeBytes": 123202762
-//         },
-//         {
-//             "names": [
-//                 "registry.k8s.io/kube-controller-manager:v1.25.9"
-//             ],
-//             "sizeBytes": 112814099
-//         },
-//         {
-//             "names": [
-//                 "registry.k8s.io/kube-controller-manager:v1.25.4"
-//             ],
-//             "sizeBytes": 112651759
-//         },
-//         {
-//             "names": [
-//                 "quay.io/kiwigrid/k8s-sidecar@sha256:eaa478cdd0b8e1be7a4813bc1b01948b838e2feaa6d999e60c997dc823013824",
-//                 "quay.io/kiwigrid/k8s-sidecar:1.22.0"
-//             ],
-//             "sizeBytes": 77954382
-//         },
-//         {
-//             "names": [
-//                 "registry.k8s.io/metrics-server/metrics-server@sha256:ee4304963fb035239bb5c5e8c10f2f38ee80efc16ecbdb9feb7213c17ae2e86e",
-//                 "registry.k8s.io/metrics-server/metrics-server:v0.6.4"
-//             ],
-//             "sizeBytes": 66906490
-//         },
-//         {
-//             "names": [
-//                 "quay.io/prometheus/alertmanager@sha256:fd4d9a3dd1fd0125108417be21be917f19cc76262347086509a0d43f29b80e98",
-//                 "quay.io/prometheus/alertmanager:v0.25.0"
-//             ],
-//             "sizeBytes": 63233000
-//         },
-//         {
-//             "names": [
-//                 "k8s.gcr.io/metrics-server/metrics-server@sha256:6c5603956c0aed6b4087a8716afce8eb22f664b13162346ee852b4fab305ca15",
-//                 "k8s.gcr.io/metrics-server/metrics-server:v0.5.0"
-//             ],
-//             "sizeBytes": 60016245
-//         },
-//         {
-//             "names": [
-//                 "registry.k8s.io/kube-proxy:v1.25.9"
-//             ],
-//             "sizeBytes": 58056002
-//         },
-//         {
-//             "names": [
-//                 "registry.k8s.io/kube-proxy:v1.25.4"
-//             ],
-//             "sizeBytes": 57990466
-//         },
-//         {
-//             "names": [
-//                 "k8s.gcr.io/metrics-server/metrics-server@sha256:78035f05bcf7e0f9b401bae1ac62b5a505f95f9c2122b80cff73dcc04d58497e",
-//                 "k8s.gcr.io/metrics-server/metrics-server:v0.4.1"
-//             ],
-//             "sizeBytes": 57796983
-//         },
-//         {
-//             "names": [
-//                 "quay.io/prometheus-operator/prometheus-operator@sha256:be4fbe0cfcad639e7a9ce40274917e1e30a3cae045ae27cde35ac84739fdef40",
-//                 "quay.io/prometheus-operator/prometheus-operator:v0.63.0"
-//             ],
-//             "sizeBytes": 53228029
-//         },
-//         {
-//             "names": [
-//                 "registry.k8s.io/kube-scheduler:v1.25.9"
-//             ],
-//             "sizeBytes": 49441087
-//         },
-//         {
-//             "names": [
-//                 "registry.k8s.io/kube-scheduler:v1.25.4"
-//             ],
-//             "sizeBytes": 49278447
-//         },
-//         {
-//             "names": [
-//                 "registry.k8s.io/coredns/coredns:v1.9.3"
-//             ],
-//             "sizeBytes": 47660771
-//         },
-//         {
-//             "names": [
-//                 "registry.k8s.io/kube-state-metrics/kube-state-metrics@sha256:ec5732e28f151de3847df60f48c5a570aacdb692ff1ce949d97105ae5e5a6722",
-//                 "registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.8.2"
-//             ],
-//             "sizeBytes": 40442314
-//         },
-//         {
-//             "names": [
-//                 "docker/desktop-storage-provisioner:v2.0"
-//             ],
-//             "sizeBytes": 39816902
-//         },
-//         {
-//             "names": [
-//                 "docker/desktop-vpnkit-controller:dc331cb22850be0cdd97c84a9cfecaf44a1afb6e"
-//             ],
-//             "sizeBytes": 34992760
-//         },
-//         {
-//             "names": [
-//                 "quay.io/prometheus/node-exporter@sha256:39c642b2b337e38c18e80266fb14383754178202f40103646337722a594d984c",
-//                 "quay.io/prometheus/node-exporter:v1.5.0"
-//             ],
-//             "sizeBytes": 21845668
-//         },
-//         {
-//             "names": [
-//                 "docker/desktop-vpnkit-controller:v2.0"
-//             ],
-//             "sizeBytes": 19178584
-//         },
-//         {
-//             "names": [
-//                 "quay.io/prometheus-operator/prometheus-config-reloader@sha256:3f976422884ec7744f69084da7736927eb634914a0c035d5a865cf6a6b8eb1b0",
-//                 "quay.io/prometheus-operator/prometheus-config-reloader:v0.63.0"
-//             ],
-//             "sizeBytes": 12333565
-//         },
-//         {
-//             "names": [
-//                 "registry.k8s.io/pause:3.8"
-//             ],
-//             "sizeBytes": 514000
-//         }
-//     ],
-//     "nodeInfo": {
-//         "architecture": "arm64",
-//         "bootID": "09ba70b6-5aaf-484f-9189-5c5c85ec7200",
-//         "containerRuntimeVersion": "docker://24.0.2",
-//         "kernelVersion": "5.15.49-linuxkit-pr",
-//         "kubeProxyVersion": "v1.25.4",
-//         "kubeletVersion": "v1.25.4",
-//         "machineID": "08187e84-990c-459e-a1c3-18edd2c5ee23",
-//         "operatingSystem": "linux",
-//         "osImage": "Docker Desktop",
-//         "systemUUID": "08187e84-990c-459e-a1c3-18edd2c5ee23"
-//     }
-// }
-//

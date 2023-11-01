@@ -286,18 +286,17 @@ function Setup() {
       return alert("Please choose working directory");
     } else if (command === ` clear`) {
       setResponse([]);
-    } else if (command.slice(0, 3) === " cd ") {
-      let temp = command.slice(4, -1);
-      console.log("temp:", temp);
-      if (temp.slice(0, 2) === "../") {
-        console.log("short dir is:", shortDir);
-        console.log("CURR DIR IS:", currDir);
-        //parse and change currDir and shortDir to one directory higher
-      } else if (temp.slice(0, 2) === "./") {
-        //ignore or slice and parse going down levels
-        console.log("short dir is:", shortDir);
-        console.log("CURR DIR IS:", currDir);
-      }
+    // } else if (command.slice(0, 3) === " cd ") {
+    //   let temp = command.slice(4, -1);
+    //   if (temp.slice(0, 2) === "../") {
+    //     console.log("short dir is:", shortDir);
+    //     console.log("CURR DIR IS:", currDir);
+    //     //parse and change currDir and shortDir to one directory higher
+    //   } else if (temp.slice(0, 2) === "./") {
+    //     //ignore or slice and parse going down levels
+    //     console.log("short dir is:", shortDir);
+    //     console.log("CURR DIR IS:", currDir);
+    //   }
     } else ipcRenderer.send("post_command", { command, currDir });
   };
 
@@ -320,7 +319,7 @@ function Setup() {
   return (
     <>
       <Sidebar />
-      {/* <Backdrop
+      <Backdrop
         style={{
           color: "black",
           justifyContent: "center",
@@ -334,7 +333,7 @@ function Setup() {
         }}
         open={yamlOpen}
         onClick={handleYamlClose}
-      ></Backdrop> */}
+      ></Backdrop>
       <div
         style={{
           position: "absolute",
@@ -687,11 +686,7 @@ function Setup() {
         </div>
         <div
           style={{
-            // border: '1px solid',
             borderRadius: "3px",
-            // background:
-            //   theme.palette.mode === 'dark' ? '#0e0727' : '#e6e1fb',
-            // border: '2px solid #c6bebe',
             height: "60px",
             width: "70.5%",
             marginTop: "-5px",
@@ -885,7 +880,6 @@ function Setup() {
                     const newCommand = verb + " " + type + " " + name;
                     setCommand(newCommand);
                     setHelpList([newInputValue, type]);
-                    // setCommand(newInputValue);
                   }}
                   renderInput={(params) => (
                     <TextField {...params} label="Commands" />
@@ -948,8 +942,6 @@ function Setup() {
                 <Box sx={style}>
                   <Typography
                     id="modal-modal-title"
-                    // variant='h6'
-                    // component='h2'
                   ></Typography>
                   <Typography
                     id="modal-modal-description"
@@ -1009,7 +1001,6 @@ function Setup() {
                   onInputChange={(e, newInputValue) => {
                     setHelpList([verb, newInputValue]);
                     setType(newInputValue);
-                    // setHelpList([verb, newInputValue]);
                   }}
                   renderInput={(params) => (
                     <TextField {...params} label="Types" />
@@ -1045,8 +1036,6 @@ function Setup() {
                 <Box sx={style}>
                   <Typography
                     id="modal-modal-title"
-                    // variant='h6'
-                    // component='h2'
                   ></Typography>
                   <Typography
                     id="modal-modal-description"
@@ -1169,8 +1158,6 @@ function Setup() {
             width: "69%",
             backgroundColor:
               theme.palette.mode === "dark" ? "#2f2f6d" : "#e1dbfe",
-            // marginLeft: '0px',
-            // marginTop: '25px',
             borderRadius: "3px",
             textAlign: "center",
             padding: "5px 0 0 0px",
