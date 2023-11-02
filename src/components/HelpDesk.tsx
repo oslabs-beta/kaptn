@@ -1,4 +1,4 @@
-const helpDesk : { [key: string]: string }= {};
+const helpDesk: { [key: string]: string } = {};
 
 helpDesk.create = `Create a resource from a file or from stdin.
 
@@ -2774,7 +2774,7 @@ helpDesk.completion =
     source <(kubectl completion zsh)
     # Set the kubectl completion code for zsh[1] to autoload on startup
     kubectl completion zsh > "` +
-  '${fpath[1]}' +
+  "${fpath[1]}" +
   `/_kubectl"
     
     
@@ -2887,7 +2887,7 @@ When a value is modified, it is modified in the file that defines the stanza.
 When a value is created, it is created in the first file that exists. If no
 files in the chain exist, then it creates the last file in the list.
   3.  Otherwise, ` +
-  '${HOME}' +
+  "${HOME}" +
   `/.kube/config is used and no merging takes place.
 
 Available Commands:
@@ -3197,6 +3197,72 @@ FIELDS:
 
   type	<string>
     Type of this event (Normal, Warning), new types could be added in the future`;
+
+helpDesk.rs = `GROUP:      apps
+    KIND:       ReplicaSet
+    VERSION:    v1
+    DESCRIPTION:
+        ReplicaSet ensures that a specified number of pod replicas are running at
+        any given time.
+        
+    FIELDS:
+      apiVersion	<string>
+        APIVersion defines the versioned schema of this representation of an object.
+        Servers should convert recognized schemas to the latest internal value, and
+        may reject unrecognized values. More info:
+        https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+      kind	<string>
+        Kind is a string value representing the REST resource this object
+        represents. Servers may infer this from the endpoint the client submits
+        requests to. Cannot be updated. In CamelCase. More info:
+        https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+      metadata	<ObjectMeta>
+        If the Labels of a ReplicaSet are empty, they are defaulted to be the same
+        as the Pod(s) that the ReplicaSet manages. Standard object's metadata. More
+        info:
+        https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+      spec	<ReplicaSetSpec>
+        Spec defines the specification of the desired behavior of the ReplicaSet.
+        More info:
+        https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+      status	<ReplicaSetStatus>
+        Status is the most recently observed status of the ReplicaSet. This data may
+        be out of date by some window of time. Populated by the system. Read-only.
+        More info:
+        https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status`;
+
+helpDesk.replicaSets = `GROUP:      apps
+    KIND:       ReplicaSet
+    VERSION:    v1
+    DESCRIPTION:
+        ReplicaSet ensures that a specified number of pod replicas are running at
+        any given time.
+        
+    FIELDS:
+      apiVersion	<string>
+        APIVersion defines the versioned schema of this representation of an object.
+        Servers should convert recognized schemas to the latest internal value, and
+        may reject unrecognized values. More info:
+        https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+      kind	<string>
+        Kind is a string value representing the REST resource this object
+        represents. Servers may infer this from the endpoint the client submits
+        requests to. Cannot be updated. In CamelCase. More info:
+        https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+      metadata	<ObjectMeta>
+        If the Labels of a ReplicaSet are empty, they are defaulted to be the same
+        as the Pod(s) that the ReplicaSet manages. Standard object's metadata. More
+        info:
+        https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+      spec	<ReplicaSetSpec>
+        Spec defines the specification of the desired behavior of the ReplicaSet.
+        More info:
+        https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+      status	<ReplicaSetStatus>
+        Status is the most recently observed status of the ReplicaSet. This data may
+        be out of date by some window of time. Populated by the system. Read-only.
+        More info:
+        https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status`;
 
 helpDesk.secret = `KIND:       Secret
 VERSION:    v1

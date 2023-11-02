@@ -1,3 +1,4 @@
+import React from "react";
 import { Sidebar, Menu, MenuItem } from "react-pro-sidebar";
 import { useState, useContext } from "react";
 import { Box, IconButton, useTheme } from "@mui/material";
@@ -12,10 +13,14 @@ import {
   BorderColor,
 } from "@mui/icons-material";
 import Grid from "@mui/system/Unstable_Grid";
-import { ColorModeContext } from "../theme.ts";
+import { ColorModeContext } from "../theme";
 import Tooltip, { TooltipProps, tooltipClasses } from "@mui/material/Tooltip";
 import { styled } from "@mui/material/styles";
 import HomeRoundedIcon from "@mui/icons-material/HomeRounded";
+import PrecisionManufacturingIcon from "@mui/icons-material/PrecisionManufacturing";
+import ScatterPlotIcon from "@mui/icons-material/ScatterPlot";
+import LensBlurIcon from "@mui/icons-material/LensBlur";
+import TerminalIcon from "@mui/icons-material/Terminal";
 
 function SideNav(props) {
   // Color theme is toggled here with the light/dark mode menu item
@@ -40,6 +45,39 @@ function SideNav(props) {
       }}
     >
       <LightTooltip
+        title="Kaptn Krane"
+        placement="right"
+        arrow
+        enterDelay={500}
+        leaveDelay={200}
+        enterNextDelay={500}
+        style={{ backgroundColor: "red" }}
+      >
+        <div
+          style={{ height: "20px", paddingLeft: "8px", marginBottom: "20px" }}
+        >
+          <Link to="/krane">
+            <PrecisionManufacturingIcon
+              className="menuIcons"
+              fontSize="medium"
+              style={{
+                color: theme.palette.mode === "dark" ? "#c6bfe2" : "#6466b2",
+              }}
+            />
+            {/* <img
+              src="../../Artboard-1.png"
+              className="menuIcons"
+              fontSize="medium"
+              style={{
+                width: "28px",
+                color: theme.palette.mode === "dark" ? "#c6bfe2" : "#6466b2",
+              }}
+            /> */}
+          </Link>
+        </div>
+      </LightTooltip>
+
+      <LightTooltip
         title="K8s CLI"
         placement="right"
         arrow
@@ -52,7 +90,7 @@ function SideNav(props) {
           style={{ height: "20px", paddingLeft: "8px", marginBottom: "20px" }}
         >
           <Link to="/dashboard">
-            <HomeRoundedIcon
+            <TerminalIcon
               className="menuIcons"
               fontSize="medium"
               style={{
@@ -62,6 +100,7 @@ function SideNav(props) {
           </Link>
         </div>
       </LightTooltip>
+
       <LightTooltip
         title="Easy Setup"
         placement="right"

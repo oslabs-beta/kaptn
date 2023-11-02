@@ -15,14 +15,14 @@ import {
   Typography,
 } from "@mui/material";
 import Grid from "@mui/system/Unstable_Grid";
-import SideNav from "../components/Sidebar.jsx";
-import CommandLine from "../components/CommandLine.jsx";
-import Terminal from "../components/Terminal.jsx";
+import SideNav from "../components/Sidebar";
+import DashboardCommandLine from "../components/DashboardCommandLine";
+import Terminal from "../components/Terminal";
 const { ipcRenderer } = require("electron");
-import commands from "../components/commands.js";
+import commands from "../components/commands";
 import { Box, lighten, darken } from "@mui/system";
 import BoltIcon from "@mui/icons-material/Bolt";
-import helpDesk from "../components/HelpDesk.jsx";
+import helpDesk from "../components/HelpDesk";
 import React from "react";
 import Switch from "@mui/material/Switch";
 import Tooltip, { TooltipProps, tooltipClasses } from "@mui/material/Tooltip";
@@ -61,7 +61,10 @@ function Dashboard(): JSX.Element {
   const [type, setType] = useState<string>("");
   const [name, setName] = useState<string>("");
   const [currDir, setCurrDir] = useState<string>("NONE SELECTED");
-  const [shortDir, setShortDir] = React.useState<string>("NONE SELECTED");
+  //hack for now to make it work on first load for downloadable version with "users/~" instead of home path... just for first load of page, as changing directory after this fixes shortdir from then on
+  const [shortDir, setShortDir] = process.env.HOME
+    ? React.useState<string>(process.env.HOME.slice(7))
+    : React.useState<string>("Users/~");
   const [userInput, setUserInput] = useState<string>("");
   const [command, setCommand] = useState<string>("");
   const [tool, setTool] = useState<string>("kubectl");
@@ -143,16 +146,20 @@ function Dashboard(): JSX.Element {
     for (let i = absArr.length - 2; absArr[i] !== "/"; i--) {
       shortArr.unshift(absArr[i]);
     }
-    shortArr.unshift("/");
-    let shortPath = shortArr.join("") + "/";
-    setShortDir("..." + shortPath);
+    // shortArr.unshift("/");
+    let shortPath = shortArr.join("");
+    setShortDir(shortPath);
   };
 
   // Clear the input box
   const handleClear = (e) => {
     e.preventDefault();
-    setVerb("");
+
     setUserInput("");
+    setVerb("");
+    setType("");
+    setName("");
+    setFlags([]);
   };
 
   // handle kubectl on off switch
@@ -203,6 +210,42 @@ function Dashboard(): JSX.Element {
     };
   }
 
+
+  useEffect(() => {
+
+    // BELOW are failed attempts to get the user directory on page load, code has been left in as notes for future iteration
+
+  //  if (process.env.ZDOTDIR !== undefined) {
+
+  //     } else {
+  //   console.log("process in useEffect is:", process);
+  //   let temp = process.env.HOME;
+  //   setCurrDir(temp);
+  //   let output = [];
+  //   for (let j = temp.length - 1; temp[j] !== "/"; j--) {
+  //     output.unshift(temp[j]);
+  //   }
+  //   setShortDir(output.join(""));
+  // }
+
+
+    // let temp = process.env.HOME;
+    // console.log("temp is:", temp);
+    // setCurrDir(temp);
+    // let output = [];
+    // for (let j = temp.length - 1; temp[j] !== "/"; j--) {
+    //   output.unshift(temp[j]);
+    // }
+    // setShortDir(output.join(""));
+    // let getDirectoryCommand: string = "ls";
+    // //send command to get working directory
+    // ipcRenderer.send("getDirectory_command", {
+    //   getDirectoryCommand,
+    //   currDir,
+    // });
+    // console.log("in the useEffect");
+  }, []);
+
   // Set the command state based on current inputs
   useEffect(() => {
     // Listen to post_command response
@@ -230,8 +273,21 @@ function Dashboard(): JSX.Element {
   // Handle the command input submit event
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (tool === "" && currDir === "NONE SELECTED") {
-      return alert("Please choose working directory");
+
+    if (command === ` clear`) {
+      setResponse([]);
+      // } else if (command.slice(0, 3) === " cd ") {
+      //   let temp = command.slice(4, -1);
+      //   console.log("temp:", temp);
+      //   if (temp.slice(0, 2) === "../") {
+      //     console.log("short dir is:", shortDir);
+      //     console.log("CURR DIR IS:", currDir);
+      //     //parse and change currDir and shortDir to one directory higher
+      //   } else if (temp.slice(0, 2) === "./") {
+      //     //ignore or slice and parse going down levels
+      //     console.log("short dir is:", shortDir);
+      //     console.log("CURR DIR IS:", currDir);
+      //   }
     } else ipcRenderer.send("post_command", { command, currDir });
   };
 
@@ -253,13 +309,39 @@ function Dashboard(): JSX.Element {
     { label: "configmap" },
     { label: "deployment" },
     { label: "events" },
+    { label: "rs" },
+    { label: "replicaSets" },
     { label: "secret" },
     { label: "service" },
     { label: "services" },
   ];
 
   // Flag list options
-  const flagList: string[] = ["-o wide", "--force", "-f", "-o default", "-v"];
+  const flagList: string[] = [
+    "-o wide",
+    "--force",
+    "-f",
+    "-o default",
+    "-A",
+    "--all-namespaces",
+    "-v",
+    "-o json",
+    "-o yaml",
+  ];
+
+  // ipcRenderer.on("got_directory", (event, arg) => {
+  //   let output = arg;
+  //   setCurrDir(output);
+  //   console.log("in the receive, output / path is:", output);
+
+  //   let shortOutput = [];
+  //   for (let j = output.length - 1; output[j] !== "/"; j--) {
+  //     shortOutput.unshift(output[j]);
+  //   }
+  //   setShortDir(shortOutput.join(""));
+  // });
+  // console.log("short dir is:", shortDir);
+  // console.log("curr dir is:", currDir);
 
   return (
     <>
@@ -290,7 +372,11 @@ function Dashboard(): JSX.Element {
           style={{ marginLeft: "5.5%", marginTop: "25px" }}
         >
           {/* ----------------TERMINAL---------------- */}
-          <Terminal response={response} />
+          <Terminal
+            response={response}
+            shortDir={shortDir}
+            setResponse={setResponse}
+          />
 
           {/* ----------------BELOW TERMINAL---------------- */}
           <Grid
@@ -304,62 +390,6 @@ function Dashboard(): JSX.Element {
             alignContent="start"
             width="100%"
           >
-            {/* ----------------CHOOSE DIRECTORY---------------- */}
-            <Grid
-              id="directory"
-              container
-              width="100%"
-              alignItems="flex-end"
-              justifyContent="center"
-              sx={{
-                borderBottom: 1,
-                width: "95%",
-                paddingBottom: "6px",
-                marginBottom: "15px",
-              }}
-            >
-              <Grid id="directory-item" sx={{ pr: 2 }}>
-                <p
-                  style={{
-                    fontFamily: "Outfit",
-                    color: theme.palette.mode === "dark" ? "White" : "#4e50a5",
-                  }}
-                >
-                  WORKING DIRECTORY:
-                </p>
-              </Grid>
-              <Grid id="directory-item" sx={{ pr: 2 }}>
-                <p>{shortDir}</p>
-              </Grid>
-              <Grid id="directory-item">
-                <Button
-                  variant="contained"
-                  component="label"
-                  style={{
-                    backgroundColor: "transparent",
-                    border:
-                      currDir === "NONE SELECTED"
-                        ? "2px solid #8f85fb"
-                        : "1px solid #68617f",
-                    width: "170px",
-                    marginBottom: "10px",
-                    fontSize: "9px",
-                    letterSpacing: "1.5px",
-                    color: theme.palette.mode === "dark" ? "#9e9d9d" : "black",
-                  }}
-                >
-                  CHOOSE DIRECTORY
-                  <input
-                    type="file"
-                    // @ts-expect-error
-                    webkitdirectory=""
-                    hidden
-                    onChange={handleUploadDirectory}
-                  />
-                </Button>
-              </Grid>
-            </Grid>
-
             {/* ----------------INPUT BOXES---------------- */}
 
             <div
@@ -367,8 +397,8 @@ function Dashboard(): JSX.Element {
               style={{
                 display: "flex",
                 flexDirection: "row",
-                width: "90%",
-                marginTop: "6px",
+                width: "95%",
+                marginTop: "30px",
                 justifyContent: "space-around",
                 alignItems: "center",
               }}
@@ -381,196 +411,367 @@ function Dashboard(): JSX.Element {
                 leaveDelay={100}
                 enterNextDelay={3000}
               >
-                <div
-                  id="k8tool"
-                  style={k8toolStyle}
-                  onMouseEnter={toggleK8ToolHover}
-                  onMouseLeave={toggleK8ToolHover}
-                >
+                <div style={{ display: "flex", flexDirection: "column" }}>
                   <div
-                    onClick={() => {
-                      if (tool === "kubectl") {
-                        setTool("");
-                        setChecked(!checked);
-                      } else setTool("kubectl");
-                      setChecked(!checked);
-                    }}
-                    style={{
-                      padding: "0px 4px 0 6px",
-                      fontSize: "15px",
-                      color:
-                        theme.palette.mode === "dark" && k8tool === "ON"
-                          ? "white"
-                          : theme.palette.mode === "dark" && k8tool === "OFF"
-                          ? "#ffffff99"
-                          : theme.palette.mode === "light" && k8tool === "ON"
-                          ? "#3f42c3"
-                          : "#00000082",
-                      letterSpacing: "-.2px",
-                      WebkitUserSelect: "none" /* Safari */,
-                      MozUserSelect: "none" /* Firefox */,
-                      msUserSelect: "none" /* IE10+/Edge */,
-                      userSelect: "none",
-                    }}
+                    id="k8tool"
+                    style={k8toolStyle}
+                    onMouseEnter={toggleK8ToolHover}
+                    onMouseLeave={toggleK8ToolHover}
                   >
-                    kubectl
+                    <div
+                      onClick={() => {
+                        if (tool === "kubectl") {
+                          setTool("");
+                          setChecked(!checked);
+                        } else setTool("kubectl");
+                        setChecked(!checked);
+                      }}
+                      style={{
+                        padding: "0px 4px 0 6px",
+                        fontSize: "15px",
+                        color:
+                          theme.palette.mode === "dark" && k8tool === "ON"
+                            ? "white"
+                            : theme.palette.mode === "dark" && k8tool === "OFF"
+                            ? "#ffffff99"
+                            : theme.palette.mode === "light" && k8tool === "ON"
+                            ? "#3f42c3"
+                            : "#00000082",
+                        letterSpacing: "-.2px",
+                        WebkitUserSelect: "none" /* Safari */,
+                        MozUserSelect: "none" /* Firefox */,
+                        msUserSelect: "none" /* IE10+/Edge */,
+                        userSelect: "none",
+                      }}
+                    >
+                      kubectl
+                    </div>
+                    <Switch
+                      size="small"
+                      checked={checked}
+                      onChange={handleK8ToolChange}
+                      inputProps={{ "aria-label": "controlled" }}
+                    />
+                    <div
+                      onClick={() => {
+                        if (tool === "kubectl") {
+                          setTool("");
+                          setChecked(!checked);
+                        } else setTool("kubectl");
+                        setChecked(!checked);
+                      }}
+                      style={{
+                        padding: "4.5px 1px 0 1px",
+                        fontSize: "10px",
+                        color:
+                          k8tool === "OFF" && theme.palette.mode === "light"
+                            ? "grey"
+                            : k8tool === "ON" && theme.palette.mode === "light"
+                            ? ""
+                            : k8tool === "OFF" && theme.palette.mode === "dark"
+                            ? "#ffffff99"
+                            : "",
+                        WebkitUserSelect: "none" /* Safari */,
+                        MozUserSelect: "none" /* Firefox */,
+                        msUserSelect: "none" /* IE10+/Edge */,
+                        userSelect: "none",
+                      }}
+                    >
+                      {k8tool}
+                    </div>
                   </div>
-                  <Switch
-                    size="small"
-                    checked={checked}
-                    onChange={handleK8ToolChange}
-                    inputProps={{ "aria-label": "controlled" }}
-                  />
+
                   <div
-                    onClick={() => {
-                      if (tool === "kubectl") {
-                        setTool("");
-                        setChecked(!checked);
-                      } else setTool("kubectl");
-                      setChecked(!checked);
-                    }}
                     style={{
-                      padding: "4.5px 1px 0 1px",
-                      fontSize: "10px",
-                      color:
-                        k8tool === "OFF" && theme.palette.mode === "light"
-                          ? "grey"
-                          : k8tool === "ON" && theme.palette.mode === "light"
-                          ? ""
-                          : k8tool === "OFF" && theme.palette.mode === "dark"
-                          ? "#ffffff99"
-                          : "",
-                      WebkitUserSelect: "none" /* Safari */,
-                      MozUserSelect: "none" /* Firefox */,
-                      msUserSelect: "none" /* IE10+/Edge */,
-                      userSelect: "none",
+                      height: "15px",
+                      margin: "5px 0 0 0",
                     }}
                   >
-                    {k8tool}
+                    {helpDesk.hasOwnProperty(verb) ? "" : ""}
                   </div>
                 </div>
               </LightTooltip>
+              {/* ---------------- COMMANDS FIELD ------------------------------------- */}
+
               <div
-                id="commands"
-                style={{ width: "25%", margin: "0 5px 0 5px" }}
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  width: "25%",
+                }}
               >
-                <Autocomplete
-                  disablePortal
-                  id="combo-box-demo"
-                  options={options.sort(
-                    (a, b) => -b.firstLetter.localeCompare(a.firstLetter)
-                  )}
-                  groupBy={(option) => option.category}
-                  getOptionLabel={(option) => option.title}
-                  onInputChange={(e, newInputValue) => {
-                    setVerb(newInputValue);
-                    const newCommand = verb + " " + type + " " + name;
-                    setCommand(newCommand);
-                    setHelpList([newInputValue, type]);
-                    // setCommand(newInputValue);
+                <div id="commands" style={{ margin: "0 5px 0 5px" }}>
+                  <Autocomplete
+                    disablePortal
+                    id="combo-box-demo"
+                    options={options.sort(
+                      (a, b) => -b.firstLetter.localeCompare(a.firstLetter)
+                    )}
+                    groupBy={(option) => option.category}
+                    getOptionLabel={(option) => option.title}
+                    onInputChange={(e, newInputValue) => {
+                      setVerb(newInputValue);
+                      const newCommand = verb + " " + type + " " + name;
+                      setCommand(newCommand);
+                      setHelpList([newInputValue, type]);
+                    }}
+                    renderInput={(params) => (
+                      <TextField {...params} label="Commands" />
+                    )}
+                    renderGroup={(params) => (
+                      <li
+                        style={{
+                          color: "#ffffff",
+                          fontSize: "13px",
+                        }}
+                        key={params.key}
+                      >
+                        <BeginnerHeader
+                          style={{
+                            color: "#ffffff",
+                            fontSize: "14px",
+                          }}
+                        >
+                          {params.group}
+                        </BeginnerHeader>
+                        <GroupItems
+                          style={{
+                            color: "#ffffff",
+                            fontSize: "14px",
+                          }}
+                        >
+                          {params.children}
+                        </GroupItems>
+                      </li>
+                    )}
+                  />
+                </div>
+                <Button
+                  onClick={handleCommandOpen}
+                  style={{
+                    display: "flex",
+                    height: "15px",
+                    margin: "5px 0 0 0",
+                    justifyContent: "center",
+                    textTransform: "uppercase",
+                    fontWeight: "900",
                   }}
-                  renderInput={(params) => (
-                    <TextField {...params} label="Commands" />
+                >
+                  {helpDesk.hasOwnProperty(verb) ? (
+                    <>
+                      <BoltIcon fontSize="small" /> INSTANT HELP{" "}
+                      <BoltIcon fontSize="small" />
+                    </>
+                  ) : (
+                    ""
                   )}
-                  renderGroup={(params) => (
-                    <li
+                </Button>
+                <Modal
+                  open={openCommand}
+                  onClose={handleCommandClose}
+                  style={{ overflow: "scroll", height: "100%" }}
+                  aria-labelledby="modal-modal-title"
+                  aria-describedby="modal-modal-description"
+                >
+                  <Box sx={style}>
+                    <Typography id="modal-modal-title"></Typography>
+                    <Typography
+                      id="modal-modal-description"
                       style={{
-                        color: "#ffffff",
-                        fontSize: "13px",
+                        top: "0",
+                        left: "0",
+                        overflow: "auto",
+                        height: "100%",
+                        width: "100%",
+                        paddingLeft: "20px",
+                        zIndex: "1350",
                       }}
-                      key={params.key}
+                      sx={{ mt: 0 }}
                     >
-                      <BeginnerHeader
+                      <pre
                         style={{
-                          color: "#ffffff",
-                          fontSize: "14px",
+                          fontFamily: "Outfit,monospace",
+                          fontSize: "24px",
+                          overflow: "auto",
                         }}
                       >
-                        {params.group}
-                      </BeginnerHeader>
-                      <GroupItems
+                        Kubetcl{"  "}
+                        <strong style={{ fontSize: "38px" }}>{verb}</strong> :
+                      </pre>
+                      <pre
                         style={{
-                          color: "#ffffff",
                           fontSize: "14px",
+                          overflow: "auto",
                         }}
                       >
-                        {params.children}
-                      </GroupItems>
-                    </li>
-                  )}
-                />
+                        {helpDesk[`${verb}`]}
+                      </pre>
+                    </Typography>
+                  </Box>
+                </Modal>
               </div>
 
               {/* ---------------- TYPES FIELD ------------------------------------- */}
 
-              <div id="types" style={{ width: "20%" }}>
-                <Autocomplete
-                  disablePortal
-                  id="combo-box-demo"
-                  options={types}
-                  componentsProps={{
-                    paper: {
-                      sx: { backgroundColor: "#5c4d9a", color: "white" },
-                    },
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  width: "19%",
+                }}
+              >
+                <div id="types" style={{}}>
+                  <Autocomplete
+                    disablePortal
+                    id="combo-box-demo"
+                    options={types}
+                    componentsProps={{
+                      paper: {
+                        sx: { backgroundColor: "#5c4d9a", color: "white" },
+                      },
+                    }}
+                    onInputChange={(e, newInputValue) => {
+                      setHelpList([verb, newInputValue]);
+                      setType(newInputValue);
+                    }}
+                    renderInput={(params) => (
+                      <TextField {...params} label="Types" />
+                    )}
+                  />
+                </div>
+                <Button
+                  onClick={handleTypeOpen}
+                  style={{
+                    display: "flex",
+                    height: "15px",
+                    margin: "5px 0 0 0",
+                    justifyContent: "center",
+                    textTransform: "uppercase",
+                    fontWeight: "900",
                   }}
-                  onInputChange={(e, newInputValue) => {
-                    setHelpList([verb, newInputValue]);
-                    setType(newInputValue);
-                    // setHelpList([verb, newInputValue]);
-                  }}
-                  renderInput={(params) => (
-                    <TextField {...params} label="Types" />
+                >
+                  {helpDesk.hasOwnProperty(type) ? (
+                    <>
+                      <BoltIcon fontSize="small" /> INSTANT HELP{" "}
+                      <BoltIcon fontSize="small" />
+                    </>
+                  ) : (
+                    ""
                   )}
-                />
+                </Button>
+                <Modal
+                  open={openType}
+                  onClose={handleTypeClose}
+                  aria-labelledby="modal-modal-title"
+                  aria-describedby="modal-modal-description"
+                >
+                  <Box sx={style}>
+                    <Typography id="modal-modal-title"></Typography>
+                    <Typography
+                      id="modal-modal-description"
+                      style={{
+                        top: "0",
+                        left: "0",
+                        overflow: "auto",
+                        height: "100%",
+                        width: "100%",
+                        paddingLeft: "20px",
+                        zIndex: "1350",
+                      }}
+                      sx={{ mt: 0 }}
+                    >
+                      <pre
+                        style={{
+                          fontFamily: "Outfit,monospace",
+                          fontSize: "24px",
+                          overflow: "auto",
+                        }}
+                      >
+                        Kubetcl Type: {"  "}
+                        <strong style={{ fontSize: "38px" }}>{type}</strong>
+                      </pre>
+                      <pre
+                        style={{
+                          fontSize: "14px",
+                          overflow: "auto",
+                        }}
+                      >
+                        {helpDesk[`${type}`]}
+                      </pre>
+                    </Typography>
+                  </Box>
+                </Modal>
               </div>
 
               {/* ---------------- NAMES FIELD ------------------------------------- */}
 
-              <div id="name" style={{ width: "25%", margin: "0 5px 0 5px" }}>
-                <form
-                  onChange={handleNameChange}
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                  }}
-                >
-                  <TextField
-                    id="outlined-basic"
-                    label="Name"
-                    variant="outlined"
-                    style={{ width: "100%" }}
-                  />
-                </form>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  width: "32%",
+                }}
+              >
+                <div id="name" style={{ margin: "0 5px 0 5px" }}>
+                  <form
+                    onChange={handleNameChange}
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                    }}
+                  >
+                    <TextField
+                      id="outlined-basic"
+                      label="Name"
+                      variant="outlined"
+                      style={{ width: "100%" }}
+                    />
+                  </form>
+                </div>
+                <div style={{ height: "15px", margin: "5px 0 0 0" }}>
+                  {helpDesk.hasOwnProperty(verb) ? "" : ""}
+                </div>
               </div>
 
               {/* ---------------- FLAGS DROPDOWN ------------------------------------- */}
 
-              <div id="flag" style={{ width: "15%", marginLeft: "0px" }}>
-                <FormControl fullWidth>
-                  <InputLabel id="flag-label">Flags</InputLabel>
-                  <Select
-                    labelId="flag-label"
-                    id="flag-label"
-                    multiple
-                    value={flags}
-                    onChange={handleFlags}
-                    input={<OutlinedInput label="Flags" />}
-                    renderValue={(selected) => selected.join(", ")}
-                  >
-                    {flagList.map((name) => (
-                      <MenuItem
-                        key={name}
-                        value={name}
-                        style={{
-                          backgroundColor: "#5c4d9a",
-                          color: "white",
-                        }}
-                      >
-                        <Checkbox checked={flags.indexOf(name) > -1} />
-                        <ListItemText primary={name} />
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  width: "12%",
+                }}
+              >
+                <div id="flag" style={{ marginLeft: "0px" }}>
+                  <FormControl fullWidth>
+                    <InputLabel id="flag-label">Flags</InputLabel>
+                    <Select
+                      labelId="flag-label"
+                      id="flag-label"
+                      multiple
+                      value={flags}
+                      onChange={handleFlags}
+                      input={<OutlinedInput label="Flags" />}
+                      renderValue={(selected) => selected.join(", ")}
+                    >
+                      {flagList.map((name) => (
+                        <MenuItem
+                          key={name}
+                          value={name}
+                          style={{
+                            backgroundColor: "#5c4d9a",
+                            color: "white",
+                          }}
+                        >
+                          <Checkbox checked={flags.indexOf(name) > -1} />
+                          <ListItemText primary={name} />
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </div>
+                <div style={{ height: "15px", margin: "5px 0 0 0" }}>
+                  {helpDesk.hasOwnProperty(verb) ? "" : ""}
+                </div>
               </div>
             </div>
 
@@ -579,14 +780,13 @@ function Dashboard(): JSX.Element {
               style={{
                 display: "flex",
                 flexDirection: "column",
-                width: "72%",
-                marginLeft: "25px",
+                width: "92%",
+                margin: "-25px 0 0 70px",
                 justifyContent: "center",
               }}
             >
               <div style={{ marginTop: "20px" }}>
-                <CommandLine
-                  width="100%"
+                <DashboardCommandLine
                   handleSubmit={handleSubmit}
                   setUserInput={setUserInput}
                   setVerb={setVerb}
@@ -596,183 +796,9 @@ function Dashboard(): JSX.Element {
                   userInput={userInput}
                   command={command}
                   handleClear={handleClear}
+                  shortDir={shortDir}
+                  handleUploadDirectory={handleUploadDirectory}
                 />
-              </div>
-              {/* ---------- INSTANT HELP DESK SECTION BEGINS ------------- */}
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  height: "80px",
-                  width: "75%",
-                  backgroundColor:
-                    theme.palette.mode === "dark" ? "#2f2f6d" : "#e1dbfe",
-                  marginLeft: "10%",
-                  marginTop: "17px",
-                  borderRadius: "3px",
-                  textAlign: "center",
-                  padding: "3px 0 0 0",
-                  fontFamily: "Outfit",
-                  fontWeight: "900",
-                  letterSpacing: "1px",
-                  alignItems: "center",
-                  fontSize: "12px",
-                  color: theme.palette.mode === "dark" ? "white" : "#4e50a5",
-                }}
-              >
-                {" "}
-                <div
-                  style={{
-                    display: "flex",
-                    marginTop: "2px",
-                    alignItems: "center",
-                  }}
-                >
-                  {" "}
-                  <BoltIcon fontSize="small" />
-                  <div style={{ width: "5px" }} />
-                  <div style={{}}>INSTANT HELP DESK</div>
-                  <div style={{ width: "5px" }} />
-                  <BoltIcon fontSize="small" />
-                </div>
-                <div
-                  style={{
-                    fontFamily: "Roboto",
-                    fontWeight: "400",
-                    fontSize: "9px",
-                    letterSpacing: ".6px",
-                    margin: "4px 0 0 0",
-                  }}
-                >
-                  <em>
-                    CHOOSE ANY "COMMAND" OR "TYPE" THEN CLICK BELOW TO SEE
-                    DOCUMENTATION AND HELP INFO
-                  </em>
-                </div>
-                <div style={{ display: "flex", paddingRight: "10px" }}>
-                  <Button
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      // backgroundColor: '#a494d7',
-                      margin: "0px 0px 0 0",
-                      // color: 'white',
-                      fontFamily: "Outfit",
-                      fontSize: "14px",
-                    }}
-                    onClick={handleCommandOpen}
-                  >
-                    {verb}
-                  </Button>
-                  <Modal
-                    open={openCommand}
-                    onClose={handleCommandClose}
-                    style={{ overflow: "scroll", height: "100%" }}
-                    aria-labelledby="modal-modal-title"
-                    aria-describedby="modal-modal-description"
-                  >
-                    <Box sx={style}>
-                      <Typography
-                        id="modal-modal-title"
-                        // variant='h6'
-                        // component='h2'
-                      ></Typography>
-                      <Typography
-                        id="modal-modal-description"
-                        style={{
-                          top: "0",
-                          left: "0",
-                          overflow: "auto",
-                          height: "100%",
-                          width: "100%",
-                          paddingLeft: "20px",
-                          zIndex: "1350",
-                        }}
-                        sx={{ mt: 0 }}
-                      >
-                        <pre
-                          style={{
-                            fontFamily: "Outfit,monospace",
-                            fontSize: "24px",
-                            overflow: "auto",
-                          }}
-                        >
-                          Kubetcl{"  "}
-                          <strong style={{ fontSize: "38px" }}>{verb}</strong> :
-                        </pre>
-                        <pre
-                          style={{
-                            fontSize: "14px",
-                            overflow: "auto",
-                          }}
-                        >
-                          {helpDesk[`${verb}`]}
-                        </pre>
-                      </Typography>
-                    </Box>
-                  </Modal>
-
-                  <Button
-                    style={{
-                      display: "flex",
-                      flexDirection: "row",
-                      // backgroundColor: '#a494d7',
-                      margin: "0px 0px 0 0",
-                      // color: 'white',
-                      fontFamily: "Outfit",
-                      fontSize: "14px",
-                    }}
-                    onClick={handleTypeOpen}
-                  >
-                    {type}
-                  </Button>
-                  <Modal
-                    open={openType}
-                    onClose={handleTypeClose}
-                    aria-labelledby="modal-modal-title"
-                    aria-describedby="modal-modal-description"
-                  >
-                    <Box sx={style}>
-                      <Typography
-                        id="modal-modal-title"
-                        // variant='h6'
-                        // component='h2'
-                      ></Typography>
-                      <Typography
-                        id="modal-modal-description"
-                        style={{
-                          top: "0",
-                          left: "0",
-                          overflow: "auto",
-                          height: "100%",
-                          width: "100%",
-                          paddingLeft: "20px",
-                          zIndex: "1350",
-                        }}
-                        sx={{ mt: 0 }}
-                      >
-                        <pre
-                          style={{
-                            fontFamily: "Outfit,monospace",
-                            fontSize: "24px",
-                            overflow: "auto",
-                          }}
-                        >
-                          Kubetcl Type: {"  "}
-                          <strong style={{ fontSize: "38px" }}>{type}</strong>
-                        </pre>
-                        <pre
-                          style={{
-                            fontSize: "14px",
-                            overflow: "auto",
-                          }}
-                        >
-                          {helpDesk[`${type}`]}
-                        </pre>
-                      </Typography>
-                    </Box>
-                  </Modal>
-                </div>
               </div>
             </div>
           </Grid>
