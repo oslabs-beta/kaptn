@@ -1210,7 +1210,7 @@ function KraneNodeList(props) {
                 marginRight: "0px",
                 marginLeft: "10.8px",
               }}
-              src="../../node.svg"
+              src="./node.svg"
             ></img>
             <span
               style={{
@@ -1622,7 +1622,7 @@ function KraneNodeList(props) {
           >
             <img
               style={{ width: "45px", marginLeft: "0px" }}
-              src="../../pod.svg"
+              src="./pod.svg"
             ></img>
             <span
               style={{
@@ -2046,7 +2046,7 @@ function KraneNodeList(props) {
           >
             <img
               style={{ width: "45px", marginLeft: "0px" }}
-              src="../../container.png"
+              src="./container.png"
             ></img>
             <span
               style={{
@@ -2438,7 +2438,7 @@ function KraneNodeList(props) {
                         height: "100px",
                         margin: "15px 25px 0 15px",
                       }}
-                      src="../../node.svg"
+                      src="./node.svg"
                     ></img>
                   </div>
                   {"  "}
@@ -3558,7 +3558,7 @@ function KraneNodeList(props) {
                                   height: "100px",
                                   margin: "15px 25px 0 15px",
                                 }}
-                                src="../../pod.svg"
+                                src="./pod.svg"
                               ></img>
                             </div>
                             {"  "}

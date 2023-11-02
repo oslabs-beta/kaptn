@@ -651,7 +651,7 @@ function Start(props) {
                       marginLeft: "0px",
                       borderRadius: "5px",
                     }}
-                    src="../../kraneQuickStartImg2.png"
+                    src="./kraneQuickStartImg2.png"
                   ></img>
                   <div
                     style={{
@@ -740,7 +740,7 @@ function Start(props) {
                 >
                   <img
                     style={{ width: "30%", marginLeft: "0px" }}
-                    src="../../kraneDashboardImg.png"
+                    src="./kraneDashboardImg.png"
                   ></img>
                   <div
                     style={{
@@ -828,7 +828,7 @@ function Start(props) {
                       marginLeft: "0px",
                       borderRadius: "5px",
                     }}
-                    src="../../kraneSetupImg.png"
+                    src="./kraneSetupImg.png"
                   ></img>
                   <div
                     style={{
@@ -905,7 +905,7 @@ function Start(props) {
                       marginLeft: "0px",
                       borderRadius: "5px",
                     }}
-                    src="../../kraneMetricsImg.png"
+                    src="./kraneMetricsImg.png"
                   ></img>
                   <div
                     style={{

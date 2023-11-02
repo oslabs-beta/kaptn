@@ -61,7 +61,7 @@ function Dashboard(): JSX.Element {
   const [type, setType] = useState<string>("");
   const [name, setName] = useState<string>("");
   const [currDir, setCurrDir] = useState<string>("NONE SELECTED");
-  const [shortDir, setShortDir] = React.useState<string>("NONE SELECTED");
+  const [shortDir, setShortDir] = React.useState<string>("Users/~");
   const [userInput, setUserInput] = useState<string>("");
   const [command, setCommand] = useState<string>("");
   const [tool, setTool] = useState<string>("kubectl");
@@ -207,14 +207,35 @@ function Dashboard(): JSX.Element {
     };
   }
 
+  //  if (process.env.ZDOTDIR !== undefined) {
+
+  //     } else {
+  //   console.log("process in useEffect is:", process);
+  //   let temp = process.env.HOME;
+  //   setCurrDir(temp);
+  //   let output = [];
+  //   for (let j = temp.length - 1; temp[j] !== "/"; j--) {
+  //     output.unshift(temp[j]);
+  //   }
+  //   setShortDir(output.join(""));
+  // }
+
   useEffect(() => {
-    let temp = process.env.ZDOTDIR;
-    setCurrDir(temp);
-    let output = [];
-    for (let j = temp.length - 1; temp[j] !== "/"; j--) {
-      output.unshift(temp[j]);
-    }
-    setShortDir(output.join(""));
+    // let temp = process.env.HOME;
+    // console.log("temp is:", temp);
+    // setCurrDir(temp);
+    // let output = [];
+    // for (let j = temp.length - 1; temp[j] !== "/"; j--) {
+    //   output.unshift(temp[j]);
+    // }
+    // setShortDir(output.join(""));
+    // let getDirectoryCommand: string = "ls";
+    // //send command to get working directory
+    // ipcRenderer.send("getDirectory_command", {
+    //   getDirectoryCommand,
+    //   currDir,
+    // });
+    // console.log("in the useEffect");
   }, []);
 
   // Set the command state based on current inputs
@@ -244,7 +265,6 @@ function Dashboard(): JSX.Element {
   // Handle the command input submit event
   const handleSubmit = (e) => {
     e.preventDefault();
-
 
     if (command === ` clear`) {
       setResponse([]);
@@ -300,6 +320,20 @@ function Dashboard(): JSX.Element {
     "-o json",
     "-o yaml",
   ];
+
+  // ipcRenderer.on("got_directory", (event, arg) => {
+  //   let output = arg;
+  //   setCurrDir(output);
+  //   console.log("in the receive, output / path is:", output);
+
+  //   let shortOutput = [];
+  //   for (let j = output.length - 1; output[j] !== "/"; j--) {
+  //     shortOutput.unshift(output[j]);
+  //   }
+  //   setShortDir(shortOutput.join(""));
+  // });
+  console.log("short dir is:", shortDir);
+  console.log("curr dir is:", currDir);
 
   return (
     <>

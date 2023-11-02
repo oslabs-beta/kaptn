@@ -33,6 +33,44 @@ function createMainWindow() {
 
 /******** EVENT LISTENERS ********/
 
+//Listen for check if prometheus and grafana are installed
+ipcMain.on("getDirectory_command", (event, arg) => {
+  const { getDirectoryCommand, currDir } = arg;
+
+  // if kubectl command is entered with no directory chosen, use ZDOTDIR as directory address when calling exec command --- otherwise ("else" on line further down) submit command normally
+  if (currDir === "NONE SELECTED") {
+    let kubDir = process.env.ZDOTDIR;
+    console.log("kubdir is:", kubDir);
+    exec(` ${getDirectoryCommand}`, { cwd: kubDir }, (err, stdout, stderr) => {
+      // Handle failed command execution
+      if (err) {
+        let output = kubDir;
+        return event.sender.send("got_directory", kubDir);
+      }
+      // Handle successful command execution but returned error (stderr)
+      if (stderr) {
+        return event.sender.send("got_directory", kubDir);
+      }
+      // Handle successful command execution with no errors
+      return event.sender.send("got_directory", kubDir);
+    });
+  } else {
+    exec(` ${getDirectoryCommand}`, { cwd: currDir }, (err, stdout, stderr) => {
+      // Handle failed command execution
+      if (err) {
+        let output = kubDir;
+        return event.sender.send("got_directory", kubDir);
+      }
+      // Handle successful command execution but returned error (stderr)
+      if (stderr) {
+        return event.sender.send("got_directory", kubDir);
+      }
+      // Handle successful command execution with no errors
+      return event.sender.send("got_directory", kubDir);
+    });
+  }
+});
+
 //************************************************************** */
 //***               START PAGE - IPC methods                 *** */
 //************************************************************** */

@@ -1188,7 +1188,7 @@ function KranePodList(props) {
           >
             <img
               style={{ width: "40px", marginLeft: "0px" }}
-              src="../../pod.svg"
+              src="./pod.svg"
             ></img>
             <span
               style={{
@@ -1618,7 +1618,7 @@ function KranePodList(props) {
           >
             <img
               style={{ width: "45px", marginLeft: "0px" }}
-              src="../../container.png"
+              src="./container.png"
             ></img>
             <span
               style={{
@@ -2057,7 +2057,7 @@ function KranePodList(props) {
                         height: "100px",
                         margin: "15px 25px 0 15px",
                       }}
-                      src="../../pod.svg"
+                      src="./pod.svg"
                     ></img>
                   </div>
                   {"  "}

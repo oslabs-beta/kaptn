@@ -876,7 +876,7 @@ function KraneDeploymentsList(props) {
                   marginRight: "0px",
                   marginLeft: "10.8px",
                 }}
-                src="../../deploy-2.svg"
+                src="./deploy-2.svg"
               ></img>
               <span
                 style={{
@@ -1169,7 +1169,7 @@ function KraneDeploymentsList(props) {
                       height: "100px",
                       margin: "15px 25px 0 15px",
                     }}
-                    src="../../deploy-2.svg"
+                    src="./deploy-2.svg"
                   ></img>
                 </div>
                 {"  "}
@@ -2267,7 +2267,7 @@ function KraneDeploymentsList(props) {
                     width: "50px",
                     margin: "10px 0 0 0",
                   }}
-                  src="../../rs.svg"
+                  src="./rs.svg"
                 ></img>
                 <span
                   style={{
