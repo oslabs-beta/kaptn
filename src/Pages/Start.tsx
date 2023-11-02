@@ -2,11 +2,9 @@ import React, { useState, useEffect } from "react";
 import Button from "@mui/material/Button";
 import { Box } from "@mui/system";
 import { Typography } from "@mui/material";
-import Grid from "@mui/system/Unstable_Grid";
 import { Link } from "react-router-dom";
 import { useTheme } from "@mui/material";
 const { ipcRenderer } = require("electron");
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CheckIcon from "@mui/icons-material/Check";
 import LinearProgress from "@mui/material/LinearProgress";
 
@@ -30,7 +28,6 @@ function Start(props) {
     "kubectl get pods --all-namespaces | grep metrics-server";
 
   ipcRenderer.on("checked_promgraf_installed", (event, arg) => {
-    console.log(arg.includes("grafana"));
 
     if (arg.includes("grafana") && arg.includes("prometheus")) {
       props.setGrafVersion("installed");

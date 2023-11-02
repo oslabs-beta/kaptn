@@ -61,7 +61,10 @@ function Dashboard(): JSX.Element {
   const [type, setType] = useState<string>("");
   const [name, setName] = useState<string>("");
   const [currDir, setCurrDir] = useState<string>("NONE SELECTED");
-  const [shortDir, setShortDir] = React.useState<string>("Users/~");
+  //hack for now to make it work on first load for downloadable version with "users/~" instead of home path... just for first load of page, as changing directory after this fixes shortdir from then on
+  const [shortDir, setShortDir] = process.env.HOME
+    ? React.useState<string>(process.env.HOME.slice(7))
+    : React.useState<string>("Users/~");
   const [userInput, setUserInput] = useState<string>("");
   const [command, setCommand] = useState<string>("");
   const [tool, setTool] = useState<string>("kubectl");
@@ -207,6 +210,11 @@ function Dashboard(): JSX.Element {
     };
   }
 
+
+  useEffect(() => {
+
+    // BELOW are failed attempts to get the user directory on page load, code has been left in as notes for future iteration
+
   //  if (process.env.ZDOTDIR !== undefined) {
 
   //     } else {
@@ -220,7 +228,7 @@ function Dashboard(): JSX.Element {
   //   setShortDir(output.join(""));
   // }
 
-  useEffect(() => {
+
     // let temp = process.env.HOME;
     // console.log("temp is:", temp);
     // setCurrDir(temp);
@@ -332,8 +340,8 @@ function Dashboard(): JSX.Element {
   //   }
   //   setShortDir(shortOutput.join(""));
   // });
-  console.log("short dir is:", shortDir);
-  console.log("curr dir is:", currDir);
+  // console.log("short dir is:", shortDir);
+  // console.log("curr dir is:", currDir);
 
   return (
     <>
