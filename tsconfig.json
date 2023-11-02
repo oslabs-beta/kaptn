@@ -14,7 +14,7 @@
     "noEmit": true,
     "allowSyntheticDefaultImports": true,
     "noImplicitAny": false,
-    "strictNullChecks": false,
+    "strictNullChecks": false
   },
   "include": ["src/**/*", "server/**/*", "global.d.ts"]
 }

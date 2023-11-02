@@ -1,5 +1,12 @@
-import React from "react";
-import { InputAdornment, Button, TextField, useTheme } from "@mui/material";
+import {
+  InputAdornment,
+  Button,
+  TextField,
+  useTheme,
+  Box,
+  Grid,
+} from "@mui/material";
+// import { clipboard } from 'electron';
 
 const CommandLine = (props) => {
   const theme = useTheme();
@@ -7,7 +14,7 @@ const CommandLine = (props) => {
   // Add/remove functionality in text box
   const handleChange = (e) => {
     let newUserInput = "";
-    // console.log('e.nativeEvent.inputType is: ', e.nativeEvent.inputType);
+
     if (e.nativeEvent.inputType === "deleteContentBackward") {
       newUserInput = props.userInput.slice(0, props.userInput.length - 1);
     } else {
@@ -17,14 +24,36 @@ const CommandLine = (props) => {
     props.setUserInput(newUserInput);
   };
 
+  const handleClear = (e) => {
+    let userInput2 = "";
+
+    props.setUserInput(userInput2);
+    props.setVerb(userInput2);
+    props.setType(userInput2);
+    props.setName(userInput2);
+    props.setFlags([]);
+  };
+
+  // const handlePaste = (event) => {
+  //   let userInput = event.clipboardData.items[0].getAsString();
+  //   //   console.log(userInput);
+  //   props.setUserInput(userInput);
+  //   //   props.setVerb(userInput);
+  //   //   props.setType(userInput);
+  //   //   props.setName(userInput);
+  //   //   props.setFlags([]);
+  // };
+
   return (
     <div
       style={{
+        display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        borderColor: "transparent",
+        margin: "0px 0 0 0px",
       }}
     >
+      {" "}
       <form
         onSubmit={props.handleSubmit}
         data-value={props.command}
@@ -33,6 +62,7 @@ const CommandLine = (props) => {
           justifyContent: "center",
           alignItems: "center",
           borderColor: "transparent",
+          marginLeft: "0px",
         }}
       >
         <TextField
@@ -45,11 +75,20 @@ const CommandLine = (props) => {
             border: "1px solid white",
             borderRadius: "3px",
             background: theme.palette.mode === "dark" ? "#0e0727" : "#e6e1fb",
-            // borderColor: 'transparent',
           }}
           InputProps={{
             startAdornment: (
-              <InputAdornment position="start">$ </InputAdornment>
+              <InputAdornment
+                position="start"
+                style={{
+                  color:
+                    theme.palette.mode === "dark"
+                      ? "rgb(109, 233, 68)"
+                      : "#685aef",
+                }}
+              >
+                <strong> $ </strong>
+              </InputAdornment>
             ),
           }}
           onChange={(e) => {
@@ -70,11 +109,8 @@ const CommandLine = (props) => {
             fontSize: "16px",
             height: "53px",
             width: "11%",
-            color: theme.palette.mode === "dark" ? "white" : "#685aef",
-            border:
-              theme.palette.mode === "dark"
-                ? "1px solid white"
-                : "1.5px solid #685aef",
+            color: "white",
+            backgroundColor: "#685aef",
           }}
         >
           Run
@@ -82,7 +118,9 @@ const CommandLine = (props) => {
         <Button
           id="clear-button"
           variant="contained"
-          onClick={props.handleClear}
+          onClick={(e) => {
+            handleClear(e);
+          }}
           style={{
             margin: "1px 0px 0 3px",
             justifyContent: "center",
