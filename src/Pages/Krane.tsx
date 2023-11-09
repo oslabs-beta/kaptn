@@ -190,7 +190,7 @@ function Krane() {
         getReplicasCommand,
         currDir,
       });
-    }, 200);
+    }, 5);
   }
 
   const [nodeShowStatus, setNodeShowStatus] = useState(false);
@@ -215,7 +215,7 @@ function Krane() {
         CpuUsedCommand,
         currDir,
       });
-    }, 400);
+    }, 350);
 
     // ----------------------------------------------- Beginning of get pod cpu and memory limits section
 
@@ -225,19 +225,17 @@ function Krane() {
         cpuLimitsCommand,
         currDir,
       });
-    }, 600);
+    }, 400);
 
     // send command to get selected pods containers info
     let podContainersCommand = `kubectl top pod --containers `;
     //send get pods o wide info commands
-    ipcRenderer.send(
-      "podContainers_command",
-      {
+    setTimeout(() => {
+      ipcRenderer.send("podContainers_command", {
         podContainersCommand,
         currDir,
-      },
-      800
-    );
+      });
+    }, 500);
   }
 
   function getNodesInfo() {
@@ -251,19 +249,19 @@ function Krane() {
     //---------------------------------------- get all nodes cpu and memory usage -
     let nodesCpuUsedCommand: string = `kubectl top nodes`;
     setTimeout(() => {
-      ipcRenderer.send("getNodesCpuUsed_command", {
-        nodesCpuUsedCommand,
-        currDir,
-      });
-    }, 200);
+    ipcRenderer.send("getNodesCpuUsed_command", {
+      nodesCpuUsedCommand,
+      currDir,
+    });
+    }, 100);
 
     let nodesCpuLimitsCommand: string = `kubectl get nodes -o custom-columns="Name:metadata.name,CPU-limit:spec.containers[*].resources.limits.cpu,Memory-limit:spec.containers[*].resources.limits.cpu"`;
     setTimeout(() => {
-      ipcRenderer.send("getNodesCpuLimits_command", {
-        nodesCpuLimitsCommand,
-        currDir,
-      });
-    }, 400);
+    ipcRenderer.send("getNodesCpuLimits_command", {
+      nodesCpuLimitsCommand,
+      currDir,
+    });
+    }, 200);
   }
 
   function getNamespaces() {
@@ -277,6 +275,16 @@ function Krane() {
 
   useEffect(() => {
     getNamespaces();
+
+    const allInterval = setInterval(() => {
+      getDeploymentsInfo();
+      getNodesInfo();
+      getPodsAndContainers();
+    }, 5000);
+
+    return () => {
+      clearInterval(allInterval);
+    };
   }, []);
 
   function handleNamespaceChange() {
@@ -397,7 +405,7 @@ function Krane() {
   if (nodeShowStatus || deploymentsShowStatus) {
     refreshShowDiv = (
       <>
-        <div
+        {/* <div
           style={{
             display: "flex",
             flexDirection: "row",
@@ -430,7 +438,7 @@ function Krane() {
           >
             Refresh stats
           </Button>
-        </div>
+        </div> */}
 
         <div
           style={{
@@ -446,7 +454,7 @@ function Krane() {
             textAlign: "right",
             color: "#ffffff99",
             marginRight: "0px",
-            marginTop: "0px",
+            marginTop: "20px",
             justifyContent: "flex-end",
             marginBottom: "-29px",
           }}

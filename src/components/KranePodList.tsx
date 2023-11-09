@@ -483,8 +483,8 @@ function KranePodList(props) {
         )
     );
 
-    props.setPodsArr([...filteredPods]);
-    props.setAllPodsArr([...filteredPods]);
+    // props.setPodsArr([...filteredPods]);
+    // props.setAllPodsArr([...filteredPods]);
 
     for (let j = 0; j < finalPodUsageArr.length; j++) {
       filteredPods[j]["podCpuUsed"] = finalPodUsageArr[j]["podCpuUsed"];
@@ -492,6 +492,9 @@ function KranePodList(props) {
       filteredPods[j]["podMemoryUsedDisplay"] =
         finalPodUsageArr[j]["podMemoryUsedDisplay"];
     }
+
+    props.setPodsArr([...filteredPods]);
+    props.setAllPodsArr([...filteredPods]);
   }); // -------------------- end of ipc render function for get pods cpu used
 
   //Listen to "get cpuUsed" return event
@@ -771,7 +774,6 @@ function KranePodList(props) {
     // const podsInterval = setInterval(() => {
     //   props.getPodsAndContainers();
     // }, 15000);
-
     // return () => {
     //   clearInterval(podsInterval);
     // };
@@ -1176,6 +1178,7 @@ function KranePodList(props) {
             boxShadow:
               theme.palette.mode === "dark" ? "10px 9px 2px #00000060" : "",
             background: theme.palette.mode === "dark" ? "#0e0727" : "#e6e1fb80",
+            cursor: "pointer",
           }}
         >
           {" "}
@@ -1188,7 +1191,7 @@ function KranePodList(props) {
           >
             <img
               style={{ width: "40px", marginLeft: "0px" }}
-              src="./pod.svg"
+              src="./assets/pod.svg"
             ></img>
             <span
               style={{
@@ -1618,7 +1621,7 @@ function KranePodList(props) {
           >
             <img
               style={{ width: "45px", marginLeft: "0px" }}
-              src="./container.png"
+              src="./assets/container.png"
             ></img>
             <span
               style={{
@@ -2057,7 +2060,7 @@ function KranePodList(props) {
                         height: "100px",
                         margin: "15px 25px 0 15px",
                       }}
-                      src="./pod.svg"
+                      src="./assets/pod.svg"
                     ></img>
                   </div>
                   {"  "}

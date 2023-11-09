@@ -442,7 +442,7 @@ function Start(props) {
             }}
           >
             <Box
-              src="./kaptn4ico.png"
+              src="./assets/kaptn4ico.png"
               sx={{
                 margin: "80px 0 10px 0",
                 height: "270px",
@@ -648,7 +648,7 @@ function Start(props) {
                       marginLeft: "0px",
                       borderRadius: "5px",
                     }}
-                    src="./kraneQuickStartImg2.png"
+                    src="./assets/kraneQuickStartImg2.png"
                   ></img>
                   <div
                     style={{
@@ -737,7 +737,7 @@ function Start(props) {
                 >
                   <img
                     style={{ width: "30%", marginLeft: "0px" }}
-                    src="./kraneDashboardImg.png"
+                    src="./assets/kraneDashboardImg.png"
                   ></img>
                   <div
                     style={{
@@ -825,7 +825,7 @@ function Start(props) {
                       marginLeft: "0px",
                       borderRadius: "5px",
                     }}
-                    src="./kraneSetupImg.png"
+                    src="./assets/kraneSetupImg.png"
                   ></img>
                   <div
                     style={{
@@ -902,7 +902,7 @@ function Start(props) {
                       marginLeft: "0px",
                       borderRadius: "5px",
                     }}
-                    src="./kraneMetricsImg.png"
+                    src="./assets/kraneMetricsImg.png"
                   ></img>
                   <div
                     style={{
