@@ -2,17 +2,10 @@ import React, { useState, useEffect } from "react";
 import Button from "@mui/material/Button";
 import { Typography, useTheme, Box, Modal, Checkbox } from "@mui/material";
 const { ipcRenderer } = require("electron");
-import SideNav from "./Sidebar.js";
-import LaunchIcon from "@mui/icons-material/Launch";
-import { RadioButtonUnchecked } from "@mui/icons-material";
-import CheckCircleOutlinedIcon from "@mui/icons-material/CheckCircleOutlined";
-import HighlightOffOutlinedIcon from "@mui/icons-material/HighlightOffOutlined";
 import CircularProgress from "@mui/material/CircularProgress";
 import Tooltip, { TooltipProps, tooltipClasses } from "@mui/material/Tooltip";
-import LightbulbIcon from "@mui/icons-material/Lightbulb";
 import { styled } from "@mui/material/styles";
 import { JsxElement } from "typescript";
-import SortIcon from "@mui/icons-material/Sort";
 
 const LightTooltip = styled(({ className, ...props }: TooltipProps) => (
   <Tooltip {...props} classes={{ popper: className }} />

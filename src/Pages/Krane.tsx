@@ -3,13 +3,7 @@ import Button from "@mui/material/Button";
 import { Typography, useTheme, Box, Modal } from "@mui/material";
 const { ipcRenderer } = require("electron");
 import SideNav from "../components/Sidebar.js";
-import LaunchIcon from "@mui/icons-material/Launch";
-import { RadioButtonUnchecked } from "@mui/icons-material";
-import CheckCircleOutlinedIcon from "@mui/icons-material/CheckCircleOutlined";
-import HighlightOffOutlinedIcon from "@mui/icons-material/HighlightOffOutlined";
-import CircularProgress from "@mui/material/CircularProgress";
 import Tooltip, { TooltipProps, tooltipClasses } from "@mui/material/Tooltip";
-import LightbulbIcon from "@mui/icons-material/Lightbulb";
 import { styled } from "@mui/material/styles";
 import { JsxElement } from "typescript";
 import KraneNodeList from "../components/KraneNodeList.js";
@@ -45,6 +39,8 @@ function Krane() {
   const [selectedNamespace, setSelectedNamespace] = useState(
     namespacesArr[namespaceIndex]
   );
+
+  const [refreshSpeed, setRefreshSpeed] = useState(10);
 
   const [deploymentsArr, setDeploymentsArr] = useState([]);
   const [podsArr, setPodsArr] = useState([]);
@@ -158,6 +154,22 @@ function Krane() {
     getNodesInfo();
     getPodsAndContainers();
   }
+  const refreshArray = [10, 20, 30, 60];
+  function handleChangeRefreshSpeed(event) {
+    let newRefreshIndex = refreshArray.indexOf(refreshSpeed);
+    newRefreshIndex = ++newRefreshIndex % 4;
+    setRefreshSpeed(refreshArray[newRefreshIndex]);
+
+    // const allInterval = setInterval(() => {
+    //   getDeploymentsInfo();
+    //   getNodesInfo();
+    //   getPodsAndContainers();
+    // }, refreshArray[newRefreshIndex] * 1000);
+
+    // return () => {
+    //   clearInterval(allInterval);
+    // };
+  }
 
   const handleChooseKubeConfig = (event) => {
     let path = event.target.files[0].path.split("");
@@ -215,7 +227,7 @@ function Krane() {
         CpuUsedCommand,
         currDir,
       });
-    }, 350);
+    }, 250);
 
     // ----------------------------------------------- Beginning of get pod cpu and memory limits section
 
@@ -228,14 +240,14 @@ function Krane() {
     }, 400);
 
     // send command to get selected pods containers info
-    let podContainersCommand = `kubectl top pod --containers `;
+    let podContainersCommand = `kubectl top pod --containers --all-namespaces`;
     //send get pods o wide info commands
     setTimeout(() => {
       ipcRenderer.send("podContainers_command", {
         podContainersCommand,
         currDir,
       });
-    }, 500);
+    }, 600);
   }
 
   function getNodesInfo() {
@@ -249,18 +261,18 @@ function Krane() {
     //---------------------------------------- get all nodes cpu and memory usage -
     let nodesCpuUsedCommand: string = `kubectl top nodes`;
     setTimeout(() => {
-    ipcRenderer.send("getNodesCpuUsed_command", {
-      nodesCpuUsedCommand,
-      currDir,
-    });
+      ipcRenderer.send("getNodesCpuUsed_command", {
+        nodesCpuUsedCommand,
+        currDir,
+      });
     }, 100);
 
     let nodesCpuLimitsCommand: string = `kubectl get nodes -o custom-columns="Name:metadata.name,CPU-limit:spec.containers[*].resources.limits.cpu,Memory-limit:spec.containers[*].resources.limits.cpu"`;
     setTimeout(() => {
-    ipcRenderer.send("getNodesCpuLimits_command", {
-      nodesCpuLimitsCommand,
-      currDir,
-    });
+      ipcRenderer.send("getNodesCpuLimits_command", {
+        nodesCpuLimitsCommand,
+        currDir,
+      });
     }, 200);
   }
 
@@ -280,7 +292,7 @@ function Krane() {
       getDeploymentsInfo();
       getNodesInfo();
       getPodsAndContainers();
-    }, 5000);
+    }, refreshSpeed * 1000);
 
     return () => {
       clearInterval(allInterval);
@@ -405,7 +417,7 @@ function Krane() {
   if (nodeShowStatus || deploymentsShowStatus) {
     refreshShowDiv = (
       <>
-        {/* <div
+        <div
           style={{
             display: "flex",
             flexDirection: "row",
@@ -419,26 +431,30 @@ function Krane() {
             textAlign: "right",
             color: "#ffffff99",
             marginRight: "0px",
-            marginTop: "0px",
+            marginTop: "10px",
+            marginBottom: "-16px",
             justifyContent: "flex-end",
+            textTransform: "uppercase",
           }}
         >
+          {" "}
+          Stats refresh every
           <Button
             style={{
               marginLeft: "10px",
-              marginTop: "8px",
+              marginTop: "-5px",
               marginBottom: "0px",
               letterSpacing: ".8px",
               border: "1px solid",
               fontSize: "9px",
-              width: "98px",
+              width: "auto",
               height: "20px",
             }}
-            onClick={handleClick}
+            onClick={handleChangeRefreshSpeed}
           >
-            Refresh stats
+            {refreshSpeed} seconds
           </Button>
-        </div> */}
+        </div>
 
         <div
           style={{
@@ -454,7 +470,7 @@ function Krane() {
             textAlign: "right",
             color: "#ffffff99",
             marginRight: "0px",
-            marginTop: "20px",
+            marginTop: "0px",
             justifyContent: "flex-end",
             marginBottom: "-29px",
           }}

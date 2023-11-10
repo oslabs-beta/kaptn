@@ -463,7 +463,7 @@ function KraneDeploymentsList(props) {
       tempDeploys[i]["replicaSets"] = filteredReplicaSets[i];
     }
 
-    // //set new deployments Arr state, based on if kube system checkbox
+    // set new deployments Arr state, based on namespace
     if (props.selectedNamespace !== "ALL") {
       //if false, separate out kube system pods and then set state
       let kubeDeployments = tempDeploys.filter(

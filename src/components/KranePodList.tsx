@@ -2,14 +2,8 @@ import React, { useState, useEffect, useReducer } from "react";
 import Button from "@mui/material/Button";
 import { Typography, useTheme, Box, Modal, Checkbox } from "@mui/material";
 const { ipcRenderer } = require("electron");
-import SideNav from "../components/Sidebar.js";
-import LaunchIcon from "@mui/icons-material/Launch";
-import { RadioButtonUnchecked } from "@mui/icons-material";
-import CheckCircleOutlinedIcon from "@mui/icons-material/CheckCircleOutlined";
-import HighlightOffOutlinedIcon from "@mui/icons-material/HighlightOffOutlined";
 import CircularProgress from "@mui/material/CircularProgress";
 import Tooltip, { TooltipProps, tooltipClasses } from "@mui/material/Tooltip";
-import LightbulbIcon from "@mui/icons-material/Lightbulb";
 import { styled } from "@mui/material/styles";
 import { JsxElement } from "typescript";
 import SortIcon from "@mui/icons-material/Sort";
@@ -357,6 +351,7 @@ function KranePodList(props) {
   // ----------------------------------- Listen to "get cpuUsed" return event
   ipcRenderer.on("got_cpuUsed", (event, arg) => {
     let argArr = arg.split("");
+    console.log("arg split is", arg.split(""));
     let podUsageArray = [];
 
     let pod = {};
@@ -473,26 +468,28 @@ function KranePodList(props) {
       podUsageArray.push(pod);
     } //end of for loop
 
-    let finalPodUsageArr = podUsageArray.filter(
-      (ele: any, ind: number) =>
-        ind ===
-        podUsageArray.findIndex(
-          (elem) =>
-            elem.podCpuUsed === ele.podCpuUsed &&
-            elem.podMemoryUsed === ele.podMemoryUsed
-        )
-    );
+    // console.log("pod use array is:", podUsageArray);
+
+    // let finalPodUsageArr = podUsageArray.filter(
+    //   (ele: any, ind: number) =>
+    //     ind ===
+    //     podUsageArray.findIndex(
+    //       (elem) =>
+    //         elem.podCpuUsed === ele.podCpuUsed &&
+    //         elem.podMemoryUsed === ele.podMemoryUsed
+    //     )
+    // );
 
     // props.setPodsArr([...filteredPods]);
     // props.setAllPodsArr([...filteredPods]);
 
-    for (let j = 0; j < finalPodUsageArr.length; j++) {
-      filteredPods[j]["podCpuUsed"] = finalPodUsageArr[j]["podCpuUsed"];
-      filteredPods[j]["podMemoryUsed"] = finalPodUsageArr[j]["podMemoryUsed"];
+    for (let j = 0; j < podUsageArray.length; j++) {
+      filteredPods[j]["podCpuUsed"] = podUsageArray[j]["podCpuUsed"];
+      filteredPods[j]["podMemoryUsed"] = podUsageArray[j]["podMemoryUsed"];
       filteredPods[j]["podMemoryUsedDisplay"] =
-        finalPodUsageArr[j]["podMemoryUsedDisplay"];
+        podUsageArray[j]["podMemoryUsedDisplay"];
     }
-
+    // console.log(filteredPods);
     props.setPodsArr([...filteredPods]);
     props.setAllPodsArr([...filteredPods]);
   }); // -------------------- end of ipc render function for get pods cpu used
@@ -699,6 +696,16 @@ function KranePodList(props) {
       let cpuUsage = "";
       let memoryUsage = "";
 
+      //skips namespaces
+      while (argArr[i] !== " ") {
+        i++;
+      }
+
+      //skips spaces
+      while (argArr[i] === " ") {
+        i++;
+      }
+
       //saves pod name
       while (argArr[i] !== " ") {
         podName += argArr[i];
@@ -767,6 +774,50 @@ function KranePodList(props) {
     } //end of for loop over containers
 
     props.setPodsContainersArr([...output]);
+
+    let toSortPods = [...props.podsArr];
+    // console.log(toSortPods);
+    if (sortedByDisplayArray[sortIncrement % 6] === "") {
+      toSortPods.sort((a, b) => a.index - b.index);
+    } else if (sortedByDisplayArray[sortIncrement % 6] === "max cpu") {
+      //reset to sorted by index
+      toSortPods.sort((a, b) => a.index - b.index);
+
+      let numberArr = [];
+      let stringArr = [];
+      for (let k = 0; k < props.podsArr.length; k++) {
+        if (typeof props.podsArr[k]["podCpuPercent"] === "number") {
+          numberArr.push(props.podsArr[k]);
+        } else stringArr.push(props.podsArr[k]);
+      }
+      numberArr.sort((a, b) => a["podCpuPercent"] - b["podCpuPercent"]);
+      toSortPods = [...stringArr, ...numberArr];
+      toSortPods.reverse();
+    } else if (sortedByDisplayArray[sortIncrement % 6] === "max memory") {
+      //reset to sorted by index
+      toSortPods.sort((a, b) => a.index - b.index);
+      let numberArr = [];
+      let stringArr = [];
+      for (let k = 0; k < props.podsArr.length; k++) {
+        if (typeof props.podsArr[k]["podMemoryPercent"] === "number") {
+          numberArr.push(props.podsArr[k]);
+        } else stringArr.push(props.podsArr[k]);
+      }
+      numberArr.sort((a, b) => a["podMemoryPercent"] - b["podMemoryPercent"]);
+      toSortPods = [...stringArr, ...numberArr];
+      toSortPods.reverse();
+    } else {
+      //reset to sorted by index
+      toSortPods.sort((a, b) => a.index - b.index);
+      //sort by whatever other propery name alphabeticcaly
+      toSortPods.sort((a, b) =>
+        a[sortedByArray[sortIncrement % 6]].localeCompare(
+          b[sortedByArray[sortIncrement % 6]]
+        )
+      );
+    }
+
+    props.setPodsArr([...toSortPods]);
   });
 
   useEffect(() => {
@@ -1394,107 +1445,119 @@ function KranePodList(props) {
               </div>
             </div>
 
-            <div
-              style={{
-                flexDirection: "column",
-                justifyContent: "center",
-                textAlign: "center",
-                alignItems: "center",
-                width: "70px",
-                fontSize: "4",
-                padding: "6px 0px 0 0px",
-                fontWeight: "400",
-                marginRight: "18px",
-                marginTop: "3px",
-              }}
+            <LightTooltip
+              title="Please note: Pod memory may exceed 100% as long as its node has available memory."
+              placement="left"
+              arrow
+              enterDelay={1800}
+              leaveDelay={100}
+              enterNextDelay={3000}
             >
-              <div>
-                <CircularProgress
-                  variant="determinate"
-                  // @ts-nocheck
-                  thickness={1.35}
-                  value={100 * 0.73}
-                  style={{
-                    marginTop: "18px",
-                    marginLeft: "9.5px",
-                    rotate: "-131deg",
-                    color:
-                      theme.palette.mode === "dark" ? "#ffffff40" : "#00000015",
-                    width: "68px",
-                  }}
-                />
-                <CircularProgress
-                  variant="determinate"
-                  // @ts-nocheck
-                  thickness={1.35}
-                  value={
-                    props.podsArr[i]["podMemoryLimit"] === "NONE"
-                      ? 0
-                      : Number(`${props.podsArr[i]["podMemoryPercent"]}`) * 0.73
-                  }
+              <div
+                style={{
+                  flexDirection: "column",
+                  justifyContent: "center",
+                  textAlign: "center",
+                  alignItems: "center",
+                  width: "70px",
+                  fontSize: "4",
+                  padding: "6px 0px 0 0px",
+                  fontWeight: "400",
+                  marginRight: "18px",
+                  marginTop: "3px",
+                }}
+              >
+                <div>
+                  <CircularProgress
+                    variant="determinate"
+                    // @ts-nocheck
+                    thickness={1.35}
+                    value={100 * 0.73}
+                    style={{
+                      marginTop: "18px",
+                      marginLeft: "9.5px",
+                      rotate: "-131deg",
+                      color:
+                        theme.palette.mode === "dark"
+                          ? "#ffffff40"
+                          : "#00000015",
+                      width: "68px",
+                    }}
+                  />
+                  <CircularProgress
+                    variant="determinate"
+                    // @ts-nocheck
+                    thickness={1.35}
+                    value={
+                      props.podsArr[i]["podMemoryLimit"] === "NONE"
+                        ? 0
+                        : Number(`${props.podsArr[i]["podMemoryPercent"]}`) *
+                          0.73
+                    }
+                    style={{
+                      position: "relative",
+                      top: "-48.45px",
+                      left: "8.5px",
+                      rotate: "-131deg",
+                      color:
+                        theme.palette.mode === "dark"
+                          ? `${PodMemoryPercentColor}`
+                          : `${PodMemoryPercentColorLight}`,
+                      width: "68px",
+                    }}
+                  />
+                </div>
+                <div
                   style={{
                     position: "relative",
-                    top: "-48.45px",
-                    left: "8.5px",
-                    rotate: "-131deg",
+                    top: "-48px",
+                    left: "5px",
+                    fontWeight: "500",
+                    marginLeft:
+                      props.podsArr[i]["podMemoryPercent"] === "N/A"
+                        ? "-11px"
+                        : "-10px",
+                    fontSize: !props.podsArr[i]["podMemoryLimit"]
+                      ? "13px"
+                      : props.podsArr[i]["podMemoryLimit"] === "NONE"
+                      ? "13px"
+                      : "16px",
+                    marginTop: !props.podsArr[i]["podMemoryLimit"]
+                      ? "-55px"
+                      : props.podsArr[i]["podMemoryLimit"] === "NONE"
+                      ? "-55px"
+                      : "-60px",
                     color:
                       theme.palette.mode === "dark"
                         ? `${PodMemoryPercentColor}`
                         : `${PodMemoryPercentColorLight}`,
-                    width: "68px",
                   }}
-                />
+                >
+                  {!props.podsArr[i]["podMemoryLimit"]
+                    ? "loading"
+                    : props.podsArr[i]["podMemoryPercent"] === "N/A"
+                    ? `no max`
+                    : `${props.podsArr[i]["podMemoryPercent"]}%`}
+                </div>
+                <div
+                  style={{
+                    fontSize: "10px",
+                    position: "relative",
+                    top: "-48px",
+                    left: "-.5px",
+                    marginRight: "-2px",
+                    fontWeight: "500",
+                    marginTop: "-8px",
+                    color:
+                      theme.palette.mode === "dark"
+                        ? `${PodMemoryPercentColor}`
+                        : `${PodMemoryPercentColorLight}`,
+                  }}
+                >
+                  MEMORY
+                </div>
               </div>
-              <div
-                style={{
-                  position: "relative",
-                  top: "-48px",
-                  left: "5px",
-                  fontWeight: "500",
-                  marginLeft:
-                    props.podsArr[i]["podMemoryPercent"] === "N/A"
-                      ? "-11px"
-                      : "-10px",
-                  fontSize: !props.podsArr[i]["podMemoryLimit"]
-                    ? "13px"
-                    : props.podsArr[i]["podMemoryLimit"] === "NONE"
-                    ? "13px"
-                    : "16px",
-                  marginTop: !props.podsArr[i]["podMemoryLimit"]
-                    ? "-55px"
-                    : props.podsArr[i]["podMemoryLimit"] === "NONE"
-                    ? "-55px"
-                    : "-60px",
-                  color:
-                    theme.palette.mode === "dark"
-                      ? `${PodMemoryPercentColor}`
-                      : `${PodMemoryPercentColorLight}`,
-                }}
-              >
-                {!props.podsArr[i]["podMemoryLimit"]
-                  ? "loading"
-                  : props.podsArr[i]["podMemoryPercent"] === "N/A"
-                  ? `no max`
-                  : `${props.podsArr[i]["podMemoryPercent"]}%`}
-              </div>
-              <div
-                style={{
-                  fontSize: "10px",
-                  position: "relative",
-                  top: "-48px",
-                  left: "-.5px",
-                  marginRight: "-2px",
-                  fontWeight: "500",
-                  marginTop: "-8px",
-                  color:
-                    theme.palette.mode === "dark"
-                      ? `${PodMemoryPercentColor}`
-                      : `${PodMemoryPercentColorLight}`,
-                }}
-              >
-                MEMORY
-              </div>
-            </div>
+            </LightTooltip>
           </span>
           {}
         </Button>
