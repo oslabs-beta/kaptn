@@ -156,9 +156,20 @@ function Krane() {
   }
   const refreshArray = [10, 20, 30, 60];
   function handleChangeRefreshSpeed(event) {
+    clearInterval(intervalArray[0]);
+    setIntervalArray([]);
+
     let newRefreshIndex = refreshArray.indexOf(refreshSpeed);
     newRefreshIndex = ++newRefreshIndex % 4;
     setRefreshSpeed(refreshArray[newRefreshIndex]);
+
+    const allInterval = setInterval(() => {
+      getDeploymentsInfo();
+      getNodesInfo();
+      getPodsAndContainers();
+    }, refreshArray[newRefreshIndex] * 1000);
+
+    setIntervalArray([allInterval]);
 
     // const allInterval = setInterval(() => {
     //   getDeploymentsInfo();
@@ -171,6 +182,8 @@ function Krane() {
     // };
   }
 
+  // the below choose kube config function is incorrect ... to use custom kubeconfig location, it will require passing the following flag to all commands: --kubeconfig="path/to/kubeconfigfile
+  // ... suggest creating state called customConfigPath and customConfigStatus ... if status is true, it passes customConfigPath in and adds whole statement to end of each command (with variable that is otherwise assigned value of "" to make it pass nothing and not affect commands unless altered via function below).
   const handleChooseKubeConfig = (event) => {
     let path = event.target.files[0].path.split("");
     while (path[path.length - 1] !== "/") {
@@ -183,8 +196,18 @@ function Krane() {
   const [deploymentsShowStatus, setDeploymentsShowStatus] = useState(false);
 
   function handleDeploymentsShowStatus() {
+    clearInterval(intervalArray[0]);
+    setIntervalArray([]);
     setNodeShowStatus(false);
     setDeploymentsShowStatus(!deploymentsShowStatus);
+
+    const allInterval = setInterval(() => {
+      getDeploymentsInfo();
+      getNodesInfo();
+      getPodsAndContainers();
+    }, refreshSpeed * 1000);
+
+    setIntervalArray([allInterval]);
   }
 
   function getDeploymentsInfo() {
@@ -206,10 +229,26 @@ function Krane() {
   }
 
   const [nodeShowStatus, setNodeShowStatus] = useState(false);
+  const [intervalArray, setIntervalArray] = useState([]);
 
   function handleNodeShowStatus() {
+    clearInterval(intervalArray[0]);
+    setIntervalArray([]);
+
     setDeploymentsShowStatus(false);
     setNodeShowStatus(!nodeShowStatus);
+
+    const allInterval = setInterval(() => {
+      getDeploymentsInfo();
+      getNodesInfo();
+      getPodsAndContainers();
+    }, refreshSpeed * 1000);
+
+    setIntervalArray([allInterval]);
+
+    // return () => {
+    //   clearInterval(allInterval);
+    // };
   }
 
   function getPodsAndContainers() {
@@ -287,16 +326,6 @@ function Krane() {
 
   useEffect(() => {
     getNamespaces();
-
-    const allInterval = setInterval(() => {
-      getDeploymentsInfo();
-      getNodesInfo();
-      getPodsAndContainers();
-    }, refreshSpeed * 1000);
-
-    return () => {
-      clearInterval(allInterval);
-    };
   }, []);
 
   function handleNamespaceChange() {
