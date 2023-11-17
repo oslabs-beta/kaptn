@@ -9,6 +9,10 @@ import { JsxElement } from "typescript";
 import KraneNodeList from "../components/KraneNodeList.js";
 import KranePodList from "../components/KranePodList.js";
 import KraneDeploymentsList from "../components/KraneDeploymentsList";
+import InputLabel from "@mui/material/InputLabel";
+import MenuItem from "@mui/material/MenuItem";
+import FormControl from "@mui/material/FormControl";
+import Select, { SelectChangeEvent } from "@mui/material/Select";
 
 const LightTooltip = styled(({ className, ...props }: TooltipProps) => (
   <Tooltip {...props} classes={{ popper: className }} />
@@ -95,23 +99,6 @@ function Krane() {
 
   const theme = useTheme();
 
-  const style = {
-    position: "absolute",
-    top: "50%",
-    left: "50%",
-    transform: "translate(-50%, -50%)",
-    width: "90%",
-    height: "90%",
-    background: theme.palette.mode === "dark" ? "#0e0727" : "#e6e1fb",
-    color: theme.palette.mode === "dark" ? "white" : "#47456e",
-    boxShadow: 24,
-    p: 4,
-    padding: "10px",
-    border:
-      theme.palette.mode === "dark" ? "1px solid white" : "2px solid #9075ea",
-    borderRadius: "10px",
-  };
-
   ipcRenderer.on("got_namespaces", (event, arg) => {
     let argArr = arg.split("");
 
@@ -141,7 +128,41 @@ function Krane() {
         i++;
       }
     }
-    setNamespacesArr(["ALL", ...namespaceArrayOutput]);
+
+     //for each namespace, create an array with MenuItems JSX for mui select component, starting with an "ALL" option first.
+    let finalOutput = [];
+    finalOutput.push(
+      <MenuItem
+        value={"ALL"}
+        style={{
+          color: theme.palette.mode === "dark" ? "#ffffff" : "grey",
+          backgroundColor: theme.palette.mode === "dark" ? "#5c4d9a" : "white",
+          fontSize: "12px",
+        }}
+        sx={{bg:theme.palette.mode === "dark" ? "#5c4d9a" : "white",}}
+      >
+        ALL
+      </MenuItem>
+    );
+
+    for (let k = 0; k < namespaceArrayOutput.length; k++) {
+      finalOutput.push(
+        <MenuItem
+          value={`${namespaceArrayOutput[k]}`}
+          style={{
+            color: theme.palette.mode === "dark" ? "#ffffff" : "grey",
+                    backgroundColor:
+                      theme.palette.mode === "dark" ? "#5c4d9a" : "white",
+                    fontSize: "12px",
+          }}
+          sx={{bg:theme.palette.mode === "dark" ? "#5c4d9a" : "white",}}
+        >
+          {namespaceArrayOutput[k]}
+        </MenuItem>
+      );
+    }
+
+    setNamespacesArr(finalOutput);
   });
 
   // ----------------------------------------- get pods info section ------------
@@ -150,24 +171,26 @@ function Krane() {
     // setDeploymentsArr([]);
     // setNodesArr([]);
     // setPodsArr([]);
-    getDeploymentsInfo();
-    getNodesInfo();
     getPodsAndContainers();
+    getNodesInfo();
+    getDeploymentsInfo();
   }
-  const refreshArray = [10, 20, 30, 60];
+
   function handleChangeRefreshSpeed(event) {
     clearInterval(intervalArray[0]);
     setIntervalArray([]);
 
-    let newRefreshIndex = refreshArray.indexOf(refreshSpeed);
-    newRefreshIndex = ++newRefreshIndex % 4;
-    setRefreshSpeed(refreshArray[newRefreshIndex]);
+    // let newRefreshIndex = refreshArray.indexOf(refreshSpeed);
+    // newRefreshIndex = ++newRefreshIndex % 4;
+    // setRefreshSpeed(refreshArray[newRefreshIndex]);
+
+    setRefreshSpeed(event.target.value);
 
     const allInterval = setInterval(() => {
-      getDeploymentsInfo();
-      getNodesInfo();
       getPodsAndContainers();
-    }, refreshArray[newRefreshIndex] * 1000);
+      getNodesInfo();
+      getDeploymentsInfo();
+    }, event.target.value * 1000);
 
     setIntervalArray([allInterval]);
 
@@ -202,9 +225,9 @@ function Krane() {
     setDeploymentsShowStatus(!deploymentsShowStatus);
 
     const allInterval = setInterval(() => {
-      getDeploymentsInfo();
-      getNodesInfo();
       getPodsAndContainers();
+      getNodesInfo();
+      getDeploymentsInfo();
     }, refreshSpeed * 1000);
 
     setIntervalArray([allInterval]);
@@ -239,9 +262,9 @@ function Krane() {
     setNodeShowStatus(!nodeShowStatus);
 
     const allInterval = setInterval(() => {
-      getDeploymentsInfo();
-      getNodesInfo();
       getPodsAndContainers();
+      getNodesInfo();
+      getDeploymentsInfo();
     }, refreshSpeed * 1000);
 
     setIntervalArray([allInterval]);
@@ -286,7 +309,7 @@ function Krane() {
         podContainersCommand,
         currDir,
       });
-    }, 600);
+    }, 450);
   }
 
   function getNodesInfo() {
@@ -304,7 +327,7 @@ function Krane() {
         nodesCpuUsedCommand,
         currDir,
       });
-    }, 100);
+    }, 50);
 
     let nodesCpuLimitsCommand: string = `kubectl get nodes -o custom-columns="Name:metadata.name,CPU-limit:spec.containers[*].resources.limits.cpu,Memory-limit:spec.containers[*].resources.limits.cpu"`;
     setTimeout(() => {
@@ -312,7 +335,7 @@ function Krane() {
         nodesCpuLimitsCommand,
         currDir,
       });
-    }, 200);
+    }, 100);
   }
 
   function getNamespaces() {
@@ -328,10 +351,8 @@ function Krane() {
     getNamespaces();
   }, []);
 
-  function handleNamespaceChange() {
-    let newNamespaceIndex = (namespaceIndex + 1) % namespacesArr.length;
-    setSelectedNamespace(namespacesArr[newNamespaceIndex]);
-    setNamespaceIndex(newNamespaceIndex);
+  function handleNamespaceChange(event) {
+    setSelectedNamespace(event.target.value);
     handleClick(null);
   }
 
@@ -458,7 +479,7 @@ function Krane() {
             lineHeight: "12px",
             paddingBottom: "0px",
             textAlign: "right",
-            color: "#ffffff99",
+            color: theme.palette.mode === "dark" ? "#ffffff99" : "#00000090",
             marginRight: "0px",
             marginTop: "10px",
             marginBottom: "-16px",
@@ -468,7 +489,98 @@ function Krane() {
         >
           {" "}
           Stats refresh every
-          <Button
+          <Box
+            style={{
+              marginLeft: "10px",
+              marginTop: "-5px",
+              marginBottom: "0px",
+              letterSpacing: ".8px",
+              border: theme.palette.mode === "dark" ? "1px solid" : "",
+              fontSize: "4px",
+              width: "115px",
+              height: "20px",
+            }}
+          >
+            <FormControl
+              style={{
+                display: "flex",
+                width: "115px",
+                height: "20px",
+                padding: "0 0 0 0",
+                margin: "0 0 0 0",
+                fontSize: "4px",
+              }}
+            >
+              <InputLabel
+                style={{
+                  display: "flex",
+                  width: "115px",
+                  height: "20px",
+                  padding: "0 0 0 0",
+                  margin: "0 0 0 0",
+                  fontSize: "4px",
+                }}
+              ></InputLabel>
+              <Select
+                defaultValue={10}
+                onChange={handleChangeRefreshSpeed}
+                style={{
+                  display: "flex",
+                  width: "115px",
+                  height: "20px",
+                  padding: "0 0 0 0",
+                  margin: "0 0 0 0",
+                  fontSize: "9px",
+                }}
+              >
+                <MenuItem
+                  value={10}
+                  style={{
+                    color: theme.palette.mode === "dark" ? "#ffffff" : "grey",
+                    backgroundColor:
+                      theme.palette.mode === "dark" ? "#5c4d9a" : "white",
+                    fontSize: "12px",
+                  }}
+                >
+                  10 seconds
+                </MenuItem>
+                <MenuItem
+                  value={20}
+                  style={{
+                    color: theme.palette.mode === "dark" ? "#ffffff" : "grey",
+                    backgroundColor:
+                      theme.palette.mode === "dark" ? "#5c4d9a" : "white",
+                    fontSize: "12px",
+                  }}
+                >
+                  20 seconds
+                </MenuItem>
+                <MenuItem
+                  value={30}
+                  style={{
+                    color: theme.palette.mode === "dark" ? "#ffffff" : "grey",
+                    backgroundColor:
+                      theme.palette.mode === "dark" ? "#5c4d9a" : "white",
+                    fontSize: "12px",
+                  }}
+                >
+                  30 seconds
+                </MenuItem>
+                <MenuItem
+                  value={60}
+                  style={{
+                    color: theme.palette.mode === "dark" ? "#ffffff" : "grey",
+                    backgroundColor:
+                      theme.palette.mode === "dark" ? "#5c4d9a" : "white",
+                    fontSize: "12px",
+                  }}
+                >
+                  60 seconds
+                </MenuItem>
+              </Select>
+            </FormControl>
+          </Box>
+          {/* <Button
             style={{
               marginLeft: "10px",
               marginTop: "-5px",
@@ -482,7 +594,7 @@ function Krane() {
             onClick={handleChangeRefreshSpeed}
           >
             {refreshSpeed} seconds
-          </Button>
+          </Button> */}
         </div>
 
         <div
@@ -496,23 +608,72 @@ function Krane() {
             letterSpacing: "1px",
             lineHeight: "12px",
             paddingBottom: "0px",
+            paddingTop: "5px",
             textAlign: "right",
-            color: "#ffffff99",
+            color: theme.palette.mode === "dark" ? "#ffffff99" : "grey",
             marginRight: "0px",
-            marginTop: "0px",
+            marginTop: "18px",
             justifyContent: "flex-end",
             marginBottom: "-29px",
           }}
         >
+          {" "}
+          NAMESPACE:
           <LightTooltip
             title="View resources from a specific namespace. These options are populated using the 'kubectl get namespaces' command. Please note: Some namespaces may not have visible pods or deployments."
-            placement="bottom"
+            placement="top"
             arrow
             enterDelay={1800}
             leaveDelay={100}
             enterNextDelay={3000}
           >
-            <Button
+            <Box
+              style={{
+                marginLeft: "10px",
+                marginTop: "-5px",
+                marginBottom: "0px",
+                letterSpacing: ".8px",
+                border: theme.palette.mode === "dark" ? "1px solid" : "",
+                fontSize: "4px",
+                height: "20px",
+                textTransform: "uppercase",
+              }}
+            >
+              <FormControl
+                style={{
+                  display: "flex",
+                  height: "20px",
+                  padding: "0 0 0 0",
+                  margin: "0 0 0 0",
+                  fontSize: "4px",
+                }}
+              >
+                <InputLabel
+                  style={{
+                    display: "flex",
+                    height: "20px",
+                    padding: "0 0 0 0",
+                    margin: "0 0 0 0",
+                    fontSize: "4px",
+                  }}
+                ></InputLabel>
+                <Select
+                  defaultValue={"ALL"}
+                  onChange={handleNamespaceChange}
+                  style={{
+                    display: "flex",
+                    height: "20px",
+                    padding: "0 0 0 0",
+                    margin: "0 0 0 0",
+                    fontSize: "9px",
+                    textTransform: "uppercase",
+                  }}
+                >
+                  {namespacesArr}
+                </Select>
+              </FormControl>
+            </Box>
+            {/* <Button
               onClick={handleNamespaceChange}
               style={{
                 display: "flex",
@@ -531,7 +692,7 @@ function Krane() {
               }}
             >
               NAMESPACE: {selectedNamespace}
-            </Button>
+            </Button> */}
           </LightTooltip>
         </div>
       </>
@@ -794,7 +955,7 @@ function Krane() {
           </div>
 
           {refreshShowDiv}
-          <div style={{ marginBottom: "0px", width: "100%" }}>
+          <div style={{ marginTop: "-18px", width: "100%" }}>
             {nodesAndPodsDiv}
             {deploymentsDiv}
           </div>

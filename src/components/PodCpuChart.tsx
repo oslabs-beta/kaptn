@@ -37,7 +37,7 @@ const tooltipStyles = {
 };
 
 // util
-const formatDate = timeFormat("%m/%d/%y @ %H:%M:%S UTC");
+const formatDate = timeFormat("%m/%d/%y @ %H:%M:%S");
 
 // accessors
 const getDate = (d: podStats) => new Date(d.date);

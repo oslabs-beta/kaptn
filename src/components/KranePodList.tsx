@@ -20,6 +20,7 @@ const LightTooltip = styled(({ className, ...props }: TooltipProps) => (
   },
 }));
 
+
 type ArrPodObjs = {
   name: string;
   ready: string;
@@ -2262,7 +2263,7 @@ function KranePodList(props) {
                               : "darkpurple",
                           margin: "0px 0 0px 0px",
                           fontSize: "17px",
-                          fontWeight: "200",
+                          fontWeight: "300",
                           lineHeight: "29px",
                         }}
                       >
