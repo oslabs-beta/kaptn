@@ -2398,12 +2398,16 @@ function KranePodList(props) {
                                     ? "32px"
                                     : "42px",
                                 fontWeight: "800",
-                                marginTop: "-60px",
+                                marginTop: props.selectedPod[0]["podCpuLimit"] ===
+                                "NONE"
+                                  ? "-50px" : "-60px",
                                 marginLeft: "-37px",
                                 color:
                                   props.selectedPod[0]["podCpuPercent"] ===
-                                  "N/A"
-                                    ? "#ffffff80"
+                                  "N/A" && theme.palette.mode === "dark"
+                                    ? "#ffffff80" : props.selectedPod[0]["podCpuPercent"] ===
+                                    "N/A" && theme.palette.mode !== "dark"
+                                      ? "#00000050"
                                     : Number(
                                         props.selectedPod[0]["podCpuPercent"]
                                       ) < 90
@@ -2430,8 +2434,10 @@ function KranePodList(props) {
                                 marginTop: "-8px",
                                 color:
                                   props.selectedPod[0]["podCpuPercent"] ===
-                                  "N/A"
-                                    ? "#ffffff80"
+                                  "N/A" && theme.palette.mode === "dark"
+                                    ? "#ffffff80" : props.selectedPod[0]["podCpuPercent"] ===
+                                    "N/A" && theme.palette.mode !== "dark"
+                                      ? "#00000060"
                                     : Number(
                                         props.selectedPod[0]["podCpuPercent"]
                                       ) < 90
@@ -2486,7 +2492,7 @@ function KranePodList(props) {
                               m{" "}
                             </div>
                             <div
-                              style={{ color: "#ffffff80", fontSize: "12px" }}
+                              style={{ color: theme.palette.mode === "dark" ? "#ffffff80" : "#00000050", fontSize: "12px" }}
                             >
                               {" "}
                               CPU USED{" "}
@@ -2504,8 +2510,9 @@ function KranePodList(props) {
                                     : "0px 0 -10px 0",
                                 color:
                                   props.selectedPod[0]["podCpuPercent"] ===
-                                  "N/A"
-                                    ? "#ffffff70"
+                                  "N/A" && theme.palette.mode === "dark"
+                                    ? "#ffffff70" : props.selectedPod[0]["podCpuPercent"] ===
+                                    "N/A" && theme.palette.mode !== "dark" ? "#00000040"
                                     : Number(
                                         props.selectedPod[0]["podCpuPercent"]
                                       ) < 90
@@ -2525,7 +2532,7 @@ function KranePodList(props) {
                                   ].toUpperCase()}m`}{" "}
                             </div>
                             <div
-                              style={{ color: "#ffffff80", fontSize: "12px" }}
+                              style={{ color: theme.palette.mode === "dark" ? "#ffffff80" : "#00000050", fontSize: "12px" }}
                             >
                               {" "}
                               CPU LIMIT{" "}
@@ -2537,7 +2544,7 @@ function KranePodList(props) {
                               display: "flex",
                               borderRadius: "15px",
                               height: "93px",
-                              border: "1.5px solid #ffffff50",
+                              border: theme.palette.mode === "dark" ? "1.5px solid #ffffff50" : "1.5px solid #00000030",
                             }}
                           >
                             <PodCpuChart
@@ -2642,12 +2649,15 @@ function KranePodList(props) {
                                     ? "32px"
                                     : "42px",
                                 fontWeight: "800",
-                                marginTop: "-60px",
+                                marginTop:  props.selectedPod[0]["podMemoryPercent"] ===
+                                "N/A"
+                                  ? "-50px" : "-60px",
                                 marginLeft: "-37px",
                                 color:
                                   props.selectedPod[0]["podMemoryPercent"] ===
-                                  "N/A"
-                                    ? "#ffffff80"
+                                  "N/A" && theme.palette.mode === "dark"
+                                    ? "#ffffff80" : props.selectedPod[0]["podMemoryPercent"] ===
+                                    "N/A" && theme.palette.mode !== "dark" ? "#00000050"
                                     : Number(
                                         props.selectedPod[0]["podMemoryPercent"]
                                       ) < 90
@@ -2675,8 +2685,10 @@ function KranePodList(props) {
                                 marginTop: "-8px",
                                 color:
                                   props.selectedPod[0]["podMemoryPercent"] ===
-                                  "N/A"
-                                    ? "#ffffff80"
+                                  "N/A" && theme.palette.mode === "dark"
+                                    ? "#ffffff80" : props.selectedPod[0]["podMemoryPercent"] ===
+                                    "N/A" && theme.palette.mode !== "dark"
+                                      ? "#00000060"
                                     : Number(
                                         props.selectedPod[0]["podMemoryPercent"]
                                       ) < 90
@@ -2732,7 +2744,7 @@ function KranePodList(props) {
                               }{" "}
                             </div>
                             <div
-                              style={{ color: "#ffffff80", fontSize: "12px" }}
+                              style={{ color: theme.palette.mode === "dark" ? "#ffffff80" : "#00000050", fontSize: "12px" }}
                             >
                               {" "}
                               MEM USED{" "}
@@ -2750,8 +2762,9 @@ function KranePodList(props) {
                                     : "0px 0 -10px 0",
                                 color:
                                   props.selectedPod[0]["podMemoryPercent"] ===
-                                  "N/A"
-                                    ? "#ffffff70"
+                                  "N/A" && theme.palette.mode === "dark" ?
+                                    "#ffffff70" : props.selectedPod[0]["podMemoryPercent"] ===
+                                    "N/A" && theme.palette.mode !== "dark" ? "#00000040"
                                     : Number(
                                         props.selectedPod[0]["podMemoryPercent"]
                                       ) < 90
@@ -2770,7 +2783,7 @@ function KranePodList(props) {
                               : props.selectedPod[0]["podMemoryLimitDisplay"]}{" "}
                             </div>
                             <div
-                              style={{ color: "#ffffff80", fontSize: "12px" }}
+                              style={{ color: theme.palette.mode === "dark" ? "#ffffff80" : "#00000050", fontSize: "12px" }}
                             >
                               {" "}
                               MEM LIMIT{" "}
@@ -2782,7 +2795,7 @@ function KranePodList(props) {
                               display: "flex",
                               borderRadius: "15px",
                               height: "93px",
-                              border: "1.5px solid #ffffff50",
+                              border: theme.palette.mode === "dark" ? "1.5px solid #ffffff50" : "1.5px solid #00000030",
                             }}
                           >
                             <PodMemoryChart
