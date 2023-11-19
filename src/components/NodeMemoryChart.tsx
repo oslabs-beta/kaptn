@@ -16,27 +16,27 @@ import { max, extent, bisector } from "@visx/vendor/d3-array";
 import { timeFormat } from "@visx/vendor/d3-time-format";
 import { useTheme } from "@mui/material";
 
-interface podStats {
+interface nodeStats {
   date: string;
   cpu: number;
   memory: number;
   memoryDisplay: string;
 }
 
-type TooltipData = podStats;
+type TooltipData = nodeStats;
 
 // util
 const formatDate = timeFormat("%m/%d/%y @ %H:%M:%S");
 
 // accessors
-const getDate = (d: podStats) => new Date(d.date);
-const getMemoryValue = (d: podStats) => d.memory;
-const getMemoryDisplayValue = (d: podStats) => d.memoryDisplay;
-const bisectDate = bisector<podStats, Date>((d) => new Date(d.date)).left;
+const getDate = (d: nodeStats) => new Date(d.date);
+const getMemoryValue = (d: nodeStats) => d.memory;
+const getMemoryDisplayValue = (d: nodeStats) => d.memoryDisplay;
+const bisectDate = bisector<nodeStats, Date>((d) => new Date(d.date)).left;
 
 export type AreaProps = {
-  podsStatsObj: any;
-  selectedPod: any;
+  nodesStatsObj: any;
+  selectedNode: any;
   width: number;
   height: number;
   margin?: { top: number; right: number; bottom: number; left: number };
@@ -44,8 +44,8 @@ export type AreaProps = {
 
 export default withTooltip<AreaProps, TooltipData>(
   ({
-    podsStatsObj,
-    selectedPod,
+    nodesStatsObj,
+    selectedNode,
     width,
     height,
     margin = { top: 0, right: 0, bottom: 0, left: 0 },
@@ -74,7 +74,7 @@ export default withTooltip<AreaProps, TooltipData>(
     // bounds
     const innerWidth = width - margin.left - margin.right;
     const innerHeight = height - margin.top - margin.bottom;
-    let selectedPodStats = podsStatsObj[`${selectedPod[0]["name"]}`];
+    let selectedNodeStats = nodesStatsObj[`${selectedNode[0]["name"]}`];
 
 
     // scales
@@ -82,7 +82,7 @@ export default withTooltip<AreaProps, TooltipData>(
       () =>
         scaleTime({
           range: [margin.left, innerWidth + margin.left],
-          domain: extent(selectedPodStats, getDate) as [Date, Date],
+          domain: extent(selectedNodeStats, getDate) as [Date, Date],
         }),
       [innerWidth, margin.left]
     );
@@ -92,7 +92,7 @@ export default withTooltip<AreaProps, TooltipData>(
           range: [innerHeight + margin.top, margin.top],
           domain: [
             -5,
-            (max(selectedPodStats, getMemoryValue) || 0) + innerHeight / 0.001,
+            (max(selectedNodeStats, getMemoryValue)|| 0) + innerHeight / 0.00005,
           ],
           nice: true,
         }),
@@ -108,9 +108,9 @@ export default withTooltip<AreaProps, TooltipData>(
       ) => {
         const { x } = localPoint(event) || { x: 0 };
         const x0 = dateScale.invert(x);
-        const index = bisectDate(selectedPodStats, x0, 1);
-        const d0 = selectedPodStats[index - 1];
-        const d1 = selectedPodStats[index];
+        const index = bisectDate(selectedNodeStats, x0, 1);
+        const d0 = selectedNodeStats[index - 1];
+        const d1 = selectedNodeStats[index];
         let d = d0;
         if (d1 && getDate(d1)) {
           d =
@@ -169,8 +169,8 @@ export default withTooltip<AreaProps, TooltipData>(
             strokeOpacity={0.2}
             pointerEvents="none"
           />
-          <AreaClosed<podStats>
-            data={selectedPodStats}
+          <AreaClosed<nodeStats>
+            data={selectedNodeStats}
             x={(d) => dateScale(getDate(d)) ?? 0}
             y={(d) => memoryValueScale(getMemoryValue(d)) ?? 0}
             yScale={memoryValueScale}

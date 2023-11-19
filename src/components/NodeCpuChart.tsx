@@ -16,27 +16,26 @@ import { max, extent, bisector } from "@visx/vendor/d3-array";
 import { timeFormat } from "@visx/vendor/d3-time-format";
 import { useTheme } from "@mui/material";
 
-interface podStats {
+interface nodeStats {
   date: string;
   cpu: number;
   memory: number;
   memoryDisplay: string;
 }
 
-type TooltipData = podStats;
+type TooltipData = nodeStats;
 
 // util
 const formatDate = timeFormat("%m/%d/%y @ %H:%M:%S");
 
 // accessors
-const getDate = (d: podStats) => new Date(d.date);
-const getMemoryValue = (d: podStats) => d.memory;
-const getMemoryDisplayValue = (d: podStats) => d.memoryDisplay;
-const bisectDate = bisector<podStats, Date>((d) => new Date(d.date)).left;
+const getDate = (d: nodeStats) => new Date(d.date);
+const getCpuValue = (d: nodeStats) => d.cpu;
+const bisectDate = bisector<nodeStats, Date>((d) => new Date(d.date)).left;
 
 export type AreaProps = {
-  podsStatsObj: any;
-  selectedPod: any;
+  nodesStatsObj: any;
+  selectedNode: any;
   width: number;
   height: number;
   margin?: { top: number; right: number; bottom: number; left: number };
@@ -44,8 +43,8 @@ export type AreaProps = {
 
 export default withTooltip<AreaProps, TooltipData>(
   ({
-    podsStatsObj,
-    selectedPod,
+    nodesStatsObj,
+    selectedNode,
     width,
     height,
     margin = { top: 0, right: 0, bottom: 0, left: 0 },
@@ -57,13 +56,16 @@ export default withTooltip<AreaProps, TooltipData>(
   }: AreaProps & WithTooltipProvidedProps<TooltipData>) => {
     if (width < 10) return null;
 
+    let selectedPodStats = nodesStatsObj[`${selectedNode[0]["name"]}`];
+
     const theme = useTheme();
 
-    const background = "#0e0727"; //theme.palette.mode === "dark" ? "#0e0727" : "#e6e1fb80";
-    const background2 = "#120838";
-    const accentColor = "#2fc665";
+    const background = theme.palette.mode === "dark" ? "#0e0727" : "#00000010"; //theme.palette.mode === "dark" ? "#0e0727" : "#e6e1fb80";
+    const background2 = theme.palette.mode === "dark" ? "#120838" : "#00000005";
+    const accentColor = selectedPodStats.name === "" ? "#2fc665" : "#2fc665";
     const accentColorDark = "#75daad";
     const textColor = theme.palette.mode === "dark" ? "white" : "grey";
+
     const tooltipStyles = {
       ...defaultStyles,
       background,
@@ -74,8 +76,6 @@ export default withTooltip<AreaProps, TooltipData>(
     // bounds
     const innerWidth = width - margin.left - margin.right;
     const innerHeight = height - margin.top - margin.bottom;
-    let selectedPodStats = podsStatsObj[`${selectedPod[0]["name"]}`];
-
 
     // scales
     const dateScale = useMemo(
@@ -86,13 +86,13 @@ export default withTooltip<AreaProps, TooltipData>(
         }),
       [innerWidth, margin.left]
     );
-    const memoryValueScale = useMemo(
+    const CpuValueScale = useMemo(
       () =>
         scaleLinear({
           range: [innerHeight + margin.top, margin.top],
           domain: [
             -5,
-            (max(selectedPodStats, getMemoryValue) || 0) + innerHeight / 0.001,
+            (max(selectedPodStats, getCpuValue) + 200 || 0) + innerHeight / 3,
           ],
           nice: true,
         }),
@@ -122,10 +122,10 @@ export default withTooltip<AreaProps, TooltipData>(
         showTooltip({
           tooltipData: d,
           tooltipLeft: x,
-          tooltipTop: memoryValueScale(getMemoryValue(d)),
+          tooltipTop: CpuValueScale(getCpuValue(d)),
         });
       },
-      [showTooltip, memoryValueScale, dateScale]
+      [showTooltip, CpuValueScale, dateScale]
     );
 
     return (
@@ -153,7 +153,7 @@ export default withTooltip<AreaProps, TooltipData>(
           />
           <GridRows
             left={margin.left}
-            scale={memoryValueScale}
+            scale={CpuValueScale}
             width={innerWidth}
             strokeDasharray="1,3"
             stroke={accentColor}
@@ -169,11 +169,11 @@ export default withTooltip<AreaProps, TooltipData>(
             strokeOpacity={0.2}
             pointerEvents="none"
           />
-          <AreaClosed<podStats>
+          <AreaClosed<nodeStats>
             data={selectedPodStats}
             x={(d) => dateScale(getDate(d)) ?? 0}
-            y={(d) => memoryValueScale(getMemoryValue(d)) ?? 0}
-            yScale={memoryValueScale}
+            y={(d) => CpuValueScale(getCpuValue(d)) ?? 0}
+            yScale={CpuValueScale}
             strokeWidth={1}
             stroke="url(#area-gradient)"
             fill="url(#area-gradient)"
@@ -234,22 +234,9 @@ export default withTooltip<AreaProps, TooltipData>(
                 ...tooltipStyles,
                 background: theme.palette.mode === "dark" ? "#0e0727" : "white",
                 fontSize: "13px",
-                // ---- the algo below to set color is off because it might give the impression EACH moused-over stat is the red or green state, when the code below just gives the current live stat's color... but left here for reference or future ideation.
-                // color:selectedPod[0]["podMemoryPercent"] ===
-                // "N/A"
-                //   ? "#ffffff80"
-                //   : Number(
-                //       selectedPod[0]["podMemoryPercent"]
-                //     ) < 90
-                //   ? `#2fc665`
-                //   : Number(
-                //       selectedPod[0]["podMemoryPercent"]
-                //     ) > 90
-                //   ? "#cf4848"
-                //   : "yellow",
               }}
             >
-              {`${getMemoryDisplayValue(tooltipData)}`}
+              {`${getCpuValue(tooltipData)}m`}
             </TooltipWithBounds>
             <Tooltip
               top={innerHeight + margin.top - 14}

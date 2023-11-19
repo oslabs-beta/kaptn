@@ -2388,6 +2388,7 @@ function KraneDeploymentsList(props) {
     </>
   );
 
+
   return (
     <>
       {/* ----------------MAIN CONTENT---------------- */}

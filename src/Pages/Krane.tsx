@@ -99,74 +99,6 @@ function Krane() {
 
   const theme = useTheme();
 
-  ipcRenderer.on("got_namespaces", (event, arg) => {
-    let argArr = arg.split("");
-
-    let namespaceArrayOutput = [];
-
-    let i: number = 0;
-
-    //skip row of column titles
-    while (arg[i] !== "\n") {
-      i++;
-    }
-    i++;
-
-    for (let j = 0; i < argArr.length; i++) {
-      let namespaceOutput: any = [];
-
-      //saves namespace
-      while (arg[i] !== " ") {
-        namespaceOutput.push(arg[i]);
-        i++;
-      }
-      let output = namespaceOutput.join("");
-      let prevNamespaces = [...namespacesArr];
-      namespaceArrayOutput.push(output);
-      //skips spaces
-      while (arg[i] !== "\n") {
-        i++;
-      }
-    }
-
-     //for each namespace, create an array with MenuItems JSX for mui select component, starting with an "ALL" option first.
-    let finalOutput = [];
-    finalOutput.push(
-      <MenuItem
-        value={"ALL"}
-        style={{
-          color: theme.palette.mode === "dark" ? "#ffffff" : "grey",
-          backgroundColor: theme.palette.mode === "dark" ? "#5c4d9a" : "white",
-          fontSize: "12px",
-        }}
-        sx={{bg:theme.palette.mode === "dark" ? "#5c4d9a" : "white",}}
-      >
-        ALL
-      </MenuItem>
-    );
-
-    for (let k = 0; k < namespaceArrayOutput.length; k++) {
-      finalOutput.push(
-        <MenuItem
-          value={`${namespaceArrayOutput[k]}`}
-          style={{
-            color: theme.palette.mode === "dark" ? "#ffffff" : "grey",
-                    backgroundColor:
-                      theme.palette.mode === "dark" ? "#5c4d9a" : "white",
-                    fontSize: "12px",
-          }}
-          sx={{bg:theme.palette.mode === "dark" ? "#5c4d9a" : "white",}}
-        >
-          {namespaceArrayOutput[k]}
-        </MenuItem>
-      );
-    }
-
-    setNamespacesArr(finalOutput);
-  });
-
-  // ----------------------------------------- get pods info section ------------
-
   function handleClick(event) {
     // setDeploymentsArr([]);
     // setNodesArr([]);
@@ -327,7 +259,7 @@ function Krane() {
         nodesCpuUsedCommand,
         currDir,
       });
-    }, 50);
+    }, 150);
 
     let nodesCpuLimitsCommand: string = `kubectl get nodes -o custom-columns="Name:metadata.name,CPU-limit:spec.containers[*].resources.limits.cpu,Memory-limit:spec.containers[*].resources.limits.cpu"`;
     setTimeout(() => {
@@ -335,7 +267,7 @@ function Krane() {
         nodesCpuLimitsCommand,
         currDir,
       });
-    }, 100);
+    }, 200);
   }
 
   function getNamespaces() {
@@ -348,6 +280,75 @@ function Krane() {
   }
 
   useEffect(() => {
+
+    ipcRenderer.on("got_namespaces", (event, arg) => {
+      let argArr = arg.split("");
+  
+      let namespaceArrayOutput = [];
+  
+      let i: number = 0;
+  
+      //skip row of column titles
+      while (arg[i] !== "\n") {
+        i++;
+      }
+      i++;
+  
+      for (let j = 0; i < argArr.length; i++) {
+        let namespaceOutput: any = [];
+  
+        //saves namespace
+        while (arg[i] !== " ") {
+          namespaceOutput.push(arg[i]);
+          i++;
+        }
+        let output = namespaceOutput.join("");
+        let prevNamespaces = [...namespacesArr];
+        namespaceArrayOutput.push(output);
+        //skips spaces
+        while (arg[i] !== "\n") {
+          i++;
+        }
+      }
+  
+       //for each namespace, create an array with MenuItems JSX for mui select component, starting with an "ALL" option first.
+      let finalOutput = [];
+      finalOutput.push(
+        <MenuItem
+          value={"ALL"}
+          key={0}
+          style={{
+            color: theme.palette.mode === "dark" ? "#ffffff" : "grey",
+            backgroundColor: theme.palette.mode === "dark" ? "#5c4d9a" : "white",
+            fontSize: "12px",
+          }}
+          sx={{bg:theme.palette.mode === "dark" ? "#5c4d9a" : "white",}}
+        >
+          ALL
+        </MenuItem>
+      );
+  
+      for (let k = 0; k < namespaceArrayOutput.length; k++) {
+        finalOutput.push(
+          <MenuItem
+            value={`${namespaceArrayOutput[k]}`}
+            key={k}
+            style={{
+              color: theme.palette.mode === "dark" ? "#ffffff" : "grey",
+                      backgroundColor:
+                        theme.palette.mode === "dark" ? "#5c4d9a" : "white",
+                      fontSize: "12px",
+            }}
+            sx={{bg:theme.palette.mode === "dark" ? "#5c4d9a" : "white",}}
+          >
+            {namespaceArrayOutput[k]}
+          </MenuItem>
+        );
+      }
+  
+      setNamespacesArr(finalOutput);
+    });
+
     getNamespaces();
   }, []);
 
@@ -535,6 +536,7 @@ function Krane() {
               >
                 <MenuItem
                   value={10}
+                  key={1}
                   style={{
                     color: theme.palette.mode === "dark" ? "#ffffff" : "grey",
                     backgroundColor:
@@ -546,6 +548,7 @@ function Krane() {
                 </MenuItem>
                 <MenuItem
                   value={20}
+                  key={2}
                   style={{
                     color: theme.palette.mode === "dark" ? "#ffffff" : "grey",
                     backgroundColor:
@@ -556,6 +559,7 @@ function Krane() {
                   20 seconds
                 </MenuItem>
                 <MenuItem
+                key={3}
                   value={30}
                   style={{
                     color: theme.palette.mode === "dark" ? "#ffffff" : "grey",
@@ -568,6 +572,7 @@ function Krane() {
                 </MenuItem>
                 <MenuItem
                   value={60}
+                  key={4}
                   style={{
                     color: theme.palette.mode === "dark" ? "#ffffff" : "grey",
                     backgroundColor:

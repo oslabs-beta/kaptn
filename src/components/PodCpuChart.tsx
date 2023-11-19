@@ -14,7 +14,6 @@ import { localPoint } from "@visx/event";
 import { LinearGradient } from "@visx/gradient";
 import { max, extent, bisector } from "@visx/vendor/d3-array";
 import { timeFormat } from "@visx/vendor/d3-time-format";
-
 import { useTheme } from "@mui/material";
 
 interface podStats {
@@ -63,10 +62,9 @@ export default withTooltip<AreaProps, TooltipData>(
 
     const background = theme.palette.mode === "dark" ? "#0e0727" : "#00000010"; //theme.palette.mode === "dark" ? "#0e0727" : "#e6e1fb80";
     const background2 = theme.palette.mode === "dark" ? "#120838" : "#00000005";
-    const accentColor =
-      selectedPodStats.name === "" ? "#2fc665" : "#2fc665";
+    const accentColor = selectedPodStats.name === "" ? "#2fc665" : "#2fc665";
     const accentColorDark = "#75daad";
-    const textColor = theme.palette.mode === "dark" ? "white" : "grey"
+    const textColor = theme.palette.mode === "dark" ? "white" : "grey";
 
     const tooltipStyles = {
       ...defaultStyles,
@@ -78,15 +76,6 @@ export default withTooltip<AreaProps, TooltipData>(
     // bounds
     const innerWidth = width - margin.left - margin.right;
     const innerHeight = height - margin.top - margin.bottom;
-
-    useEffect(() => {
-      // const cpuInterval = setInterval(() => {
-      //   props.getPodsAndContainers();
-      // }, 15000);
-      // return () => {
-      //   clearInterval(podsInterval);
-      // };
-    }, []); // end of use effect to get pods info on page open
 
     // scales
     const dateScale = useMemo(
@@ -241,7 +230,11 @@ export default withTooltip<AreaProps, TooltipData>(
               key={Math.random()}
               top={tooltipTop - 32}
               left={tooltipLeft + 12}
-              style={{ ...tooltipStyles, background:theme.palette.mode === "dark" ? "#0e0727" : "white", fontSize: "13px" }}
+              style={{
+                ...tooltipStyles,
+                background: theme.palette.mode === "dark" ? "#0e0727" : "white",
+                fontSize: "13px",
+              }}
             >
               {`${getCpuValue(tooltipData)}m`}
             </TooltipWithBounds>
@@ -255,7 +248,10 @@ export default withTooltip<AreaProps, TooltipData>(
                 transform: "translateX(-50%)",
                 background: theme.palette.mode === "dark" ? "#0e0727" : "white",
                 color: textColor,
-                border: theme.palette.mode === "dark" ? "1px solid white" : "1px solid #00000030",
+                border:
+                  theme.palette.mode === "dark"
+                    ? "1px solid white"
+                    : "1px solid #00000030",
                 fontSize: "10px",
               }}
             >
