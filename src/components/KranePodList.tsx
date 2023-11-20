@@ -37,6 +37,14 @@ let filteredPods: any = [];
 let sortIncrement = 0;
 
 function KranePodList(props) {
+
+
+  const [showExpandedPodCpuChart, setShowExpandedPodCpuChart] =
+    useState(false);
+
+  const [showExpandedPodMemoryChart, setShowExpandedPodMemoryChart] =
+    useState(false);
+
   const theme = useTheme();
 
   let currDir = "NONE SELECTED";
@@ -85,6 +93,25 @@ function KranePodList(props) {
     transform: "translate(-50%, -50%)",
     width: "80%",
     height: "80%",
+    background: theme.palette.mode === "dark" ? "#0e0727" : "#e6e1fb",
+    color: theme.palette.mode === "dark" ? "white" : "#47456e",
+    boxShadow: 24,
+    p: 4,
+    padding: "10px",
+    border:
+      theme.palette.mode === "dark" ? "1px solid white" : "2px solid #9075ea",
+    borderRadius: "10px",
+    overflow: "scroll",
+  };
+
+
+  const chartStyle = {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    width: "82%",
+    height: "65",
     background: theme.palette.mode === "dark" ? "#0e0727" : "#e6e1fb",
     color: theme.palette.mode === "dark" ? "white" : "#47456e",
     boxShadow: 24,
@@ -1118,6 +1145,23 @@ function KranePodList(props) {
       podDeleteCommand,
       currDir,
     });
+  };
+
+
+  const handlePodCpuChartOpen = (pod) => {
+    setShowExpandedPodCpuChart(true);
+  };
+
+  const handlePodCpuChartClose = () => {
+    setShowExpandedPodCpuChart(false);
+  };
+
+  const handlePodMemoryChartOpen = (pod) => {
+    setShowExpandedPodMemoryChart(true);
+  };
+
+  const handlePodMemoryChartClose = () => {
+    setShowExpandedPodMemoryChart(false);
   };
 
   function handleKubeSystemChange() {
@@ -2538,8 +2582,16 @@ function KranePodList(props) {
                               CPU LIMIT{" "}
                             </div>
                           </div>
-
+                          <LightTooltip
+                            title="CPU USAGE OVER TIME - CLICK TO EXPAND"
+                            placement="top"
+                            arrow
+                            enterDelay={1000}
+                            leaveDelay={100}
+                            enterNextDelay={3000}
+                          >
                           <div
+                              onClick={handlePodCpuChartOpen}
                             style={{
                               display: "flex",
                               borderRadius: "15px",
@@ -2554,6 +2606,46 @@ function KranePodList(props) {
                               podsStatsObj={podsStatsObj}
                             />
                           </div>
+                          </LightTooltip>
+                          <Modal
+                            open={showExpandedPodCpuChart}
+                            onClose={handlePodCpuChartClose}
+                          >
+                            <Box sx={chartStyle}>
+                              <div
+                                style={{
+                                  display: "flex",
+                                  flexDirection: "column",
+                                  fontFamily: "Outfit",
+                                  fontSize: "24px",
+                                  fontWeight: "700",
+                                  textAlign: "center",
+                                  margin: "10px 0 0px 0",
+                                }}
+                              >
+                                {props.selectedPod[0]["name"].toUpperCase()} | CPU
+                                USAGE - GRAPH OVER TIME
+                                <div
+                                  style={{
+                                    margin: "20px 0 0px 0",
+                                    fontWeight: "500",
+                                    borderRadius: "15px",
+                                    border:
+                                      theme.palette.mode === "dark"
+                                        ? "1.5px solid #ffffff50"
+                                        : "1.5px solid #00000030",
+                                  }}
+                                >
+                                  <PodCpuChart
+                                    width={840}
+                                    height={400}
+                                    selectedPod={props.selectedPod}
+                                    podsStatsObj={podsStatsObj}
+                                  />
+                                </div>
+                              </div>
+                            </Box>
+                          </Modal>
                         </div>
 
                         <div
@@ -2789,8 +2881,16 @@ function KranePodList(props) {
                               MEM LIMIT{" "}
                             </div>
                           </div>
-
+                          <LightTooltip
+                            title="MEMORY USAGE OVER TIME - CLICK TO EXPAND"
+                            placement="top"
+                            arrow
+                            enterDelay={1000}
+                            leaveDelay={100}
+                            enterNextDelay={3000}
+                          >
                           <div
+                          onClick={handlePodMemoryChartOpen}
                             style={{
                               display: "flex",
                               borderRadius: "15px",
@@ -2805,160 +2905,48 @@ function KranePodList(props) {
                               podsStatsObj={podsStatsObj}
                             />
                           </div>
+                          </LightTooltip>
+                          <Modal
+                            open={showExpandedPodMemoryChart}
+                            onClose={handlePodMemoryChartClose}
+                          >
+                            <Box sx={chartStyle}>
+                              <div
+                                style={{
+                                  display: "flex",
+                                  flexDirection: "column",
+                                  fontFamily: "Outfit",
+                                  fontSize: "24px",
+                                  fontWeight: "700",
+                                  textAlign: "center",
+                                  margin: "10px 0 0px 0",
+                                }}
+                              >
+                                {props.selectedPod[0]["name"].toUpperCase()} | MEMORY
+                                USAGE - GRAPH OVER TIME
+                                <div
+                                  style={{
+                                    margin: "20px 0 0px 0",
+                                    borderRadius: "15px",
+                                    fontWeight: "500",
+                                    border:
+                                      theme.palette.mode === "dark"
+                                        ? "1.5px solid #ffffff50"
+                                        : "1.5px solid #00000030",
+                                  }}
+                                >
+                                  <PodMemoryChart
+                                    width={840}
+                                    height={400}
+                                    selectedPod={props.selectedPod}
+                                    podsStatsObj={podsStatsObj}
+                                  />
+                                </div>
+                              </div>
+                            </Box>
+                          </Modal>
                         </div>
                       </div>
-
-                      {/* <div
-                        id="podMemoryGaugeLarge"
-                        style={{
-                          display: "flex",
-                          flexDirection: "column",
-                          justifyContent: "center",
-                          alignItems: "center",
-                          transform: "scale(.7)",
-                          // border:"1px solid pink",
-                          margin: "-70px 0 0 0",
-                        }}
-                      >
-                        <CircularProgress
-                          variant="determinate"
-                          // @ts-nocheck
-                          thickness={1.35}
-                          value={100 * 0.73}
-                          style={{
-                            marginTop: "130px",
-                            marginLeft: "53.5px",
-                            rotate: "-131deg",
-                            color:
-                              theme.palette.mode === "dark"
-                                ? "#ffffff40"
-                                : "#00000015",
-                            width: "180px",
-                          }}
-                        />
-                        <CircularProgress
-                          variant="determinate"
-                          // @ts-nocheck
-                          thickness={1.35}
-                          value={
-                            props.selectedPod[0]["podMemoryLimit"] === "NONE"
-                              ? 0
-                              : Number(
-                                  `${props.selectedPod[0]["podMemoryPercent"]}`
-                                ) * 0.73
-                          }
-                          style={{
-                            position: "relative",
-                            top: "-40px",
-                            left: "26.8px",
-                            rotate: "-131deg",
-                            color:
-                              props.selectedPod[0]["podMemoryPercent"] === "N/A"
-                                ? "#ffffff80"
-                                : Number(
-                                    props.selectedPod[0]["podMemoryPercent"]
-                                  ) < 90
-                                ? `#2fc665`
-                                : Number(
-                                    props.selectedPod[0]["podMemoryPercent"]
-                                  ) > 90
-                                ? "#cf4848"
-                                : "yellow",
-                            width: "180px",
-                          }}
-                        />
-                        <div
-                          style={{
-                            position: "relative",
-                            top: "-95px",
-                            left: "0px",
-                            fontSize:
-                              props.selectedPod[0]["podMemoryPercent"] === "N/A"
-                                ? "36px"
-                                : "38px",
-                            fontWeight: "800",
-                            marginTop: "-60px",
-                            marginLeft: "-37px",
-                            color:
-                              props.selectedPod[0]["podMemoryPercent"] === "N/A"
-                                ? "#ffffff80"
-                                : Number(
-                                    props.selectedPod[0]["podMemoryPercent"]
-                                  ) < 90
-                                ? `#2fc665`
-                                : Number(
-                                    props.selectedPod[0]["podMemoryPercent"]
-                                  ) > 90
-                                ? "#cf4848"
-                                : "yellow",
-                          }}
-                        >
-                          {props.selectedPod[0]["podMemoryPercent"] === "N/A"
-                            ? `NO MAX`
-                            : `${props.selectedPod[0]["podMemoryPercent"]}%`}
-                        </div>
-                        <div
-                          style={{
-                            fontSize: "16px",
-                            position: "relative",
-                            top: "-99px",
-                            left: "-20px",
-                            marginRight: "-2px",
-                            fontWeight: "400",
-                            marginTop: "-8px",
-                            color:
-                              props.selectedPod[0]["podMemoryPercent"] === "N/A"
-                                ? "#ffffff80"
-                                : Number(
-                                    props.selectedPod[0]["podMemoryPercent"]
-                                  ) < 90
-                                ? `#2fc665`
-                                : Number(
-                                    props.selectedPod[0]["podMemoryPercent"]
-                                  ) > 90
-                                ? "#cf4848"
-                                : "yellow",
-                          }}
-                        >
-                          MEMORY
-                        </div>
-                        <div
-                          style={{
-                            position: "relative",
-                            top: -42,
-                            left: -19,
-                            fontWeight: "400",
-                            fontSize: "16px",
-                            textAlign: "center",
-                            color:
-                              props.selectedPod[0]["podMemoryPercent"] === "N/A"
-                                ? "#ffffff80"
-                                : Number(
-                                    props.selectedPod[0]["podMemoryPercent"]
-                                  ) < 90
-                                ? `#2fc665`
-                                : Number(
-                                    props.selectedPod[0]["podMemoryPercent"]
-                                  ) > 90
-                                ? "#cf4848"
-                                : "yellow",
-                          }}
-                        >
-                          {" "}
-                          MEM. USED:{" "}
-                          <strong>
-                            {props.selectedPod[0]["podMemoryUsedDisplay"]}
-                          </strong>
-                          <br />
-                          MEM. LIMIT:{" "}
-                          <strong>
-                            {props.selectedPod[0]["podMemoryLimitDisplay"] ===
-                            ""
-                              ? "NONE"
-                              : props.selectedPod[0]["podMemoryLimitDisplay"]}
-                          </strong>
-                        </div>
-                      </div> */}
                     </div>
                     <div
                       style={{

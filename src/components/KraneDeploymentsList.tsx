@@ -192,297 +192,308 @@ function KraneDeploymentsList(props) {
       upToDate: "",
     },
   ]);
-
-  //Listen to "get deployments" return event and set pods array
-  ipcRenderer.on("got_deployments", (event, arg) => {
-    let argArr = arg.split("");
-
-    let filteredDeployments = [];
-
-    let i: number = 0;
-
-    //skip row of column titles
-    while (arg[i] !== "\n") {
-      i++;
-    }
-    i++;
-
-    for (let j = 0; i < argArr.length; i++) {
-      let namespaceOutput: any = [];
-      let nameOutput: any = [];
-      let readyNumeratorOutput: any = [];
-      let readyDenominatorOutput: any = [];
-      let upToDateOutput: any = [];
-      let availableOutput: any = [];
-      let ageOutput: any = [];
-      let containersOutput: any = [];
-      let imagesOutput: any = [];
-      let selectorOutput: any = [];
-
-      //saves namespace
-      while (arg[i] !== " ") {
-        namespaceOutput.push(arg[i]);
-        i++;
-      }
-      //skips spaces
-      while (arg[i] === " ") {
-        i++;
-      }
-
-      //saves name
-      while (arg[i] !== " ") {
-        nameOutput.push(arg[i]);
-        i++;
-      }
-      //skips spaces
-      while (arg[i] === " ") {
-        i++;
-      }
-
-      //saves ready
-      while (arg[i] !== "/") {
-        readyNumeratorOutput.push(arg[i]);
-        i++;
-      }
-      i++;
-      while (arg[i] !== " ") {
-        readyDenominatorOutput.push(arg[i]);
-        i++;
-      }
-
-      //skips spaces
-      while (arg[i] === " ") {
-        i++;
-      }
-
-      //saves up-to-date
-      while (arg[i] !== " ") {
-        upToDateOutput.push(arg[i]);
-        i++;
-      }
-      //skips spaces
-      while (arg[i] === " ") {
-        i++;
-      }
-
-      //saves available
-      while (arg[i] !== " ") {
-        availableOutput.push(arg[i]);
-        i++;
-      }
-      //skips spaces
-      while (arg[i] === " ") {
-        i++;
-      }
-      //saves age
-      while (arg[i] !== " ") {
-        ageOutput.push(arg[i]);
-        i++;
-      }
-      //skips spaces
-      while (arg[i] === " ") {
-        i++;
-      }
-      //saves containers
-      while (arg[i] !== " ") {
-        containersOutput.push(arg[i]);
-        i++;
-      }
-      //skips spaces
-      while (arg[i] === " ") {
-        i++;
-      }
-
-      //saves images
-      while (arg[i] !== " ") {
-        imagesOutput.push(arg[i]);
-        i++;
-      }
-      //skips spaces
-      while (arg[i] === " ") {
-        i++;
-      }
-
-      //saves selector
+  
+  
+    //Listen to "get deployments" return event and set pods array
+   ipcRenderer.on("got_deployments", (event, arg) => {
+      let argArr = arg.split("");
+  
+      let filteredDeployments = [];
+  
+      let i: number = 0;
+  
+      //skip row of column titles
       while (arg[i] !== "\n") {
-        selectorOutput.push(arg[i]);
         i++;
       }
-
-      let deployment = {
-        index: j,
-        namespace: namespaceOutput.join(""),
-        name: nameOutput.join(""),
-        readyNumerator: Number(readyNumeratorOutput.join("")),
-        readyDenominator: Number(readyDenominatorOutput.join("")),
-        upToDate: Number(upToDateOutput.join("")),
-        available: Number(availableOutput.join("")),
-        age: ageOutput.join(""),
-        containers: containersOutput.join(""),
-        images: imagesOutput.join(""),
-        selector: selectorOutput.join(""),
-        replicaSets: [],
-      };
-
-      filteredDeployments.push(deployment);
-      j++;
-    } //end of for loop parsing deployments return
-    props.setDeploymentsArr(filteredDeployments);
-  }); //--------------------------------------end of ipc to parse deployments --------
-
-  //Listen to "get replicaSets" return event and set pods array
-  ipcRenderer.on("got_rs", (event, arg) => {
-    let argArr = arg.split("");
-
-    let filteredReplicaSets = [];
-
-    let i: number = 0;
-
-    //skip row of column titles
-    while (arg[i] !== "\n") {
       i++;
-    }
-    i++;
-
-    for (let j = 0; i < argArr.length; i++) {
-      let namespaceOutput: any = [];
-      let nameOutput: any = [];
-      let desiredOutput: any = [];
-      let currentOutput: any = [];
-      let readyOutput: any = [];
-      let ageOutput: any = [];
-      let containersOutput: any = [];
-      let imagesOutput: any = [];
-      let selectorOutput: any = [];
-
-      //saves namespace
-      while (arg[i] !== " ") {
-        namespaceOutput.push(arg[i]);
+  
+      for (let j = 0; i < argArr.length; i++) {
+        let namespaceOutput: any = [];
+        let nameOutput: any = [];
+        let readyNumeratorOutput: any = [];
+        let readyDenominatorOutput: any = [];
+        let upToDateOutput: any = [];
+        let availableOutput: any = [];
+        let ageOutput: any = [];
+        let containersOutput: any = [];
+        let imagesOutput: any = [];
+        let selectorOutput: any = [];
+  
+        //saves namespace
+        while (arg[i] !== " ") {
+          namespaceOutput.push(arg[i]);
+          i++;
+        }
+        //skips spaces
+        while (arg[i] === " ") {
+          i++;
+        }
+  
+        //saves name
+        while (arg[i] !== " ") {
+          nameOutput.push(arg[i]);
+          i++;
+        }
+        //skips spaces
+        while (arg[i] === " ") {
+          i++;
+        }
+  
+        //saves ready
+        while (arg[i] !== "/") {
+          readyNumeratorOutput.push(arg[i]);
+          i++;
+        }
         i++;
-      }
-      //skips spaces
-      while (arg[i] === " ") {
-        i++;
-      }
-
-      //saves name
-      while (arg[i] !== " ") {
-        nameOutput.push(arg[i]);
-        i++;
-      }
-      //skips spaces
-      while (arg[i] === " ") {
-        i++;
-      }
-
-      //saves desired
-      while (arg[i] !== " ") {
-        desiredOutput.push(arg[i]);
-        i++;
-      }
-
-      //skips spaces
-      while (arg[i] === " ") {
-        i++;
-      }
-
-      //saves current
-      while (arg[i] !== " ") {
-        currentOutput.push(arg[i]);
-        i++;
-      }
-      //skips spaces
-      while (arg[i] === " ") {
-        i++;
-      }
-
-      //saves available
-      while (arg[i] !== " ") {
-        readyOutput.push(arg[i]);
-        i++;
-      }
-      //skips spaces
-      while (arg[i] === " ") {
-        i++;
-      }
-      //saves age
-      while (arg[i] !== " ") {
-        ageOutput.push(arg[i]);
-        i++;
-      }
-      //skips spaces
-      while (arg[i] === " ") {
-        i++;
-      }
-      //saves containers
-      while (arg[i] !== " ") {
-        containersOutput.push(arg[i]);
-        i++;
-      }
-      //skips spaces
-      while (arg[i] === " ") {
-        i++;
-      }
-
-      //saves images
-      while (arg[i] !== " ") {
-        imagesOutput.push(arg[i]);
-        i++;
-      }
-      //skips spaces
-      while (arg[i] === " ") {
-        i++;
-      }
-
-      //saves selector
+        while (arg[i] !== " ") {
+          readyDenominatorOutput.push(arg[i]);
+          i++;
+        }
+  
+        //skips spaces
+        while (arg[i] === " ") {
+          i++;
+        }
+  
+        //saves up-to-date
+        while (arg[i] !== " ") {
+          upToDateOutput.push(arg[i]);
+          i++;
+        }
+        //skips spaces
+        while (arg[i] === " ") {
+          i++;
+        }
+  
+        //saves available
+        while (arg[i] !== " ") {
+          availableOutput.push(arg[i]);
+          i++;
+        }
+        //skips spaces
+        while (arg[i] === " ") {
+          i++;
+        }
+        //saves age
+        while (arg[i] !== " ") {
+          ageOutput.push(arg[i]);
+          i++;
+        }
+        //skips spaces
+        while (arg[i] === " ") {
+          i++;
+        }
+        //saves containers
+        while (arg[i] !== " ") {
+          containersOutput.push(arg[i]);
+          i++;
+        }
+        //skips spaces
+        while (arg[i] === " ") {
+          i++;
+        }
+  
+        //saves images
+        while (arg[i] !== " ") {
+          imagesOutput.push(arg[i]);
+          i++;
+        }
+        //skips spaces
+        while (arg[i] === " ") {
+          i++;
+        }
+  
+        //saves selector
+        while (arg[i] !== "\n") {
+          selectorOutput.push(arg[i]);
+          i++;
+        }
+  
+        let deployment = {
+          index: j,
+          namespace: namespaceOutput.join(""),
+          name: nameOutput.join(""),
+          readyNumerator: Number(readyNumeratorOutput.join("")),
+          readyDenominator: Number(readyDenominatorOutput.join("")),
+          upToDate: Number(upToDateOutput.join("")),
+          available: Number(availableOutput.join("")),
+          age: ageOutput.join(""),
+          containers: containersOutput.join(""),
+          images: imagesOutput.join(""),
+          selector: selectorOutput.join(""),
+          replicaSets: [],
+        };
+  
+        filteredDeployments.push(deployment);
+        j++;
+      } //end of for loop parsing deployments return
+      props.setDeploymentsArr(filteredDeployments);
+  
+    }); //--------------------------------------end of ipc to parse deployments --------
+  
+  
+    //Listen to "get replicaSets" return event and set pods array
+    ipcRenderer.on("got_rs", (event, arg) => {
+      let argArr = arg.split("");
+  
+      let filteredReplicaSets = [];
+  
+      let i: number = 0;
+  
+      //skip row of column titles
       while (arg[i] !== "\n") {
-        selectorOutput.push(arg[i]);
         i++;
       }
+      i++;
+  
+      for (let j = 0; i < argArr.length; i++) {
+        let namespaceOutput: any = [];
+        let nameOutput: any = [];
+        let desiredOutput: any = [];
+        let currentOutput: any = [];
+        let readyOutput: any = [];
+        let ageOutput: any = [];
+        let containersOutput: any = [];
+        let imagesOutput: any = [];
+        let selectorOutput: any = [];
+  
+        //saves namespace
+        while (arg[i] !== " ") {
+          namespaceOutput.push(arg[i]);
+          i++;
+        }
+        //skips spaces
+        while (arg[i] === " ") {
+          i++;
+        }
+  
+        //saves name
+        while (arg[i] !== " ") {
+          nameOutput.push(arg[i]);
+          i++;
+        }
+        //skips spaces
+        while (arg[i] === " ") {
+          i++;
+        }
+  
+        //saves desired
+        while (arg[i] !== " ") {
+          desiredOutput.push(arg[i]);
+          i++;
+        }
+  
+        //skips spaces
+        while (arg[i] === " ") {
+          i++;
+        }
+  
+        //saves current
+        while (arg[i] !== " ") {
+          currentOutput.push(arg[i]);
+          i++;
+        }
+        //skips spaces
+        while (arg[i] === " ") {
+          i++;
+        }
+  
+        //saves available
+        while (arg[i] !== " ") {
+          readyOutput.push(arg[i]);
+          i++;
+        }
+        //skips spaces
+        while (arg[i] === " ") {
+          i++;
+        }
+        //saves age
+        while (arg[i] !== " ") {
+          ageOutput.push(arg[i]);
+          i++;
+        }
+        //skips spaces
+        while (arg[i] === " ") {
+          i++;
+        }
+        //saves containers
+        while (arg[i] !== " ") {
+          containersOutput.push(arg[i]);
+          i++;
+        }
+        //skips spaces
+        while (arg[i] === " ") {
+          i++;
+        }
+  
+        //saves images
+        while (arg[i] !== " ") {
+          imagesOutput.push(arg[i]);
+          i++;
+        }
+        //skips spaces
+        while (arg[i] === " ") {
+          i++;
+        }
+  
+        //saves selector
+        while (arg[i] !== "\n") {
+          selectorOutput.push(arg[i]);
+          i++;
+        }
+  
+        let replicaSet = {
+          index: j,
+          namespace: namespaceOutput.join(""),
+          name: nameOutput.join(""),
+          desired: desiredOutput.join(""),
+          current: currentOutput.join(""),
+          ready: readyOutput.join(""),
+          age: ageOutput.join(""),
+          containers: containersOutput.join(""),
+          images: imagesOutput.join(""),
+          selector: selectorOutput.join(""),
+        };
+  
+        filteredReplicaSets.push(replicaSet);
+        j++;
+      } //end of for loop parsing replicaSets return
+  
+      //add each replicaSet to its deployment
+      let tempDeploys = [...props.deploymentsArr];
+      for (let i = 0; i < tempDeploys.length; i++) {
+        tempDeploys[i]["replicaSets"] = filteredReplicaSets[i];
+      }
+  
+      // set new deployments Arr state, based on namespace
+      if (props.selectedNamespace !== "ALL") {
+        //if false, separate out kube system pods and then set state
+        let kubeDeployments = tempDeploys.filter(
+          (deployment) => deployment.namespace !== props.selectedNamespace
+        );
+        setKubeSystemDeployments([...kubeDeployments]);
+  
+        let kubeFilteredDeployments = tempDeploys.filter(
+          (deployment) => deployment.namespace === props.selectedNamespace
+        );
+        props.setDeploymentsArr([...kubeFilteredDeployments]);
+      } else {
+        //else if checkbox is true set deployments array with kube system as well
+        props.setDeploymentsArr([...tempDeploys]);
+      }
+  
+      
+    }); //--------------------------------------end of ipc to parse replicaSets --------
 
-      let replicaSet = {
-        index: j,
-        namespace: namespaceOutput.join(""),
-        name: nameOutput.join(""),
-        desired: desiredOutput.join(""),
-        current: currentOutput.join(""),
-        ready: readyOutput.join(""),
-        age: ageOutput.join(""),
-        containers: containersOutput.join(""),
-        images: imagesOutput.join(""),
-        selector: selectorOutput.join(""),
-      };
-
-      filteredReplicaSets.push(replicaSet);
-      j++;
-    } //end of for loop parsing replicaSets return
-
-    //add each replicaSet to its deployment
-    let tempDeploys = [...props.deploymentsArr];
-    for (let i = 0; i < tempDeploys.length; i++) {
-      tempDeploys[i]["replicaSets"] = filteredReplicaSets[i];
-    }
-
-    // set new deployments Arr state, based on namespace
-    if (props.selectedNamespace !== "ALL") {
-      //if false, separate out kube system pods and then set state
-      let kubeDeployments = tempDeploys.filter(
-        (deployment) => deployment.namespace !== props.selectedNamespace
-      );
-      setKubeSystemDeployments([...kubeDeployments]);
-
-      let kubeFilteredDeployments = tempDeploys.filter(
-        (deployment) => deployment.namespace === props.selectedNamespace
-      );
-      props.setDeploymentsArr([...kubeFilteredDeployments]);
-    } else {
-      //else if checkbox is true set deployments array with kube system as well
-      props.setDeploymentsArr([...tempDeploys]);
-    }
-  }); //--------------------------------------end of ipc to parse replicaSets --------
 
   useEffect(() => {
+
+
     props.getDeploymentsInfo();
+
+    
+
   }, []);
 
   const handleDeploymentOpen = (deployment) => {

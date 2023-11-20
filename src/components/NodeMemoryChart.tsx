@@ -59,11 +59,13 @@ export default withTooltip<AreaProps, TooltipData>(
 
     const theme = useTheme();
 
-    const background = "#0e0727"; //theme.palette.mode === "dark" ? "#0e0727" : "#e6e1fb80";
-    const background2 = "#120838";
-    const accentColor = "#2fc665";
-    const accentColorDark = "#75daad";
+    const background = theme.palette.mode === "dark" ? "#0e0727" : "#eeebfb"; //theme.palette.mode === "dark" ? "#0e0727" : "#e6e1fb80";
+    const background2 = theme.palette.mode === "dark" ? "#120838" : "#eeebfb";
+    const accentColor = selectedNode[0].nodeMemoryLimit === "NONE" ? "#2fc665" : selectedNode[0].nodeMemoryPercentMath > 90 ? "#2fc665" : selectedNode[0].nodeMemoryPercentMath > 90 ? "#cf4848" : "yellow";
+    const accentColorDark = selectedNode[0].nodeMemoryLimit === "NONE" ? "#75daad" : selectedNode[0].nodeMemoryPercentMath > 90 ? "#75daad" : selectedNode[0].nodeMemoryPercentMath > 90 ? "#cf4848" : "yellow";//"#75daad";
     const textColor = theme.palette.mode === "dark" ? "white" : "grey";
+
+
     const tooltipStyles = {
       ...defaultStyles,
       background,

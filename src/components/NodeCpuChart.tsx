@@ -56,14 +56,14 @@ export default withTooltip<AreaProps, TooltipData>(
   }: AreaProps & WithTooltipProvidedProps<TooltipData>) => {
     if (width < 10) return null;
 
-    let selectedPodStats = nodesStatsObj[`${selectedNode[0]["name"]}`];
+    let selectedNodeStats = nodesStatsObj[`${selectedNode[0]["name"]}`];
 
     const theme = useTheme();
 
-    const background = theme.palette.mode === "dark" ? "#0e0727" : "#00000010"; //theme.palette.mode === "dark" ? "#0e0727" : "#e6e1fb80";
-    const background2 = theme.palette.mode === "dark" ? "#120838" : "#00000005";
-    const accentColor = selectedPodStats.name === "" ? "#2fc665" : "#2fc665";
-    const accentColorDark = "#75daad";
+    const background = theme.palette.mode === "dark" ? "#0e0727" : "#eeebfb"; //theme.palette.mode === "dark" ? "#0e0727" : "#e6e1fb80";
+    const background2 = theme.palette.mode === "dark" ? "#120838" : "#eeebfb";
+    const accentColor = selectedNode[0].nodeCpuLimit === "NONE" ? "#2fc665" : selectedNode[0].nodeCpuPercentMath > 90 ? "#2fc665" : selectedNode[0].nodeCpuPercentMath > 90 ? "#cf4848" : "yellow";
+    const accentColorDark = selectedNode[0].nodeCpuLimit === "NONE" ? "#75daad" : selectedNode[0].nodeCpuPercentMath > 90 ? "#75daad" : selectedNode[0].nodeCpuPercentMath > 90 ? "#cf4848" : "yellow";//"#75daad";
     const textColor = theme.palette.mode === "dark" ? "white" : "grey";
 
     const tooltipStyles = {
@@ -82,7 +82,7 @@ export default withTooltip<AreaProps, TooltipData>(
       () =>
         scaleTime({
           range: [margin.left, innerWidth + margin.left],
-          domain: extent(selectedPodStats, getDate) as [Date, Date],
+          domain: extent(selectedNodeStats, getDate) as [Date, Date],
         }),
       [innerWidth, margin.left]
     );
@@ -92,7 +92,7 @@ export default withTooltip<AreaProps, TooltipData>(
           range: [innerHeight + margin.top, margin.top],
           domain: [
             -5,
-            (max(selectedPodStats, getCpuValue) + 200 || 0) + innerHeight / 3,
+            (max(selectedNodeStats, getCpuValue) + 200 || 0) + innerHeight / 3,
           ],
           nice: true,
         }),
@@ -108,9 +108,9 @@ export default withTooltip<AreaProps, TooltipData>(
       ) => {
         const { x } = localPoint(event) || { x: 0 };
         const x0 = dateScale.invert(x);
-        const index = bisectDate(selectedPodStats, x0, 1);
-        const d0 = selectedPodStats[index - 1];
-        const d1 = selectedPodStats[index];
+        const index = bisectDate(selectedNodeStats, x0, 1);
+        const d0 = selectedNodeStats[index - 1];
+        const d1 = selectedNodeStats[index];
         let d = d0;
         if (d1 && getDate(d1)) {
           d =
@@ -170,7 +170,7 @@ export default withTooltip<AreaProps, TooltipData>(
             pointerEvents="none"
           />
           <AreaClosed<nodeStats>
-            data={selectedPodStats}
+            data={selectedNodeStats}
             x={(d) => dateScale(getDate(d)) ?? 0}
             y={(d) => CpuValueScale(getCpuValue(d)) ?? 0}
             yScale={CpuValueScale}

@@ -59,11 +59,34 @@ export default withTooltip<AreaProps, TooltipData>(
 
     const theme = useTheme();
 
-    const background = "#0e0727"; //theme.palette.mode === "dark" ? "#0e0727" : "#e6e1fb80";
-    const background2 = "#120838";
-    const accentColor = "#2fc665";
-    const accentColorDark = "#75daad";
+    const background = theme.palette.mode === "dark" ? "#0e0727" : "#eeebfb"; //theme.palette.mode === "dark" ? "#0e0727" : "#e6e1fb80";
+    const background2 = theme.palette.mode === "dark" ? "#120838" : "#eeebfb";
+    const accentColor =
+      selectedPod[0].podMemoryLimit === "NONE"
+        ? "#2fc665"
+        : Number(selectedPod[0].podMemoryUsed) /
+            Number(selectedPod[0].podMemoryLimit) <
+          0.9
+        ? "#2fc665"
+        : Number(selectedPod[0].podMemoryUsed) /
+            Number(selectedPod[0].podMemoryLimit) >
+          0.9
+        ? "#cf4848"
+        : "yellow";
+    const accentColorDark =
+      selectedPod[0].podMemoryLimit === "NONE"
+        ? "#75daad"
+        : Number(selectedPod[0].podMemoryUsed) /
+            Number(selectedPod[0].podMemoryLimit) <
+          0.9
+        ? "#75daad"
+        : Number(selectedPod[0].podMemoryUsed) /
+            Number(selectedPod[0].podMemoryLimit) >
+          0.9
+        ? "#cf4848"
+        : "yellow"; //"#75daad";
     const textColor = theme.palette.mode === "dark" ? "white" : "grey";
+
     const tooltipStyles = {
       ...defaultStyles,
       background,
@@ -75,7 +98,6 @@ export default withTooltip<AreaProps, TooltipData>(
     const innerWidth = width - margin.left - margin.right;
     const innerHeight = height - margin.top - margin.bottom;
     let selectedPodStats = podsStatsObj[`${selectedPod[0]["name"]}`];
-
 
     // scales
     const dateScale = useMemo(

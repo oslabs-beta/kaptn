@@ -60,10 +60,10 @@ export default withTooltip<AreaProps, TooltipData>(
 
     const theme = useTheme();
 
-    const background = theme.palette.mode === "dark" ? "#0e0727" : "#00000010"; //theme.palette.mode === "dark" ? "#0e0727" : "#e6e1fb80";
-    const background2 = theme.palette.mode === "dark" ? "#120838" : "#00000005";
-    const accentColor = selectedPodStats.name === "" ? "#2fc665" : "#2fc665";
-    const accentColorDark = "#75daad";
+ const background = theme.palette.mode === "dark" ? "#0e0727" : "#eeebfb"; //theme.palette.mode === "dark" ? "#0e0727" : "#e6e1fb80";
+    const background2 = theme.palette.mode === "dark" ? "#120838" : "#eeebfb";
+    const accentColor = selectedPod[0].podCpuLimit === "NONE" ? "#2fc665" : (Number(selectedPod[0].podCpuUsed) / Number(selectedPod[0].podCpuLimit)) < .9 ? "#2fc665" : (Number(selectedPod[0].podCpuUsed) / Number(selectedPod[0].podCpuLimit)) > .9 ? "#cf4848" : "yellow";
+    const accentColorDark = selectedPod[0].podCpuLimit === "NONE" ? "#75daad" : (Number(selectedPod[0].podCpuUsed) / Number(selectedPod[0].podCpuLimit)) < .9 ? "#75daad" : (Number(selectedPod[0].podCpuUsed) / Number(selectedPod[0].podCpuLimit)) > .9 ? "#cf4848" : "yellow";//"#75daad";
     const textColor = theme.palette.mode === "dark" ? "white" : "grey";
 
     const tooltipStyles = {
