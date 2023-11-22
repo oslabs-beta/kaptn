@@ -56,14 +56,31 @@ export default withTooltip<AreaProps, TooltipData>(
   }: AreaProps & WithTooltipProvidedProps<TooltipData>) => {
     if (width < 10) return null;
 
+
+
+    
     let selectedNodeStats = nodesStatsObj[`${selectedNode[0]["name"]}`];
 
     const theme = useTheme();
 
     const background = theme.palette.mode === "dark" ? "#0e0727" : "#eeebfb"; //theme.palette.mode === "dark" ? "#0e0727" : "#e6e1fb80";
     const background2 = theme.palette.mode === "dark" ? "#120838" : "#eeebfb";
-    const accentColor = selectedNode[0].nodeCpuLimit === "NONE" ? "#2fc665" : selectedNode[0].nodeCpuPercentMath > 90 ? "#2fc665" : selectedNode[0].nodeCpuPercentMath > 90 ? "#cf4848" : "yellow";
-    const accentColorDark = selectedNode[0].nodeCpuLimit === "NONE" ? "#75daad" : selectedNode[0].nodeCpuPercentMath > 90 ? "#75daad" : selectedNode[0].nodeCpuPercentMath > 90 ? "#cf4848" : "yellow";//"#75daad";
+    const accentColor =
+      selectedNode[0].nodeCpuLimit === "NONE"
+        ? "#2fc665"
+        : selectedNode[0].nodeCpuPercentMath > 90
+        ? "#2fc665"
+        : selectedNode[0].nodeCpuPercentMath > 90
+        ? "#cf4848"
+        : "yellow";
+    const accentColorDark =
+      selectedNode[0].nodeCpuLimit === "NONE"
+        ? "#75daad"
+        : selectedNode[0].nodeCpuPercentMath > 90
+        ? "#75daad"
+        : selectedNode[0].nodeCpuPercentMath > 90
+        ? "#cf4848"
+        : "yellow"; //"#75daad";
     const textColor = theme.palette.mode === "dark" ? "white" : "grey";
 
     const tooltipStyles = {

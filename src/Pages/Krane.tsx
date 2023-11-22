@@ -332,7 +332,7 @@ function Krane() {
         finalOutput.push(
           <MenuItem
             value={`${namespaceArrayOutput[k]}`}
-            key={k}
+            key={k+1}
             style={{
               color: theme.palette.mode === "dark" ? "#ffffff" : "grey",
                       backgroundColor:
@@ -536,7 +536,7 @@ function Krane() {
               >
                 <MenuItem
                   value={10}
-                  key={1}
+                  key={0}
                   style={{
                     color: theme.palette.mode === "dark" ? "#ffffff" : "grey",
                     backgroundColor:
@@ -548,7 +548,7 @@ function Krane() {
                 </MenuItem>
                 <MenuItem
                   value={20}
-                  key={2}
+                  key={1}
                   style={{
                     color: theme.palette.mode === "dark" ? "#ffffff" : "grey",
                     backgroundColor:
@@ -559,7 +559,7 @@ function Krane() {
                   20 seconds
                 </MenuItem>
                 <MenuItem
-                key={3}
+                key={2}
                   value={30}
                   style={{
                     color: theme.palette.mode === "dark" ? "#ffffff" : "grey",
@@ -572,7 +572,7 @@ function Krane() {
                 </MenuItem>
                 <MenuItem
                   value={60}
-                  key={4}
+                  key={3}
                   style={{
                     color: theme.palette.mode === "dark" ? "#ffffff" : "grey",
                     backgroundColor:
