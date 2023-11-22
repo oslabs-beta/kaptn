@@ -946,6 +946,7 @@ function KraneNodeList(props) {
     }
 
     props.setNodesArr([...filteredNodes]);
+    
   });
 
   useEffect(() => {
