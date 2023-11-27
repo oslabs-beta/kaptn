@@ -259,7 +259,7 @@ function Krane() {
         nodesCpuUsedCommand,
         currDir,
       });
-    }, 150);
+    }, 550);
 
     let nodesCpuLimitsCommand: string = `kubectl get nodes -o custom-columns="Name:metadata.name,CPU-limit:spec.containers[*].resources.limits.cpu,Memory-limit:spec.containers[*].resources.limits.cpu"`;
     setTimeout(() => {
@@ -267,7 +267,7 @@ function Krane() {
         nodesCpuLimitsCommand,
         currDir,
       });
-    }, 200);
+    }, 700);
   }
 
   function getNamespaces() {

@@ -1,7 +1,9 @@
 const path = require("path");
-const { app, BrowserWindow, ipcMain } = require("electron");
+const { app, BrowserWindow, ipcMain, ipcRenderer } = require("electron");
 const { exec, spawnSync, spawn, execSync } = require("child_process");
 const fixPath = require("fix-path");
+
+// const storage = require("electron-json-storage");
 
 const isDev = process.env.NODE_ENV === "development";
 
@@ -33,6 +35,75 @@ function createMainWindow() {
 }
 
 /******** EVENT LISTENERS ********/
+
+// -------------- below is Failed attempt to persist storage using electron-json-storage -------------
+// ipcMain.handle("save_podStats", (e, podUsageArray) => {
+//   let tempPodsStatsStorage;
+
+//   // const defaultDataPath = storage.getDefaultDataPath();
+//   // console.log("default is", defaultDataPath);
+
+//   // console.log("podUsageArray is:", podUsageArray);
+
+//   return storage.get("podsStatsStorage", function (error, data) {
+//     if (error) throw error;
+
+//     // console.log("data is", data);
+//     // tempPodsStatsStorage = JSON.parse(JSON.stringify(data));
+//     // console.log("temp stats is", tempPodsStatsStorage);
+//     return data;
+//   });
+
+
+  // let date = new Date().toISOString();
+  // if (tempPodsStatsStorage === undefined) {
+  //   tempPodsStatsStorage = {};
+  //   for (let j = 0; j < podUsageArray.length; j++) {
+  //     let podsCurrentStats = {
+  //       date: date,
+  //       cpu: Number(podUsageArray[j]["podCpuUsed"]),
+  //       memory: Number(podUsageArray[j]["podMemoryUsed"]),
+  //       memoryDisplay: podUsageArray[j]["podMemoryUsedDisplay"],
+  //     };
+
+  //     tempPodsStatsStorage[podUsageArray[j]["podName"]] = [podsCurrentStats];
+  //   }
+  //   storage.set("podsStatsStorage", tempPodsStatsStorage, function (error) {
+  //     if (error) throw error;
+  //   });
+
+  // } else {
+  //   for (let j = 0; j < podUsageArray.length; j++) {
+  //     if (!tempPodsStatsStorage[podUsageArray[j]["podName"]]) {
+  //       let podsCurrentStats = {
+  //         date: date,
+  //         cpu: Number(podUsageArray[j]["podCpuUsed"]),
+  //         memory: Number(podUsageArray[j]["podMemoryUsed"]),
+  //         memoryDisplay: podUsageArray[j]["podMemoryUsedDisplay"],
+  //       };
+
+  //       tempPodsStatsStorage[podUsageArray[j]["podName"]] = [podsCurrentStats];
+  //     } else {
+  //       let podsCurrentStats = {
+  //         date: date,
+  //         cpu: Number(podUsageArray[j]["podCpuUsed"]),
+  //         memory: Number(podUsageArray[j]["podMemoryUsed"]),
+  //         memoryDisplay: podUsageArray[j]["podMemoryUsedDisplay"],
+  //       };
+
+  //       tempPodsStatsStorage[podUsageArray[j]["podName"]].push(
+  //         podsCurrentStats
+  //       );
+  //     }
+  //   }
+
+  //   storage.set("podsStatsStorage", tempPodsStatsStorage, function (error) {
+  //     if (error) throw error;
+  //   });
+
+  //   return "success";
+  // }
+// });
 
 //Listen for check if prometheus and grafana are installed
 ipcMain.on("getDirectory_command", (event, arg) => {

@@ -61,10 +61,8 @@ export default withTooltip<AreaProps, TooltipData>(
 
     const background = theme.palette.mode === "dark" ? "#0e0727" : "#eeebfb"; //theme.palette.mode === "dark" ? "#0e0727" : "#e6e1fb80";
     const background2 = theme.palette.mode === "dark" ? "#120838" : "#eeebfb";
-    const accentColor = selectedNode[0].nodeMemoryLimit === "NONE" ? "#2fc665" : selectedNode[0].nodeMemoryPercentMath > 90 ? "#2fc665" : selectedNode[0].nodeMemoryPercentMath > 90 ? "#cf4848" : "yellow";
-    const accentColorDark = selectedNode[0].nodeMemoryLimit === "NONE" ? "#75daad" : selectedNode[0].nodeMemoryPercentMath > 90 ? "#75daad" : selectedNode[0].nodeMemoryPercentMath > 90 ? "#cf4848" : "yellow";//"#75daad";
+    const accentColorMemory = theme.palette.mode === "dark" ? "white" : "#7b76c2"
     const textColor = theme.palette.mode === "dark" ? "white" : "grey";
-
 
     const tooltipStyles = {
       ...defaultStyles,
@@ -77,7 +75,6 @@ export default withTooltip<AreaProps, TooltipData>(
     const innerWidth = width - margin.left - margin.right;
     const innerHeight = height - margin.top - margin.bottom;
     let selectedNodeStats = nodesStatsObj[`${selectedNode[0]["name"]}`];
-
 
     // scales
     const dateScale = useMemo(
@@ -94,7 +91,8 @@ export default withTooltip<AreaProps, TooltipData>(
           range: [innerHeight + margin.top, margin.top],
           domain: [
             -5,
-            (max(selectedNodeStats, getMemoryValue)|| 0) + innerHeight / 0.00005,
+            (max(selectedNodeStats, getMemoryValue) || 0) +
+              innerHeight / 0.00005,
           ],
           nice: true,
         }),
@@ -148,9 +146,9 @@ export default withTooltip<AreaProps, TooltipData>(
           />
           <LinearGradient
             id="area-gradient"
-            from={accentColor}
+            from={accentColorMemory}
             fromOpacity={0.8}
-            to={accentColor}
+            to={accentColorMemory}
             toOpacity={0.0}
           />
           <GridRows
@@ -158,7 +156,7 @@ export default withTooltip<AreaProps, TooltipData>(
             scale={memoryValueScale}
             width={innerWidth}
             strokeDasharray="1,3"
-            stroke={accentColor}
+            stroke={accentColorMemory}
             strokeOpacity={0.0}
             pointerEvents="none"
           />
@@ -167,7 +165,7 @@ export default withTooltip<AreaProps, TooltipData>(
             scale={dateScale}
             height={innerHeight}
             strokeDasharray="1,3"
-            stroke={accentColor}
+            stroke={accentColorMemory}
             strokeOpacity={0.2}
             pointerEvents="none"
           />
@@ -198,7 +196,7 @@ export default withTooltip<AreaProps, TooltipData>(
               <Line
                 from={{ x: tooltipLeft, y: margin.top }}
                 to={{ x: tooltipLeft, y: innerHeight + margin.top }}
-                stroke={accentColorDark}
+                stroke={selectedNode[0].nodeMemoryLimit === "NONE" ? "#2fc665" : (getMemoryValue(tooltipData) / Number(selectedNode[0].nodeMemoryLimit)) <= 1 ? "#2fc665" : "#cf4848"}
                 strokeWidth={2}
                 pointerEvents="none"
                 strokeDasharray="5,2"
@@ -218,7 +216,7 @@ export default withTooltip<AreaProps, TooltipData>(
                 cx={tooltipLeft}
                 cy={tooltipTop}
                 r={4}
-                fill={accentColorDark}
+                fill={selectedNode[0].nodeMemoryLimit === "NONE" ? "#2fc665" : (getMemoryValue(tooltipData) / Number(selectedNode[0].nodeMemoryLimit)) <= 1 ? "#2fc665" : "#cf4848"}
                 stroke="white"
                 strokeWidth={2}
                 pointerEvents="none"
@@ -236,6 +234,8 @@ export default withTooltip<AreaProps, TooltipData>(
                 ...tooltipStyles,
                 background: theme.palette.mode === "dark" ? "#0e0727" : "white",
                 fontSize: "13px",
+                fontWeight:"900",
+                color: selectedNode[0].nodeMemoryLimit === "NONE" ? "#2fc665" : (getMemoryValue(tooltipData) / Number(selectedNode[0].nodeMemoryLimit)) <= 1 ? "#2fc665" : "#cf4848"
                 // ---- the algo below to set color is off because it might give the impression EACH moused-over stat is the red or green state, when the code below just gives the current live stat's color... but left here for reference or future ideation.
                 // color:selectedPod[0]["podMemoryPercent"] ===
                 // "N/A"

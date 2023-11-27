@@ -60,10 +60,10 @@ export default withTooltip<AreaProps, TooltipData>(
 
     const theme = useTheme();
 
- const background = theme.palette.mode === "dark" ? "#0e0727" : "#eeebfb"; //theme.palette.mode === "dark" ? "#0e0727" : "#e6e1fb80";
+    const background = theme.palette.mode === "dark" ? "#0e0727" : "#eeebfb"; //theme.palette.mode === "dark" ? "#0e0727" : "#e6e1fb80";
     const background2 = theme.palette.mode === "dark" ? "#120838" : "#eeebfb";
-    const accentColor = selectedPod[0].podCpuLimit === "NONE" ? "#2fc665" : (Number(selectedPod[0].podCpuUsed) / Number(selectedPod[0].podCpuLimit)) < .9 ? "#2fc665" : (Number(selectedPod[0].podCpuUsed) / Number(selectedPod[0].podCpuLimit)) > .9 ? "#cf4848" : "yellow";
-    const accentColorDark = selectedPod[0].podCpuLimit === "NONE" ? "#75daad" : (Number(selectedPod[0].podCpuUsed) / Number(selectedPod[0].podCpuLimit)) < .9 ? "#75daad" : (Number(selectedPod[0].podCpuUsed) / Number(selectedPod[0].podCpuLimit)) > .9 ? "#cf4848" : "yellow";//"#75daad";
+    const accentColor =
+    theme.palette.mode === "dark" ? "white" : "#7b76c2"
     const textColor = theme.palette.mode === "dark" ? "white" : "grey";
 
     const tooltipStyles = {
@@ -147,7 +147,7 @@ export default withTooltip<AreaProps, TooltipData>(
           <LinearGradient
             id="area-gradient"
             from={accentColor}
-            fromOpacity={0.8}
+            fromOpacity={0.4}
             to={accentColor}
             toOpacity={0.0}
           />
@@ -174,7 +174,7 @@ export default withTooltip<AreaProps, TooltipData>(
             x={(d) => dateScale(getDate(d)) ?? 0}
             y={(d) => CpuValueScale(getCpuValue(d)) ?? 0}
             yScale={CpuValueScale}
-            strokeWidth={1}
+            strokeWidth={1.7}
             stroke="url(#area-gradient)"
             fill="url(#area-gradient)"
             curve={curveMonotoneX}
@@ -196,7 +196,7 @@ export default withTooltip<AreaProps, TooltipData>(
               <Line
                 from={{ x: tooltipLeft, y: margin.top }}
                 to={{ x: tooltipLeft, y: innerHeight + margin.top }}
-                stroke={accentColorDark}
+                stroke={selectedPod[0].podCpuLimit === "NONE" ? "#2fc665" : (getCpuValue(tooltipData) / Number(selectedPod[0].podCpuLimit)) <= 1 ? "#2fc665" : "#cf4848"}
                 strokeWidth={2}
                 pointerEvents="none"
                 strokeDasharray="5,2"
@@ -216,7 +216,7 @@ export default withTooltip<AreaProps, TooltipData>(
                 cx={tooltipLeft}
                 cy={tooltipTop}
                 r={4}
-                fill={accentColorDark}
+                fill={selectedPod[0].podCpuLimit === "NONE" ? "#2fc665" : (getCpuValue(tooltipData) / Number(selectedPod[0].podCpuLimit)) <= 1 ? "#2fc665" : "#cf4848"}
                 stroke="white"
                 strokeWidth={2}
                 pointerEvents="none"
@@ -234,6 +234,8 @@ export default withTooltip<AreaProps, TooltipData>(
                 ...tooltipStyles,
                 background: theme.palette.mode === "dark" ? "#0e0727" : "white",
                 fontSize: "13px",
+                fontWeight:"900",
+                color: selectedPod[0].podCpuLimit === "NONE" ? "#2fc665" : (getCpuValue(tooltipData) / Number(selectedPod[0].podCpuLimit)) <= 1 ? "#2fc665" : "#cf4848"
               }}
             >
               {`${getCpuValue(tooltipData)}m`}

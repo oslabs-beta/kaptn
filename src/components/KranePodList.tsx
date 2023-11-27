@@ -10,6 +10,7 @@ import SortIcon from "@mui/icons-material/Sort";
 import PodCpuChart from "./PodCpuChart";
 import PodMemoryChart from "./PodMemoryChart";
 
+
 const LightTooltip = styled(({ className, ...props }: TooltipProps) => (
   <Tooltip {...props} classes={{ popper: className }} />
 ))(({ theme }) => ({
@@ -532,6 +533,10 @@ function KranePodList(props) {
     props.setPodsArr([...filteredPods]);
     props.setAllPodsArr([...filteredPods]);
 
+// if (podUsageArray[0]){
+// ipcRenderer.invoke("save_podStats",podUsageArray).then((data) => console.log("success:", data))
+// }
+
     for (let j = 0; j < podUsageArray.length; j++) {
       if (tempPodsStatsObj[podUsageArray[j]["podName"]] === undefined) {
         let podsCurrentStats = {
@@ -553,6 +558,9 @@ function KranePodList(props) {
         tempPodsStatsObj[podUsageArray[j]["podName"]].push(podsCurrentStats);
       }
     }
+
+
+
 
     // let podsCurrentStats = {
     //   date: date,

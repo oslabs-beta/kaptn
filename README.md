@@ -30,7 +30,7 @@ Kaptn is a fully downloadable desktop application that provides a user-friendly 
 ## Features
 
 - Kaptn Krane Cluster Manager - NEW!
-  - View live metrics and refresh on demand
+  - View live and historical metrics, and refresh statistics at adjustable intervals
   - Scale, delete/restart, and rollback deployments, nodes, and pods
   - View logs, yamls, and describe resources
   - Intuitive UI including custom speedometer-style gauges for CPU and Memory Usage, and one-click control of your clusters
@@ -48,10 +48,17 @@ Kaptn is a fully downloadable desktop application that provides a user-friendly 
 
 ## Updates
 
+
+Version 2.0.1 -
+
+- Adds expandable visx graphs for pods' and nodes' historical cpu and memory usage.
+
+- Adds variable refresh rate.
+
 Version 2.0.0 -
 
 - **Kaptn Krane Cluster Manager:**
-  View live metrics and scale, delete or restart resources like pods, nodes, and deployments in our revolutionary, easy-to-use interface that harnesses the power of kubectl commands. Features including filtering by namespace, sorting by cpu and memory percent, one-click control of your clusters, and much more makes taking command of Kubernetes easier than ever before!
+  View live and historical metrics, and scale, delete or restart resources like pods, nodes, and deployments in our revolutionary, easy-to-use interface that harnesses the power of kubectl commands. Features including filtering by namespace, sorting by cpu and memory percent, one-click control of your clusters, and much more makes taking command of Kubernetes easier than ever before!
 
 - **New Start Page:**
   We've completely revamped the start page, including the addition of installation checks and quickstart links. Now you can troubleshoot problems more quickly, and get right into your workflow.
@@ -101,9 +108,43 @@ Our application defaults to start page, where you will be able to choose which p
 
 ### Krane Cluster Manager
 
-Our all-new Krane Cluster Manager allows you to control your clusters at the click of a button. Simply choose from the options at the top of the screen, and you can view live metrics on your nodes, pods, and deployments. You can scale, delete/restart, rollback your resources, and filter by namespace, sort by CPU, Memory, and much more.
+Our all-new Krane Cluster Manager allows you to control your clusters at the click of a button. Simply choose from the options at the top of the screen, and you have the following options:
 
-![kraneNodesGIF](https://github.com/oslabs-beta/kaptn/assets/119518056/25abaa5e-54b5-4d92-9b83-52d32fe96605)
+- Nodes:
+    - View Live CPU and Memory Use
+    - View Historical CPU and Memory Use
+    - View Yaml
+    - Decribe Node 
+    - Drain Node
+    - Cordon Node
+    - Uncordon Node
+    - Delete / Restart Node
+
+- Pods:
+    - View Live CPU and Memory Use
+    - View Historical CPU and Memory Use
+    - View Yaml
+    - View Logs
+    - View Yaml
+    - Decribe Pod
+    - Delete / Restart Pod
+
+![v201screencaps-nodesPods](https://github.com/oslabs-beta/kaptn/assets/119518056/60f19526-8c79-40c9-9a8c-000d38240dc6)
+
+
+- Deployments:
+    - View ReplicaSets and Statuses
+    - View Yaml
+    - View Logs
+    - Describe Deployment
+    - View Rollout Status
+    - View Rollout History
+    - Rollback to Previous Version
+    - Perform Rolling Restart
+    - Scale Deployment
+    - Delete Deployment
+
+![v201screencaps-Deploys](https://github.com/oslabs-beta/kaptn/assets/119518056/33a362be-1be1-404e-9018-a3599735b9c7)
 
 ### Supercharged CLI
 

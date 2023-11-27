@@ -61,30 +61,7 @@ export default withTooltip<AreaProps, TooltipData>(
 
     const background = theme.palette.mode === "dark" ? "#0e0727" : "#eeebfb"; //theme.palette.mode === "dark" ? "#0e0727" : "#e6e1fb80";
     const background2 = theme.palette.mode === "dark" ? "#120838" : "#eeebfb";
-    const accentColor =
-      selectedPod[0].podMemoryLimit === "NONE"
-        ? "#2fc665"
-        : Number(selectedPod[0].podMemoryUsed) /
-            Number(selectedPod[0].podMemoryLimit) <
-          0.9
-        ? "#2fc665"
-        : Number(selectedPod[0].podMemoryUsed) /
-            Number(selectedPod[0].podMemoryLimit) >
-          0.9
-        ? "#cf4848"
-        : "yellow";
-    const accentColorDark =
-      selectedPod[0].podMemoryLimit === "NONE"
-        ? "#75daad"
-        : Number(selectedPod[0].podMemoryUsed) /
-            Number(selectedPod[0].podMemoryLimit) <
-          0.9
-        ? "#75daad"
-        : Number(selectedPod[0].podMemoryUsed) /
-            Number(selectedPod[0].podMemoryLimit) >
-          0.9
-        ? "#cf4848"
-        : "yellow"; //"#75daad";
+    const accentColor = theme.palette.mode === "dark" ? "white" : "#7b76c2"
     const textColor = theme.palette.mode === "dark" ? "white" : "grey";
 
     const tooltipStyles = {
@@ -218,7 +195,7 @@ export default withTooltip<AreaProps, TooltipData>(
               <Line
                 from={{ x: tooltipLeft, y: margin.top }}
                 to={{ x: tooltipLeft, y: innerHeight + margin.top }}
-                stroke={accentColorDark}
+                stroke={selectedPod[0].podMemoryLimit === "NONE" ? "#2fc665" : (getMemoryValue(tooltipData) / Number(selectedPod[0].podMemoryLimit)) <= 1 ? "#2fc665" : "#cf4848"}
                 strokeWidth={2}
                 pointerEvents="none"
                 strokeDasharray="5,2"
@@ -238,7 +215,7 @@ export default withTooltip<AreaProps, TooltipData>(
                 cx={tooltipLeft}
                 cy={tooltipTop}
                 r={4}
-                fill={accentColorDark}
+                fill={selectedPod[0].podMemoryLimit === "NONE" ? "#75daad" : (getMemoryValue(tooltipData) / Number(selectedPod[0].podMemoryLimit)) <= 1 ? "#75daad" : "#cf4848"}
                 stroke="white"
                 strokeWidth={2}
                 pointerEvents="none"
@@ -256,6 +233,8 @@ export default withTooltip<AreaProps, TooltipData>(
                 ...tooltipStyles,
                 background: theme.palette.mode === "dark" ? "#0e0727" : "white",
                 fontSize: "13px",
+                fontWeight:"900",
+                color: selectedPod[0].podMemoryLimit === "NONE" ? "#2fc665" : (getMemoryValue(tooltipData) / Number(selectedPod[0].podMemoryLimit)) <= 1 ? "#2fc665" : "#cf4848"
                 // ---- the algo below to set color is off because it might give the impression EACH moused-over stat is the red or green state, when the code below just gives the current live stat's color... but left here for reference or future ideation.
                 // color:selectedPod[0]["podMemoryPercent"] ===
                 // "N/A"

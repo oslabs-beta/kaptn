@@ -9,6 +9,8 @@ import { JsxElement } from "typescript";
 import NodeCpuChart from "./NodeCpuChart";
 import NodeMemoryChart from "./NodeMemoryChart";
 
+// const storage = require('electron-json-storage');
+
 const LightTooltip = styled(({ className, ...props }: TooltipProps) => (
   <Tooltip {...props} classes={{ popper: className }} />
 ))(({ theme }) => ({
@@ -78,6 +80,16 @@ function KraneNodeList(props) {
 
   let currDir = props.currDir;
   let filteredNodes = [];
+
+
+  // const defaultDataPath = storage.getDefaultDataPath()
+  // console.log("default is", defaultDataPath)
+  // storage.setDataPath()
+  // storage.get('foobar', function(error: any, data: any) {
+  //   if (error) throw error;
+  
+  //   console.log("data is", data);
+  // });
 
   const style = {
     position: "absolute",
@@ -640,7 +652,7 @@ function KraneNodeList(props) {
     }
     i++;
 
-    // //for loop to put all pods in array of objects
+    // //for loop to parse response and put all nodes' stats in array of objects
     for (let j = 0; i < argArr.length; i++) {
       let nodeNameArr = [];
       let nodeCpuUsedArr = [];
