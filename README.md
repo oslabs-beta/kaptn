@@ -108,12 +108,12 @@ Our application defaults to start page, where you will be able to choose which p
 
 ### Krane Cluster Manager
 
-Our all-new Krane Cluster Manager allows you to control your clusters at the click of a button. Simply choose from the options at the top of the screen, and you have the following options:
+Our all-new Krane Cluster Manager allows you to control your clusters at the click of a button. Simply choose "Nodes & Pods" or "Deployments" at the top of the screen, and you'll have the following options:
 
 - Nodes:
     - View Live CPU and Memory Use
-    - View Historical CPU and Memory Use
-    - View Yaml
+    - View Graph of Historical CPU and Memory Use
+    - View Node Yaml
     - Decribe Node 
     - Drain Node
     - Cordon Node
@@ -122,10 +122,9 @@ Our all-new Krane Cluster Manager allows you to control your clusters at the cli
 
 - Pods:
     - View Live CPU and Memory Use
-    - View Historical CPU and Memory Use
-    - View Yaml
-    - View Logs
-    - View Yaml
+    - View Graph of Historical CPU and Memory Use
+    - View Pod Logs
+    - View Pod Yaml
     - Decribe Pod
     - Delete / Restart Pod
 
@@ -134,8 +133,8 @@ Our all-new Krane Cluster Manager allows you to control your clusters at the cli
 
 - Deployments:
     - View ReplicaSets and Statuses
-    - View Yaml
-    - View Logs
+    - View Deployment Yaml
+    - View Deployment Logs
     - Describe Deployment
     - View Rollout Status
     - View Rollout History
