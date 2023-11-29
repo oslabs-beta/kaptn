@@ -44,7 +44,7 @@ function Krane(props) {
     "ALL"
   );
 
-  const [refreshSpeed, setRefreshSpeed] = useState(10);
+  const [refreshSpeed, setRefreshSpeed] = useState(15);
 
   const [deploymentsArr, setDeploymentsArr] = useState([]);
   const [podsArr, setPodsArr] = useState([]);
@@ -571,7 +571,7 @@ function Krane(props) {
                 }}
               ></InputLabel>
               <Select
-                defaultValue={10}
+                defaultValue={15}
                 onChange={handleChangeRefreshSpeed}
                 style={{
                   display: "flex",
@@ -583,7 +583,7 @@ function Krane(props) {
                 }}
               >
                 <MenuItem
-                  value={10}
+                  value={15}
                   key={0}
                   style={{
                     color: theme.palette.mode === "dark" ? "#ffffff" : "grey",
@@ -592,19 +592,7 @@ function Krane(props) {
                     fontSize: "12px",
                   }}
                 >
-                  10 seconds
-                </MenuItem>
-                <MenuItem
-                  value={20}
-                  key={1}
-                  style={{
-                    color: theme.palette.mode === "dark" ? "#ffffff" : "grey",
-                    backgroundColor:
-                      theme.palette.mode === "dark" ? "#5c4d9a" : "white",
-                    fontSize: "12px",
-                  }}
-                >
-                  20 seconds
+                  15 seconds
                 </MenuItem>
                 <MenuItem
                   key={2}
