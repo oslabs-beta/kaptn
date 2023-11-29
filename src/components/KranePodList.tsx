@@ -145,7 +145,7 @@ function KranePodList(props) {
   const [kubeSystemCheck, setKubeSystemCheck] = React.useState(false);
   const [kubeSystemPods, setKubeSystemPods] = React.useState([]);
 
-  const [podsStatsObj, setPodsStatsObj] = useState({});
+  // const [props.podsStatsObj, props.setPodsStatsObj] = useState({});
 
   // ----------------------------------------- get pods info section ------------
 
@@ -385,7 +385,7 @@ function KranePodList(props) {
   ipcRenderer.on("got_cpuUsed", (event, arg) => {
     let date = new Date().toISOString();
     // let tempPodsStatsObj = JSON.parse(JSON.stringify(podsStatsObj));
-    let tempPodsStatsObj = podsStatsObj;
+    let tempPodsStatsObj = props.podsStatsObj;
 
     let argArr = arg.split("");
     // console.log("arg split is", arg.split(""));
@@ -576,7 +576,7 @@ function KranePodList(props) {
     //   tempPodsStatsObj[`${podName.join("")}`] = [...tempPodsStatsObj[`${podName.join("")}`], podsCurrentStats];
     // }
 
-    setPodsStatsObj(tempPodsStatsObj);
+    props.setPodsStatsObj(tempPodsStatsObj);
   }); // -------------------- end of ipc render function for get pods cpu used
 
   //Listen to "get cpuUsed" return event
@@ -2611,7 +2611,7 @@ function KranePodList(props) {
                               width={230}
                               height={90}
                               selectedPod={props.selectedPod}
-                              podsStatsObj={podsStatsObj}
+                              podsStatsObj={props.podsStatsObj}
                             />
                           </div>
                           </LightTooltip>
@@ -2648,7 +2648,7 @@ function KranePodList(props) {
                                     width={840}
                                     height={400}
                                     selectedPod={props.selectedPod}
-                                    podsStatsObj={podsStatsObj}
+                                    podsStatsObj={props.podsStatsObj}
                                   />
                                 </div>
                               </div>
@@ -2910,7 +2910,7 @@ function KranePodList(props) {
                               width={230}
                               height={90}
                               selectedPod={props.selectedPod}
-                              podsStatsObj={podsStatsObj}
+                              podsStatsObj={props.podsStatsObj}
                             />
                           </div>
                           </LightTooltip>
@@ -2947,7 +2947,7 @@ function KranePodList(props) {
                                     width={840}
                                     height={400}
                                     selectedPod={props.selectedPod}
-                                    podsStatsObj={podsStatsObj}
+                                    podsStatsObj={props.podsStatsObj}
                                   />
                                 </div>
                               </div>
@@ -3310,7 +3310,6 @@ function KranePodList(props) {
       </>
     );
   }
-
 
 
   return (

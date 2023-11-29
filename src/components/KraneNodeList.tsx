@@ -68,7 +68,7 @@ function KraneNodeList(props) {
     },
   ]);
 
-  const [nodesStatsObj, setNodesStatsObj] = useState({});
+  // const [nodesStatsObj, setNodesStatsObj] = useState({});
 
   const [showExpandedNodeCpuChart, setShowExpandedNodeCpuChart] =
     useState(false);
@@ -486,6 +486,8 @@ function KraneNodeList(props) {
     });
   };
 
+const [count, setCount] = useState(0)
+
   //Listen to "get nodes" return event
   ipcRenderer.on("got_nodes", (event, arg) => {
     let nameOutput: any = [];
@@ -638,7 +640,7 @@ function KraneNodeList(props) {
   ipcRenderer.on("got_nodesCpuUsed", (event, arg) => {
     let date = new Date().toISOString();
     // let tempNodesStatsObj = JSON.parse(JSON.stringify(podsStatsObj));
-    let tempNodesStatsObj = nodesStatsObj;
+    let tempNodesStatsObj = props.nodesStatsObj;
 
     let argArr = arg.split("");
 
@@ -767,6 +769,8 @@ function KraneNodeList(props) {
       nodeUsageArray.push(node);
     } //end of for loop
 
+    props.setNodesUsageArr([...nodeUsageArray])
+
     let finalNodeUsageArr = nodeUsageArray.filter(
       (ele: any, ind: number) =>
         ind ===
@@ -813,7 +817,7 @@ function KraneNodeList(props) {
       }
     }
 
-    setNodesStatsObj(tempNodesStatsObj);
+    props.setNodesStatsObj(tempNodesStatsObj);
   });
 
   //
@@ -958,7 +962,7 @@ function KraneNodeList(props) {
     }
 
     props.setNodesArr([...filteredNodes]);
-    
+    props.setNodesLimitsArr([...nodeLimitsArray])
   });
 
   useEffect(() => {
@@ -1191,6 +1195,8 @@ function KraneNodeList(props) {
   //-----------------------------------------------------------START OF FOR LOOP TO PUSH NODE LIST JSX
 
   let nodeList = [];
+  console.log("props.nodesUsageArr is:", props.nodesUsageArr)
+  console.log("props.nodesUsageArr is:", props.nodesUsageArr)
   for (let i = 0; i < props.nodesArr.length; i++) {
     let nodeReadyStatusRunning;
     let nodeReadyStatusRunningLight;
@@ -2941,7 +2947,7 @@ function KraneNodeList(props) {
                                 width={230}
                                 height={90}
                                 selectedNode={selectedNode}
-                                nodesStatsObj={nodesStatsObj}
+                                nodesStatsObj={props.nodesStatsObj}
                               />
                             </div>
                           </LightTooltip>
@@ -2978,7 +2984,7 @@ function KraneNodeList(props) {
                                     width={840}
                                     height={400}
                                     selectedNode={selectedNode}
-                                    nodesStatsObj={nodesStatsObj}
+                                    nodesStatsObj={props.nodesStatsObj}
                                   />
                                 </div>
                               </div>
@@ -3276,7 +3282,7 @@ function KraneNodeList(props) {
                               <NodeMemoryChart
                                 width={230}
                                 height={90}
-                                nodesStatsObj={nodesStatsObj}
+                                nodesStatsObj={props.nodesStatsObj}
                                 selectedNode={selectedNode}
                               />
                             </div>
@@ -3314,7 +3320,7 @@ function KraneNodeList(props) {
                                     width={840}
                                     height={400}
                                     selectedNode={selectedNode}
-                                    nodesStatsObj={nodesStatsObj}
+                                    nodesStatsObj={props.nodesStatsObj}
                                   />
                                 </div>
                               </div>
@@ -4821,6 +4827,7 @@ function KraneNodeList(props) {
       </>
     );
   }
+
 
   return (
     <>

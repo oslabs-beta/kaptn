@@ -173,9 +173,13 @@ function KraneDeploymentsList(props) {
 
   const [deploymentScaleNumber, setDeploymentScaleNumber] = React.useState(0);
 
-  const [kubeSystemDeploymentsCheck, setKubeSystemDeploymentsCheck] =
-    React.useState(false);
-  const [kubeSystemDeployments, setKubeSystemDeployments] = React.useState([]);
+  // const [kubeSystemDeploymentsCheck, setKubeSystemDeploymentsCheck] =
+  //   React.useState(false);
+
+  const [filteredOutDeployments, setFilteredOutDeployments] = React.useState(
+    []
+  );
+  const [filteredOutRSs, setFilteredOutRSs] = React.useState([]);
 
   const [selectedDeployment, setSelectedDeployment] = useState([
     {
@@ -187,17 +191,73 @@ function KraneDeploymentsList(props) {
       images: "",
       readyDenominator: "",
       readyNumerator: "",
-      replicaSets: {},
       selector: "",
       upToDate: "",
     },
   ]);
 
+  const [selectedRS, setSelectedRS] = useState([
+    {
+      index: "",
+      namespace: "",
+      name: "",
+      desired: "",
+      current: "",
+      ready: "",
+      age: "",
+      containers: "",
+      images: "",
+      selector: "",
+    },
+  ]);
+
+  const [replicaSetsArray, setReplicaSetsArray] = React.useState([]);
+
+  function filterRS(RSArray) {
+    //set new RS Arr state, based on namespace
+    if (props.selectedNamespace !== "ALL") {
+      //if false, separate out kube system pods and then set state
+      let tempFilteredOutRSs = RSArray.filter(
+        (rs) => rs.namespace !== props.selectedNamespace
+      );
+      setFilteredOutRSs([...tempFilteredOutRSs]);
+
+      let selectedNamespaceRSs = RSArray.filter(
+        (rs) => rs.namespace === props.selectedNamespace
+      );
+      setReplicaSetsArray([...selectedNamespaceRSs]);
+    } else {
+      //else if checkbox is true set deployments array with kube system as well
+      setReplicaSetsArray([...RSArray]);
+    }
+  }
+
+  function filterDeploys(DSArray) {
+    if (props.selectedNamespace !== "ALL") {
+      //if false, separate out kube system pods and then set state
+      let tempFilteredOutDeployments = DSArray.filter(
+        (deployment) => deployment.namespace !== props.selectedNamespace
+      );
+      setFilteredOutDeployments([...tempFilteredOutDeployments]);
+
+      let selectedNamespaceDeployments = DSArray.filter(
+        (deployment) => deployment.namespace === props.selectedNamespace
+      );
+      props.setDeploymentsArr([...selectedNamespaceDeployments]);
+    } else {
+      //else if checkbox is true set deployments array with kube system as well
+      props.setDeploymentsArr([...DSArray]);
+    }
+  }
+
+  const [count, setCount] = useState(0);
+
+  if (count < 1) {
     //Listen to "get deployments" return event and set pods array
     ipcRenderer.on("got_deployments", (event, arg) => {
       let argArr = arg.split("");
 
-      let filteredDeployments = [];
+      let tempDeployments = [];
 
       let i: number = 0;
 
@@ -321,22 +381,23 @@ function KraneDeploymentsList(props) {
           containers: containersOutput.join(""),
           images: imagesOutput.join(""),
           selector: selectorOutput.join(""),
-          replicaSets: [],
         };
 
-        filteredDeployments.push(deployment);
+        tempDeployments.push(deployment);
         j++;
       } //end of for loop parsing deployments return
 
-      props.setDeploymentsArr(filteredDeployments);
+      props.setDeploymentsArr(tempDeployments);
+      // filterDeploys(tempDeployments);
 
+      //set new deployments Arr state, based on namespace
     }); //--------------------------------------end of ipc to parse deployments --------
 
     //Listen to "get replicaSets" return event and set pods array
     ipcRenderer.on("got_rs", (event, arg) => {
       let argArr = arg.split("");
 
-      let filteredReplicaSets = [];
+      let tempReplicaSets = [];
 
       let i: number = 0;
 
@@ -455,40 +516,62 @@ function KraneDeploymentsList(props) {
           selector: selectorOutput.join(""),
         };
 
-        filteredReplicaSets.push(replicaSet);
+        tempReplicaSets.push(replicaSet);
         j++;
       } //end of for loop parsing replicaSets return
 
+      setReplicaSetsArray([...tempReplicaSets]);
+
+      // filterRS(tempReplicaSets);
+
+      // //set new RS Arr state, based on namespace
+      // if (props.selectedNamespace !== "ALL") {
+      //   //if false, separate out kube system pods and then set state
+      //   let tempFilteredOutRSs = tempReplicaSets.filter(
+      //     (deployment) => deployment.namespace !== props.selectedNamespace
+      //   );
+      //   setFilteredOutRSs([...tempFilteredOutRSs]);
+
+      //   let selectedNamespaceRSs = tempReplicaSets.filter(
+      //     (deployment) => deployment.namespace === props.selectedNamespace
+      //   );
+      //   setReplicaSetsArray([...selectedNamespaceRSs]);
+      // } else {
+      //   //else if checkbox is true set deployments array with kube system as well
+      //   setReplicaSetsArray([...tempReplicaSets]);
+      // }
+
       //add each replicaSet to its deployment
-      let tempDeploys = [...props.deploymentsArr];
-      for (let i = 0; i < tempDeploys.length; i++) {
-        tempDeploys[i]["replicaSets"] = filteredReplicaSets[i];
-      }
+      // let tempDeploys = [...props.deploymentsArr];
+      // for (let i = 0; i < tempDeploys.length; i++) {
+      //   tempDeploys[i]["replicaSets"] = tempReplicaSets[i];
+      // }
 
       // set new deployments Arr state, based on namespace
-      if (props.selectedNamespace !== "ALL") {
-        //if false, separate out kube system pods and then set state
-        let kubeDeployments = tempDeploys.filter(
-          (deployment) => deployment.namespace !== props.selectedNamespace
-        );
-        setKubeSystemDeployments([...kubeDeployments]);
+      // if (props.selectedNamespace !== "ALL") {
+      //   //if false, separate out kube system pods and then set state
+      //   let tempFilteredOutDeployments = tempReplicaSets.filter(
+      //     (deployment) => deployment.namespace !== props.selectedNamespace
+      //   );
+      //   setKubeSystemDeployments([...tempFilteredOutDeployments]);
 
-        let kubeFilteredDeployments = tempDeploys.filter(
-          (deployment) => deployment.namespace === props.selectedNamespace
-        );
-        props.setDeploymentsArr([...kubeFilteredDeployments]);
-      } else {
-        //else if checkbox is true set deployments array with kube system as well
-        props.setDeploymentsArr([...tempDeploys]);
-      }
+      //   let selectedNamespaceDeployments = tempReplicaSets.filter(
+      //     (deployment) => deployment.namespace === props.selectedNamespace
+      //   );
+      //   props.setDeploymentsArr([...selectedNamespaceDeployments]);
+      // } else {
+      //   //else if checkbox is true set deployments array with kube system as well
+      //   props.setDeploymentsArr([...tempReplicaSets]);
+      // }
     }); //--------------------------------------end of ipc to parse replicaSets --------
-    
+    setCount(1);
+  }
 
   useEffect(() => {
     props.getDeploymentsInfo();
-  },[]);
+  }, []);
 
-  const handleDeploymentOpen = (deployment) => {
+  const handleDeploymentOpen = (deployment, rs) => {
     if (deployment["readyNumerator"] / deployment["readyDenominator"] === 1) {
       setSelectedDeploymentReadyColor("#2fc665");
       setSelectedDeploymentReadyColorLight("#2fc665");
@@ -497,6 +580,7 @@ function KraneDeploymentsList(props) {
       setSelectedDeploymentReadyColorLight("rgba(210, 223, 61)");
     }
     setSelectedDeployment([deployment]);
+    setSelectedRS([rs]);
 
     setOpenDeployment(true);
   };
@@ -512,7 +596,6 @@ function KraneDeploymentsList(props) {
         images: "",
         readyDenominator: "",
         readyNumerator: "",
-        replicaSets: {},
         selector: "",
         upToDate: "",
       },
@@ -771,38 +854,55 @@ function KraneDeploymentsList(props) {
     setDeploymentScaleNumber(e.target.value);
   };
 
-  function handleKubeSystemChangeDeployments() {
-    //switch state of checkmark to turn on / off
-    props.getDeploymentsInfo();
-    setKubeSystemDeploymentsCheck(!kubeSystemDeploymentsCheck);
+  // function handleKubeSystemChangeDeployments() {
+  //   //switch state of checkmark to turn on / off
+  //   props.getDeploymentsInfo();
+  //   setKubeSystemDeploymentsCheck(!kubeSystemDeploymentsCheck);
 
-    //if checkmark state is true, desired outcome is to merge kube pods in and sort by index
-    if (kubeSystemDeploymentsCheck === true) {
-      let tempDeployments = [...props.deploymentsArr, ...kubeSystemDeployments];
-      let finalTemp = tempDeployments.sort((a, b) => a.index - b.index);
-      props.setDeploymentsArr([...finalTemp]);
-    } else {
-      //if removing kube pods, first set them in separate array for ability to re-merge later
-      let kubeDeployments = props.deploymentsArr.filter(
-        (deployment) => deployment.namespace === "kube-system"
-      );
-      setKubeSystemDeployments([...kubeDeployments]);
-      //filter out kube system pods and set new deployments Arr
-      let tempDeployments = props.deploymentsArr.filter(
-        (deployment) => deployment.namespace !== "kube-system"
-      );
-      props.setDeploymentsArr([...tempDeployments]);
-    }
-  }
+  //   //if checkmark state is true, desired outcome is to merge kube pods in and sort by index
+  //   if (kubeSystemDeploymentsCheck === true) {
+  //     let tempDeployments = [...props.deploymentsArr, ...kubeSystemDeployments];
+  //     let finalTemp = tempDeployments.sort((a, b) => a.index - b.index);
+  //     props.setDeploymentsArr([...finalTemp]);
+  //   } else {
+  //     //if removing kube pods, first set them in separate array for ability to re-merge later
+  //     let tempFilteredOutDeployments = props.deploymentsArr.filter(
+  //       (deployment) => deployment.namespace === "kube-system"
+  //     );
+  //     setKubeSystemDeployments([...tempFilteredOutDeployments]);
+  //     //filter out kube system pods and set new deployments Arr
+  //     let tempDeployments = props.deploymentsArr.filter(
+  //       (deployment) => deployment.namespace !== "kube-system"
+  //     );
+  //     props.setDeploymentsArr([...tempDeployments]);
+  //   }
+  // }
 
   let deploymentsList = [];
-  for (let i = 0; i < props.deploymentsArr.length; i++) {
+  let filteredDeploys;
+  if (props.selectedNamespace === "ALL") {
+    filteredDeploys = [...props.deploymentsArr];
+  } else {
+    filteredDeploys = props.deploymentsArr.filter(
+      (deployment) => deployment.namespace === props.selectedNamespace
+    );
+  }
+  let filteredRSs;
+  if (props.selectedNamespace === "ALL") {
+    filteredRSs = [...replicaSetsArray];
+  } else {
+    filteredRSs = replicaSetsArray.filter(
+      (rs) => rs.namespace === props.selectedNamespace
+    );
+  }
+
+  for (let i = 0; i < filteredDeploys.length; i++) {
     let deploymentReadyColor;
     let deploymentReadyColorLight;
 
     if (
-      props.deploymentsArr[i]["readyNumerator"] /
-        props.deploymentsArr[i]["readyDenominator"] ===
+      filteredDeploys[i]["readyNumerator"] /
+        filteredDeploys[i]["readyDenominator"] ===
       1
     ) {
       deploymentReadyColor = "#2fc665";
@@ -840,7 +940,9 @@ function KraneDeploymentsList(props) {
         <Button
           key={i}
           id="podButt"
-          onClick={() => handleDeploymentOpen(props.deploymentsArr[i])}
+          onClick={() =>
+            handleDeploymentOpen(filteredDeploys[i], filteredRSs[i])
+          }
           style={{
             display: "flex",
             flexDirection: "column",
@@ -888,7 +990,7 @@ function KraneDeploymentsList(props) {
                 textTransform: "none",
               }}
             >
-              {props.deploymentsArr[i]["name"]}
+              {filteredDeploys[i]["name"]}
             </span>
             <div
               style={{
@@ -943,7 +1045,7 @@ function KraneDeploymentsList(props) {
                   margin: "-6px 0 0px 0",
                 }}
               >
-                {props.deploymentsArr[i]["age"].toUpperCase()}
+                {filteredDeploys[i]["age"].toUpperCase()}
               </div>
               <div style={{ fontSize: "10px", margin: "-4px 0 0 0" }}>AGE</div>
             </div>
@@ -964,7 +1066,7 @@ function KraneDeploymentsList(props) {
                   fontWeight: "500",
                 }}
               >
-                {props.deploymentsArr[i]["upToDate"]}
+                {filteredDeploys[i]["upToDate"]}
               </div>
               <div
                 style={{
@@ -993,7 +1095,7 @@ function KraneDeploymentsList(props) {
                   margin: "-8.9px 0 0px 0",
                 }}
               >
-                {props.deploymentsArr[i]["available"]}
+                {filteredDeploys[i]["available"]}
               </div>
               <div style={{ fontSize: "10px", margin: "-6px 0 0 0" }}>
                 AVAILABLE
@@ -1023,7 +1125,7 @@ function KraneDeploymentsList(props) {
                   fontWeight: "500",
                 }}
               >
-                {props.deploymentsArr[i]["readyNumerator"]}
+                {filteredDeploys[i]["readyNumerator"]}
                 <div
                   style={{
                     display: "flex",
@@ -1037,7 +1139,7 @@ function KraneDeploymentsList(props) {
                   OF
                 </div>
                 <div style={{ margin: "0px 0 0 3px" }}>
-                  {props.deploymentsArr[i]["readyDenominator"]}
+                  {filteredDeploys[i]["readyDenominator"]}
                 </div>
               </div>
               <div
@@ -1103,7 +1205,7 @@ function KraneDeploymentsList(props) {
               userSelect: "none",
             }}
           >
-            ( {props.deploymentsArr.length} total )
+            ( {filteredDeploys.length} total )
           </div>
         </div>
       </div>
@@ -2276,7 +2378,7 @@ function KraneDeploymentsList(props) {
                     textTransform: "none",
                   }}
                 >
-                  {selectedDeployment[0]["replicaSets"]["name"]}
+                  {selectedRS[0]["name"]}
                 </span>
                 <div
                   style={{
@@ -2293,7 +2395,7 @@ function KraneDeploymentsList(props) {
                     fontWeight: "300",
                   }}
                 >
-                  <div>{selectedDeployment[0]["replicaSets"]["desired"]}</div>
+                  <div>{selectedRS[0]["desired"]}</div>
                   <div
                     style={{
                       fontSize: "11px",
@@ -2318,7 +2420,7 @@ function KraneDeploymentsList(props) {
                     fontWeight: "300",
                   }}
                 >
-                  <div>{selectedDeployment[0]["replicaSets"]["current"]}</div>
+                  <div>{selectedRS[0]["current"]}</div>
                   <div
                     style={{
                       fontSize: "11px",
@@ -2343,7 +2445,7 @@ function KraneDeploymentsList(props) {
                     fontWeight: "300",
                   }}
                 >
-                  <div>{selectedDeployment[0]["replicaSets"]["ready"]}</div>
+                  <div>{selectedRS[0]["ready"]}</div>
                   <div
                     style={{
                       fontSize: "11px",
@@ -2368,7 +2470,7 @@ function KraneDeploymentsList(props) {
                     fontWeight: "300",
                   }}
                 >
-                  <div>{selectedDeployment[0]["replicaSets"]["age"]}</div>
+                  <div>{selectedRS[0]["age"]}</div>
                   <div
                     style={{
                       fontSize: "11px",

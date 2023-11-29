@@ -19,7 +19,7 @@ function createMainWindow() {
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
-      enableRemoteModule: true,
+      // enableRemoteModule: true,
     },
   });
 
@@ -36,7 +36,7 @@ function createMainWindow() {
 
 /******** EVENT LISTENERS ********/
 
-// -------------- below is Failed attempt to persist storage using electron-json-storage -------------
+// -------------- below are Failed attempts to persist storage using electron-json-storage -------------
 // ipcMain.handle("save_podStats", (e, podUsageArray) => {
 //   let tempPodsStatsStorage;
 

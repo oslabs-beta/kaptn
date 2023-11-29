@@ -37,11 +37,11 @@ type ArrPodObjs = {
 
 let filteredPods: any = [];
 
-function Krane() {
+function Krane(props) {
   const [namespacesArr, setNamespacesArr] = useState(["ALL"]);
   const [namespaceIndex, setNamespaceIndex] = useState(0);
   const [selectedNamespace, setSelectedNamespace] = useState(
-    namespacesArr[namespaceIndex]
+    "ALL"
   );
 
   const [refreshSpeed, setRefreshSpeed] = useState(10);
@@ -49,7 +49,11 @@ function Krane() {
   const [deploymentsArr, setDeploymentsArr] = useState([]);
   const [podsArr, setPodsArr] = useState([]);
   const [allPodsArr, setAllPodsArr] = useState([]);
+
   const [nodesArr, setNodesArr] = useState([]);
+  const [nodesUsageArr, setNodesUsageArr] = useState([]);
+  const [nodesLimitsArr, setNodesLimitsArr] = useState([]);
+
   const [podsContainersArr, setPodsContainersArr] = useState([]);
   const [currDir, setCurrDir] = useState("NONE SELECTED");
 
@@ -97,6 +101,11 @@ function Krane() {
     },
   ]);
 
+  // const [podsStatsObj, setPodsStatsObj] = useState({});
+  // const [nodesStatsObj, setNodesStatsObj] = useState({});
+
+  const [kraneDeployIPCcount, setKraneDeployIPCCount] = useState(0);
+
   const theme = useTheme();
 
   function handleClick(event) {
@@ -109,8 +118,11 @@ function Krane() {
   }
 
   function handleChangeRefreshSpeed(event) {
-    clearInterval(intervalArray[0]);
-    setIntervalArray([]);
+    props.intervalArray.map((a) => {
+      console.log(a);
+      clearInterval(a);
+      props.setIntervalArray([]);
+    });
 
     // let newRefreshIndex = refreshArray.indexOf(refreshSpeed);
     // newRefreshIndex = ++newRefreshIndex % 4;
@@ -124,7 +136,7 @@ function Krane() {
       getDeploymentsInfo();
     }, event.target.value * 1000);
 
-    setIntervalArray([allInterval]);
+    props.setIntervalArray([allInterval]);
 
     // const allInterval = setInterval(() => {
     //   getDeploymentsInfo();
@@ -151,8 +163,12 @@ function Krane() {
   const [deploymentsShowStatus, setDeploymentsShowStatus] = useState(false);
 
   function handleDeploymentsShowStatus() {
-    clearInterval(intervalArray[0]);
-    setIntervalArray([]);
+    props.intervalArray.map((a) => {
+      console.log(a);
+      clearInterval(a);
+      props.setIntervalArray([]);
+    });
+
     setNodeShowStatus(false);
     setDeploymentsShowStatus(!deploymentsShowStatus);
 
@@ -162,10 +178,11 @@ function Krane() {
       getDeploymentsInfo();
     }, refreshSpeed * 1000);
 
-    setIntervalArray([allInterval]);
+    props.setIntervalArray([allInterval]);
   }
 
   function getDeploymentsInfo() {
+    setDeploymentsArr([])
     let deploymentsCommand: string =
       "kubectl get deployments -o wide --all-namespaces";
     //send krane command to get all nodes
@@ -184,11 +201,14 @@ function Krane() {
   }
 
   const [nodeShowStatus, setNodeShowStatus] = useState(false);
-  const [intervalArray, setIntervalArray] = useState([]);
+  // const [intervalArray, setIntervalArray] = useState([]);
 
   function handleNodeShowStatus() {
-    clearInterval(intervalArray[0]);
-    setIntervalArray([]);
+    props.intervalArray.map((a) => {
+      console.log(a);
+      clearInterval(a);
+      props.setIntervalArray([]);
+    });
 
     setDeploymentsShowStatus(false);
     setNodeShowStatus(!nodeShowStatus);
@@ -199,7 +219,7 @@ function Krane() {
       getDeploymentsInfo();
     }, refreshSpeed * 1000);
 
-    setIntervalArray([allInterval]);
+    props.setIntervalArray([allInterval]);
 
     // return () => {
     //   clearInterval(allInterval);
@@ -267,7 +287,7 @@ function Krane() {
         nodesCpuLimitsCommand,
         currDir,
       });
-    }, 700);
+    }, 570);
   }
 
   function getNamespaces() {
@@ -280,23 +300,22 @@ function Krane() {
   }
 
   useEffect(() => {
-
     ipcRenderer.on("got_namespaces", (event, arg) => {
       let argArr = arg.split("");
-  
+
       let namespaceArrayOutput = [];
-  
+
       let i: number = 0;
-  
+
       //skip row of column titles
       while (arg[i] !== "\n") {
         i++;
       }
       i++;
-  
+
       for (let j = 0; i < argArr.length; i++) {
         let namespaceOutput: any = [];
-  
+
         //saves namespace
         while (arg[i] !== " ") {
           namespaceOutput.push(arg[i]);
@@ -310,8 +329,8 @@ function Krane() {
           i++;
         }
       }
-  
-       //for each namespace, create an array with MenuItems JSX for mui select component, starting with an "ALL" option first.
+
+      //for each namespace, create an array with MenuItems JSX for mui select component, starting with an "ALL" option first.
       let finalOutput = [];
       finalOutput.push(
         <MenuItem
@@ -319,37 +338,44 @@ function Krane() {
           key={0}
           style={{
             color: theme.palette.mode === "dark" ? "#ffffff" : "grey",
-            backgroundColor: theme.palette.mode === "dark" ? "#5c4d9a" : "white",
+            backgroundColor:
+              theme.palette.mode === "dark" ? "#5c4d9a" : "white",
             fontSize: "12px",
           }}
-          sx={{bg:theme.palette.mode === "dark" ? "#5c4d9a" : "white",}}
+          sx={{ bg: theme.palette.mode === "dark" ? "#5c4d9a" : "white" }}
         >
           ALL
         </MenuItem>
       );
-  
+
       for (let k = 0; k < namespaceArrayOutput.length; k++) {
         finalOutput.push(
           <MenuItem
             value={`${namespaceArrayOutput[k]}`}
-            key={k+1}
+            key={k + 1}
             style={{
               color: theme.palette.mode === "dark" ? "#ffffff" : "grey",
-                      backgroundColor:
-                        theme.palette.mode === "dark" ? "#5c4d9a" : "white",
-                      fontSize: "12px",
+              backgroundColor:
+                theme.palette.mode === "dark" ? "#5c4d9a" : "white",
+              fontSize: "12px",
             }}
-            sx={{bg:theme.palette.mode === "dark" ? "#5c4d9a" : "white",}}
+            sx={{ bg: theme.palette.mode === "dark" ? "#5c4d9a" : "white" }}
           >
             {namespaceArrayOutput[k]}
           </MenuItem>
         );
       }
-  
+
       setNamespacesArr(finalOutput);
     });
 
     getNamespaces();
+
+    props.intervalArray.map((a) => {
+      console.log(a);
+      clearInterval(a);
+      props.setIntervalArray([]);
+    });
   }, []);
 
   function handleNamespaceChange(event) {
@@ -367,6 +393,12 @@ function Krane() {
           getDeploymentsInfo={getDeploymentsInfo}
           deploymentsArr={deploymentsArr}
           setDeploymentsArr={setDeploymentsArr}
+          podsStatsObj={props.podsStatsObj}
+          setPodsStatsObj={props.setPodsStatsObj}
+          nodesStatsObj={props.nodesStatsObj}
+          setNodesStatsObj={props.setNodesStatsObj}
+          kraneDeployIPCcount={kraneDeployIPCcount}
+          setKraneDeployIPCCount={setKraneDeployIPCCount}
         />
       </>
     );
@@ -379,6 +411,10 @@ function Krane() {
         <KraneNodeList
           nodesArr={nodesArr}
           setNodesArr={setNodesArr}
+          nodesUsageArr={nodesUsageArr}
+          setNodesUsageArr={setNodesUsageArr}
+          nodesLimitsArr={nodesLimitsArr}
+          setNodesLimitsArr={setNodesLimitsArr}
           podsArr={podsArr}
           setPodsArr={setPodsArr}
           allPodsArr={allPodsArr}
@@ -416,6 +452,12 @@ function Krane() {
           setSelectedPodMemoryColorLight={setSelectedPodMemoryColorLight}
           selectedPod={selectedPod}
           setSelectedPod={setSelectedPod}
+          podsStatsObj={props.podsStatsObj}
+          setPodsStatsObj={props.setPodsStatsObj}
+          nodesStatsObj={props.nodesStatsObj}
+          setNodesStatsObj={props.setNodesStatsObj}
+          kraneDeployIPCcount={kraneDeployIPCcount}
+          setKraneDeployIPCCount={setKraneDeployIPCCount}
         />
         <KranePodList
           selectedNamespace={selectedNamespace}
@@ -458,6 +500,12 @@ function Krane() {
           setSelectedPodMemoryColorLight={setSelectedPodMemoryColorLight}
           selectedPod={selectedPod}
           setSelectedPod={setSelectedPod}
+          podsStatsObj={props.podsStatsObj}
+          setPodsStatsObj={props.setPodsStatsObj}
+          nodesStatsObj={props.nodesStatsObj}
+          setNodesStatsObj={props.setNodesStatsObj}
+          kraneDeployIPCcount={kraneDeployIPCcount}
+          setKraneDeployIPCCount={setKraneDeployIPCCount}
         />
       </>
     );
@@ -559,7 +607,7 @@ function Krane() {
                   20 seconds
                 </MenuItem>
                 <MenuItem
-                key={2}
+                  key={2}
                   value={30}
                   style={{
                     color: theme.palette.mode === "dark" ? "#ffffff" : "grey",
