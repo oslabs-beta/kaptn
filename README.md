@@ -52,7 +52,7 @@ Kaptn is a fully downloadable desktop application that provides a user-friendly 
 
 Version 2.0.1 -
 
-- Adds interactive, expandable visx graphs for pods' and nodes' historical cpu and memory usage
+- Adds interactive, expandable visx graphs for pods' and nodes' historical CPU and memory usage
 
 - Adds variable refresh rate
 
