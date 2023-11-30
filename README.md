@@ -67,13 +67,13 @@ For details on all previous updates and releases, please see the [CHANGELOG](htt
 1. Download the latest release [here](https://github.com/oslabs-beta/kaptn/releases).
 
 
-__For Windows (portable):__ Open the .exe file.
+__For Windows (portable) -__ Open the .exe file.
 
-__For Linux (AppImage):__ Follow the instructions [here](https://docs.appimage.org/introduction/quickstart.html) to run the application.
+__For Linux (AppImage) -__ Follow the instructions [here](https://docs.appimage.org/introduction/quickstart.html) to run the application.
 
-__For Mac (Intel/x64/Univeresal):__ Double-click the .dmg installer, and drag and drop Kaptn in your Applications folder. If you get a warning that the app is from an unidentified developer, go to System Preferences > Security & Privacy > General and click "Open Anyway".
+__For Mac (Intel/x64/Univeresal) -__ Double-click the .dmg installer, and drag and drop Kaptn in your Applications folder. If you get a warning that the app is from an unidentified developer, go to System Preferences > Security & Privacy > General and click "Open Anyway".
 
-__For Mac with Apple Silicon__: We do not have Mac code-signing, and therefore cannot offically offer an Apple Silicon/ARM64 version for download here. However, we do have a work-around:
+__For Mac (Apple Silicon/ARM64) -__: We do not have Mac code-signing, and therefore cannot offically offer an Apple Silicon/ARM64 version for download here. However, we do have a work-around:
 
 First fork/clone the project. Then open a terminal in the project, and run:
 
