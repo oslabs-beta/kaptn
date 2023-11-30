@@ -388,9 +388,7 @@ function KraneDeploymentsList(props) {
       } //end of for loop parsing deployments return
 
       props.setDeploymentsArr(tempDeployments);
-      // filterDeploys(tempDeployments);
 
-      //set new deployments Arr state, based on namespace
     }); //--------------------------------------end of ipc to parse deployments --------
 
     //Listen to "get replicaSets" return event and set pods array
@@ -522,47 +520,6 @@ function KraneDeploymentsList(props) {
 
       setReplicaSetsArray([...tempReplicaSets]);
 
-      // filterRS(tempReplicaSets);
-
-      // //set new RS Arr state, based on namespace
-      // if (props.selectedNamespace !== "ALL") {
-      //   //if false, separate out kube system pods and then set state
-      //   let tempFilteredOutRSs = tempReplicaSets.filter(
-      //     (deployment) => deployment.namespace !== props.selectedNamespace
-      //   );
-      //   setFilteredOutRSs([...tempFilteredOutRSs]);
-
-      //   let selectedNamespaceRSs = tempReplicaSets.filter(
-      //     (deployment) => deployment.namespace === props.selectedNamespace
-      //   );
-      //   setReplicaSetsArray([...selectedNamespaceRSs]);
-      // } else {
-      //   //else if checkbox is true set deployments array with kube system as well
-      //   setReplicaSetsArray([...tempReplicaSets]);
-      // }
-
-      //add each replicaSet to its deployment
-      // let tempDeploys = [...props.deploymentsArr];
-      // for (let i = 0; i < tempDeploys.length; i++) {
-      //   tempDeploys[i]["replicaSets"] = tempReplicaSets[i];
-      // }
-
-      // set new deployments Arr state, based on namespace
-      // if (props.selectedNamespace !== "ALL") {
-      //   //if false, separate out kube system pods and then set state
-      //   let tempFilteredOutDeployments = tempReplicaSets.filter(
-      //     (deployment) => deployment.namespace !== props.selectedNamespace
-      //   );
-      //   setKubeSystemDeployments([...tempFilteredOutDeployments]);
-
-      //   let selectedNamespaceDeployments = tempReplicaSets.filter(
-      //     (deployment) => deployment.namespace === props.selectedNamespace
-      //   );
-      //   props.setDeploymentsArr([...selectedNamespaceDeployments]);
-      // } else {
-      //   //else if checkbox is true set deployments array with kube system as well
-      //   props.setDeploymentsArr([...tempReplicaSets]);
-      // }
     }); //--------------------------------------end of ipc to parse replicaSets --------
     setCount(1);
   }
@@ -854,32 +811,10 @@ function KraneDeploymentsList(props) {
     setDeploymentScaleNumber(e.target.value);
   };
 
-  // function handleKubeSystemChangeDeployments() {
-  //   //switch state of checkmark to turn on / off
-  //   props.getDeploymentsInfo();
-  //   setKubeSystemDeploymentsCheck(!kubeSystemDeploymentsCheck);
-
-  //   //if checkmark state is true, desired outcome is to merge kube pods in and sort by index
-  //   if (kubeSystemDeploymentsCheck === true) {
-  //     let tempDeployments = [...props.deploymentsArr, ...kubeSystemDeployments];
-  //     let finalTemp = tempDeployments.sort((a, b) => a.index - b.index);
-  //     props.setDeploymentsArr([...finalTemp]);
-  //   } else {
-  //     //if removing kube pods, first set them in separate array for ability to re-merge later
-  //     let tempFilteredOutDeployments = props.deploymentsArr.filter(
-  //       (deployment) => deployment.namespace === "kube-system"
-  //     );
-  //     setKubeSystemDeployments([...tempFilteredOutDeployments]);
-  //     //filter out kube system pods and set new deployments Arr
-  //     let tempDeployments = props.deploymentsArr.filter(
-  //       (deployment) => deployment.namespace !== "kube-system"
-  //     );
-  //     props.setDeploymentsArr([...tempDeployments]);
-  //   }
-  // }
 
   let deploymentsList = [];
   let filteredDeploys;
+  //filter visible deployments and RS's by namespace
   if (props.selectedNamespace === "ALL") {
     filteredDeploys = [...props.deploymentsArr];
   } else {
@@ -911,7 +846,8 @@ function KraneDeploymentsList(props) {
       deploymentReadyColor = "rgba(210, 223, 61)";
       deploymentReadyColorLight = "rgba(210, 223, 61)";
     }
-
+    
+//creates deployment list etc
     deploymentsList.push(
       <div
         key={i}

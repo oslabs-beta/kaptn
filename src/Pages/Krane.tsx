@@ -101,8 +101,6 @@ function Krane(props) {
     },
   ]);
 
-  // const [podsStatsObj, setPodsStatsObj] = useState({});
-  // const [nodesStatsObj, setNodesStatsObj] = useState({});
 
   const [kraneDeployIPCcount, setKraneDeployIPCCount] = useState(0);
 
@@ -119,14 +117,9 @@ function Krane(props) {
 
   function handleChangeRefreshSpeed(event) {
     props.intervalArray.map((a) => {
-      console.log(a);
       clearInterval(a);
       props.setIntervalArray([]);
     });
-
-    // let newRefreshIndex = refreshArray.indexOf(refreshSpeed);
-    // newRefreshIndex = ++newRefreshIndex % 4;
-    // setRefreshSpeed(refreshArray[newRefreshIndex]);
 
     setRefreshSpeed(event.target.value);
 
@@ -138,15 +131,6 @@ function Krane(props) {
 
     props.setIntervalArray([allInterval]);
 
-    // const allInterval = setInterval(() => {
-    //   getDeploymentsInfo();
-    //   getNodesInfo();
-    //   getPodsAndContainers();
-    // }, refreshArray[newRefreshIndex] * 1000);
-
-    // return () => {
-    //   clearInterval(allInterval);
-    // };
   }
 
   // the below choose kube config function is incorrect ... to use custom kubeconfig location, it will require passing the following flag to all commands: --kubeconfig="path/to/kubeconfigfile
@@ -164,7 +148,6 @@ function Krane(props) {
 
   function handleDeploymentsShowStatus() {
     props.intervalArray.map((a) => {
-      console.log(a);
       clearInterval(a);
       props.setIntervalArray([]);
     });
@@ -201,11 +184,9 @@ function Krane(props) {
   }
 
   const [nodeShowStatus, setNodeShowStatus] = useState(false);
-  // const [intervalArray, setIntervalArray] = useState([]);
 
   function handleNodeShowStatus() {
     props.intervalArray.map((a) => {
-      console.log(a);
       clearInterval(a);
       props.setIntervalArray([]);
     });
@@ -221,9 +202,6 @@ function Krane(props) {
 
     props.setIntervalArray([allInterval]);
 
-    // return () => {
-    //   clearInterval(allInterval);
-    // };
   }
 
   function getPodsAndContainers() {
@@ -372,7 +350,6 @@ function Krane(props) {
     getNamespaces();
 
     props.intervalArray.map((a) => {
-      console.log(a);
       clearInterval(a);
       props.setIntervalArray([]);
     });
@@ -621,21 +598,7 @@ function Krane(props) {
               </Select>
             </FormControl>
           </Box>
-          {/* <Button
-            style={{
-              marginLeft: "10px",
-              marginTop: "-5px",
-              marginBottom: "0px",
-              letterSpacing: ".8px",
-              border: "1px solid",
-              fontSize: "9px",
-              width: "auto",
-              height: "20px",
-            }}
-            onClick={handleChangeRefreshSpeed}
-          >
-            {refreshSpeed} seconds
-          </Button> */}
+         
         </div>
 
         <div
@@ -714,26 +677,7 @@ function Krane(props) {
                 </Select>
               </FormControl>
             </Box>
-            {/* <Button
-              onClick={handleNamespaceChange}
-              style={{
-                display: "flex",
-                fontSize: "9px",
-                fontWeight: "900",
-                letterSpacing: ".5px",
-                border: "1px solid",
-                height: "16px",
-                textAlign: "left",
-                color: theme.palette.mode === "dark" ? "white" : "#00000099",
-                marginTop: "23px",
-                marginLeft: "0px",
-                marginRight: "2px",
-                padding: "8px 4px 8px 6px",
-                marginBottom: "-40px",
-              }}
-            >
-              NAMESPACE: {selectedNamespace}
-            </Button> */}
+           
           </LightTooltip>
         </div>
       </>

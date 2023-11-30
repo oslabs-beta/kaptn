@@ -68,7 +68,6 @@ function KraneNodeList(props) {
     },
   ]);
 
-  // const [nodesStatsObj, setNodesStatsObj] = useState({});
 
   const [showExpandedNodeCpuChart, setShowExpandedNodeCpuChart] =
     useState(false);
@@ -81,15 +80,6 @@ function KraneNodeList(props) {
   let currDir = props.currDir;
   let filteredNodes = [];
 
-
-  // const defaultDataPath = storage.getDefaultDataPath()
-  // console.log("default is", defaultDataPath)
-  // storage.setDataPath()
-  // storage.get('foobar', function(error: any, data: any) {
-  //   if (error) throw error;
-  
-  //   console.log("data is", data);
-  // });
 
   const style = {
     position: "absolute",
@@ -969,13 +959,6 @@ const [count, setCount] = useState(0)
     // ----------------------------------------- get NODES section ------------
     props.getNodesInfo();
 
-    //  const nodesInterval = setInterval(() => {
-    //     props.getNodesInfo();
-    //   }, 30000);
-
-    //    return () => {
-    //     clearInterval(nodesInterval);
-    //   };
   }, []);
 
   const handleNodeLogOpen = (pod) => {
@@ -1195,8 +1178,6 @@ const [count, setCount] = useState(0)
   //-----------------------------------------------------------START OF FOR LOOP TO PUSH NODE LIST JSX
 
   let nodeList = [];
-  console.log("props.nodesUsageArr is:", props.nodesUsageArr)
-  console.log("props.nodesUsageArr is:", props.nodesUsageArr)
   for (let i = 0; i < props.nodesArr.length; i++) {
     let nodeReadyStatusRunning;
     let nodeReadyStatusRunningLight;
@@ -2834,7 +2815,6 @@ const [count, setCount] = useState(0)
                               display: "flex",
                               flexDirection: "column",
                               width: "120px",
-                              // border: "1px solid white",
                               margin: "0 30px 0 0",
                               justifyContent: "flex-start",
                               alignItems: "center",

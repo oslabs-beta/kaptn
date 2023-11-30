@@ -145,7 +145,6 @@ function KranePodList(props) {
   const [kubeSystemCheck, setKubeSystemCheck] = React.useState(false);
   const [kubeSystemPods, setKubeSystemPods] = React.useState([]);
 
-  // const [props.podsStatsObj, props.setPodsStatsObj] = useState({});
 
   // ----------------------------------------- get pods info section ------------
 
@@ -384,11 +383,9 @@ function KranePodList(props) {
   // ----------------------------------- Listen to "get cpuUsed" return event
   ipcRenderer.on("got_cpuUsed", (event, arg) => {
     let date = new Date().toISOString();
-    // let tempPodsStatsObj = JSON.parse(JSON.stringify(podsStatsObj));
     let tempPodsStatsObj = props.podsStatsObj;
 
     let argArr = arg.split("");
-    // console.log("arg split is", arg.split(""));
     let podUsageArray = [];
 
     let pod = {};
@@ -505,23 +502,8 @@ function KranePodList(props) {
 
       j++;
 
-      // console.log("podstats obj is:", tempPodsStatsObj);
-      // PodsLiveStatsArray.push(podsCurrentStats);
       podUsageArray.push(pod);
     } //end of for loop
-
-    // let finalPodUsageArr = podUsageArray.filter(
-    //   (ele: any, ind: number) =>
-    //     ind ===
-    //     podUsageArray.findIndex(
-    //       (elem) =>
-    //         elem.podCpuUsed === ele.podCpuUsed &&
-    //         elem.podMemoryUsed === ele.podMemoryUsed
-    //     )
-    // );
-
-    // props.setPodsArr([...filteredPods]);
-    // props.setAllPodsArr([...filteredPods]);
 
     for (let j = 0; j < podUsageArray.length; j++) {
       filteredPods[j]["podCpuUsed"] = podUsageArray[j]["podCpuUsed"];
@@ -529,13 +511,10 @@ function KranePodList(props) {
       filteredPods[j]["podMemoryUsedDisplay"] =
         podUsageArray[j]["podMemoryUsedDisplay"];
     }
-    // console.log(filteredPods);
+    
     props.setPodsArr([...filteredPods]);
     props.setAllPodsArr([...filteredPods]);
 
-// if (podUsageArray[0]){
-// ipcRenderer.invoke("save_podStats",podUsageArray).then((data) => console.log("success:", data))
-// }
 
     for (let j = 0; j < podUsageArray.length; j++) {
       if (tempPodsStatsObj[podUsageArray[j]["podName"]] === undefined) {
@@ -558,23 +537,6 @@ function KranePodList(props) {
         tempPodsStatsObj[podUsageArray[j]["podName"]].push(podsCurrentStats);
       }
     }
-
-
-
-
-    // let podsCurrentStats = {
-    //   date: date,
-    //   podName: podName.join(""),
-    //   cpu: Number(podCpuUsedArr.join("")),
-    //   memory: Number(podMemoryUsedArr.join("")),
-    //   memoryDisplay: podMemoryUsedDisplayArr.join(""),
-    // };
-
-    // if (tempPodsStatsObj[`${podName.join("")}`] === undefined) {
-    //   tempPodsStatsObj[`${podName.join("")}`] = [podsCurrentStats];
-    // } else {
-    //   tempPodsStatsObj[`${podName.join("")}`] = [...tempPodsStatsObj[`${podName.join("")}`], podsCurrentStats];
-    // }
 
     props.setPodsStatsObj(tempPodsStatsObj);
   }); // -------------------- end of ipc render function for get pods cpu used
@@ -907,12 +869,7 @@ function KranePodList(props) {
 
   useEffect(() => {
     props.getPodsAndContainers();
-    // const podsInterval = setInterval(() => {
-    //   props.getPodsAndContainers();
-    // }, 15000);
-    // return () => {
-    //   clearInterval(podsInterval);
-    // };
+    
   }, []); // end of use effect to get pods info on page open
 
   //------------------------------------------------------------- END OF GET ALL POD INFO SECTION ---
@@ -2355,7 +2312,6 @@ function KranePodList(props) {
                           flexDirection: "column",
                           width: "510px",
                           height: "240px",
-                          // border: "1px solid white",
                         }}
                       >
                         <div
@@ -2510,7 +2466,6 @@ function KranePodList(props) {
                               display: "flex",
                               flexDirection: "column",
                               width: "120px",
-                              // border: "1px solid white",
                               margin: "0 30px 0 0",
                               justifyContent: "flex-start",
                               alignItems: "center",
@@ -2809,7 +2764,6 @@ function KranePodList(props) {
                               display: "flex",
                               flexDirection: "column",
                               width: "120px",
-                              // border: "1px solid white",
                               margin: "0 30px 0 0",
                               justifyContent: "flex-start",
                               alignItems: "center",

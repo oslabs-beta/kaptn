@@ -59,7 +59,7 @@ export default withTooltip<AreaProps, TooltipData>(
 
     const theme = useTheme();
 
-    const background = theme.palette.mode === "dark" ? "#0e0727" : "#eeebfb"; //theme.palette.mode === "dark" ? "#0e0727" : "#e6e1fb80";
+    const background = theme.palette.mode === "dark" ? "#0e0727" : "#eeebfb"; 
     const background2 = theme.palette.mode === "dark" ? "#120838" : "#eeebfb";
     const accentColorMemory = theme.palette.mode === "dark" ? "white" : "#7b76c2"
     const textColor = theme.palette.mode === "dark" ? "white" : "grey";

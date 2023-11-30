@@ -212,26 +212,6 @@ function Dashboard(): JSX.Element {
   }
 
   useEffect(() => {
-    // BELOW are failed attempts to get the user directory on page load, code has been left in as notes for future iteration
-    //  if (process.env.ZDOTDIR !== undefined) {
-    //     } else {
-    //   console.log("process in useEffect is:", process);
-    //   let temp = process.env.HOME;
-    //   setCurrDir(temp);
-    //   let output = [];
-    //   for (let j = temp.length - 1; temp[j] !== "/"; j--) {
-    //     output.unshift(temp[j]);
-    //   }
-    //   setShortDir(output.join(""));
-    // }
-    // let temp = process.env.HOME;
-    // console.log("temp is:", temp);
-    // setCurrDir(temp);
-    // let output = [];
-    // for (let j = temp.length - 1; temp[j] !== "/"; j--) {
-    //   output.unshift(temp[j]);
-    // }
-    // setShortDir(output.join(""));
 
     //send command to get working directory
     let getDirectoryCommand: string = "ls";
@@ -239,7 +219,6 @@ function Dashboard(): JSX.Element {
       getDirectoryCommand,
       currDir,
     });
-    // console.log("in the useEffect");
   }, []);
 
   // Set the command state based on current inputs
@@ -272,6 +251,7 @@ function Dashboard(): JSX.Element {
 
     if (command === ` clear`) {
       setResponse([]);
+      // Below is beginning of potential code for parsing "cd" commands manually
       // } else if (command.slice(0, 3) === " cd ") {
       //   let temp = command.slice(4, -1);
       //   console.log("temp:", temp);
