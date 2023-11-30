@@ -91,7 +91,7 @@ After completion, the .dmg file will be available in the "dist" folder. If you g
 
 ### Overview
 
-Our application defaults to start page, where you will be able to choose which page you'd like to visit.
+Our application defaults to start page, where installation checks will run, and where you will be able to choose which page you'd like to visit.
 
 ![newStartPage](https://github.com/oslabs-beta/kaptn/assets/119518056/a2d473da-37a9-4b6d-b69d-f8fcd95f2b41)
 
@@ -116,6 +116,8 @@ Our all-new Krane Cluster Manager allows you to control your clusters at the cli
     - View Pod Yaml
     - Decribe Pod
     - Delete / Restart Pod
+    - Filter by Namespace
+    - Sort by Namespace, Max CPU and Memory, and more. 
 
 ![v201screencaps-nodesPods](https://github.com/oslabs-beta/kaptn/assets/119518056/60f19526-8c79-40c9-9a8c-000d38240dc6)
 
@@ -131,6 +133,7 @@ Our all-new Krane Cluster Manager allows you to control your clusters at the cli
     - Perform Rolling Restart
     - Scale Deployment
     - Delete Deployment
+    - Filter by Namespace
 
 ![v201screencaps-Deploys](https://github.com/oslabs-beta/kaptn/assets/119518056/33a362be-1be1-404e-9018-a3599735b9c7)
 
