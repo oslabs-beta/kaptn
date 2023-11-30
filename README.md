@@ -30,10 +30,11 @@ Kaptn is a fully downloadable desktop application that provides a user-friendly 
 ## Features
 
 - Kaptn Krane Cluster Manager - NEW!
-  - View live and historical metrics, and refresh statistics at adjustable intervals
+  - View live and historical metrics, and refresh stats at adjustable intervals
   - Scale, delete/restart, and rollback deployments, nodes, and pods
   - View logs, yamls, and describe resources
-  - Intuitive UI including custom speedometer-style gauges for CPU and Memory Usage, and one-click control of your clusters
+  - Intuitive UI including custom speedometer-style gauges for CPU and Memory Usage, visx graphs, and one-click control of your clusters
+  - Filter and sort resources by namespace, max CPU and memory, and more.
 - User-friendly terminal interface
   - Take command of the command line interface with pre-selected kubectl options, or free-type
   - Clearly visualize the commands within our interactive terminal
@@ -51,52 +52,40 @@ Kaptn is a fully downloadable desktop application that provides a user-friendly 
 
 Version 2.0.1 -
 
-- Adds expandable visx graphs for pods' and nodes' historical cpu and memory usage.
+- Adds interactive, expandable visx graphs for pods' and nodes' historical cpu and memory usage.
 
 - Adds variable refresh rate.
 
-Version 2.0.0 -
+- Adds various other bugs fixes and additions including: Fixes bug with user directory in CLI
 
-- **Kaptn Krane Cluster Manager:**
-  View live and historical metrics, and scale, delete or restart resources like pods, nodes, and deployments in our revolutionary, easy-to-use interface that harnesses the power of kubectl commands. Features including filtering by namespace, sorting by cpu and memory percent, one-click control of your clusters, and much more makes taking command of Kubernetes easier than ever before!
-
-- **New Start Page:**
-  We've completely revamped the start page, including the addition of installation checks and quickstart links. Now you can troubleshoot problems more quickly, and get right into your workflow.
-
-- Adds various other bugs fixes and additions including: clear terminal log button, redesign of CLI, Instant Help Desk, Learning Center and much more!
-
-Version 1.2.0 -
-
-- Adds ability to use kubectl commands without choosing a working directory.
-
-Version 1.1.0 -
-
-- **_Now available for Mac, Windows, and Linux_**
-
-- **Cluster Metrics Visualizer:**
-  Easily sync your Kaptn workspace to Grafana and Prometheus to allow for clear and real-time visualization of your clusters' health. Utilize our quick set-up if you are not already connected, and consider Kaptn your only stop for working with and monitoring your Kubernetes clusters.
-
-- **Instant Help Desk:**
-  Get help information on demand and at the click of a button with the Instant Help Desk. Now you can get more info about any command or type without leaving the command line, and losing the code you've already written.
-
-- **Kaptn Learning Center:**
-  Inside the Easy Setup page you can now find the Learning Center with resources you need to learn Kubernetes. You can follow tutorials, read articles and documentation, and master Kubernetes faster than ever.
-
-- **Light/Dark Mode:**
-  Whether it's eye strain, or just personal preference, we know engineers can be selective about their work environments. So we created a Light/Dark mode that allows you to work with your favorite color combination. Now you can focus on coding with no distractions to your workflow.
-
-This update also includes various bugs fixes, including:
-
-- Bug where kubectl commands could not be used on some Mac operating systems.
+For details on all previous updates and releases, please see the [CHANGELOG](https://github.com/oslabs-beta/kaptn/blob/main/CHANGELOG.md), or [Releases](https://github.com/oslabs-beta/kaptn/releases) page.
 
 #
 
 ## Getting Started
 
 1. Download the latest release [here](https://github.com/oslabs-beta/kaptn/releases).
-2. Run the installer.
 
-If you get a warning that the app is from an unidentified developer, go to System Preferences > Security & Privacy > General and click "Open Anyway".
+
+__For Windows (portable):__ Open the .exe file.
+
+__For Linux (AppImage):__ Follow the instructions [here](https://docs.appimage.org/introduction/quickstart.html) to run the application.
+
+__For Mac (Intel/x64/Univeresal):__ Double-click the installer and drag and drop Kaptn in your Applications folder. If you get a warning that the app is from an unidentified developer, go to System Preferences > Security & Privacy > General and click "Open Anyway".
+
+__For Mac with Apple Silicon__: We do not have Mac code-signing, and therefore cannot offically offer an Apple Silicon/ARM64 version for download here. However, we do have a work-around:
+
+First fork/clone the project. Then open a terminal in the project, and run:
+
+    npm i
+
+After that, run:
+
+    npm run build:mac
+
+After completion, the .dmg file will be available in the "dist" folder. If you get a warning that the app is from an unidentified developer, go to System Preferences > Security & Privacy > General and click "Open Anyway".
+
+#
 
 ## Usage Guidelines
 
@@ -112,7 +101,7 @@ Our all-new Krane Cluster Manager allows you to control your clusters at the cli
 
 - Nodes:
     - View Live CPU and Memory Use
-    - View Graph of Historical CPU and Memory Use
+    - View Graphs of Historical CPU and Memory Use
     - View Node Yaml
     - Decribe Node 
     - Drain Node
@@ -122,7 +111,7 @@ Our all-new Krane Cluster Manager allows you to control your clusters at the cli
 
 - Pods:
     - View Live CPU and Memory Use
-    - View Graph of Historical CPU and Memory Use
+    - View Graphs of Historical CPU and Memory Use
     - View Pod Logs
     - View Pod Yaml
     - Decribe Pod

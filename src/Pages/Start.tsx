@@ -518,7 +518,7 @@ function Start(props) {
                       : "1px 1px 5px rgb(0, 0, 0, 0.0)",
                 }}
               >
-                v2.0
+                v2.0.1
               </Typography>
             </div>
             <Typography
