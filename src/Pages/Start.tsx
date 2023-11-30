@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import Button from "@mui/material/Button";
 import { Box } from "@mui/system";
 import { Typography } from "@mui/material";
@@ -21,93 +21,93 @@ function Start(props) {
   // const [metricsVersion, setMetricsVersion] = useState("");
 
   let argOut = "";
-
-  // command for check if metrics server installed is: kubectl get pods --all-namespaces | grep metrics-server
-  // if result is empty string, nothing installed, else it is installed.
-  let kubectlCheckMetricsInstallCommand =
-    "kubectl get pods --all-namespaces | grep metrics-server";
-
-  ipcRenderer.on("checked_promgraf_installed", (event, arg) => {
-
-    if (arg.includes("grafana") && arg.includes("prometheus")) {
-      props.setGrafVersion("installed");
-      props.setPromVersion("installed");
-      setTimeout(() => {
-        props.setPromGrafCheckStatus("installed");
-      }, 2400);
-    } else {
-      setTimeout(() => {
-        props.setPromGrafCheckStatus("not_installed");
-      }, 2400);
-    }
-  });
-
-  ipcRenderer.on("checked_metrics_installed", (event, arg) => {
-    if (!arg.length) {
-      //metrics not installed, save metrics status as not installed
-      setTimeout(() => {
-        setMetricsCheckStatus("not_installed");
-      }, 1500);
-    } else {
-      setTimeout(() => {
-        setMetricsCheckStatus("installed");
-      }, 1500);
-    }
-  });
-
-  ipcRenderer.on("checked_kubectl_installed", (event, arg) => {
-    argOut = JSON.parse(arg);
-    let kubectlClientVersionArr = [];
-    let kubectlServerVersionArr = [];
-    //@ts-expect-error
-    if (argOut.clientVersion.gitVersion) {
-      //@ts-expect-error
-      let temp = argOut.clientVersion.gitVersion.slice(1, -2);
-      setKubectlClientVersion(temp);
-      //@ts-expect-error
-      temp = argOut.serverVersion.gitVersion.slice(1, -2);
-      setKubectlServerVersion(temp);
-
-      setTimeout(() => {
-        setKubectlCheckStatus("Installed");
-      }, 800);
-    } else if (arg[0] === "W") {
-      //if first letter is "W" you are getting version warning, so this parses version warning output
-      let i = 44;
-      while (arg[i] !== ")") {
-        kubectlClientVersionArr.push(arg[i]);
-        i++;
-      }
-      i += 14;
-      while (arg[i] !== ")") {
-        kubectlServerVersionArr.push(arg[i]);
-        i++;
-      }
-      setKubectlClientVersion(`${kubectlClientVersionArr.join("")}`);
-
-      setKubectlServerVersion(`${kubectlServerVersionArr.join("")}`);
-
-      setTimeout(() => {
-        setKubectlCheckStatus("Installed");
-      }, 800);
-    }
-    //need to parse json object below this line and save client and server versions for when you dont have version +-1 sync warning (like i currently do).
-    else if (arg[0] === "e" && arg[1] === "r" && arg[2] === "r") {
-      setTimeout(() => {
-        setKubectlCheckStatus("not_installed");
-      }, 800);
-    } else {
-      setTimeout(() => {
-        setKubectlCheckStatus("CannotDetect");
-      }, 800);
-    }
-  });
-
-  let kubectlCheckKubectlInstallCommand = "kubectl version --output=json";
-  let kubectlCheckPromGrafInstallCommand = "kubectl get services -o wide";
-
-  let currDir = "NONE SELECTED";
   useEffect(() => {
+    
+      // command for check if metrics server installed is: kubectl get pods --all-namespaces | grep metrics-server
+      // if result is empty string, nothing installed, else it is installed.
+      let kubectlCheckMetricsInstallCommand =
+        "kubectl get pods --all-namespaces | grep metrics-server";
+    
+      ipcRenderer.on("checked_promgraf_installed", (event, arg) => {
+    
+        if (arg.includes("grafana") && arg.includes("prometheus")) {
+          props.setGrafVersion("installed");
+          props.setPromVersion("installed");
+          setTimeout(() => {
+            props.setPromGrafCheckStatus("installed");
+          }, 2400);
+        } else {
+          setTimeout(() => {
+            props.setPromGrafCheckStatus("not_installed");
+          }, 2400);
+        }
+      });
+    
+      ipcRenderer.on("checked_metrics_installed", (event, arg) => {
+        if (!arg.length) {
+          //metrics not installed, save metrics status as not installed
+          setTimeout(() => {
+            setMetricsCheckStatus("not_installed");
+          }, 1500);
+        } else {
+          setTimeout(() => {
+            setMetricsCheckStatus("installed");
+          }, 1500);
+        }
+      });
+    
+      ipcRenderer.on("checked_kubectl_installed", (event, arg) => {
+        argOut = JSON.parse(arg);
+        let kubectlClientVersionArr = [];
+        let kubectlServerVersionArr = [];
+        //@ts-expect-error
+        if (argOut.clientVersion.gitVersion) {
+          //@ts-expect-error
+          let temp = argOut.clientVersion.gitVersion.slice(1, -2);
+          setKubectlClientVersion(temp);
+          //@ts-expect-error
+          temp = argOut.serverVersion.gitVersion.slice(1, -2);
+          setKubectlServerVersion(temp);
+    
+          setTimeout(() => {
+            setKubectlCheckStatus("Installed");
+          }, 800);
+        } else if (arg[0] === "W") {
+          //if first letter is "W" you are getting version warning, so this parses version warning output
+          let i = 44;
+          while (arg[i] !== ")") {
+            kubectlClientVersionArr.push(arg[i]);
+            i++;
+          }
+          i += 14;
+          while (arg[i] !== ")") {
+            kubectlServerVersionArr.push(arg[i]);
+            i++;
+          }
+          setKubectlClientVersion(`${kubectlClientVersionArr.join("")}`);
+    
+          setKubectlServerVersion(`${kubectlServerVersionArr.join("")}`);
+    
+          setTimeout(() => {
+            setKubectlCheckStatus("Installed");
+          }, 800);
+        }
+        //need to parse json object below this line and save client and server versions for when you dont have version +-1 sync warning (like i currently do).
+        else if (arg[0] === "e" && arg[1] === "r" && arg[2] === "r") {
+          setTimeout(() => {
+            setKubectlCheckStatus("not_installed");
+          }, 800);
+        } else {
+          setTimeout(() => {
+            setKubectlCheckStatus("CannotDetect");
+          }, 800);
+        }
+      });
+    
+      let kubectlCheckKubectlInstallCommand = "kubectl version --output=json";
+      let kubectlCheckPromGrafInstallCommand = "kubectl get services -o wide";
+    
+      let currDir = "NONE SELECTED";
     // send check if kubectl commands installed
     ipcRenderer.send("check_kubectl_installed", {
       kubectlCheckKubectlInstallCommand,
@@ -127,8 +127,33 @@ function Start(props) {
         currDir,
       });
     }
-  }, []);
 
+
+
+    ipcRenderer.on("installed_metrics", (event, arg) => {
+      argOut = arg;
+      setMetricsCheckStatus("now_installed");
+    });
+    
+    
+  }, []);
+  
+
+
+    function handleInstallMetrics() {
+      let kubectlMetricsServerInstallCommand =
+        "kubectl apply -f https://raw.githubusercontent.com/pythianarora/total-practice/master/sample-kubernetes-code/metrics-server.yaml";
+  
+      let currDir = "NONE SELECTED";
+  
+      ipcRenderer.send("install_metrics_server_command", {
+        kubectlMetricsServerInstallCommand,
+        currDir,
+      });
+    }
+  
+
+    
   //set the kubectl install div based on its check status
   let kubectlInstalledDiv;
   if (kubectlCheckStatus === "Installed") {
@@ -391,22 +416,6 @@ function Start(props) {
 
   // END OF CHECK KUBECTL INSTALLED SECTION
 
-  ipcRenderer.on("installed_metrics", (event, arg) => {
-    argOut = arg;
-    setMetricsCheckStatus("now_installed");
-  });
-
-  function handleInstallMetrics() {
-    let kubectlMetricsServerInstallCommand =
-      "kubectl apply -f https://raw.githubusercontent.com/pythianarora/total-practice/master/sample-kubernetes-code/metrics-server.yaml";
-
-    let currDir = "NONE SELECTED";
-
-    ipcRenderer.send("install_metrics_server_command", {
-      kubectlMetricsServerInstallCommand,
-      currDir,
-    });
-  }
 
   return (
     <>
@@ -442,7 +451,7 @@ function Start(props) {
             }}
           >
             <Box
-              src="./kaptn4ico.png"
+              src="./assets/kaptn4ico.png"
               sx={{
                 margin: "80px 0 10px 0",
                 height: "270px",
@@ -509,7 +518,7 @@ function Start(props) {
                       : "1px 1px 5px rgb(0, 0, 0, 0.0)",
                 }}
               >
-                v2.0
+                v2.0.1
               </Typography>
             </div>
             <Typography
@@ -648,7 +657,7 @@ function Start(props) {
                       marginLeft: "0px",
                       borderRadius: "5px",
                     }}
-                    src="./kraneQuickStartImg2.png"
+                    src="./assets/kraneQuickStartImg2.png"
                   ></img>
                   <div
                     style={{
@@ -737,7 +746,7 @@ function Start(props) {
                 >
                   <img
                     style={{ width: "30%", marginLeft: "0px" }}
-                    src="./kraneDashboardImg.png"
+                    src="./assets/kraneDashboardImg.png"
                   ></img>
                   <div
                     style={{
@@ -825,7 +834,7 @@ function Start(props) {
                       marginLeft: "0px",
                       borderRadius: "5px",
                     }}
-                    src="./kraneSetupImg.png"
+                    src="./assets/kraneSetupImg.png"
                   ></img>
                   <div
                     style={{
@@ -902,7 +911,7 @@ function Start(props) {
                       marginLeft: "0px",
                       borderRadius: "5px",
                     }}
-                    src="./kraneMetricsImg.png"
+                    src="./assets/kraneMetricsImg.png"
                   ></img>
                   <div
                     style={{

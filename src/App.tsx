@@ -16,6 +16,12 @@ function App() {
   const [grafVersion, setGrafVersion] = useState("");
   const [promVersion, setPromVersion] = useState("");
 
+
+  const [podsStatsObj, setPodsStatsObj] = useState({});
+  const [nodesStatsObj, setNodesStatsObj] = useState({});
+  const [intervalArray, setIntervalArray] = useState([]);
+  
+
   // Hash router is used here to optimize for static file serving from Electron
   // More information here: https://reactrouter.com/en/main/router-components/hash-router
   return (
@@ -37,6 +43,12 @@ function App() {
                       setGrafVersion={setGrafVersion}
                       promVersion={promVersion}
                       setPromVersion={setPromVersion}
+                      podsStatsObj={podsStatsObj}
+                      setPodsStatsObj={setPodsStatsObj}
+                      nodesStatsObj={nodesStatsObj}
+                      setNodesStatsObj={setNodesStatsObj}
+                      intervalArray={intervalArray}
+                      setIntervalArray={setIntervalArray}
                     />
                   }
                 />
@@ -44,13 +56,18 @@ function App() {
                   path="/krane"
                   element={
                     <KlusterManager
-                      //@ts-expect-error
                       promGrafCheckStatus={promGrafCheckStatus}
                       setPromGrafCheckStatus={setPromGrafCheckStatus}
                       grafVersion={grafVersion}
                       setGrafVersion={setGrafVersion}
                       promVersion={promVersion}
                       setPromVersion={setPromVersion}
+                      podsStatsObj={podsStatsObj}
+                      setPodsStatsObj={setPodsStatsObj}
+                      nodesStatsObj={nodesStatsObj}
+                      setNodesStatsObj={setNodesStatsObj}
+                      intervalArray={intervalArray}
+                      setIntervalArray={setIntervalArray}
                     />
                   }
                 />
@@ -65,6 +82,12 @@ function App() {
                       setGrafVersion={setGrafVersion}
                       promVersion={promVersion}
                       setPromVersion={setPromVersion}
+                      podsStatsObj={podsStatsObj}
+                      setPodsStatsObj={setPodsStatsObj}
+                      nodesStatsObj={nodesStatsObj}
+                      setNodesStatsObj={setNodesStatsObj}
+                      intervalArray={intervalArray}
+                      setIntervalArray={setIntervalArray}
                     />
                   }
                 />
@@ -79,6 +102,12 @@ function App() {
                       setGrafVersion={setGrafVersion}
                       promVersion={promVersion}
                       setPromVersion={setPromVersion}
+                      podsStatsObj={podsStatsObj}
+                      setPodsStatsObj={setPodsStatsObj}
+                      nodesStatsObj={nodesStatsObj}
+                      setNodesStatsObj={setNodesStatsObj}
+                      intervalArray={intervalArray}
+                      setIntervalArray={setIntervalArray}
                     />
                   }
                 />
@@ -92,6 +121,12 @@ function App() {
                       setGrafVersion={setGrafVersion}
                       promVersion={promVersion}
                       setPromVersion={setPromVersion}
+                      podsStatsObj={podsStatsObj}
+                      setPodsStatsObj={setPodsStatsObj}
+                      nodesStatsObj={nodesStatsObj}
+                      setNodesStatsObj={setNodesStatsObj}
+                      intervalArray={intervalArray}
+                      setIntervalArray={setIntervalArray}
                     />
                   }
                 />

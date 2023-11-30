@@ -61,10 +61,11 @@ function Dashboard(): JSX.Element {
   const [type, setType] = useState<string>("");
   const [name, setName] = useState<string>("");
   const [currDir, setCurrDir] = useState<string>("NONE SELECTED");
+
   //hack for now to make it work on first load for downloadable version with "users/~" instead of home path... just for first load of page, as changing directory after this fixes shortdir from then on
   const [shortDir, setShortDir] = process.env.HOME
     ? React.useState<string>(process.env.HOME.slice(7))
-    : React.useState<string>("Users/~");
+    : React.useState<string>("");
   const [userInput, setUserInput] = useState<string>("");
   const [command, setCommand] = useState<string>("");
   const [tool, setTool] = useState<string>("kubectl");
@@ -210,40 +211,14 @@ function Dashboard(): JSX.Element {
     };
   }
 
-
   useEffect(() => {
 
-    // BELOW are failed attempts to get the user directory on page load, code has been left in as notes for future iteration
-
-  //  if (process.env.ZDOTDIR !== undefined) {
-
-  //     } else {
-  //   console.log("process in useEffect is:", process);
-  //   let temp = process.env.HOME;
-  //   setCurrDir(temp);
-  //   let output = [];
-  //   for (let j = temp.length - 1; temp[j] !== "/"; j--) {
-  //     output.unshift(temp[j]);
-  //   }
-  //   setShortDir(output.join(""));
-  // }
-
-
-    // let temp = process.env.HOME;
-    // console.log("temp is:", temp);
-    // setCurrDir(temp);
-    // let output = [];
-    // for (let j = temp.length - 1; temp[j] !== "/"; j--) {
-    //   output.unshift(temp[j]);
-    // }
-    // setShortDir(output.join(""));
-    // let getDirectoryCommand: string = "ls";
-    // //send command to get working directory
-    // ipcRenderer.send("getDirectory_command", {
-    //   getDirectoryCommand,
-    //   currDir,
-    // });
-    // console.log("in the useEffect");
+    //send command to get working directory
+    let getDirectoryCommand: string = "ls";
+    ipcRenderer.send("getDirectory_command", {
+      getDirectoryCommand,
+      currDir,
+    });
   }, []);
 
   // Set the command state based on current inputs
@@ -276,6 +251,7 @@ function Dashboard(): JSX.Element {
 
     if (command === ` clear`) {
       setResponse([]);
+      // Below is beginning of potential code for parsing "cd" commands manually
       // } else if (command.slice(0, 3) === " cd ") {
       //   let temp = command.slice(4, -1);
       //   console.log("temp:", temp);
@@ -329,19 +305,16 @@ function Dashboard(): JSX.Element {
     "-o yaml",
   ];
 
-  // ipcRenderer.on("got_directory", (event, arg) => {
-  //   let output = arg;
-  //   setCurrDir(output);
-  //   console.log("in the receive, output / path is:", output);
+  ipcRenderer.on("got_directory", (event, arg) => {
+    let output = arg;
+    setCurrDir(output);
 
-  //   let shortOutput = [];
-  //   for (let j = output.length - 1; output[j] !== "/"; j--) {
-  //     shortOutput.unshift(output[j]);
-  //   }
-  //   setShortDir(shortOutput.join(""));
-  // });
-  // console.log("short dir is:", shortDir);
-  // console.log("curr dir is:", currDir);
+    let shortOutput = [];
+    for (let j = output.length - 1; output[j] !== "/"; j--) {
+      shortOutput.unshift(output[j]);
+    }
+    setShortDir(shortOutput.join(""));
+  });
 
   return (
     <>

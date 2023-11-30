@@ -835,7 +835,7 @@ function SetupButtons(props) {
             }}
           >
             {" "}
-            OPEN AND VIEW CLUSTERS{" "}
+            OPEN AND VIEW CLUSTER METRICS{" "}
           </Typography>
         </div>
         <br />
