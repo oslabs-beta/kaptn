@@ -73,7 +73,7 @@ __For Linux (AppImage) -__ Follow the instructions [here](https://docs.appimage.
 
 __For Mac (Intel/x64/Universal) -__ Double-click the .dmg installer, and drag and drop Kaptn in your Applications folder. If you get a warning that the app is from an unidentified developer, go to System Preferences > Security & Privacy > General and click "Open Anyway".
 
-__For Mac (Apple Silicon/ARM64) -__ We do not have Mac code-signing, and therefore cannot offically offer an Apple Silicon/ARM64 version for download here. However, we do have a work-around:
+__For Mac (Apple Silicon/ARM64) -__ We do not have Mac code-signing, and therefore cannot offically offer an Apple Silicon/ARM64 version for download here. You can still use the "Mac Universal" version above, OR there is this work-around to create an Apple Silicon version on your computer:
 
 First fork/clone the project. Then open a terminal in the project, and run:
 
