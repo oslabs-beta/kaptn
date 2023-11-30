@@ -2,17 +2,14 @@ import React, { useState, useEffect } from "react";
 import Button from "@mui/material/Button";
 import { Typography, useTheme, Box, Modal, Checkbox } from "@mui/material";
 const { ipcRenderer } = require("electron");
-import SideNav from "./Sidebar.js";
-import LaunchIcon from "@mui/icons-material/Launch";
-import { RadioButtonUnchecked } from "@mui/icons-material";
-import CheckCircleOutlinedIcon from "@mui/icons-material/CheckCircleOutlined";
-import HighlightOffOutlinedIcon from "@mui/icons-material/HighlightOffOutlined";
 import CircularProgress from "@mui/material/CircularProgress";
 import Tooltip, { TooltipProps, tooltipClasses } from "@mui/material/Tooltip";
-import LightbulbIcon from "@mui/icons-material/Lightbulb";
 import { styled } from "@mui/material/styles";
 import { JsxElement } from "typescript";
-import SortIcon from "@mui/icons-material/Sort";
+import NodeCpuChart from "./NodeCpuChart";
+import NodeMemoryChart from "./NodeMemoryChart";
+
+// const storage = require('electron-json-storage');
 
 const LightTooltip = styled(({ className, ...props }: TooltipProps) => (
   <Tooltip {...props} classes={{ popper: className }} />
@@ -71,10 +68,18 @@ function KraneNodeList(props) {
     },
   ]);
 
+
+  const [showExpandedNodeCpuChart, setShowExpandedNodeCpuChart] =
+    useState(false);
+
+  const [showExpandedNodeMemoryChart, setShowExpandedNodeMemoryChart] =
+    useState(false);
+
   const theme = useTheme();
 
   let currDir = props.currDir;
   let filteredNodes = [];
+
 
   const style = {
     position: "absolute",
@@ -140,6 +145,24 @@ function KraneNodeList(props) {
     transform: "translate(-50%, -50%)",
     width: "80%",
     height: "80%",
+    background: theme.palette.mode === "dark" ? "#0e0727" : "#e6e1fb",
+    color: theme.palette.mode === "dark" ? "white" : "#47456e",
+    boxShadow: 24,
+    p: 4,
+    padding: "10px",
+    border:
+      theme.palette.mode === "dark" ? "1px solid white" : "2px solid #9075ea",
+    borderRadius: "10px",
+    overflow: "scroll",
+  };
+
+  const chartStyle = {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    width: "82%",
+    height: "65",
     background: theme.palette.mode === "dark" ? "#0e0727" : "#e6e1fb",
     color: theme.palette.mode === "dark" ? "white" : "#47456e",
     boxShadow: 24,
@@ -453,6 +476,8 @@ function KraneNodeList(props) {
     });
   };
 
+const [count, setCount] = useState(0)
+
   //Listen to "get nodes" return event
   ipcRenderer.on("got_nodes", (event, arg) => {
     let nameOutput: any = [];
@@ -603,6 +628,10 @@ function KraneNodeList(props) {
 
   //Listen to "get cpuUsed" return event
   ipcRenderer.on("got_nodesCpuUsed", (event, arg) => {
+    let date = new Date().toISOString();
+    // let tempNodesStatsObj = JSON.parse(JSON.stringify(podsStatsObj));
+    let tempNodesStatsObj = props.nodesStatsObj;
+
     let argArr = arg.split("");
 
     let nodeUsageArray = [];
@@ -615,7 +644,7 @@ function KraneNodeList(props) {
     }
     i++;
 
-    // //for loop to put all pods in array of objects
+    // //for loop to parse response and put all nodes' stats in array of objects
     for (let j = 0; i < argArr.length; i++) {
       let nodeNameArr = [];
       let nodeCpuUsedArr = [];
@@ -730,6 +759,8 @@ function KraneNodeList(props) {
       nodeUsageArray.push(node);
     } //end of for loop
 
+    props.setNodesUsageArr([...nodeUsageArray])
+
     let finalNodeUsageArr = nodeUsageArray.filter(
       (ele: any, ind: number) =>
         ind ===
@@ -751,6 +782,32 @@ function KraneNodeList(props) {
     }
 
     props.setNodesArr([...filteredNodes]);
+
+    for (let j = 0; j < nodeUsageArray.length; j++) {
+      if (tempNodesStatsObj[nodeUsageArray[j]["nodeName"]] === undefined) {
+        let nodesCurrentStats = {
+          date: date,
+          cpu: Number(nodeUsageArray[j]["nodeCpuUsed"]),
+          memory: Number(nodeUsageArray[j]["nodeMemoryUsed"]),
+          memoryDisplay: nodeUsageArray[j]["nodeMemoryUsedDisplay"],
+        };
+
+        tempNodesStatsObj[nodeUsageArray[j]["nodeName"]] = [nodesCurrentStats];
+      } else {
+        let nodesCurrentStats = {
+          date: date,
+          cpu: Number(nodeUsageArray[j]["nodeCpuUsed"]),
+          memory: Number(nodeUsageArray[j]["nodeMemoryUsed"]),
+          memoryDisplay: nodeUsageArray[j]["nodeMemoryUsedDisplay"],
+        };
+
+        tempNodesStatsObj[nodeUsageArray[j]["nodeName"]].push(
+          nodesCurrentStats
+        );
+      }
+    }
+
+    props.setNodesStatsObj(tempNodesStatsObj);
   });
 
   //
@@ -895,19 +952,13 @@ function KraneNodeList(props) {
     }
 
     props.setNodesArr([...filteredNodes]);
+    props.setNodesLimitsArr([...nodeLimitsArray])
   });
 
   useEffect(() => {
     // ----------------------------------------- get NODES section ------------
     props.getNodesInfo();
 
-    //  const nodesInterval = setInterval(() => {
-    //     props.getNodesInfo();
-    //   }, 30000);
-
-    //    return () => {
-    //     clearInterval(nodesInterval);
-    //   };
   }, []);
 
   const handleNodeLogOpen = (pod) => {
@@ -968,6 +1019,22 @@ function KraneNodeList(props) {
 
   const handleNodeYamlClose = () => {
     setOpenNodeYaml(false);
+  };
+
+  const handleNodeCpuChartOpen = (pod) => {
+    setShowExpandedNodeCpuChart(true);
+  };
+
+  const handleNodeCpuChartClose = () => {
+    setShowExpandedNodeCpuChart(false);
+  };
+
+  const handleNodeMemoryChartOpen = (pod) => {
+    setShowExpandedNodeMemoryChart(true);
+  };
+
+  const handleNodeMemoryChartClose = () => {
+    setShowExpandedNodeMemoryChart(false);
   };
 
   const handleNodeDescribeOpen = (pod) => {
@@ -1210,7 +1277,7 @@ function KraneNodeList(props) {
                 marginRight: "0px",
                 marginLeft: "10.8px",
               }}
-              src="./node.svg"
+              src="./assets/node.svg"
             ></img>
             <span
               style={{
@@ -1622,7 +1689,7 @@ function KraneNodeList(props) {
           >
             <img
               style={{ width: "45px", marginLeft: "0px" }}
-              src="./pod.svg"
+              src="./assets/pod.svg"
             ></img>
             <span
               style={{
@@ -2046,7 +2113,7 @@ function KraneNodeList(props) {
           >
             <img
               style={{ width: "45px", marginLeft: "0px" }}
-              src="./container.png"
+              src="./assets/container.png"
             ></img>
             <span
               style={{
@@ -2438,7 +2505,7 @@ function KraneNodeList(props) {
                         height: "100px",
                         margin: "15px 25px 0 15px",
                       }}
-                      src="./node.svg"
+                      src="./assets/node.svg"
                     ></img>
                   </div>
                   {"  "}
@@ -2538,7 +2605,7 @@ function KraneNodeList(props) {
                                 ? "#ffffff"
                                 : "white",
                             fontWeight: "500",
-                            margin: "-20px 0 4px 0",
+                            margin: "-20px 0 0px 0",
                             backgroundColor:
                               theme.palette.mode === "dark"
                                 ? "#7f78d8"
@@ -2552,7 +2619,13 @@ function KraneNodeList(props) {
                         >
                           {selectedNode[0]["role"].toUpperCase()}
                         </div>
-                        <div style={{ paddingLeft: "5px", fontSize: "16px" }}>
+                        <div
+                          style={{
+                            paddingLeft: "5px",
+                            fontSize: "16px",
+                            lineHeight: "27px",
+                          }}
+                        >
                           <br />
                           <b>AGE:</b> {" " + selectedNode[0]["age"]}
                           <br />
@@ -2568,9 +2641,11 @@ function KraneNodeList(props) {
                           {selectedNode[0]["osImage"].toUpperCase()}
                           <br />
                           <b>KERNAL VERSION:</b>
+                          <br />
                           {" " + selectedNode[0]["kernal"]}
                           <br />
                           <b>CONTAINER RUNTIME:</b>
+                          <br />
                           {" " + selectedNode[0]["containerRuntime"]}
                           <br />
                           <b>ROLE:</b>
@@ -2582,288 +2657,655 @@ function KraneNodeList(props) {
                         style={{
                           display: "flex",
                           flexDirection: "column",
-                          justifyContent: "center",
-                          alignItems: "center",
-                          marginRight: "35px",
-                          marginLeft: "5px",
+                          width: "510px",
+                          height: "240px",
+                          margin: "5px 0 0 0",
+                          // border: "1px solid white",
                         }}
                       >
-                        <CircularProgress
-                          variant="determinate"
-                          // @ts-nocheck
-                          thickness={1.35}
-                          value={100 * 0.73}
-                          style={{
-                            marginTop: "130px",
-                            marginLeft: "53.5px",
-                            rotate: "-131deg",
-                            color:
-                              theme.palette.mode === "dark"
-                                ? "#ffffff40"
-                                : "#00000015",
-                            width: "180px",
-                          }}
-                        />
-                        <CircularProgress
-                          variant="determinate"
-                          // @ts-nocheck
-                          thickness={1.35}
-                          value={
-                            Number(`${selectedNode[0]["nodeCpuPercentMath"]}`) *
-                            0.73
-                          }
-                          style={{
-                            position: "relative",
-                            top: "-40px",
-                            left: "26.8px",
-                            rotate: "-131deg",
-                            color:
-                              selectedNode[0]["nodeCpuPercent"] === "N/A"
-                                ? "#ffffff80"
-                                : Number(
-                                    selectedNode[0]["nodeCpuPercentMath"]
-                                  ) < 90
-                                ? `#2fc665`
-                                : Number(
-                                    selectedNode[0]["nodeCpuPercentMath"]
-                                  ) > 90
-                                ? "#cf4848"
-                                : "yellow",
-                            width: "180px",
-                          }}
-                        />
                         <div
                           style={{
-                            position: "relative",
-                            top: "-95px",
-                            left: "0px",
-                            fontSize: "38px",
-                            fontWeight: "800",
-                            marginTop: "-60px",
-                            marginLeft: "-37px",
-                            color:
-                              Number(selectedNode[0]["nodeCpuPercentMath"]) < 90
-                                ? `#2fc665`
-                                : Number(
-                                    selectedNode[0]["nodeCpuPercentMath"]
-                                  ) > 90
-                                ? "#cf4848"
-                                : "yellow",
+                            display: "flex",
+                            flexDirection: "row",
+                            justifyContent: "center",
+                            width: "510px",
+                            margin: "20px 0 5px -25px",
                           }}
                         >
-                          {`${selectedNode[0]["nodeCpuPercent"]}`}
-                        </div>
-                        <div
-                          style={{
-                            fontSize: "16px",
-                            position: "relative",
-                            top: "-99px",
-                            left: "-21px",
-                            marginRight: "-2px",
-                            fontWeight: "400",
-                            marginTop: "-8px",
-                            color:
-                              Number(selectedNode[0]["nodeCpuPercentMath"]) < 90
-                                ? `#2fc665`
-                                : Number(
-                                    selectedNode[0]["nodeCpuPercentMath"]
-                                  ) > 90
-                                ? "#cf4848"
-                                : "yellow",
-                          }}
-                        >
+                          {" "}
                           CPU
                         </div>
                         <div
                           style={{
-                            position: "relative",
-                            top: -42,
-                            left: -19,
-                            fontWeight: "400",
-                            fontSize: "16px",
-                            textAlign: "center",
-                            color:
-                              Number(selectedNode[0]["nodeCpuPercentMath"]) < 90
-                                ? `#2fc665`
-                                : Number(
+                            display: "flex",
+                            flexDirection: "row",
+                            justifyContent: "flex-start",
+                            width: "510px",
+                          }}
+                        >
+                          <div
+                            id="podCpuGaugeLarge"
+                            style={{
+                              display: "flex",
+                              flexDirection: "column",
+                              justifyContent: "center",
+                              alignItems: "center",
+                              marginRight: "-60px",
+                              marginLeft: "-70px",
+                              marginTop: "-50px",
+                              transform: "scale(.55)",
+                            }}
+                          >
+                            <CircularProgress
+                              variant="determinate"
+                              // @ts-nocheck
+                              thickness={1.35}
+                              value={100 * 0.73}
+                              style={{
+                                marginTop: "130px",
+                                marginLeft: "53.5px",
+                                rotate: "-131deg",
+                                color:
+                                  theme.palette.mode === "dark"
+                                    ? "#ffffff40"
+                                    : "#00000015",
+                                width: "180px",
+                              }}
+                            />
+                            <CircularProgress
+                              variant="determinate"
+                              // @ts-nocheck
+                              thickness={1.35}
+                              value={
+                                Number(
+                                  `${selectedNode[0]["nodeCpuPercentMath"]}`
+                                ) * 0.73
+                              }
+                              style={{
+                                position: "relative",
+                                top: "-40px",
+                                left: "26.8px",
+                                rotate: "-131deg",
+                                color:
+                                  selectedNode[0]["nodeCpuPercent"] === "N/A"
+                                    ? "#ffffff80"
+                                    : Number(
+                                        selectedNode[0]["nodeCpuPercentMath"]
+                                      ) < 90
+                                    ? `#2fc665`
+                                    : Number(
+                                        selectedNode[0]["nodeCpuPercentMath"]
+                                      ) > 90
+                                    ? "#cf4848"
+                                    : "yellow",
+                                width: "180px",
+                              }}
+                            />
+                            <div
+                              style={{
+                                position: "relative",
+                                top: "-95px",
+                                left: "0px",
+                                fontSize:
+                                  selectedNode[0]["nodeCpuPercentMath"] ===
+                                  "N/A"
+                                    ? "32px"
+                                    : "42px",
+                                fontWeight: "800",
+                                marginTop:
+                                  selectedNode[0]["nodeCpuLimit"] === "NONE"
+                                    ? "-60px"
+                                    : "-60px",
+                                marginLeft: "-37px",
+                                color:
+                                  selectedNode[0]["nodeCpuPercentMath"] ===
+                                    "N/A" && theme.palette.mode === "dark"
+                                    ? "#ffffff80"
+                                    : selectedNode[0]["nodeCpuPercentMath"] ===
+                                        "N/A" && theme.palette.mode !== "dark"
+                                    ? "#00000050"
+                                    : Number(
+                                        selectedNode[0]["nodeCpuPercentMath"]
+                                      ) < 90
+                                    ? `#2fc665`
+                                    : Number(
+                                        selectedNode[0]["nodeCpuPercentMath"]
+                                      ) > 90
+                                    ? "#cf4848"
+                                    : "yellow",
+                              }}
+                            >
+                              {selectedNode[0]["nodeCpuPercentMath"] === "N/A"
+                                ? `NO MAX`
+                                : `${selectedNode[0]["nodeCpuPercentMath"]}%`}
+                            </div>
+                            <div
+                              style={{
+                                fontSize: "20px",
+                                position: "relative",
+                                top: "-99px",
+                                left: "-21px",
+                                marginRight: "-2px",
+                                fontWeight: "400",
+                                marginTop: "-8px",
+                                color:
+                                  selectedNode[0]["nodeCpuPercentMath"] ===
+                                    "N/A" && theme.palette.mode === "dark"
+                                    ? "#ffffff80"
+                                    : selectedNode[0]["nodeCpuPercentMath"] ===
+                                        "N/A" && theme.palette.mode !== "dark"
+                                    ? "#00000060"
+                                    : Number(
+                                        selectedNode[0]["nodeCpuPercentMath"]
+                                      ) < 90
+                                    ? `#2fc665`
+                                    : Number(
+                                        selectedNode[0]["nodeCpuPercentMath"]
+                                      ) > 90
+                                    ? "#cf4848"
+                                    : "yellow",
+                              }}
+                            >
+                              CPU
+                            </div>
+                          </div>
+
+                          <div
+                            style={{
+                              display: "flex",
+                              flexDirection: "column",
+                              width: "120px",
+                              margin: "0 30px 0 0",
+                              justifyContent: "flex-start",
+                              alignItems: "center",
+                            }}
+                          >
+                            <div
+                              style={{
+                                fontSize:
+                                  selectedNode[0]["nodeCpuLimit"] === "NONE"
+                                    ? "28px"
+                                    : "28px",
+                                fontWeight: "700",
+                                margin: "0px 0 -10px 0",
+                                color:
+                                  Number(
                                     selectedNode[0]["nodeCpuPercentMath"]
-                                  ) > 90
-                                ? "#cf4848"
-                                : "yellow",
+                                  ) < 90
+                                    ? `#2fc665`
+                                    : Number(
+                                        selectedNode[0]["nodeCpuPercentMath"]
+                                      ) > 90
+                                    ? "#cf4848"
+                                    : "yellow",
+                              }}
+                            >
+                              {" "}
+                              {selectedNode[0]["nodeCpuUsed"]}m{" "}
+                            </div>
+                            <div
+                              style={{
+                                color:
+                                  theme.palette.mode === "dark"
+                                    ? "#ffffff80"
+                                    : "#00000050",
+                                fontSize: "12px",
+                              }}
+                            >
+                              {" "}
+                              CPU USED{" "}
+                            </div>
+                            <div
+                              style={{
+                                fontSize:
+                                  selectedNode[0]["nodeCpuLimit"] === "NONE"
+                                    ? "20px"
+                                    : "28px",
+                                fontWeight: "700",
+                                margin:
+                                  selectedNode[0]["nodeCpuLimit"] === "NONE"
+                                    ? "6px 0 -8px 0"
+                                    : "0px 0 -10px 0",
+                                color:
+                                  selectedNode[0]["nodeCpuLimit"] === "NONE" &&
+                                  theme.palette.mode === "dark"
+                                    ? "#ffffff70"
+                                    : selectedNode[0]["nodeCpuLimit"] ===
+                                        "NONE" && theme.palette.mode !== "dark"
+                                    ? "#00000040"
+                                    : Number(
+                                        selectedNode[0]["nodeCpuPercentMath"]
+                                      ) < 90
+                                    ? `#2fc665`
+                                    : Number(
+                                        selectedNode[0]["nodeCpuPercentMath"]
+                                      ) > 90
+                                    ? "#cf4848"
+                                    : "yellow",
+                              }}
+                            >
+                              {" "}
+                              {selectedNode[0]["nodeCpuLimit"] === "NONE"
+                                ? "NONE"
+                                : `${selectedNode[0]["nodeCpuLimit"]}m`}{" "}
+                            </div>
+                            <div
+                              style={{
+                                color:
+                                  theme.palette.mode === "dark"
+                                    ? "#ffffff80"
+                                    : "#00000050",
+                                fontSize: "12px",
+                              }}
+                            >
+                              {" "}
+                              CPU LIMIT{" "}
+                            </div>
+                          </div>
+
+                          <LightTooltip
+                            title="CPU USAGE OVER TIME - CLICK TO EXPAND"
+                            placement="top"
+                            arrow
+                            enterDelay={1000}
+                            leaveDelay={100}
+                            enterNextDelay={3000}
+                          >
+                            <div
+                              onClick={handleNodeCpuChartOpen}
+                              style={{
+                                display: "flex",
+                                borderRadius: "15px",
+                                height: "93px",
+                                border:
+                                  theme.palette.mode === "dark"
+                                    ? "1.5px solid #ffffff50"
+                                    : "1.5px solid #00000030",
+                              }}
+                            >
+                              <NodeCpuChart
+                                width={230}
+                                height={90}
+                                selectedNode={selectedNode}
+                                nodesStatsObj={props.nodesStatsObj}
+                              />
+                            </div>
+                          </LightTooltip>
+                          <Modal
+                            open={showExpandedNodeCpuChart}
+                            onClose={handleNodeCpuChartClose}
+                          >
+                            <Box sx={chartStyle}>
+                              <div
+                                style={{
+                                  display: "flex",
+                                  flexDirection: "column",
+                                  fontFamily: "Outfit",
+                                  fontSize: "24px",
+                                  fontWeight: "700",
+                                  textAlign: "center",
+                                  margin: "10px 0 0px 0",
+                                }}
+                              >
+                                {selectedNode[0]["name"].toUpperCase()} - CPU
+                                USAGE - GRAPH OVER TIME
+                                <div
+                                  style={{
+                                    margin: "20px 0 0px 0",
+                                    fontWeight: "500",
+                                    borderRadius: "15px",
+                                    border:
+                                      theme.palette.mode === "dark"
+                                        ? "1.5px solid #ffffff50"
+                                        : "1.5px solid #00000030",
+                                  }}
+                                >
+                                  <NodeCpuChart
+                                    width={840}
+                                    height={400}
+                                    selectedNode={selectedNode}
+                                    nodesStatsObj={props.nodesStatsObj}
+                                  />
+                                </div>
+                              </div>
+                            </Box>
+                          </Modal>
+                        </div>
+
+                        <div
+                          style={{
+                            display: "flex",
+                            flexDirection: "row",
+                            justifyContent: "center",
+                            width: "510px",
+                            margin: "-56px 0 1px -25px",
                           }}
                         >
                           {" "}
-                          CPU USED:{" "}
-                          <strong>
-                            {selectedNode[0]["nodeCpuUsed"].toUpperCase()}m
-                          </strong>
-                          <br />
-                          CPU LIMIT:{" "}
-                          <strong>
-                            {selectedNode[0]["nodeCpuLimit"] === "NONE"
-                              ? "NONE"
-                              : `${selectedNode[0][
-                                  "nodeCpuLimit"
-                                ].toUpperCase()}m`}
-                          </strong>
-                        </div>
-                      </div>
-
-                      <div
-                        style={{
-                          display: "flex",
-                          flexDirection: "column",
-                          justifyContent: "center",
-                          alignItems: "center",
-                        }}
-                      >
-                        <CircularProgress
-                          variant="determinate"
-                          // @ts-nocheck
-                          thickness={1.35}
-                          value={100 * 0.73}
-                          style={{
-                            marginTop: "130px",
-                            marginLeft: "53.5px",
-                            rotate: "-131deg",
-                            color:
-                              theme.palette.mode === "dark"
-                                ? "#ffffff40"
-                                : "#00000015",
-                            width: "180px",
-                          }}
-                        />
-                        <CircularProgress
-                          variant="determinate"
-                          // @ts-nocheck
-                          thickness={1.35}
-                          value={
-                            Number(
-                              `${selectedNode[0]["nodeMemoryPercent"].slice(
-                                0,
-                                -1
-                              )}`
-                            ) * 0.73
-                          }
-                          style={{
-                            position: "relative",
-                            top: "-40px",
-                            left: "26.8px",
-                            rotate: "-131deg",
-                            color:
-                              Number(
-                                selectedNode[0]["nodeMemoryPercent"].slice(
-                                  0,
-                                  -1
-                                )
-                              ) < 90
-                                ? `#2fc665`
-                                : Number(
-                                    selectedNode[0]["nodeMemoryPercent"].slice(
-                                      0,
-                                      -1
-                                    )
-                                  ) > 90
-                                ? "#cf4848"
-                                : "yellow",
-                            width: "180px",
-                          }}
-                        />
-                        <div
-                          style={{
-                            position: "relative",
-                            top: "-95px",
-                            left: "0px",
-                            fontSize:
-                              selectedNode[0]["podMemoryPercent"] === "N/A"
-                                ? "36px"
-                                : "38px",
-                            fontWeight: "800",
-                            marginTop: "-60px",
-                            marginLeft: "-37px",
-                            color:
-                              Number(
-                                selectedNode[0]["nodeMemoryPercent"].slice(
-                                  0,
-                                  -1
-                                )
-                              ) < 90
-                                ? `#2fc665`
-                                : Number(
-                                    selectedNode[0]["nodeMemoryPercent"].slice(
-                                      0,
-                                      -1
-                                    )
-                                  ) > 90
-                                ? "#cf4848"
-                                : "yellow",
-                          }}
-                        >
-                          {selectedNode[0]["nodeMemoryPercent"]}
-                        </div>
-                        <div
-                          style={{
-                            fontSize: "16px",
-                            position: "relative",
-                            top: "-99px",
-                            left: "-20px",
-                            marginRight: "-2px",
-                            fontWeight: "400",
-                            marginTop: "-8px",
-                            color:
-                              Number(
-                                selectedNode[0]["nodeMemoryPercent"].slice(
-                                  0,
-                                  -1
-                                )
-                              ) < 90
-                                ? `#2fc665`
-                                : Number(
-                                    selectedNode[0]["nodeMemoryPercent"].slice(
-                                      0,
-                                      -1
-                                    )
-                                  ) > 90
-                                ? "#cf4848"
-                                : "yellow",
-                          }}
-                        >
                           MEMORY
                         </div>
                         <div
                           style={{
-                            position: "relative",
-                            top: -42,
-                            left: -19,
-                            fontWeight: "400",
-                            fontSize: "16px",
-                            textAlign: "center",
-                            color:
-                              Number(
-                                selectedNode[0]["nodeMemoryPercent"].slice(
-                                  0,
-                                  -1
-                                )
-                              ) < 90
-                                ? `#2fc665`
-                                : Number(
-                                    selectedNode[0]["nodeMemoryPercent"].slice(
-                                      0,
-                                      -1
-                                    )
-                                  ) > 90
-                                ? "#cf4848"
-                                : "yellow",
+                            display: "flex",
+                            flexDirection: "row",
+                            justifyContent: "flex-start",
+                            width: "510px",
                           }}
                         >
-                          {" "}
-                          MEM. USED:{" "}
-                          <strong>
-                            {selectedNode[0]["nodeMemoryUsedDisplay"]}
-                          </strong>
-                          <br />
-                          MEM. LIMIT:{" "}
-                          <strong>{selectedNode[0]["nodeMemoryLimit"]}</strong>
+                          <div
+                            id="podMemoryGaugeLarge"
+                            style={{
+                              display: "flex",
+                              flexDirection: "column",
+                              justifyContent: "center",
+                              alignItems: "center",
+                              marginRight: "-60px",
+                              marginLeft: "-70px",
+                              marginTop: "-50px",
+                              transform: "scale(.55)",
+                            }}
+                          >
+                            <CircularProgress
+                              variant="determinate"
+                              // @ts-nocheck
+                              thickness={1.35}
+                              value={100 * 0.73}
+                              style={{
+                                marginTop: "130px",
+                                marginLeft: "53.5px",
+                                rotate: "-131deg",
+                                color:
+                                  theme.palette.mode === "dark"
+                                    ? "#ffffff40"
+                                    : "#00000015",
+                                width: "180px",
+                              }}
+                            />
+                            <CircularProgress
+                              variant="determinate"
+                              // @ts-nocheck
+                              thickness={1.35}
+                              value={
+                                Number(
+                                  `${selectedNode[0]["nodeMemoryPercent"].slice(
+                                    0,
+                                    -1
+                                  )}`
+                                ) * 0.73
+                              }
+                              style={{
+                                position: "relative",
+                                top: "-40px",
+                                left: "26.8px",
+                                rotate: "-131deg",
+                                color:
+                                  selectedNode[0]["nodeMemoryPercent"] === "N/A"
+                                    ? "#ffffff80"
+                                    : Number(
+                                        selectedNode[0][
+                                          "nodeMemoryPercent"
+                                        ].slice(0, -1)
+                                      ) < 90
+                                    ? `#2fc665`
+                                    : Number(
+                                        selectedNode[0][
+                                          "nodeMemoryPercent"
+                                        ].slice(0, -1)
+                                      ) > 90
+                                    ? "#cf4848"
+                                    : "yellow",
+                                width: "180px",
+                              }}
+                            />
+                            <div
+                              style={{
+                                position: "relative",
+                                top: "-95px",
+                                left: "0px",
+                                fontSize:
+                                  selectedNode[0]["nodeMemoryPercent"] === "N/A"
+                                    ? "32px"
+                                    : "42px",
+                                fontWeight: "800",
+                                marginTop:
+                                  selectedNode[0]["nodeMemoryPercent"] === "N/A"
+                                    ? "-50px"
+                                    : "-60px",
+                                marginLeft: "-37px",
+                                color:
+                                  selectedNode[0]["nodeMemoryPercent"] ===
+                                    "N/A" && theme.palette.mode === "dark"
+                                    ? "#ffffff80"
+                                    : selectedNode[0]["nodeMemoryPercent"] ===
+                                        "N/A" && theme.palette.mode !== "dark"
+                                    ? "#00000050"
+                                    : Number(
+                                        selectedNode[0][
+                                          "nodeMemoryPercent"
+                                        ].slice(0, -1)
+                                      ) < 90
+                                    ? `#2fc665`
+                                    : Number(
+                                        selectedNode[0][
+                                          "nodeMemoryPercent"
+                                        ].slice(0, -1)
+                                      ) > 90
+                                    ? "#cf4848"
+                                    : "yellow",
+                              }}
+                            >
+                              {selectedNode[0]["nodeMemoryPercent"] === "N/A"
+                                ? `NO MAX`
+                                : `${selectedNode[0]["nodeMemoryPercent"].slice(
+                                    0,
+                                    -1
+                                  )}%`}
+                            </div>
+                            <div
+                              style={{
+                                fontSize: "20px",
+                                position: "relative",
+                                top: "-99px",
+                                left: "-21px",
+                                marginRight: "-2px",
+                                fontWeight: "400",
+                                marginTop: "-8px",
+                                color:
+                                  selectedNode[0]["nodeMemoryPercent"] ===
+                                    "N/A" && theme.palette.mode === "dark"
+                                    ? "#ffffff80"
+                                    : selectedNode[0]["nodeMemoryPercent"] ===
+                                        "N/A" && theme.palette.mode !== "dark"
+                                    ? "#00000060"
+                                    : Number(
+                                        selectedNode[0][
+                                          "nodeMemoryPercent"
+                                        ].slice(0, -1)
+                                      ) < 90
+                                    ? `#2fc665`
+                                    : Number(
+                                        selectedNode[0][
+                                          "nodeMemoryPercent"
+                                        ].slice(0, -1)
+                                      ) > 90
+                                    ? "#cf4848"
+                                    : "yellow",
+                              }}
+                            >
+                              MEMORY
+                            </div>
+                          </div>
+
+                          <div
+                            style={{
+                              display: "flex",
+                              flexDirection: "column",
+                              width: "120px",
+                              // border: "1px solid white",
+                              margin: "0 30px 0 0",
+                              justifyContent: "flex-start",
+                              alignItems: "center",
+                            }}
+                          >
+                            <div
+                              style={{
+                                fontSize:
+                                  selectedNode[0]["nodeMemoryLimit"] === "NONE"
+                                    ? "28px"
+                                    : "28px",
+                                fontWeight: "700",
+                                margin: "0px 0 -10px 0",
+                                color:
+                                  selectedNode[0]["nodeMemoryPercent"] === "N/A"
+                                    ? `#2fc665`
+                                    : Number(
+                                        selectedNode[0][
+                                          "nodeMemoryPercent"
+                                        ].slice(0, -1)
+                                      ) < 90
+                                    ? `#2fc665`
+                                    : Number(
+                                        selectedNode[0][
+                                          "nodedMemoryPercent"
+                                        ].slice(0, -1)
+                                      ) > 90
+                                    ? "#cf4848"
+                                    : "yellow",
+                              }}
+                            >
+                              {" "}
+                              {selectedNode[0]["nodeMemoryUsedDisplay"]}{" "}
+                            </div>
+                            <div
+                              style={{
+                                color:
+                                  theme.palette.mode === "dark"
+                                    ? "#ffffff80"
+                                    : "#00000050",
+                                fontSize: "12px",
+                              }}
+                            >
+                              {" "}
+                              MEM USED{" "}
+                            </div>
+                            <div
+                              style={{
+                                fontSize:
+                                  selectedNode[0]["nodeMemoryLimit"] === "NONE"
+                                    ? "20px"
+                                    : "28px",
+                                fontWeight: "700",
+                                margin:
+                                  selectedNode[0]["nodeMemoryLimit"] === "NONE"
+                                    ? "6px 0 -8px 0"
+                                    : "0px 0 -10px 0",
+                                color:
+                                  selectedNode[0]["nodeMemoryLimit"] ===
+                                    "NONE" && theme.palette.mode === "dark"
+                                    ? "#ffffff70"
+                                    : selectedNode[0]["nodeMemoryLimit"] ===
+                                        "NONE" && theme.palette.mode !== "dark"
+                                    ? "#00000040"
+                                    : Number(
+                                        selectedNode[0][
+                                          "nodeMemoryPercent"
+                                        ].slice(0, -1)
+                                      ) < 90
+                                    ? `#2fc665`
+                                    : Number(
+                                        selectedNode[0][
+                                          "nodeMemoryPercent"
+                                        ].slice(0, -1)
+                                      ) > 90
+                                    ? "#cf4848"
+                                    : "yellow",
+                              }}
+                            >
+                              {" "}
+                              {selectedNode[0]["nodeMemoryLimit"] === ""
+                                ? "NONE"
+                                : selectedNode[0]["nodeMemoryLimit"]}{" "}
+                            </div>
+                            <div
+                              style={{
+                                color:
+                                  theme.palette.mode === "dark"
+                                    ? "#ffffff80"
+                                    : "#00000050",
+                                fontSize: "12px",
+                              }}
+                            >
+                              {" "}
+                              MEM LIMIT{" "}
+                            </div>
+                          </div>
+                          <LightTooltip
+                            title="MEMORY USAGE OVER TIME - CLICK TO EXPAND"
+                            placement="top"
+                            arrow
+                            enterDelay={1000}
+                            leaveDelay={100}
+                            enterNextDelay={3000}
+                          >
+                            <div
+                              onClick={handleNodeMemoryChartOpen}
+                              style={{
+                                display: "flex",
+                                borderRadius: "15px",
+                                height: "93px",
+                                border:
+                                  theme.palette.mode === "dark"
+                                    ? "1.5px solid #ffffff50"
+                                    : "1.5px solid #00000030",
+                              }}
+                            >
+                              <NodeMemoryChart
+                                width={230}
+                                height={90}
+                                nodesStatsObj={props.nodesStatsObj}
+                                selectedNode={selectedNode}
+                              />
+                            </div>
+                          </LightTooltip>
+                          <Modal
+                            open={showExpandedNodeMemoryChart}
+                            onClose={handleNodeMemoryChartClose}
+                          >
+                            <Box sx={chartStyle}>
+                              <div
+                                style={{
+                                  display: "flex",
+                                  flexDirection: "column",
+                                  fontFamily: "Outfit",
+                                  fontSize: "24px",
+                                  fontWeight: "700",
+                                  textAlign: "center",
+                                  margin: "10px 0 0px 0",
+                                }}
+                              >
+                                {selectedNode[0]["name"].toUpperCase()} - MEMORY
+                                USAGE - GRAPH OVER TIME
+                                <div
+                                  style={{
+                                    margin: "20px 0 0px 0",
+                                    borderRadius: "15px",
+                                    fontWeight: "500",
+                                    border:
+                                      theme.palette.mode === "dark"
+                                        ? "1.5px solid #ffffff50"
+                                        : "1.5px solid #00000030",
+                                  }}
+                                >
+                                  <NodeMemoryChart
+                                    width={840}
+                                    height={400}
+                                    selectedNode={selectedNode}
+                                    nodesStatsObj={props.nodesStatsObj}
+                                  />
+                                </div>
+                              </div>
+                            </Box>
+                          </Modal>
                         </div>
                       </div>
                     </div>
@@ -2872,7 +3314,8 @@ function KraneNodeList(props) {
                       style={{
                         flexDirection: "row",
                         justifyContent: "space-between",
-                        margin: "0 0 0 0px",
+                        margin: "20px 0 0 0px",
+                        width: "100%",
                       }}
                     >
                       <button
@@ -3558,7 +4001,7 @@ function KraneNodeList(props) {
                                   height: "100px",
                                   margin: "15px 25px 0 15px",
                                 }}
-                                src="./pod.svg"
+                                src="./assets/pod.svg"
                               ></img>
                             </div>
                             {"  "}
@@ -4364,6 +4807,7 @@ function KraneNodeList(props) {
       </>
     );
   }
+
 
   return (
     <>

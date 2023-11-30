@@ -3,18 +3,16 @@ import Button from "@mui/material/Button";
 import { Typography, useTheme, Box, Modal } from "@mui/material";
 const { ipcRenderer } = require("electron");
 import SideNav from "../components/Sidebar.js";
-import LaunchIcon from "@mui/icons-material/Launch";
-import { RadioButtonUnchecked } from "@mui/icons-material";
-import CheckCircleOutlinedIcon from "@mui/icons-material/CheckCircleOutlined";
-import HighlightOffOutlinedIcon from "@mui/icons-material/HighlightOffOutlined";
-import CircularProgress from "@mui/material/CircularProgress";
 import Tooltip, { TooltipProps, tooltipClasses } from "@mui/material/Tooltip";
-import LightbulbIcon from "@mui/icons-material/Lightbulb";
 import { styled } from "@mui/material/styles";
 import { JsxElement } from "typescript";
 import KraneNodeList from "../components/KraneNodeList.js";
 import KranePodList from "../components/KranePodList.js";
 import KraneDeploymentsList from "../components/KraneDeploymentsList";
+import InputLabel from "@mui/material/InputLabel";
+import MenuItem from "@mui/material/MenuItem";
+import FormControl from "@mui/material/FormControl";
+import Select, { SelectChangeEvent } from "@mui/material/Select";
 
 const LightTooltip = styled(({ className, ...props }: TooltipProps) => (
   <Tooltip {...props} classes={{ popper: className }} />
@@ -39,17 +37,23 @@ type ArrPodObjs = {
 
 let filteredPods: any = [];
 
-function Krane() {
+function Krane(props) {
   const [namespacesArr, setNamespacesArr] = useState(["ALL"]);
   const [namespaceIndex, setNamespaceIndex] = useState(0);
   const [selectedNamespace, setSelectedNamespace] = useState(
-    namespacesArr[namespaceIndex]
+    "ALL"
   );
+
+  const [refreshSpeed, setRefreshSpeed] = useState(15);
 
   const [deploymentsArr, setDeploymentsArr] = useState([]);
   const [podsArr, setPodsArr] = useState([]);
   const [allPodsArr, setAllPodsArr] = useState([]);
+
   const [nodesArr, setNodesArr] = useState([]);
+  const [nodesUsageArr, setNodesUsageArr] = useState([]);
+  const [nodesLimitsArr, setNodesLimitsArr] = useState([]);
+
   const [podsContainersArr, setPodsContainersArr] = useState([]);
   const [currDir, setCurrDir] = useState("NONE SELECTED");
 
@@ -97,68 +101,40 @@ function Krane() {
     },
   ]);
 
+
+  const [kraneDeployIPCcount, setKraneDeployIPCCount] = useState(0);
+
   const theme = useTheme();
-
-  const style = {
-    position: "absolute",
-    top: "50%",
-    left: "50%",
-    transform: "translate(-50%, -50%)",
-    width: "90%",
-    height: "90%",
-    background: theme.palette.mode === "dark" ? "#0e0727" : "#e6e1fb",
-    color: theme.palette.mode === "dark" ? "white" : "#47456e",
-    boxShadow: 24,
-    p: 4,
-    padding: "10px",
-    border:
-      theme.palette.mode === "dark" ? "1px solid white" : "2px solid #9075ea",
-    borderRadius: "10px",
-  };
-
-  ipcRenderer.on("got_namespaces", (event, arg) => {
-    let argArr = arg.split("");
-
-    let namespaceArrayOutput = [];
-
-    let i: number = 0;
-
-    //skip row of column titles
-    while (arg[i] !== "\n") {
-      i++;
-    }
-    i++;
-
-    for (let j = 0; i < argArr.length; i++) {
-      let namespaceOutput: any = [];
-
-      //saves namespace
-      while (arg[i] !== " ") {
-        namespaceOutput.push(arg[i]);
-        i++;
-      }
-      let output = namespaceOutput.join("");
-      let prevNamespaces = [...namespacesArr];
-      namespaceArrayOutput.push(output);
-      //skips spaces
-      while (arg[i] !== "\n") {
-        i++;
-      }
-    }
-    setNamespacesArr(["ALL", ...namespaceArrayOutput]);
-  });
-
-  // ----------------------------------------- get pods info section ------------
 
   function handleClick(event) {
     // setDeploymentsArr([]);
     // setNodesArr([]);
     // setPodsArr([]);
-    getDeploymentsInfo();
-    getNodesInfo();
     getPodsAndContainers();
+    getNodesInfo();
+    getDeploymentsInfo();
   }
 
+  function handleChangeRefreshSpeed(event) {
+    props.intervalArray.map((a) => {
+      clearInterval(a);
+      props.setIntervalArray([]);
+    });
+
+    setRefreshSpeed(event.target.value);
+
+    const allInterval = setInterval(() => {
+      getPodsAndContainers();
+      getNodesInfo();
+      getDeploymentsInfo();
+    }, event.target.value * 1000);
+
+    props.setIntervalArray([allInterval]);
+
+  }
+
+  // the below choose kube config function is incorrect ... to use custom kubeconfig location, it will require passing the following flag to all commands: --kubeconfig="path/to/kubeconfigfile
+  // ... suggest creating state called customConfigPath and customConfigStatus ... if status is true, it passes customConfigPath in and adds whole statement to end of each command (with variable that is otherwise assigned value of "" to make it pass nothing and not affect commands unless altered via function below).
   const handleChooseKubeConfig = (event) => {
     let path = event.target.files[0].path.split("");
     while (path[path.length - 1] !== "/") {
@@ -171,11 +147,25 @@ function Krane() {
   const [deploymentsShowStatus, setDeploymentsShowStatus] = useState(false);
 
   function handleDeploymentsShowStatus() {
+    props.intervalArray.map((a) => {
+      clearInterval(a);
+      props.setIntervalArray([]);
+    });
+
     setNodeShowStatus(false);
     setDeploymentsShowStatus(!deploymentsShowStatus);
+
+    const allInterval = setInterval(() => {
+      getPodsAndContainers();
+      getNodesInfo();
+      getDeploymentsInfo();
+    }, refreshSpeed * 1000);
+
+    props.setIntervalArray([allInterval]);
   }
 
   function getDeploymentsInfo() {
+    setDeploymentsArr([])
     let deploymentsCommand: string =
       "kubectl get deployments -o wide --all-namespaces";
     //send krane command to get all nodes
@@ -190,14 +180,28 @@ function Krane() {
         getReplicasCommand,
         currDir,
       });
-    }, 200);
+    }, 5);
   }
 
   const [nodeShowStatus, setNodeShowStatus] = useState(false);
 
   function handleNodeShowStatus() {
+    props.intervalArray.map((a) => {
+      clearInterval(a);
+      props.setIntervalArray([]);
+    });
+
     setDeploymentsShowStatus(false);
     setNodeShowStatus(!nodeShowStatus);
+
+    const allInterval = setInterval(() => {
+      getPodsAndContainers();
+      getNodesInfo();
+      getDeploymentsInfo();
+    }, refreshSpeed * 1000);
+
+    props.setIntervalArray([allInterval]);
+
   }
 
   function getPodsAndContainers() {
@@ -215,7 +219,7 @@ function Krane() {
         CpuUsedCommand,
         currDir,
       });
-    }, 400);
+    }, 250);
 
     // ----------------------------------------------- Beginning of get pod cpu and memory limits section
 
@@ -225,19 +229,17 @@ function Krane() {
         cpuLimitsCommand,
         currDir,
       });
-    }, 600);
+    }, 400);
 
     // send command to get selected pods containers info
-    let podContainersCommand = `kubectl top pod --containers `;
+    let podContainersCommand = `kubectl top pod --containers --all-namespaces`;
     //send get pods o wide info commands
-    ipcRenderer.send(
-      "podContainers_command",
-      {
+    setTimeout(() => {
+      ipcRenderer.send("podContainers_command", {
         podContainersCommand,
         currDir,
-      },
-      800
-    );
+      });
+    }, 450);
   }
 
   function getNodesInfo() {
@@ -255,7 +257,7 @@ function Krane() {
         nodesCpuUsedCommand,
         currDir,
       });
-    }, 200);
+    }, 550);
 
     let nodesCpuLimitsCommand: string = `kubectl get nodes -o custom-columns="Name:metadata.name,CPU-limit:spec.containers[*].resources.limits.cpu,Memory-limit:spec.containers[*].resources.limits.cpu"`;
     setTimeout(() => {
@@ -263,7 +265,7 @@ function Krane() {
         nodesCpuLimitsCommand,
         currDir,
       });
-    }, 400);
+    }, 570);
   }
 
   function getNamespaces() {
@@ -276,13 +278,85 @@ function Krane() {
   }
 
   useEffect(() => {
+    ipcRenderer.on("got_namespaces", (event, arg) => {
+      let argArr = arg.split("");
+
+      let namespaceArrayOutput = [];
+
+      let i: number = 0;
+
+      //skip row of column titles
+      while (arg[i] !== "\n") {
+        i++;
+      }
+      i++;
+
+      for (let j = 0; i < argArr.length; i++) {
+        let namespaceOutput: any = [];
+
+        //saves namespace
+        while (arg[i] !== " ") {
+          namespaceOutput.push(arg[i]);
+          i++;
+        }
+        let output = namespaceOutput.join("");
+        let prevNamespaces = [...namespacesArr];
+        namespaceArrayOutput.push(output);
+        //skips spaces
+        while (arg[i] !== "\n") {
+          i++;
+        }
+      }
+
+      //for each namespace, create an array with MenuItems JSX for mui select component, starting with an "ALL" option first.
+      let finalOutput = [];
+      finalOutput.push(
+        <MenuItem
+          value={"ALL"}
+          key={0}
+          style={{
+            color: theme.palette.mode === "dark" ? "#ffffff" : "grey",
+            backgroundColor:
+              theme.palette.mode === "dark" ? "#5c4d9a" : "white",
+            fontSize: "12px",
+          }}
+          sx={{ bg: theme.palette.mode === "dark" ? "#5c4d9a" : "white" }}
+        >
+          ALL
+        </MenuItem>
+      );
+
+      for (let k = 0; k < namespaceArrayOutput.length; k++) {
+        finalOutput.push(
+          <MenuItem
+            value={`${namespaceArrayOutput[k]}`}
+            key={k + 1}
+            style={{
+              color: theme.palette.mode === "dark" ? "#ffffff" : "grey",
+              backgroundColor:
+                theme.palette.mode === "dark" ? "#5c4d9a" : "white",
+              fontSize: "12px",
+            }}
+            sx={{ bg: theme.palette.mode === "dark" ? "#5c4d9a" : "white" }}
+          >
+            {namespaceArrayOutput[k]}
+          </MenuItem>
+        );
+      }
+
+      setNamespacesArr(finalOutput);
+    });
+
     getNamespaces();
+
+    props.intervalArray.map((a) => {
+      clearInterval(a);
+      props.setIntervalArray([]);
+    });
   }, []);
 
-  function handleNamespaceChange() {
-    let newNamespaceIndex = (namespaceIndex + 1) % namespacesArr.length;
-    setSelectedNamespace(namespacesArr[newNamespaceIndex]);
-    setNamespaceIndex(newNamespaceIndex);
+  function handleNamespaceChange(event) {
+    setSelectedNamespace(event.target.value);
     handleClick(null);
   }
 
@@ -296,6 +370,12 @@ function Krane() {
           getDeploymentsInfo={getDeploymentsInfo}
           deploymentsArr={deploymentsArr}
           setDeploymentsArr={setDeploymentsArr}
+          podsStatsObj={props.podsStatsObj}
+          setPodsStatsObj={props.setPodsStatsObj}
+          nodesStatsObj={props.nodesStatsObj}
+          setNodesStatsObj={props.setNodesStatsObj}
+          kraneDeployIPCcount={kraneDeployIPCcount}
+          setKraneDeployIPCCount={setKraneDeployIPCCount}
         />
       </>
     );
@@ -308,6 +388,10 @@ function Krane() {
         <KraneNodeList
           nodesArr={nodesArr}
           setNodesArr={setNodesArr}
+          nodesUsageArr={nodesUsageArr}
+          setNodesUsageArr={setNodesUsageArr}
+          nodesLimitsArr={nodesLimitsArr}
+          setNodesLimitsArr={setNodesLimitsArr}
           podsArr={podsArr}
           setPodsArr={setPodsArr}
           allPodsArr={allPodsArr}
@@ -345,6 +429,12 @@ function Krane() {
           setSelectedPodMemoryColorLight={setSelectedPodMemoryColorLight}
           selectedPod={selectedPod}
           setSelectedPod={setSelectedPod}
+          podsStatsObj={props.podsStatsObj}
+          setPodsStatsObj={props.setPodsStatsObj}
+          nodesStatsObj={props.nodesStatsObj}
+          setNodesStatsObj={props.setNodesStatsObj}
+          kraneDeployIPCcount={kraneDeployIPCcount}
+          setKraneDeployIPCCount={setKraneDeployIPCCount}
         />
         <KranePodList
           selectedNamespace={selectedNamespace}
@@ -387,6 +477,12 @@ function Krane() {
           setSelectedPodMemoryColorLight={setSelectedPodMemoryColorLight}
           selectedPod={selectedPod}
           setSelectedPod={setSelectedPod}
+          podsStatsObj={props.podsStatsObj}
+          setPodsStatsObj={props.setPodsStatsObj}
+          nodesStatsObj={props.nodesStatsObj}
+          setNodesStatsObj={props.setNodesStatsObj}
+          kraneDeployIPCcount={kraneDeployIPCcount}
+          setKraneDeployIPCCount={setKraneDeployIPCCount}
         />
       </>
     );
@@ -409,27 +505,100 @@ function Krane() {
             lineHeight: "12px",
             paddingBottom: "0px",
             textAlign: "right",
-            color: "#ffffff99",
+            color: theme.palette.mode === "dark" ? "#ffffff99" : "#00000090",
             marginRight: "0px",
-            marginTop: "0px",
+            marginTop: "10px",
+            marginBottom: "-16px",
             justifyContent: "flex-end",
+            textTransform: "uppercase",
           }}
         >
-          <Button
+          {" "}
+          Stats refresh every
+          <Box
             style={{
               marginLeft: "10px",
-              marginTop: "8px",
+              marginTop: "-5px",
               marginBottom: "0px",
               letterSpacing: ".8px",
-              border: "1px solid",
-              fontSize: "9px",
-              width: "98px",
+              border: theme.palette.mode === "dark" ? "1px solid" : "",
+              fontSize: "4px",
+              width: "115px",
               height: "20px",
             }}
-            onClick={handleClick}
           >
-            Refresh stats
-          </Button>
+            <FormControl
+              style={{
+                display: "flex",
+                width: "115px",
+                height: "20px",
+                padding: "0 0 0 0",
+                margin: "0 0 0 0",
+                fontSize: "4px",
+              }}
+            >
+              <InputLabel
+                style={{
+                  display: "flex",
+                  width: "115px",
+                  height: "20px",
+                  padding: "0 0 0 0",
+                  margin: "0 0 0 0",
+                  fontSize: "4px",
+                }}
+              ></InputLabel>
+              <Select
+                defaultValue={15}
+                onChange={handleChangeRefreshSpeed}
+                style={{
+                  display: "flex",
+                  width: "115px",
+                  height: "20px",
+                  padding: "0 0 0 0",
+                  margin: "0 0 0 0",
+                  fontSize: "9px",
+                }}
+              >
+                <MenuItem
+                  value={15}
+                  key={0}
+                  style={{
+                    color: theme.palette.mode === "dark" ? "#ffffff" : "grey",
+                    backgroundColor:
+                      theme.palette.mode === "dark" ? "#5c4d9a" : "white",
+                    fontSize: "12px",
+                  }}
+                >
+                  15 seconds
+                </MenuItem>
+                <MenuItem
+                  key={2}
+                  value={30}
+                  style={{
+                    color: theme.palette.mode === "dark" ? "#ffffff" : "grey",
+                    backgroundColor:
+                      theme.palette.mode === "dark" ? "#5c4d9a" : "white",
+                    fontSize: "12px",
+                  }}
+                >
+                  30 seconds
+                </MenuItem>
+                <MenuItem
+                  value={60}
+                  key={3}
+                  style={{
+                    color: theme.palette.mode === "dark" ? "#ffffff" : "grey",
+                    backgroundColor:
+                      theme.palette.mode === "dark" ? "#5c4d9a" : "white",
+                    fontSize: "12px",
+                  }}
+                >
+                  60 seconds
+                </MenuItem>
+              </Select>
+            </FormControl>
+          </Box>
+         
         </div>
 
         <div
@@ -443,42 +612,72 @@ function Krane() {
             letterSpacing: "1px",
             lineHeight: "12px",
             paddingBottom: "0px",
+            paddingTop: "5px",
             textAlign: "right",
-            color: "#ffffff99",
+            color: theme.palette.mode === "dark" ? "#ffffff99" : "grey",
             marginRight: "0px",
-            marginTop: "0px",
+            marginTop: "18px",
             justifyContent: "flex-end",
             marginBottom: "-29px",
           }}
         >
+          {" "}
+          NAMESPACE:
           <LightTooltip
             title="View resources from a specific namespace. These options are populated using the 'kubectl get namespaces' command. Please note: Some namespaces may not have visible pods or deployments."
-            placement="bottom"
+            placement="top"
             arrow
             enterDelay={1800}
             leaveDelay={100}
             enterNextDelay={3000}
           >
-            <Button
-              onClick={handleNamespaceChange}
+            <Box
               style={{
-                display: "flex",
-                fontSize: "9px",
-                fontWeight: "900",
-                letterSpacing: ".5px",
-                border: "1px solid",
-                height: "16px",
-                textAlign: "left",
-                color: theme.palette.mode === "dark" ? "white" : "#00000099",
-                marginTop: "23px",
-                marginLeft: "0px",
-                marginRight: "2px",
-                padding: "8px 4px 8px 6px",
-                marginBottom: "-40px",
+                marginLeft: "10px",
+                marginTop: "-5px",
+                marginBottom: "0px",
+                letterSpacing: ".8px",
+                border: theme.palette.mode === "dark" ? "1px solid" : "",
+                fontSize: "4px",
+                height: "20px",
+                textTransform: "uppercase",
               }}
             >
-              NAMESPACE: {selectedNamespace}
-            </Button>
+              <FormControl
+                style={{
+                  display: "flex",
+                  height: "20px",
+                  padding: "0 0 0 0",
+                  margin: "0 0 0 0",
+                  fontSize: "4px",
+                }}
+              >
+                <InputLabel
+                  style={{
+                    display: "flex",
+                    height: "20px",
+                    padding: "0 0 0 0",
+                    margin: "0 0 0 0",
+                    fontSize: "4px",
+                  }}
+                ></InputLabel>
+                <Select
+                  defaultValue={"ALL"}
+                  onChange={handleNamespaceChange}
+                  style={{
+                    display: "flex",
+                    height: "20px",
+                    padding: "0 0 0 0",
+                    margin: "0 0 0 0",
+                    fontSize: "9px",
+                    textTransform: "uppercase",
+                  }}
+                >
+                  {namespacesArr}
+                </Select>
+              </FormControl>
+            </Box>
+           
           </LightTooltip>
         </div>
       </>
@@ -741,7 +940,7 @@ function Krane() {
           </div>
 
           {refreshShowDiv}
-          <div style={{ marginBottom: "0px", width: "100%" }}>
+          <div style={{ marginTop: "-18px", width: "100%" }}>
             {nodesAndPodsDiv}
             {deploymentsDiv}
           </div>

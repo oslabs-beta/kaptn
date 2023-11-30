@@ -1,7 +1,9 @@
 const path = require("path");
-const { app, BrowserWindow, ipcMain } = require("electron");
+const { app, BrowserWindow, ipcMain, ipcRenderer } = require("electron");
 const { exec, spawnSync, spawn, execSync } = require("child_process");
 const fixPath = require("fix-path");
+
+// const storage = require("electron-json-storage");
 
 const isDev = process.env.NODE_ENV === "development";
 
@@ -17,6 +19,7 @@ function createMainWindow() {
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
+      // enableRemoteModule: true,
     },
   });
 
@@ -45,28 +48,28 @@ ipcMain.on("getDirectory_command", (event, arg) => {
       // Handle failed command execution
       if (err) {
         let output = kubDir;
-        return event.sender.send("got_directory", kubDir);
+        return event.sender.send("got_directory", app.getPath("home"));
       }
       // Handle successful command execution but returned error (stderr)
       if (stderr) {
-        return event.sender.send("got_directory", kubDir);
+        return event.sender.send("got_directory", app.getPath("home"));
       }
       // Handle successful command execution with no errors
-      return event.sender.send("got_directory", kubDir);
+      return event.sender.send("got_directory", app.getPath("home"));
     });
   } else {
     exec(` ${getDirectoryCommand}`, { cwd: currDir }, (err, stdout, stderr) => {
       // Handle failed command execution
       if (err) {
         let output = kubDir;
-        return event.sender.send("got_directory", kubDir);
+        return event.sender.send("got_directory", app.getPath("home"));
       }
       // Handle successful command execution but returned error (stderr)
       if (stderr) {
-        return event.sender.send("got_directory", kubDir);
+        return event.sender.send("got_directory", app.getPath("home"));
       }
       // Handle successful command execution with no errors
-      return event.sender.send("got_directory", kubDir);
+      return event.sender.send("got_directory", app.getPath("home"));
     });
   }
 });

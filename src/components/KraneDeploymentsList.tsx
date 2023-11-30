@@ -173,9 +173,13 @@ function KraneDeploymentsList(props) {
 
   const [deploymentScaleNumber, setDeploymentScaleNumber] = React.useState(0);
 
-  const [kubeSystemDeploymentsCheck, setKubeSystemDeploymentsCheck] =
-    React.useState(false);
-  const [kubeSystemDeployments, setKubeSystemDeployments] = React.useState([]);
+  // const [kubeSystemDeploymentsCheck, setKubeSystemDeploymentsCheck] =
+  //   React.useState(false);
+
+  const [filteredOutDeployments, setFilteredOutDeployments] = React.useState(
+    []
+  );
+  const [filteredOutRSs, setFilteredOutRSs] = React.useState([]);
 
   const [selectedDeployment, setSelectedDeployment] = useState([
     {
@@ -187,305 +191,344 @@ function KraneDeploymentsList(props) {
       images: "",
       readyDenominator: "",
       readyNumerator: "",
-      replicaSets: {},
       selector: "",
       upToDate: "",
     },
   ]);
 
-  //Listen to "get deployments" return event and set pods array
-  ipcRenderer.on("got_deployments", (event, arg) => {
-    let argArr = arg.split("");
+  const [selectedRS, setSelectedRS] = useState([
+    {
+      index: "",
+      namespace: "",
+      name: "",
+      desired: "",
+      current: "",
+      ready: "",
+      age: "",
+      containers: "",
+      images: "",
+      selector: "",
+    },
+  ]);
 
-    let filteredDeployments = [];
+  const [replicaSetsArray, setReplicaSetsArray] = React.useState([]);
 
-    let i: number = 0;
-
-    //skip row of column titles
-    while (arg[i] !== "\n") {
-      i++;
-    }
-    i++;
-
-    for (let j = 0; i < argArr.length; i++) {
-      let namespaceOutput: any = [];
-      let nameOutput: any = [];
-      let readyNumeratorOutput: any = [];
-      let readyDenominatorOutput: any = [];
-      let upToDateOutput: any = [];
-      let availableOutput: any = [];
-      let ageOutput: any = [];
-      let containersOutput: any = [];
-      let imagesOutput: any = [];
-      let selectorOutput: any = [];
-
-      //saves namespace
-      while (arg[i] !== " ") {
-        namespaceOutput.push(arg[i]);
-        i++;
-      }
-      //skips spaces
-      while (arg[i] === " ") {
-        i++;
-      }
-
-      //saves name
-      while (arg[i] !== " ") {
-        nameOutput.push(arg[i]);
-        i++;
-      }
-      //skips spaces
-      while (arg[i] === " ") {
-        i++;
-      }
-
-      //saves ready
-      while (arg[i] !== "/") {
-        readyNumeratorOutput.push(arg[i]);
-        i++;
-      }
-      i++;
-      while (arg[i] !== " ") {
-        readyDenominatorOutput.push(arg[i]);
-        i++;
-      }
-
-      //skips spaces
-      while (arg[i] === " ") {
-        i++;
-      }
-
-      //saves up-to-date
-      while (arg[i] !== " ") {
-        upToDateOutput.push(arg[i]);
-        i++;
-      }
-      //skips spaces
-      while (arg[i] === " ") {
-        i++;
-      }
-
-      //saves available
-      while (arg[i] !== " ") {
-        availableOutput.push(arg[i]);
-        i++;
-      }
-      //skips spaces
-      while (arg[i] === " ") {
-        i++;
-      }
-      //saves age
-      while (arg[i] !== " ") {
-        ageOutput.push(arg[i]);
-        i++;
-      }
-      //skips spaces
-      while (arg[i] === " ") {
-        i++;
-      }
-      //saves containers
-      while (arg[i] !== " ") {
-        containersOutput.push(arg[i]);
-        i++;
-      }
-      //skips spaces
-      while (arg[i] === " ") {
-        i++;
-      }
-
-      //saves images
-      while (arg[i] !== " ") {
-        imagesOutput.push(arg[i]);
-        i++;
-      }
-      //skips spaces
-      while (arg[i] === " ") {
-        i++;
-      }
-
-      //saves selector
-      while (arg[i] !== "\n") {
-        selectorOutput.push(arg[i]);
-        i++;
-      }
-
-      let deployment = {
-        index: j,
-        namespace: namespaceOutput.join(""),
-        name: nameOutput.join(""),
-        readyNumerator: Number(readyNumeratorOutput.join("")),
-        readyDenominator: Number(readyDenominatorOutput.join("")),
-        upToDate: Number(upToDateOutput.join("")),
-        available: Number(availableOutput.join("")),
-        age: ageOutput.join(""),
-        containers: containersOutput.join(""),
-        images: imagesOutput.join(""),
-        selector: selectorOutput.join(""),
-        replicaSets: [],
-      };
-
-      filteredDeployments.push(deployment);
-      j++;
-    } //end of for loop parsing deployments return
-    props.setDeploymentsArr(filteredDeployments);
-  }); //--------------------------------------end of ipc to parse deployments --------
-
-  //Listen to "get replicaSets" return event and set pods array
-  ipcRenderer.on("got_rs", (event, arg) => {
-    let argArr = arg.split("");
-
-    let filteredReplicaSets = [];
-
-    let i: number = 0;
-
-    //skip row of column titles
-    while (arg[i] !== "\n") {
-      i++;
-    }
-    i++;
-
-    for (let j = 0; i < argArr.length; i++) {
-      let namespaceOutput: any = [];
-      let nameOutput: any = [];
-      let desiredOutput: any = [];
-      let currentOutput: any = [];
-      let readyOutput: any = [];
-      let ageOutput: any = [];
-      let containersOutput: any = [];
-      let imagesOutput: any = [];
-      let selectorOutput: any = [];
-
-      //saves namespace
-      while (arg[i] !== " ") {
-        namespaceOutput.push(arg[i]);
-        i++;
-      }
-      //skips spaces
-      while (arg[i] === " ") {
-        i++;
-      }
-
-      //saves name
-      while (arg[i] !== " ") {
-        nameOutput.push(arg[i]);
-        i++;
-      }
-      //skips spaces
-      while (arg[i] === " ") {
-        i++;
-      }
-
-      //saves desired
-      while (arg[i] !== " ") {
-        desiredOutput.push(arg[i]);
-        i++;
-      }
-
-      //skips spaces
-      while (arg[i] === " ") {
-        i++;
-      }
-
-      //saves current
-      while (arg[i] !== " ") {
-        currentOutput.push(arg[i]);
-        i++;
-      }
-      //skips spaces
-      while (arg[i] === " ") {
-        i++;
-      }
-
-      //saves available
-      while (arg[i] !== " ") {
-        readyOutput.push(arg[i]);
-        i++;
-      }
-      //skips spaces
-      while (arg[i] === " ") {
-        i++;
-      }
-      //saves age
-      while (arg[i] !== " ") {
-        ageOutput.push(arg[i]);
-        i++;
-      }
-      //skips spaces
-      while (arg[i] === " ") {
-        i++;
-      }
-      //saves containers
-      while (arg[i] !== " ") {
-        containersOutput.push(arg[i]);
-        i++;
-      }
-      //skips spaces
-      while (arg[i] === " ") {
-        i++;
-      }
-
-      //saves images
-      while (arg[i] !== " ") {
-        imagesOutput.push(arg[i]);
-        i++;
-      }
-      //skips spaces
-      while (arg[i] === " ") {
-        i++;
-      }
-
-      //saves selector
-      while (arg[i] !== "\n") {
-        selectorOutput.push(arg[i]);
-        i++;
-      }
-
-      let replicaSet = {
-        index: j,
-        namespace: namespaceOutput.join(""),
-        name: nameOutput.join(""),
-        desired: desiredOutput.join(""),
-        current: currentOutput.join(""),
-        ready: readyOutput.join(""),
-        age: ageOutput.join(""),
-        containers: containersOutput.join(""),
-        images: imagesOutput.join(""),
-        selector: selectorOutput.join(""),
-      };
-
-      filteredReplicaSets.push(replicaSet);
-      j++;
-    } //end of for loop parsing replicaSets return
-
-    //add each replicaSet to its deployment
-    let tempDeploys = [...props.deploymentsArr];
-    for (let i = 0; i < tempDeploys.length; i++) {
-      tempDeploys[i]["replicaSets"] = filteredReplicaSets[i];
-    }
-
-    // //set new deployments Arr state, based on if kube system checkbox
+  function filterRS(RSArray) {
+    //set new RS Arr state, based on namespace
     if (props.selectedNamespace !== "ALL") {
       //if false, separate out kube system pods and then set state
-      let kubeDeployments = tempDeploys.filter(
-        (deployment) => deployment.namespace !== props.selectedNamespace
+      let tempFilteredOutRSs = RSArray.filter(
+        (rs) => rs.namespace !== props.selectedNamespace
       );
-      setKubeSystemDeployments([...kubeDeployments]);
+      setFilteredOutRSs([...tempFilteredOutRSs]);
 
-      let kubeFilteredDeployments = tempDeploys.filter(
-        (deployment) => deployment.namespace === props.selectedNamespace
+      let selectedNamespaceRSs = RSArray.filter(
+        (rs) => rs.namespace === props.selectedNamespace
       );
-      props.setDeploymentsArr([...kubeFilteredDeployments]);
+      setReplicaSetsArray([...selectedNamespaceRSs]);
     } else {
       //else if checkbox is true set deployments array with kube system as well
-      props.setDeploymentsArr([...tempDeploys]);
+      setReplicaSetsArray([...RSArray]);
     }
-  }); //--------------------------------------end of ipc to parse replicaSets --------
+  }
+
+  function filterDeploys(DSArray) {
+    if (props.selectedNamespace !== "ALL") {
+      //if false, separate out kube system pods and then set state
+      let tempFilteredOutDeployments = DSArray.filter(
+        (deployment) => deployment.namespace !== props.selectedNamespace
+      );
+      setFilteredOutDeployments([...tempFilteredOutDeployments]);
+
+      let selectedNamespaceDeployments = DSArray.filter(
+        (deployment) => deployment.namespace === props.selectedNamespace
+      );
+      props.setDeploymentsArr([...selectedNamespaceDeployments]);
+    } else {
+      //else if checkbox is true set deployments array with kube system as well
+      props.setDeploymentsArr([...DSArray]);
+    }
+  }
+
+  const [count, setCount] = useState(0);
+
+  if (count < 1) {
+    //Listen to "get deployments" return event and set pods array
+    ipcRenderer.on("got_deployments", (event, arg) => {
+      let argArr = arg.split("");
+
+      let tempDeployments = [];
+
+      let i: number = 0;
+
+      //skip row of column titles
+      while (arg[i] !== "\n") {
+        i++;
+      }
+      i++;
+
+      for (let j = 0; i < argArr.length; i++) {
+        let namespaceOutput: any = [];
+        let nameOutput: any = [];
+        let readyNumeratorOutput: any = [];
+        let readyDenominatorOutput: any = [];
+        let upToDateOutput: any = [];
+        let availableOutput: any = [];
+        let ageOutput: any = [];
+        let containersOutput: any = [];
+        let imagesOutput: any = [];
+        let selectorOutput: any = [];
+
+        //saves namespace
+        while (arg[i] !== " ") {
+          namespaceOutput.push(arg[i]);
+          i++;
+        }
+        //skips spaces
+        while (arg[i] === " ") {
+          i++;
+        }
+
+        //saves name
+        while (arg[i] !== " ") {
+          nameOutput.push(arg[i]);
+          i++;
+        }
+        //skips spaces
+        while (arg[i] === " ") {
+          i++;
+        }
+
+        //saves ready
+        while (arg[i] !== "/") {
+          readyNumeratorOutput.push(arg[i]);
+          i++;
+        }
+        i++;
+        while (arg[i] !== " ") {
+          readyDenominatorOutput.push(arg[i]);
+          i++;
+        }
+
+        //skips spaces
+        while (arg[i] === " ") {
+          i++;
+        }
+
+        //saves up-to-date
+        while (arg[i] !== " ") {
+          upToDateOutput.push(arg[i]);
+          i++;
+        }
+        //skips spaces
+        while (arg[i] === " ") {
+          i++;
+        }
+
+        //saves available
+        while (arg[i] !== " ") {
+          availableOutput.push(arg[i]);
+          i++;
+        }
+        //skips spaces
+        while (arg[i] === " ") {
+          i++;
+        }
+        //saves age
+        while (arg[i] !== " ") {
+          ageOutput.push(arg[i]);
+          i++;
+        }
+        //skips spaces
+        while (arg[i] === " ") {
+          i++;
+        }
+        //saves containers
+        while (arg[i] !== " ") {
+          containersOutput.push(arg[i]);
+          i++;
+        }
+        //skips spaces
+        while (arg[i] === " ") {
+          i++;
+        }
+
+        //saves images
+        while (arg[i] !== " ") {
+          imagesOutput.push(arg[i]);
+          i++;
+        }
+        //skips spaces
+        while (arg[i] === " ") {
+          i++;
+        }
+
+        //saves selector
+        while (arg[i] !== "\n") {
+          selectorOutput.push(arg[i]);
+          i++;
+        }
+
+        let deployment = {
+          index: j,
+          namespace: namespaceOutput.join(""),
+          name: nameOutput.join(""),
+          readyNumerator: Number(readyNumeratorOutput.join("")),
+          readyDenominator: Number(readyDenominatorOutput.join("")),
+          upToDate: Number(upToDateOutput.join("")),
+          available: Number(availableOutput.join("")),
+          age: ageOutput.join(""),
+          containers: containersOutput.join(""),
+          images: imagesOutput.join(""),
+          selector: selectorOutput.join(""),
+        };
+
+        tempDeployments.push(deployment);
+        j++;
+      } //end of for loop parsing deployments return
+
+      props.setDeploymentsArr(tempDeployments);
+
+    }); //--------------------------------------end of ipc to parse deployments --------
+
+    //Listen to "get replicaSets" return event and set pods array
+    ipcRenderer.on("got_rs", (event, arg) => {
+      let argArr = arg.split("");
+
+      let tempReplicaSets = [];
+
+      let i: number = 0;
+
+      //skip row of column titles
+      while (arg[i] !== "\n") {
+        i++;
+      }
+      i++;
+
+      for (let j = 0; i < argArr.length; i++) {
+        let namespaceOutput: any = [];
+        let nameOutput: any = [];
+        let desiredOutput: any = [];
+        let currentOutput: any = [];
+        let readyOutput: any = [];
+        let ageOutput: any = [];
+        let containersOutput: any = [];
+        let imagesOutput: any = [];
+        let selectorOutput: any = [];
+
+        //saves namespace
+        while (arg[i] !== " ") {
+          namespaceOutput.push(arg[i]);
+          i++;
+        }
+        //skips spaces
+        while (arg[i] === " ") {
+          i++;
+        }
+
+        //saves name
+        while (arg[i] !== " ") {
+          nameOutput.push(arg[i]);
+          i++;
+        }
+        //skips spaces
+        while (arg[i] === " ") {
+          i++;
+        }
+
+        //saves desired
+        while (arg[i] !== " ") {
+          desiredOutput.push(arg[i]);
+          i++;
+        }
+
+        //skips spaces
+        while (arg[i] === " ") {
+          i++;
+        }
+
+        //saves current
+        while (arg[i] !== " ") {
+          currentOutput.push(arg[i]);
+          i++;
+        }
+        //skips spaces
+        while (arg[i] === " ") {
+          i++;
+        }
+
+        //saves available
+        while (arg[i] !== " ") {
+          readyOutput.push(arg[i]);
+          i++;
+        }
+        //skips spaces
+        while (arg[i] === " ") {
+          i++;
+        }
+        //saves age
+        while (arg[i] !== " ") {
+          ageOutput.push(arg[i]);
+          i++;
+        }
+        //skips spaces
+        while (arg[i] === " ") {
+          i++;
+        }
+        //saves containers
+        while (arg[i] !== " ") {
+          containersOutput.push(arg[i]);
+          i++;
+        }
+        //skips spaces
+        while (arg[i] === " ") {
+          i++;
+        }
+
+        //saves images
+        while (arg[i] !== " ") {
+          imagesOutput.push(arg[i]);
+          i++;
+        }
+        //skips spaces
+        while (arg[i] === " ") {
+          i++;
+        }
+
+        //saves selector
+        while (arg[i] !== "\n") {
+          selectorOutput.push(arg[i]);
+          i++;
+        }
+
+        let replicaSet = {
+          index: j,
+          namespace: namespaceOutput.join(""),
+          name: nameOutput.join(""),
+          desired: desiredOutput.join(""),
+          current: currentOutput.join(""),
+          ready: readyOutput.join(""),
+          age: ageOutput.join(""),
+          containers: containersOutput.join(""),
+          images: imagesOutput.join(""),
+          selector: selectorOutput.join(""),
+        };
+
+        tempReplicaSets.push(replicaSet);
+        j++;
+      } //end of for loop parsing replicaSets return
+
+      setReplicaSetsArray([...tempReplicaSets]);
+
+    }); //--------------------------------------end of ipc to parse replicaSets --------
+    setCount(1);
+  }
 
   useEffect(() => {
     props.getDeploymentsInfo();
   }, []);
 
-  const handleDeploymentOpen = (deployment) => {
+  const handleDeploymentOpen = (deployment, rs) => {
     if (deployment["readyNumerator"] / deployment["readyDenominator"] === 1) {
       setSelectedDeploymentReadyColor("#2fc665");
       setSelectedDeploymentReadyColorLight("#2fc665");
@@ -494,6 +537,7 @@ function KraneDeploymentsList(props) {
       setSelectedDeploymentReadyColorLight("rgba(210, 223, 61)");
     }
     setSelectedDeployment([deployment]);
+    setSelectedRS([rs]);
 
     setOpenDeployment(true);
   };
@@ -509,7 +553,6 @@ function KraneDeploymentsList(props) {
         images: "",
         readyDenominator: "",
         readyNumerator: "",
-        replicaSets: {},
         selector: "",
         upToDate: "",
       },
@@ -768,38 +811,33 @@ function KraneDeploymentsList(props) {
     setDeploymentScaleNumber(e.target.value);
   };
 
-  function handleKubeSystemChangeDeployments() {
-    //switch state of checkmark to turn on / off
-    props.getDeploymentsInfo();
-    setKubeSystemDeploymentsCheck(!kubeSystemDeploymentsCheck);
-
-    //if checkmark state is true, desired outcome is to merge kube pods in and sort by index
-    if (kubeSystemDeploymentsCheck === true) {
-      let tempDeployments = [...props.deploymentsArr, ...kubeSystemDeployments];
-      let finalTemp = tempDeployments.sort((a, b) => a.index - b.index);
-      props.setDeploymentsArr([...finalTemp]);
-    } else {
-      //if removing kube pods, first set them in separate array for ability to re-merge later
-      let kubeDeployments = props.deploymentsArr.filter(
-        (deployment) => deployment.namespace === "kube-system"
-      );
-      setKubeSystemDeployments([...kubeDeployments]);
-      //filter out kube system pods and set new deployments Arr
-      let tempDeployments = props.deploymentsArr.filter(
-        (deployment) => deployment.namespace !== "kube-system"
-      );
-      props.setDeploymentsArr([...tempDeployments]);
-    }
-  }
 
   let deploymentsList = [];
-  for (let i = 0; i < props.deploymentsArr.length; i++) {
+  let filteredDeploys;
+  //filter visible deployments and RS's by namespace
+  if (props.selectedNamespace === "ALL") {
+    filteredDeploys = [...props.deploymentsArr];
+  } else {
+    filteredDeploys = props.deploymentsArr.filter(
+      (deployment) => deployment.namespace === props.selectedNamespace
+    );
+  }
+  let filteredRSs;
+  if (props.selectedNamespace === "ALL") {
+    filteredRSs = [...replicaSetsArray];
+  } else {
+    filteredRSs = replicaSetsArray.filter(
+      (rs) => rs.namespace === props.selectedNamespace
+    );
+  }
+
+  for (let i = 0; i < filteredDeploys.length; i++) {
     let deploymentReadyColor;
     let deploymentReadyColorLight;
 
     if (
-      props.deploymentsArr[i]["readyNumerator"] /
-        props.deploymentsArr[i]["readyDenominator"] ===
+      filteredDeploys[i]["readyNumerator"] /
+        filteredDeploys[i]["readyDenominator"] ===
       1
     ) {
       deploymentReadyColor = "#2fc665";
@@ -808,263 +846,261 @@ function KraneDeploymentsList(props) {
       deploymentReadyColor = "rgba(210, 223, 61)";
       deploymentReadyColorLight = "rgba(210, 223, 61)";
     }
-
+    
+//creates deployment list etc
     deploymentsList.push(
-      <>
-        <div
+      <div
+        key={i}
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          fontFamily: "Outfit",
+          fontWeight: "400",
+          fontSize: "17px",
+          justifyContent: "flex-start",
+          alignItems: "flex-start",
+          textAlign: "left",
+          width: "auto",
+          margin: "17px 50px 0 20px",
+          padding: "0 0 0px 0",
+          letterSpacing: "1px",
+          color: theme.palette.mode === "dark" ? "#8f85fb" : "#9075ea",
+          textShadow:
+            theme.palette.mode === "dark"
+              ? "1px 1px 2px black"
+              : "1px 1px 1px #00000000",
+          userSelect: "none",
+        }}
+      >
+        DEPLOYMENT {i + 1}
+        <Button
           key={i}
+          id="podButt"
+          onClick={() =>
+            handleDeploymentOpen(filteredDeploys[i], filteredRSs[i])
+          }
           style={{
             display: "flex",
             flexDirection: "column",
-            fontFamily: "Outfit",
-            fontWeight: "400",
-            fontSize: "17px",
+            width: "450px",
+            height: "105px",
+            fontSize: "16px",
             justifyContent: "flex-start",
-            alignItems: "flex-start",
             textAlign: "left",
-            width: "auto",
-            margin: "17px 50px 0 20px",
-            padding: "0 0 0px 0",
-            letterSpacing: "1px",
-            color: theme.palette.mode === "dark" ? "#8f85fb" : "#9075ea",
-            textShadow:
+            alignItems: "space-between",
+            margin: "2px 0 0 0",
+            padding: "15px 0px 0px 0px",
+            color: theme.palette.mode === "dark" ? "white" : "grey",
+            border:
               theme.palette.mode === "dark"
-                ? "1px 1px 2px black"
-                : "1px 1px 1px #00000000",
-            userSelect: "none",
+                ? "1.3px solid white"
+                : "1.3px solid #00000025",
+            borderRadius: "5px",
+            boxShadow:
+              theme.palette.mode === "dark" ? "10px 9px 2px #00000060" : "",
+            background: theme.palette.mode === "dark" ? "#0e0727" : "#e6e1fb80",
           }}
         >
-          DEPLOYMENT {i + 1}
-          <Button
-            key={i}
-            id="podButt"
-            onClick={() => handleDeploymentOpen(props.deploymentsArr[i])}
+          <div
             style={{
               display: "flex",
-              flexDirection: "column",
-              width: "450px",
-              height: "105px",
-              fontSize: "16px",
+              flexDirection: "row",
+              width: "440px",
               justifyContent: "flex-start",
-              textAlign: "left",
-              alignItems: "space-between",
-              margin: "2px 0 0 0",
-              padding: "15px 0px 0px 0px",
-              color: theme.palette.mode === "dark" ? "white" : "grey",
-              border:
-                theme.palette.mode === "dark"
-                  ? "1.3px solid white"
-                  : "1.3px solid #00000025",
-              borderRadius: "5px",
-              boxShadow:
-                theme.palette.mode === "dark" ? "10px 9px 2px #00000060" : "",
-              background:
-                theme.palette.mode === "dark" ? "#0e0727" : "#e6e1fb80",
+            }}
+          >
+            <img
+              style={{
+                width: "40px",
+                marginRight: "0px",
+                marginLeft: "10.8px",
+              }}
+              src="./assets/deploy-2.svg"
+            ></img>
+            <span
+              style={{
+                margin: "-2px 0 0 15px",
+                width: "360px",
+                lineHeight: "23px",
+                fontSize: "18px",
+                textTransform: "none",
+              }}
+            >
+              {filteredDeploys[i]["name"]}
+            </span>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                textAlign: "right",
+                alignItems: "flex-end",
+                justifyContent: "right",
+                margin: "0px 10px 0 10px",
+              }}
+            >
+              <div
+                style={{
+                  width: "12px",
+                  height: "12px",
+                  borderRadius: "15px",
+                  backgroundColor:
+                    theme.palette.mode === "dark"
+                      ? deploymentReadyColor
+                      : deploymentReadyColorLight,
+                  justifyContent: "right",
+                }}
+              ></div>
+            </div>
+          </div>
+          <div
+            style={{
+              display: "flex",
+              fontSize: "12px",
+              marginLeft: "70px",
+              justifyContent: "space-around",
+              alignItems: "start",
+              width: "380px",
+              height: "40px",
+              marginTop: "0px",
             }}
           >
             <div
               style={{
                 display: "flex",
-                flexDirection: "row",
-                width: "440px",
-                justifyContent: "flex-start",
+                flexDirection: "column",
+                justifyContent: "flex-end",
+                alignItems: "center",
+                textTransform: "none",
+                margin: "0 20px 0 0px",
               }}
             >
-              <img
-                style={{
-                  width: "40px",
-                  marginRight: "0px",
-                  marginLeft: "10.8px",
-                }}
-                src="./deploy-2.svg"
-              ></img>
-              <span
-                style={{
-                  margin: "-2px 0 0 15px",
-                  width: "360px",
-                  lineHeight: "23px",
-                  fontSize: "18px",
-                  textTransform: "none",
-                }}
-              >
-                {props.deploymentsArr[i]["name"]}
-              </span>
               <div
                 style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  textAlign: "right",
-                  alignItems: "flex-end",
-                  justifyContent: "right",
-                  margin: "0px 10px 0 10px",
+                  fontSize: "19px",
+                  fontWeight: "500",
+                  margin: "-6px 0 0px 0",
                 }}
               >
-                <div
-                  style={{
-                    width: "12px",
-                    height: "12px",
-                    borderRadius: "15px",
-                    backgroundColor:
-                      theme.palette.mode === "dark"
-                        ? deploymentReadyColor
-                        : deploymentReadyColorLight,
-                    justifyContent: "right",
-                  }}
-                ></div>
+                {filteredDeploys[i]["age"].toUpperCase()}
+              </div>
+              <div style={{ fontSize: "10px", margin: "-4px 0 0 0" }}>AGE</div>
+            </div>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "flex-end",
+                alignItems: "center",
+                textTransform: "none",
+                margin: "0 25px 0 20px",
+              }}
+            >
+              <div
+                style={{
+                  fontSize: "22px",
+                  margin: "-8.9px 0 0px -10px",
+                  fontWeight: "500",
+                }}
+              >
+                {filteredDeploys[i]["upToDate"]}
+              </div>
+              <div
+                style={{
+                  fontSize: "10px",
+                  margin: "-6px 0 0 0",
+                  width: "70px",
+                }}
+              >
+                UP-TO-DATE
               </div>
             </div>
             <div
               style={{
                 display: "flex",
-                fontSize: "12px",
-                marginLeft: "70px",
-                justifyContent: "space-around",
-                alignItems: "start",
-                width: "380px",
-                height: "40px",
-                marginTop: "0px",
+                flexDirection: "column",
+                justifyContent: "flex-end",
+                alignItems: "center",
+                textTransform: "none",
+                margin: "0 20px 0 15px",
+              }}
+            >
+              <div
+                style={{
+                  fontSize: "22px",
+                  fontWeight: "500",
+                  margin: "-8.9px 0 0px 0",
+                }}
+              >
+                {filteredDeploys[i]["available"]}
+              </div>
+              <div style={{ fontSize: "10px", margin: "-6px 0 0 0" }}>
+                AVAILABLE
+              </div>
+            </div>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                alignItems: "center",
+                textTransform: "none",
+                margin: "-17px 0px 0 20px",
+                fontSize: "30px",
+                fontWeight: "400",
+                color:
+                  theme.palette.mode === "dark"
+                    ? deploymentReadyColor
+                    : deploymentReadyColorLight,
               }}
             >
               <div
                 style={{
                   display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "flex-end",
-                  alignItems: "center",
-                  textTransform: "none",
-                  margin: "0 20px 0 0px",
+                  flexDirection: "row",
+                  fontFamily: "Roboto Condensed",
+                  fontWeight: "500",
                 }}
               >
-                <div
-                  style={{
-                    fontSize: "19px",
-                    fontWeight: "500",
-                    margin: "-6px 0 0px 0",
-                  }}
-                >
-                  {props.deploymentsArr[i]["age"].toUpperCase()}
-                </div>
-                <div style={{ fontSize: "10px", margin: "-4px 0 0 0" }}>
-                  AGE
-                </div>
-              </div>
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "flex-end",
-                  alignItems: "center",
-                  textTransform: "none",
-                  margin: "0 25px 0 20px",
-                }}
-              >
-                <div
-                  style={{
-                    fontSize: "22px",
-                    margin: "-8.9px 0 0px -10px",
-                    fontWeight: "500",
-                  }}
-                >
-                  {props.deploymentsArr[i]["upToDate"]}
-                </div>
-                <div
-                  style={{
-                    fontSize: "10px",
-                    margin: "-6px 0 0 0",
-                    width: "70px",
-                  }}
-                >
-                  UP-TO-DATE
-                </div>
-              </div>
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "flex-end",
-                  alignItems: "center",
-                  textTransform: "none",
-                  margin: "0 20px 0 15px",
-                }}
-              >
-                <div
-                  style={{
-                    fontSize: "22px",
-                    fontWeight: "500",
-                    margin: "-8.9px 0 0px 0",
-                  }}
-                >
-                  {props.deploymentsArr[i]["available"]}
-                </div>
-                <div style={{ fontSize: "10px", margin: "-6px 0 0 0" }}>
-                  AVAILABLE
-                </div>
-              </div>
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  textTransform: "none",
-                  margin: "-17px 0px 0 20px",
-                  fontSize: "30px",
-                  fontWeight: "400",
-                  color:
-                    theme.palette.mode === "dark"
-                      ? deploymentReadyColor
-                      : deploymentReadyColorLight,
-                }}
-              >
+                {filteredDeploys[i]["readyNumerator"]}
                 <div
                   style={{
                     display: "flex",
                     flexDirection: "row",
-                    fontFamily: "Roboto Condensed",
-                    fontWeight: "500",
-                  }}
-                >
-                  {props.deploymentsArr[i]["readyNumerator"]}
-                  <div
-                    style={{
-                      display: "flex",
-                      flexDirection: "row",
-                      margin: "17px 0px 0 3px",
-                      fontSize: "10px",
-                      fontFamily: "Roboto",
-                      fontWeight: "400",
-                    }}
-                  >
-                    OF
-                  </div>
-                  <div style={{ margin: "0px 0 0 3px" }}>
-                    {props.deploymentsArr[i]["readyDenominator"]}
-                  </div>
-                </div>
-                <div
-                  style={{
+                    margin: "17px 0px 0 3px",
                     fontSize: "10px",
-                    fontWeight: "500",
-                    margin: "-12.5px 0px 0 1px",
+                    fontFamily: "Roboto",
+                    fontWeight: "400",
                   }}
                 >
-                  READY
+                  OF
+                </div>
+                <div style={{ margin: "0px 0 0 3px" }}>
+                  {filteredDeploys[i]["readyDenominator"]}
                 </div>
               </div>
-
               <div
                 style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "flex-start",
                   fontSize: "10px",
-                  margin: "0px 0 0 20px",
+                  fontWeight: "500",
+                  margin: "-12.5px 0px 0 1px",
                 }}
-              ></div>
+              >
+                READY
+              </div>
             </div>
-          </Button>
-        </div>
-      </>
+
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "flex-start",
+                fontSize: "10px",
+                margin: "0px 0 0 20px",
+              }}
+            ></div>
+          </div>
+        </Button>
+      </div>
     );
   }
 
@@ -1105,7 +1141,7 @@ function KraneDeploymentsList(props) {
               userSelect: "none",
             }}
           >
-            ( {props.deploymentsArr.length} total )
+            ( {filteredDeploys.length} total )
           </div>
         </div>
       </div>
@@ -1169,7 +1205,7 @@ function KraneDeploymentsList(props) {
                       height: "100px",
                       margin: "15px 25px 0 15px",
                     }}
-                    src="./deploy-2.svg"
+                    src="./assets/deploy-2.svg"
                   ></img>
                 </div>
                 {"  "}
@@ -2267,7 +2303,7 @@ function KraneDeploymentsList(props) {
                     width: "50px",
                     margin: "10px 0 0 0",
                   }}
-                  src="./rs.svg"
+                  src="./assets/rs.svg"
                 ></img>
                 <span
                   style={{
@@ -2278,7 +2314,7 @@ function KraneDeploymentsList(props) {
                     textTransform: "none",
                   }}
                 >
-                  {selectedDeployment[0]["replicaSets"]["name"]}
+                  {selectedRS[0]["name"]}
                 </span>
                 <div
                   style={{
@@ -2295,7 +2331,7 @@ function KraneDeploymentsList(props) {
                     fontWeight: "300",
                   }}
                 >
-                  <div>{selectedDeployment[0]["replicaSets"]["desired"]}</div>
+                  <div>{selectedRS[0]["desired"]}</div>
                   <div
                     style={{
                       fontSize: "11px",
@@ -2320,7 +2356,7 @@ function KraneDeploymentsList(props) {
                     fontWeight: "300",
                   }}
                 >
-                  <div>{selectedDeployment[0]["replicaSets"]["current"]}</div>
+                  <div>{selectedRS[0]["current"]}</div>
                   <div
                     style={{
                       fontSize: "11px",
@@ -2345,7 +2381,7 @@ function KraneDeploymentsList(props) {
                     fontWeight: "300",
                   }}
                 >
-                  <div>{selectedDeployment[0]["replicaSets"]["ready"]}</div>
+                  <div>{selectedRS[0]["ready"]}</div>
                   <div
                     style={{
                       fontSize: "11px",
@@ -2370,7 +2406,7 @@ function KraneDeploymentsList(props) {
                     fontWeight: "300",
                   }}
                 >
-                  <div>{selectedDeployment[0]["replicaSets"]["age"]}</div>
+                  <div>{selectedRS[0]["age"]}</div>
                   <div
                     style={{
                       fontSize: "11px",

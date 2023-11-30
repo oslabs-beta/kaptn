@@ -2,17 +2,14 @@ import React, { useState, useEffect, useReducer } from "react";
 import Button from "@mui/material/Button";
 import { Typography, useTheme, Box, Modal, Checkbox } from "@mui/material";
 const { ipcRenderer } = require("electron");
-import SideNav from "../components/Sidebar.js";
-import LaunchIcon from "@mui/icons-material/Launch";
-import { RadioButtonUnchecked } from "@mui/icons-material";
-import CheckCircleOutlinedIcon from "@mui/icons-material/CheckCircleOutlined";
-import HighlightOffOutlinedIcon from "@mui/icons-material/HighlightOffOutlined";
 import CircularProgress from "@mui/material/CircularProgress";
 import Tooltip, { TooltipProps, tooltipClasses } from "@mui/material/Tooltip";
-import LightbulbIcon from "@mui/icons-material/Lightbulb";
 import { styled } from "@mui/material/styles";
 import { JsxElement } from "typescript";
 import SortIcon from "@mui/icons-material/Sort";
+import PodCpuChart from "./PodCpuChart";
+import PodMemoryChart from "./PodMemoryChart";
+
 
 const LightTooltip = styled(({ className, ...props }: TooltipProps) => (
   <Tooltip {...props} classes={{ popper: className }} />
@@ -23,6 +20,7 @@ const LightTooltip = styled(({ className, ...props }: TooltipProps) => (
     fontSize: 11,
   },
 }));
+
 
 type ArrPodObjs = {
   name: string;
@@ -40,6 +38,14 @@ let filteredPods: any = [];
 let sortIncrement = 0;
 
 function KranePodList(props) {
+
+
+  const [showExpandedPodCpuChart, setShowExpandedPodCpuChart] =
+    useState(false);
+
+  const [showExpandedPodMemoryChart, setShowExpandedPodMemoryChart] =
+    useState(false);
+
   const theme = useTheme();
 
   let currDir = "NONE SELECTED";
@@ -99,6 +105,25 @@ function KranePodList(props) {
     overflow: "scroll",
   };
 
+
+  const chartStyle = {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    width: "82%",
+    height: "65",
+    background: theme.palette.mode === "dark" ? "#0e0727" : "#e6e1fb",
+    color: theme.palette.mode === "dark" ? "white" : "#47456e",
+    boxShadow: 24,
+    p: 4,
+    padding: "10px",
+    border:
+      theme.palette.mode === "dark" ? "1px solid white" : "2px solid #9075ea",
+    borderRadius: "10px",
+    overflow: "scroll",
+  };
+
   const podDeleteStyle = {
     position: "absolute",
     top: "50%",
@@ -119,6 +144,7 @@ function KranePodList(props) {
 
   const [kubeSystemCheck, setKubeSystemCheck] = React.useState(false);
   const [kubeSystemPods, setKubeSystemPods] = React.useState([]);
+
 
   // ----------------------------------------- get pods info section ------------
 
@@ -356,6 +382,9 @@ function KranePodList(props) {
 
   // ----------------------------------- Listen to "get cpuUsed" return event
   ipcRenderer.on("got_cpuUsed", (event, arg) => {
+    let date = new Date().toISOString();
+    let tempPodsStatsObj = props.podsStatsObj;
+
     let argArr = arg.split("");
     let podUsageArray = [];
 
@@ -374,6 +403,7 @@ function KranePodList(props) {
       let podCpuUsedArr = [];
       let podMemoryUsedArr = [];
       let podMemoryUsedDisplayArr = [];
+      let podName = [];
 
       //skips namespace because array order is same for both outputs
       while (argArr[i] !== " ") {
@@ -387,6 +417,7 @@ function KranePodList(props) {
 
       //skips name because array order is same for both outputs
       while (argArr[i] !== " ") {
+        podName.push(argArr[i]);
         i++;
       }
 
@@ -463,6 +494,7 @@ function KranePodList(props) {
 
       //join used values and add them to object
       pod = {
+        podName: podName.join(""),
         podCpuUsed: podCpuUsedArr.join(""),
         podMemoryUsed: podMemoryUsedArr.join(""),
         podMemoryUsedDisplay: podMemoryUsedDisplayArr.join(""),
@@ -473,25 +505,40 @@ function KranePodList(props) {
       podUsageArray.push(pod);
     } //end of for loop
 
-    let finalPodUsageArr = podUsageArray.filter(
-      (ele: any, ind: number) =>
-        ind ===
-        podUsageArray.findIndex(
-          (elem) =>
-            elem.podCpuUsed === ele.podCpuUsed &&
-            elem.podMemoryUsed === ele.podMemoryUsed
-        )
-    );
-
+    for (let j = 0; j < podUsageArray.length; j++) {
+      filteredPods[j]["podCpuUsed"] = podUsageArray[j]["podCpuUsed"];
+      filteredPods[j]["podMemoryUsed"] = podUsageArray[j]["podMemoryUsed"];
+      filteredPods[j]["podMemoryUsedDisplay"] =
+        podUsageArray[j]["podMemoryUsedDisplay"];
+    }
+    
     props.setPodsArr([...filteredPods]);
     props.setAllPodsArr([...filteredPods]);
 
-    for (let j = 0; j < finalPodUsageArr.length; j++) {
-      filteredPods[j]["podCpuUsed"] = finalPodUsageArr[j]["podCpuUsed"];
-      filteredPods[j]["podMemoryUsed"] = finalPodUsageArr[j]["podMemoryUsed"];
-      filteredPods[j]["podMemoryUsedDisplay"] =
-        finalPodUsageArr[j]["podMemoryUsedDisplay"];
+
+    for (let j = 0; j < podUsageArray.length; j++) {
+      if (tempPodsStatsObj[podUsageArray[j]["podName"]] === undefined) {
+        let podsCurrentStats = {
+          date: date,
+          cpu: Number(podUsageArray[j]["podCpuUsed"]),
+          memory: Number(podUsageArray[j]["podMemoryUsed"]),
+          memoryDisplay: podUsageArray[j]["podMemoryUsedDisplay"],
+        };
+
+        tempPodsStatsObj[podUsageArray[j]["podName"]] = [podsCurrentStats];
+      } else {
+        let podsCurrentStats = {
+          date: date,
+          cpu: Number(podUsageArray[j]["podCpuUsed"]),
+          memory: Number(podUsageArray[j]["podMemoryUsed"]),
+          memoryDisplay: podUsageArray[j]["podMemoryUsedDisplay"],
+        };
+
+        tempPodsStatsObj[podUsageArray[j]["podName"]].push(podsCurrentStats);
+      }
     }
+
+    props.setPodsStatsObj(tempPodsStatsObj);
   }); // -------------------- end of ipc render function for get pods cpu used
 
   //Listen to "get cpuUsed" return event
@@ -696,6 +743,16 @@ function KranePodList(props) {
       let cpuUsage = "";
       let memoryUsage = "";
 
+      //skips namespaces
+      while (argArr[i] !== " ") {
+        i++;
+      }
+
+      //skips spaces
+      while (argArr[i] === " ") {
+        i++;
+      }
+
       //saves pod name
       while (argArr[i] !== " ") {
         podName += argArr[i];
@@ -764,17 +821,55 @@ function KranePodList(props) {
     } //end of for loop over containers
 
     props.setPodsContainersArr([...output]);
+
+    let toSortPods = [...props.podsArr];
+    // console.log(toSortPods);
+    if (sortedByDisplayArray[sortIncrement % 6] === "") {
+      toSortPods.sort((a, b) => a.index - b.index);
+    } else if (sortedByDisplayArray[sortIncrement % 6] === "max cpu") {
+      //reset to sorted by index
+      toSortPods.sort((a, b) => a.index - b.index);
+
+      let numberArr = [];
+      let stringArr = [];
+      for (let k = 0; k < props.podsArr.length; k++) {
+        if (typeof props.podsArr[k]["podCpuPercent"] === "number") {
+          numberArr.push(props.podsArr[k]);
+        } else stringArr.push(props.podsArr[k]);
+      }
+      numberArr.sort((a, b) => a["podCpuPercent"] - b["podCpuPercent"]);
+      toSortPods = [...stringArr, ...numberArr];
+      toSortPods.reverse();
+    } else if (sortedByDisplayArray[sortIncrement % 6] === "max memory") {
+      //reset to sorted by index
+      toSortPods.sort((a, b) => a.index - b.index);
+      let numberArr = [];
+      let stringArr = [];
+      for (let k = 0; k < props.podsArr.length; k++) {
+        if (typeof props.podsArr[k]["podMemoryPercent"] === "number") {
+          numberArr.push(props.podsArr[k]);
+        } else stringArr.push(props.podsArr[k]);
+      }
+      numberArr.sort((a, b) => a["podMemoryPercent"] - b["podMemoryPercent"]);
+      toSortPods = [...stringArr, ...numberArr];
+      toSortPods.reverse();
+    } else {
+      //reset to sorted by index
+      toSortPods.sort((a, b) => a.index - b.index);
+      //sort by whatever other propery name alphabeticcaly
+      toSortPods.sort((a, b) =>
+        a[sortedByArray[sortIncrement % 6]].localeCompare(
+          b[sortedByArray[sortIncrement % 6]]
+        )
+      );
+    }
+
+    props.setPodsArr([...toSortPods]);
   });
 
   useEffect(() => {
     props.getPodsAndContainers();
-    // const podsInterval = setInterval(() => {
-    //   props.getPodsAndContainers();
-    // }, 15000);
-
-    // return () => {
-    //   clearInterval(podsInterval);
-    // };
+    
   }, []); // end of use effect to get pods info on page open
 
   //------------------------------------------------------------- END OF GET ALL POD INFO SECTION ---
@@ -1017,6 +1112,23 @@ function KranePodList(props) {
     });
   };
 
+
+  const handlePodCpuChartOpen = (pod) => {
+    setShowExpandedPodCpuChart(true);
+  };
+
+  const handlePodCpuChartClose = () => {
+    setShowExpandedPodCpuChart(false);
+  };
+
+  const handlePodMemoryChartOpen = (pod) => {
+    setShowExpandedPodMemoryChart(true);
+  };
+
+  const handlePodMemoryChartClose = () => {
+    setShowExpandedPodMemoryChart(false);
+  };
+
   function handleKubeSystemChange() {
     //check kubesystem's show/hide status and merge and sort kube system pods if false bc we dont change status until end of this function
     if (kubeSystemCheck === false) {
@@ -1176,6 +1288,7 @@ function KranePodList(props) {
             boxShadow:
               theme.palette.mode === "dark" ? "10px 9px 2px #00000060" : "",
             background: theme.palette.mode === "dark" ? "#0e0727" : "#e6e1fb80",
+            cursor: "pointer",
           }}
         >
           {" "}
@@ -1188,7 +1301,7 @@ function KranePodList(props) {
           >
             <img
               style={{ width: "40px", marginLeft: "0px" }}
-              src="./pod.svg"
+              src="./assets/pod.svg"
             ></img>
             <span
               style={{
@@ -1391,107 +1504,119 @@ function KranePodList(props) {
               </div>
             </div>
 
-            <div
-              style={{
-                flexDirection: "column",
-                justifyContent: "center",
-                textAlign: "center",
-                alignItems: "center",
-                width: "70px",
-                fontSize: "4",
-                padding: "6px 0px 0 0px",
-                fontWeight: "400",
-                marginRight: "18px",
-                marginTop: "3px",
-              }}
+            <LightTooltip
+              title="Please note: Pod memory may exceed 100% as long as its node has available memory."
+              placement="left"
+              arrow
+              enterDelay={1800}
+              leaveDelay={100}
+              enterNextDelay={3000}
             >
-              <div>
-                <CircularProgress
-                  variant="determinate"
-                  // @ts-nocheck
-                  thickness={1.35}
-                  value={100 * 0.73}
-                  style={{
-                    marginTop: "18px",
-                    marginLeft: "9.5px",
-                    rotate: "-131deg",
-                    color:
-                      theme.palette.mode === "dark" ? "#ffffff40" : "#00000015",
-                    width: "68px",
-                  }}
-                />
-                <CircularProgress
-                  variant="determinate"
-                  // @ts-nocheck
-                  thickness={1.35}
-                  value={
-                    props.podsArr[i]["podMemoryLimit"] === "NONE"
-                      ? 0
-                      : Number(`${props.podsArr[i]["podMemoryPercent"]}`) * 0.73
-                  }
+              <div
+                style={{
+                  flexDirection: "column",
+                  justifyContent: "center",
+                  textAlign: "center",
+                  alignItems: "center",
+                  width: "70px",
+                  fontSize: "4",
+                  padding: "6px 0px 0 0px",
+                  fontWeight: "400",
+                  marginRight: "18px",
+                  marginTop: "3px",
+                }}
+              >
+                <div>
+                  <CircularProgress
+                    variant="determinate"
+                    // @ts-nocheck
+                    thickness={1.35}
+                    value={100 * 0.73}
+                    style={{
+                      marginTop: "18px",
+                      marginLeft: "9.5px",
+                      rotate: "-131deg",
+                      color:
+                        theme.palette.mode === "dark"
+                          ? "#ffffff40"
+                          : "#00000015",
+                      width: "68px",
+                    }}
+                  />
+                  <CircularProgress
+                    variant="determinate"
+                    // @ts-nocheck
+                    thickness={1.35}
+                    value={
+                      props.podsArr[i]["podMemoryLimit"] === "NONE"
+                        ? 0
+                        : Number(`${props.podsArr[i]["podMemoryPercent"]}`) *
+                          0.73
+                    }
+                    style={{
+                      position: "relative",
+                      top: "-48.45px",
+                      left: "8.5px",
+                      rotate: "-131deg",
+                      color:
+                        theme.palette.mode === "dark"
+                          ? `${PodMemoryPercentColor}`
+                          : `${PodMemoryPercentColorLight}`,
+                      width: "68px",
+                    }}
+                  />
+                </div>
+                <div
                   style={{
                     position: "relative",
-                    top: "-48.45px",
-                    left: "8.5px",
-                    rotate: "-131deg",
+                    top: "-48px",
+                    left: "5px",
+                    fontWeight: "500",
+                    marginLeft:
+                      props.podsArr[i]["podMemoryPercent"] === "N/A"
+                        ? "-11px"
+                        : "-10px",
+                    fontSize: !props.podsArr[i]["podMemoryLimit"]
+                      ? "13px"
+                      : props.podsArr[i]["podMemoryLimit"] === "NONE"
+                      ? "13px"
+                      : "16px",
+                    marginTop: !props.podsArr[i]["podMemoryLimit"]
+                      ? "-55px"
+                      : props.podsArr[i]["podMemoryLimit"] === "NONE"
+                      ? "-55px"
+                      : "-60px",
                     color:
                       theme.palette.mode === "dark"
                         ? `${PodMemoryPercentColor}`
                         : `${PodMemoryPercentColorLight}`,
-                    width: "68px",
                   }}
-                />
+                >
+                  {!props.podsArr[i]["podMemoryLimit"]
+                    ? "loading"
+                    : props.podsArr[i]["podMemoryPercent"] === "N/A"
+                    ? `no max`
+                    : `${props.podsArr[i]["podMemoryPercent"]}%`}
+                </div>
+                <div
+                  style={{
+                    fontSize: "10px",
+                    position: "relative",
+                    top: "-48px",
+                    left: "-.5px",
+                    marginRight: "-2px",
+                    fontWeight: "500",
+                    marginTop: "-8px",
+                    color:
+                      theme.palette.mode === "dark"
+                        ? `${PodMemoryPercentColor}`
+                        : `${PodMemoryPercentColorLight}`,
+                  }}
+                >
+                  MEMORY
+                </div>
               </div>
-              <div
-                style={{
-                  position: "relative",
-                  top: "-48px",
-                  left: "5px",
-                  fontWeight: "500",
-                  marginLeft:
-                    props.podsArr[i]["podMemoryPercent"] === "N/A"
-                      ? "-11px"
-                      : "-10px",
-                  fontSize: !props.podsArr[i]["podMemoryLimit"]
-                    ? "13px"
-                    : props.podsArr[i]["podMemoryLimit"] === "NONE"
-                    ? "13px"
-                    : "16px",
-                  marginTop: !props.podsArr[i]["podMemoryLimit"]
-                    ? "-55px"
-                    : props.podsArr[i]["podMemoryLimit"] === "NONE"
-                    ? "-55px"
-                    : "-60px",
-                  color:
-                    theme.palette.mode === "dark"
-                      ? `${PodMemoryPercentColor}`
-                      : `${PodMemoryPercentColorLight}`,
-                }}
-              >
-                {!props.podsArr[i]["podMemoryLimit"]
-                  ? "loading"
-                  : props.podsArr[i]["podMemoryPercent"] === "N/A"
-                  ? `no max`
-                  : `${props.podsArr[i]["podMemoryPercent"]}%`}
-              </div>
-              <div
-                style={{
-                  fontSize: "10px",
-                  position: "relative",
-                  top: "-48px",
-                  left: "-.5px",
-                  marginRight: "-2px",
-                  fontWeight: "500",
-                  marginTop: "-8px",
-                  color:
-                    theme.palette.mode === "dark"
-                      ? `${PodMemoryPercentColor}`
-                      : `${PodMemoryPercentColorLight}`,
-                }}
-              >
-                MEMORY
-              </div>
-            </div>
+            </LightTooltip>
           </span>
           {}
         </Button>
@@ -1618,7 +1743,7 @@ function KranePodList(props) {
           >
             <img
               style={{ width: "45px", marginLeft: "0px" }}
-              src="./container.png"
+              src="./assets/container.png"
             ></img>
             <span
               style={{
@@ -2057,7 +2182,7 @@ function KranePodList(props) {
                         height: "100px",
                         margin: "15px 25px 0 15px",
                       }}
-                      src="./pod.svg"
+                      src="./assets/pod.svg"
                     ></img>
                   </div>
                   {"  "}
@@ -2134,7 +2259,7 @@ function KranePodList(props) {
                         display: "flex",
                         flexDirection: "row",
                         width: "100%",
-                        marginTop: "40px",
+                        marginTop: "20px",
                       }}
                     >
                       <div
@@ -2145,9 +2270,10 @@ function KranePodList(props) {
                             theme.palette.mode === "dark"
                               ? "#ffffff99"
                               : "darkpurple",
-                          margin: "-10px 0 20px 0px",
+                          margin: "0px 0 0px 0px",
                           fontSize: "17px",
-                          fontWeight: "200",
+                          fontWeight: "300",
+                          lineHeight: "29px",
                         }}
                       >
                         <div style={{ paddingLeft: "5px" }}>
@@ -2180,303 +2306,607 @@ function KranePodList(props) {
                           {" " + props.selectedPod[0]["readinessGates"]}
                         </div>
                       </div>
-
                       <div
                         style={{
                           display: "flex",
                           flexDirection: "column",
-                          justifyContent: "center",
-                          alignItems: "center",
-                          marginRight: "35px",
-                          marginLeft: "5px",
+                          width: "510px",
+                          height: "240px",
                         }}
                       >
-                        <CircularProgress
-                          variant="determinate"
-                          // @ts-nocheck
-                          thickness={1.35}
-                          value={100 * 0.73}
-                          style={{
-                            marginTop: "130px",
-                            marginLeft: "53.5px",
-                            rotate: "-131deg",
-                            color:
-                              theme.palette.mode === "dark"
-                                ? "#ffffff40"
-                                : "#00000015",
-                            width: "180px",
-                          }}
-                        />
-                        <CircularProgress
-                          variant="determinate"
-                          // @ts-nocheck
-                          thickness={1.35}
-                          value={
-                            props.selectedPod[0]["podCpuLimit"] === "NONE"
-                              ? 0
-                              : Number(
-                                  `${props.selectedPod[0]["podCpuPercent"]}`
-                                ) * 0.73
-                          }
-                          style={{
-                            position: "relative",
-                            top: "-40px",
-                            left: "26.8px",
-                            rotate: "-131deg",
-                            color:
-                              props.selectedPod[0]["podCpuPercent"] === "N/A"
-                                ? "#ffffff80"
-                                : Number(
-                                    props.selectedPod[0]["podCpuPercent"]
-                                  ) < 90
-                                ? `#2fc665`
-                                : Number(
-                                    props.selectedPod[0]["podCpuPercent"]
-                                  ) > 90
-                                ? "#cf4848"
-                                : "yellow",
-                            width: "180px",
-                          }}
-                        />
                         <div
                           style={{
-                            position: "relative",
-                            top: "-95px",
-                            left: "0px",
-                            fontSize:
-                              props.selectedPod[0]["podCpuPercent"] === "N/A"
-                                ? "36px"
-                                : "38px",
-                            fontWeight: "800",
-                            marginTop: "-60px",
-                            marginLeft: "-37px",
-                            color:
-                              props.selectedPod[0]["podCpuPercent"] === "N/A"
-                                ? "#ffffff80"
-                                : Number(
-                                    props.selectedPod[0]["podCpuPercent"]
-                                  ) < 90
-                                ? `#2fc665`
-                                : Number(
-                                    props.selectedPod[0]["podCpuPercent"]
-                                  ) > 90
-                                ? "#cf4848"
-                                : "yellow",
+                            display: "flex",
+                            flexDirection: "row",
+                            justifyContent: "center",
+                            width: "510px",
+                            margin: "0 0 5px -25px",
                           }}
                         >
-                          {props.selectedPod[0]["podCpuPercent"] === "N/A"
-                            ? `NO MAX`
-                            : `${props.selectedPod[0]["podCpuPercent"]}%`}
-                        </div>
-                        <div
-                          style={{
-                            fontSize: "16px",
-                            position: "relative",
-                            top: "-99px",
-                            left: "-21px",
-                            marginRight: "-2px",
-                            fontWeight: "400",
-                            marginTop: "-8px",
-                            color:
-                              props.selectedPod[0]["podCpuPercent"] === "N/A"
-                                ? "#ffffff80"
-                                : Number(
-                                    props.selectedPod[0]["podCpuPercent"]
-                                  ) < 90
-                                ? `#2fc665`
-                                : Number(
-                                    props.selectedPod[0]["podCpuPercent"]
-                                  ) > 90
-                                ? "#cf4848"
-                                : "yellow",
-                          }}
-                        >
+                          {" "}
                           CPU
                         </div>
                         <div
                           style={{
-                            position: "relative",
-                            top: -42,
-                            left: -19,
-                            fontWeight: "400",
-                            fontSize: "16px",
-                            textAlign: "center",
-                            color:
-                              props.selectedPod[0]["podCpuPercent"] === "N/A"
-                                ? "#ffffff80"
-                                : Number(
-                                    props.selectedPod[0]["podCpuPercent"]
-                                  ) < 90
-                                ? `#2fc665`
-                                : Number(
-                                    props.selectedPod[0]["podCpuPercent"]
-                                  ) > 90
-                                ? "#cf4848"
-                                : "yellow",
+                            display: "flex",
+                            flexDirection: "row",
+                            justifyContent: "flex-start",
+                            width: "510px",
+                          }}
+                        >
+                          <div
+                            id="podCpuGaugeLarge"
+                            style={{
+                              display: "flex",
+                              flexDirection: "column",
+                              justifyContent: "center",
+                              alignItems: "center",
+                              marginRight: "-60px",
+                              marginLeft: "-70px",
+                              marginTop: "-50px",
+                              transform: "scale(.55)",
+                            }}
+                          >
+                            <CircularProgress
+                              variant="determinate"
+                              // @ts-nocheck
+                              thickness={1.35}
+                              value={100 * 0.73}
+                              style={{
+                                marginTop: "130px",
+                                marginLeft: "53.5px",
+                                rotate: "-131deg",
+                                color:
+                                  theme.palette.mode === "dark"
+                                    ? "#ffffff40"
+                                    : "#00000015",
+                                width: "180px",
+                              }}
+                            />
+                            <CircularProgress
+                              variant="determinate"
+                              // @ts-nocheck
+                              thickness={1.35}
+                              value={
+                                props.selectedPod[0]["podCpuLimit"] === "NONE"
+                                  ? 0
+                                  : Number(
+                                      `${props.selectedPod[0]["podCpuPercent"]}`
+                                    ) * 0.73
+                              }
+                              style={{
+                                position: "relative",
+                                top: "-40px",
+                                left: "26.8px",
+                                rotate: "-131deg",
+                                color:
+                                  props.selectedPod[0]["podCpuPercent"] ===
+                                  "N/A"
+                                    ? "#ffffff80"
+                                    : Number(
+                                        props.selectedPod[0]["podCpuPercent"]
+                                      ) < 90
+                                    ? `#2fc665`
+                                    : Number(
+                                        props.selectedPod[0]["podCpuPercent"]
+                                      ) > 90
+                                    ? "#cf4848"
+                                    : "yellow",
+                                width: "180px",
+                              }}
+                            />
+                            <div
+                              style={{
+                                position: "relative",
+                                top: "-95px",
+                                left: "0px",
+                                fontSize:
+                                  props.selectedPod[0]["podCpuPercent"] ===
+                                  "N/A"
+                                    ? "32px"
+                                    : "42px",
+                                fontWeight: "800",
+                                marginTop: props.selectedPod[0]["podCpuLimit"] ===
+                                "NONE"
+                                  ? "-50px" : "-60px",
+                                marginLeft: "-37px",
+                                color:
+                                  props.selectedPod[0]["podCpuPercent"] ===
+                                  "N/A" && theme.palette.mode === "dark"
+                                    ? "#ffffff80" : props.selectedPod[0]["podCpuPercent"] ===
+                                    "N/A" && theme.palette.mode !== "dark"
+                                      ? "#00000050"
+                                    : Number(
+                                        props.selectedPod[0]["podCpuPercent"]
+                                      ) < 90
+                                    ? `#2fc665`
+                                    : Number(
+                                        props.selectedPod[0]["podCpuPercent"]
+                                      ) > 90
+                                    ? "#cf4848"
+                                    : "yellow",
+                              }}
+                            >
+                              {props.selectedPod[0]["podCpuPercent"] === "N/A"
+                                ? `NO MAX`
+                                : `${props.selectedPod[0]["podCpuPercent"]}%`}
+                            </div>
+                            <div
+                              style={{
+                                fontSize: "20px",
+                                position: "relative",
+                                top: "-99px",
+                                left: "-21px",
+                                marginRight: "-2px",
+                                fontWeight: "400",
+                                marginTop: "-8px",
+                                color:
+                                  props.selectedPod[0]["podCpuPercent"] ===
+                                  "N/A" && theme.palette.mode === "dark"
+                                    ? "#ffffff80" : props.selectedPod[0]["podCpuPercent"] ===
+                                    "N/A" && theme.palette.mode !== "dark"
+                                      ? "#00000060"
+                                    : Number(
+                                        props.selectedPod[0]["podCpuPercent"]
+                                      ) < 90
+                                    ? `#2fc665`
+                                    : Number(
+                                        props.selectedPod[0]["podCpuPercent"]
+                                      ) > 90
+                                    ? "#cf4848"
+                                    : "yellow",
+                              }}
+                            >
+                              CPU
+                            </div>
+                          </div>
+
+                          <div
+                            style={{
+                              display: "flex",
+                              flexDirection: "column",
+                              width: "120px",
+                              margin: "0 30px 0 0",
+                              justifyContent: "flex-start",
+                              alignItems: "center",
+                            }}
+                          >
+                            <div
+                              style={{
+                                fontSize:
+                                  props.selectedPod[0]["podCpuLimit"] === "NONE"
+                                    ? "28px"
+                                    : "28px",
+                                fontWeight: "700",
+                                margin: "0px 0 -10px 0",
+                                color:
+                                  props.selectedPod[0]["podCpuPercent"] ===
+                                  "N/A"
+                                    ? `#2fc665`
+                                    : Number(
+                                        props.selectedPod[0]["podCpuPercent"]
+                                      ) < 90
+                                    ? `#2fc665`
+                                    : Number(
+                                        props.selectedPod[0]["podCpuPercent"]
+                                      ) > 90
+                                    ? "#cf4848"
+                                    : "yellow",
+                              }}
+                            >
+                              {" "}
+                              {props.selectedPod[0]["podCpuUsed"].toUpperCase()}
+                              m{" "}
+                            </div>
+                            <div
+                              style={{ color: theme.palette.mode === "dark" ? "#ffffff80" : "#00000050", fontSize: "12px" }}
+                            >
+                              {" "}
+                              CPU USED{" "}
+                            </div>
+                            <div
+                              style={{
+                                fontSize:
+                                  props.selectedPod[0]["podCpuLimit"] === "NONE"
+                                    ? "20px"
+                                    : "28px",
+                                fontWeight: "700",
+                                margin:
+                                  props.selectedPod[0]["podCpuLimit"] === "NONE"
+                                    ? "6px 0 -8px 0"
+                                    : "0px 0 -10px 0",
+                                color:
+                                  props.selectedPod[0]["podCpuPercent"] ===
+                                  "N/A" && theme.palette.mode === "dark"
+                                    ? "#ffffff70" : props.selectedPod[0]["podCpuPercent"] ===
+                                    "N/A" && theme.palette.mode !== "dark" ? "#00000040"
+                                    : Number(
+                                        props.selectedPod[0]["podCpuPercent"]
+                                      ) < 90
+                                    ? `#2fc665`
+                                    : Number(
+                                        props.selectedPod[0]["podCpuPercent"]
+                                      ) > 90
+                                    ? "#cf4848"
+                                    : "yellow",
+                              }}
+                            >
+                              {" "}
+                              {props.selectedPod[0]["podCpuLimit"] === "NONE"
+                                ? "NONE"
+                                : `${props.selectedPod[0][
+                                    "podCpuLimit"
+                                  ].toUpperCase()}m`}{" "}
+                            </div>
+                            <div
+                              style={{ color: theme.palette.mode === "dark" ? "#ffffff80" : "#00000050", fontSize: "12px" }}
+                            >
+                              {" "}
+                              CPU LIMIT{" "}
+                            </div>
+                          </div>
+                          <LightTooltip
+                            title="CPU USAGE OVER TIME - CLICK TO EXPAND"
+                            placement="top"
+                            arrow
+                            enterDelay={1000}
+                            leaveDelay={100}
+                            enterNextDelay={3000}
+                          >
+                          <div
+                              onClick={handlePodCpuChartOpen}
+                            style={{
+                              display: "flex",
+                              borderRadius: "15px",
+                              height: "93px",
+                              border: theme.palette.mode === "dark" ? "1.5px solid #ffffff50" : "1.5px solid #00000030",
+                            }}
+                          >
+                            <PodCpuChart
+                              width={230}
+                              height={90}
+                              selectedPod={props.selectedPod}
+                              podsStatsObj={props.podsStatsObj}
+                            />
+                          </div>
+                          </LightTooltip>
+                          <Modal
+                            open={showExpandedPodCpuChart}
+                            onClose={handlePodCpuChartClose}
+                          >
+                            <Box sx={chartStyle}>
+                              <div
+                                style={{
+                                  display: "flex",
+                                  flexDirection: "column",
+                                  fontFamily: "Outfit",
+                                  fontSize: "24px",
+                                  fontWeight: "700",
+                                  textAlign: "center",
+                                  margin: "10px 0 0px 0",
+                                }}
+                              >
+                                {props.selectedPod[0]["name"].toUpperCase()} | CPU
+                                USAGE - GRAPH OVER TIME
+                                <div
+                                  style={{
+                                    margin: "20px 0 0px 0",
+                                    fontWeight: "500",
+                                    borderRadius: "15px",
+                                    border:
+                                      theme.palette.mode === "dark"
+                                        ? "1.5px solid #ffffff50"
+                                        : "1.5px solid #00000030",
+                                  }}
+                                >
+                                  <PodCpuChart
+                                    width={840}
+                                    height={400}
+                                    selectedPod={props.selectedPod}
+                                    podsStatsObj={props.podsStatsObj}
+                                  />
+                                </div>
+                              </div>
+                            </Box>
+                          </Modal>
+                        </div>
+
+                        <div
+                          style={{
+                            display: "flex",
+                            flexDirection: "row",
+                            justifyContent: "center",
+                            width: "510px",
+                            margin: "-56px 0 1px -25px",
                           }}
                         >
                           {" "}
-                          CPU USED:{" "}
-                          <strong>
-                            {props.selectedPod[0]["podCpuUsed"].toUpperCase()}m
-                          </strong>
-                          <br />
-                          CPU LIMIT:{" "}
-                          <strong>
-                            {props.selectedPod[0]["podCpuLimit"] === "NONE"
-                              ? "NONE"
-                              : `${props.selectedPod[0][
-                                  "podCpuLimit"
-                                ].toUpperCase()}m`}
-                          </strong>
-                        </div>
-                      </div>
-
-                      <div
-                        style={{
-                          display: "flex",
-                          flexDirection: "column",
-                          justifyContent: "center",
-                          alignItems: "center",
-                        }}
-                      >
-                        <CircularProgress
-                          variant="determinate"
-                          // @ts-nocheck
-                          thickness={1.35}
-                          value={100 * 0.73}
-                          style={{
-                            marginTop: "130px",
-                            marginLeft: "53.5px",
-                            rotate: "-131deg",
-                            color:
-                              theme.palette.mode === "dark"
-                                ? "#ffffff40"
-                                : "#00000015",
-                            width: "180px",
-                          }}
-                        />
-                        <CircularProgress
-                          variant="determinate"
-                          // @ts-nocheck
-                          thickness={1.35}
-                          value={
-                            props.selectedPod[0]["podMemoryLimit"] === "NONE"
-                              ? 0
-                              : Number(
-                                  `${props.selectedPod[0]["podMemoryPercent"]}`
-                                ) * 0.73
-                          }
-                          style={{
-                            position: "relative",
-                            top: "-40px",
-                            left: "26.8px",
-                            rotate: "-131deg",
-                            color:
-                              props.selectedPod[0]["podMemoryPercent"] === "N/A"
-                                ? "#ffffff80"
-                                : Number(
-                                    props.selectedPod[0]["podMemoryPercent"]
-                                  ) < 90
-                                ? `#2fc665`
-                                : Number(
-                                    props.selectedPod[0]["podMemoryPercent"]
-                                  ) > 90
-                                ? "#cf4848"
-                                : "yellow",
-                            width: "180px",
-                          }}
-                        />
-                        <div
-                          style={{
-                            position: "relative",
-                            top: "-95px",
-                            left: "0px",
-                            fontSize:
-                              props.selectedPod[0]["podMemoryPercent"] === "N/A"
-                                ? "36px"
-                                : "38px",
-                            fontWeight: "800",
-                            marginTop: "-60px",
-                            marginLeft: "-37px",
-                            color:
-                              props.selectedPod[0]["podMemoryPercent"] === "N/A"
-                                ? "#ffffff80"
-                                : Number(
-                                    props.selectedPod[0]["podMemoryPercent"]
-                                  ) < 90
-                                ? `#2fc665`
-                                : Number(
-                                    props.selectedPod[0]["podMemoryPercent"]
-                                  ) > 90
-                                ? "#cf4848"
-                                : "yellow",
-                          }}
-                        >
-                          {props.selectedPod[0]["podMemoryPercent"] === "N/A"
-                            ? `NO MAX`
-                            : `${props.selectedPod[0]["podMemoryPercent"]}%`}
-                        </div>
-                        <div
-                          style={{
-                            fontSize: "16px",
-                            position: "relative",
-                            top: "-99px",
-                            left: "-20px",
-                            marginRight: "-2px",
-                            fontWeight: "400",
-                            marginTop: "-8px",
-                            color:
-                              props.selectedPod[0]["podMemoryPercent"] === "N/A"
-                                ? "#ffffff80"
-                                : Number(
-                                    props.selectedPod[0]["podMemoryPercent"]
-                                  ) < 90
-                                ? `#2fc665`
-                                : Number(
-                                    props.selectedPod[0]["podMemoryPercent"]
-                                  ) > 90
-                                ? "#cf4848"
-                                : "yellow",
-                          }}
-                        >
                           MEMORY
                         </div>
                         <div
                           style={{
-                            position: "relative",
-                            top: -42,
-                            left: -19,
-                            fontWeight: "400",
-                            fontSize: "16px",
-                            textAlign: "center",
-                            color:
-                              props.selectedPod[0]["podMemoryPercent"] === "N/A"
-                                ? "#ffffff80"
-                                : Number(
-                                    props.selectedPod[0]["podMemoryPercent"]
-                                  ) < 90
-                                ? `#2fc665`
-                                : Number(
-                                    props.selectedPod[0]["podMemoryPercent"]
-                                  ) > 90
-                                ? "#cf4848"
-                                : "yellow",
+                            display: "flex",
+                            flexDirection: "row",
+                            justifyContent: "flex-start",
+                            width: "510px",
                           }}
                         >
-                          {" "}
-                          MEM. USED:{" "}
-                          <strong>
-                            {props.selectedPod[0]["podMemoryUsedDisplay"]}
-                          </strong>
-                          <br />
-                          MEM. LIMIT:{" "}
-                          <strong>
-                            {props.selectedPod[0]["podMemoryLimitDisplay"] ===
+                          <div
+                            id="podMemoryGaugeLarge"
+                            style={{
+                              display: "flex",
+                              flexDirection: "column",
+                              justifyContent: "center",
+                              alignItems: "center",
+                              marginRight: "-60px",
+                              marginLeft: "-70px",
+                              marginTop: "-50px",
+                              transform: "scale(.55)",
+                            }}
+                          >
+                            <CircularProgress
+                              variant="determinate"
+                              // @ts-nocheck
+                              thickness={1.35}
+                              value={100 * 0.73}
+                              style={{
+                                marginTop: "130px",
+                                marginLeft: "53.5px",
+                                rotate: "-131deg",
+                                color:
+                                  theme.palette.mode === "dark"
+                                    ? "#ffffff40"
+                                    : "#00000015",
+                                width: "180px",
+                              }}
+                            />
+                            <CircularProgress
+                              variant="determinate"
+                              // @ts-nocheck
+                              thickness={1.35}
+                              value={
+                                props.selectedPod[0]["podMemoryLimit"] ===
+                                "NONE"
+                                  ? 0
+                                  : Number(
+                                      `${props.selectedPod[0]["podMemoryPercent"]}`
+                                    ) * 0.73
+                              }
+                              style={{
+                                position: "relative",
+                                top: "-40px",
+                                left: "26.8px",
+                                rotate: "-131deg",
+                                color:
+                                  props.selectedPod[0]["podMemoryPercent"] ===
+                                  "N/A"
+                                    ? "#ffffff80"
+                                    : Number(
+                                        props.selectedPod[0]["podMemoryPercent"]
+                                      ) < 90
+                                    ? `#2fc665`
+                                    : Number(
+                                        props.selectedPod[0]["podMemoryPercent"]
+                                      ) > 90
+                                    ? "#cf4848"
+                                    : "yellow",
+                                width: "180px",
+                              }}
+                            />
+                            <div
+                              style={{
+                                position: "relative",
+                                top: "-95px",
+                                left: "0px",
+                                fontSize:
+                                  props.selectedPod[0]["podMemoryPercent"] ===
+                                  "N/A"
+                                    ? "32px"
+                                    : "42px",
+                                fontWeight: "800",
+                                marginTop:  props.selectedPod[0]["podMemoryPercent"] ===
+                                "N/A"
+                                  ? "-50px" : "-60px",
+                                marginLeft: "-37px",
+                                color:
+                                  props.selectedPod[0]["podMemoryPercent"] ===
+                                  "N/A" && theme.palette.mode === "dark"
+                                    ? "#ffffff80" : props.selectedPod[0]["podMemoryPercent"] ===
+                                    "N/A" && theme.palette.mode !== "dark" ? "#00000050"
+                                    : Number(
+                                        props.selectedPod[0]["podMemoryPercent"]
+                                      ) < 90
+                                    ? `#2fc665`
+                                    : Number(
+                                        props.selectedPod[0]["podMemoryPercent"]
+                                      ) > 90
+                                    ? "#cf4848"
+                                    : "yellow",
+                              }}
+                            >
+                              {props.selectedPod[0]["podMemoryPercent"] ===
+                              "N/A"
+                                ? `NO MAX`
+                                : `${props.selectedPod[0]["podMemoryPercent"]}%`}
+                            </div>
+                            <div
+                              style={{
+                                fontSize: "20px",
+                                position: "relative",
+                                top: "-99px",
+                                left: "-21px",
+                                marginRight: "-2px",
+                                fontWeight: "400",
+                                marginTop: "-8px",
+                                color:
+                                  props.selectedPod[0]["podMemoryPercent"] ===
+                                  "N/A" && theme.palette.mode === "dark"
+                                    ? "#ffffff80" : props.selectedPod[0]["podMemoryPercent"] ===
+                                    "N/A" && theme.palette.mode !== "dark"
+                                      ? "#00000060"
+                                    : Number(
+                                        props.selectedPod[0]["podMemoryPercent"]
+                                      ) < 90
+                                    ? `#2fc665`
+                                    : Number(
+                                        props.selectedPod[0]["podMemoryPercent"]
+                                      ) > 90
+                                    ? "#cf4848"
+                                    : "yellow",
+                              }}
+                            >
+                              MEMORY
+                            </div>
+                          </div>
+
+                          <div
+                            style={{
+                              display: "flex",
+                              flexDirection: "column",
+                              width: "120px",
+                              margin: "0 30px 0 0",
+                              justifyContent: "flex-start",
+                              alignItems: "center",
+                            }}
+                          >
+                            <div
+                              style={{
+                                fontSize:
+                                  props.selectedPod[0]["podMemoryLimit"] === "NONE"
+                                    ? "28px"
+                                    : "28px",
+                                fontWeight: "700",
+                                margin: "0px 0 -10px 0",
+                                color:
+                                  props.selectedPod[0]["podMemoryPercent"] ===
+                                  "N/A"
+                                    ? `#2fc665`
+                                    : Number(
+                                        props.selectedPod[0]["podMemoryPercent"]
+                                      ) < 90
+                                    ? `#2fc665`
+                                    : Number(
+                                        props.selectedPod[0]["podMemoryPercent"]
+                                      ) > 90
+                                    ? "#cf4848"
+                                    : "yellow",
+                              }}
+                            >
+                              {" "}
+                              {
+                                props.selectedPod[0]["podMemoryUsedDisplay"]
+                              }{" "}
+                            </div>
+                            <div
+                              style={{ color: theme.palette.mode === "dark" ? "#ffffff80" : "#00000050", fontSize: "12px" }}
+                            >
+                              {" "}
+                              MEM USED{" "}
+                            </div>
+                            <div
+                              style={{
+                                fontSize:
+                                  props.selectedPod[0]["podMemoryLimit"] === "NONE"
+                                    ? "20px"
+                                    : "28px",
+                                fontWeight: "700",
+                                margin:
+                                  props.selectedPod[0]["podMemoryLimit"] === "NONE"
+                                    ? "6px 0 -8px 0"
+                                    : "0px 0 -10px 0",
+                                color:
+                                  props.selectedPod[0]["podMemoryPercent"] ===
+                                  "N/A" && theme.palette.mode === "dark" ?
+                                    "#ffffff70" : props.selectedPod[0]["podMemoryPercent"] ===
+                                    "N/A" && theme.palette.mode !== "dark" ? "#00000040"
+                                    : Number(
+                                        props.selectedPod[0]["podMemoryPercent"]
+                                      ) < 90
+                                    ? `#2fc665`
+                                    : Number(
+                                        props.selectedPod[0]["podMemoryPercent"]
+                                      ) > 90
+                                    ? "#cf4848"
+                                    : "yellow",
+                              }}
+                            >
+                              {" "}
+                              {props.selectedPod[0]["podMemoryLimitDisplay"] ===
                             ""
                               ? "NONE"
-                              : props.selectedPod[0]["podMemoryLimitDisplay"]}
-                          </strong>
+                              : props.selectedPod[0]["podMemoryLimitDisplay"]}{" "}
+                            </div>
+                            <div
+                              style={{ color: theme.palette.mode === "dark" ? "#ffffff80" : "#00000050", fontSize: "12px" }}
+                            >
+                              {" "}
+                              MEM LIMIT{" "}
+                            </div>
+                          </div>
+                          <LightTooltip
+                            title="MEMORY USAGE OVER TIME - CLICK TO EXPAND"
+                            placement="top"
+                            arrow
+                            enterDelay={1000}
+                            leaveDelay={100}
+                            enterNextDelay={3000}
+                          >
+                          <div
+                          onClick={handlePodMemoryChartOpen}
+                            style={{
+                              display: "flex",
+                              borderRadius: "15px",
+                              height: "93px",
+                              border: theme.palette.mode === "dark" ? "1.5px solid #ffffff50" : "1.5px solid #00000030",
+                            }}
+                          >
+                            <PodMemoryChart
+                              width={230}
+                              height={90}
+                              selectedPod={props.selectedPod}
+                              podsStatsObj={props.podsStatsObj}
+                            />
+                          </div>
+                          </LightTooltip>
+                          <Modal
+                            open={showExpandedPodMemoryChart}
+                            onClose={handlePodMemoryChartClose}
+                          >
+                            <Box sx={chartStyle}>
+                              <div
+                                style={{
+                                  display: "flex",
+                                  flexDirection: "column",
+                                  fontFamily: "Outfit",
+                                  fontSize: "24px",
+                                  fontWeight: "700",
+                                  textAlign: "center",
+                                  margin: "10px 0 0px 0",
+                                }}
+                              >
+                                {props.selectedPod[0]["name"].toUpperCase()} | MEMORY
+                                USAGE - GRAPH OVER TIME
+                                <div
+                                  style={{
+                                    margin: "20px 0 0px 0",
+                                    borderRadius: "15px",
+                                    fontWeight: "500",
+                                    border:
+                                      theme.palette.mode === "dark"
+                                        ? "1.5px solid #ffffff50"
+                                        : "1.5px solid #00000030",
+                                  }}
+                                >
+                                  <PodMemoryChart
+                                    width={840}
+                                    height={400}
+                                    selectedPod={props.selectedPod}
+                                    podsStatsObj={props.podsStatsObj}
+                                  />
+                                </div>
+                              </div>
+                            </Box>
+                          </Modal>
                         </div>
                       </div>
                     </div>
@@ -2484,7 +2914,7 @@ function KranePodList(props) {
                       style={{
                         flexDirection: "row",
                         justifyContent: "space-between",
-                        margin: "0 0 0 0px",
+                        margin: "40px 0 0 0px",
                       }}
                     >
                       <button
@@ -2767,7 +3197,7 @@ function KranePodList(props) {
                         flexDirection: "row",
                         justifyContent: "flex-start",
                         alignItems: "flex-end",
-                        margin: "50px 0 0 0px",
+                        margin: "20px 0 0 0px",
                       }}
                     >
                       <div
@@ -2834,6 +3264,7 @@ function KranePodList(props) {
       </>
     );
   }
+
 
   return (
     <>
