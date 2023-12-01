@@ -1,5 +1,5 @@
-![Untitled (1000 × 300 px)](https://github.com/oslabs-beta/kaptn/assets/119518056/41f21e71-7ffc-4337-8c22-5364a17b87e0)
 
+![Untitled (1000 × 300 px)](https://github.com/oslabs-beta/kaptn/assets/119518056/41f21e71-7ffc-4337-8c22-5364a17b87e0)
 <div align='center'>
 
 ## Built With
@@ -102,6 +102,7 @@ Our all-new Krane Cluster Manager allows you to control your clusters at the cli
 - Nodes:
     - View Live CPU and Memory Use
     - View Graphs of Historical CPU and Memory Use
+    - View Nodes' Pods
     - View Node Yaml
     - Decribe Node 
     - Drain Node
@@ -112,6 +113,7 @@ Our all-new Krane Cluster Manager allows you to control your clusters at the cli
 - Pods:
     - View Live CPU and Memory Use
     - View Graphs of Historical CPU and Memory Use
+    - View Pod's Containers and Stats
     - View Pod Logs
     - View Pod Yaml
     - Decribe Pod
