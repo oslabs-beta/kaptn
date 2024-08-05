@@ -36,7 +36,7 @@ function createMainWindow() {
 
 /******** EVENT LISTENERS ********/
 
-//Listen for check if prometheus and grafana are installed
+//get user directory for kaptn terminal use
 ipcMain.on("getDirectory_command", (event, arg) => {
   const { getDirectoryCommand, currDir } = arg;
 
@@ -1380,6 +1380,10 @@ ipcMain.on("getPods_command", (event, arg) => {
   }
 });
 
+//************************************************************ */
+//***               CLI TERMINAL ipc method                *** */
+//************************************************************ */
+
 // Listen to post_command event
 ipcMain.on("post_command", (event, arg) => {
   const { command, currDir } = arg;
@@ -1414,6 +1418,10 @@ ipcMain.on("post_command", (event, arg) => {
     });
   }
 });
+
+//************************************************************ */
+//***            CLUSTER METRICS ipc methods               *** */
+//************************************************************ */
 
 // Listen to prom_setup event
 ipcMain.on("prom_setup", (event, arg) => {
