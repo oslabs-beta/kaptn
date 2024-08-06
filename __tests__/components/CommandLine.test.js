@@ -1,21 +1,22 @@
 import React from "react";
 import { render, screen, waitFor, fireEvent } from "@testing-library/react";
-import CommandLine from "../../src/components/CommandLine";
+import CommandLine from "../../src/components/DashboardCommandLine";
 import "@testing-library/jest-dom";
 
 describe("CommandLine tests", () => {
   let props = {
     handleSubmit: jest.fn((e) => e.preventDefault()),
     handleClear: jest.fn((e) => e.preventDefault()),
+    setUserInput: jest.fn((e) => e.preventDefault())
   };
 
   beforeEach(() => {
     render(<CommandLine {...props} />);
   });
 
-  it("Renders 2 buttons", () => {
+  it("Renders 3 buttons", () => {
     const buttons = screen.getAllByRole("button");
-    expect(buttons.length).toBe(2);
+    expect(buttons.length).toBe(3);
   });
 
   it("Renders one TextField", () => {
