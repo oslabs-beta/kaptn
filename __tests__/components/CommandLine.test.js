@@ -7,7 +7,7 @@ describe("CommandLine tests", () => {
   let props = {
     handleSubmit: jest.fn((e) => e.preventDefault()),
     handleClear: jest.fn((e) => e.preventDefault()),
-    setUserInput: jest.fn((e) => e.preventDefault())
+    setUserInput: jest.fn((e) => e.preventDefault()),
   };
 
   beforeEach(() => {
