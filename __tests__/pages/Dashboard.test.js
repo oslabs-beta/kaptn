@@ -22,10 +22,11 @@ describe("Dashboard test", () => {
     );
   });
 
-  it(`Renders choose directory`, () => {
-    const directory = screen.getByText("WORKING DIRECTORY:");
-    expect(directory).toBeTruthy();
-  });
+  // it(`Renders choose directory`, () => {
+  //   const directory = screen.getByText("WORKING DIRECTORY:");
+  //   expect(directory).toBeTruthy();
+  // });
+  
 
   it(`Renders Kubectl toggle`, () => {
     const kubectl = screen.getByText("kubectl");

@@ -131,6 +131,33 @@ function KraneDeploymentsList(props) {
     borderRadius: "10px",
   };
 
+  type RSType = {
+    index: String;
+    namespace: String;
+    name: String;
+    desired: String;
+    current: String;
+    ready: String;
+    age: String;
+    containers: String;
+    images: String;
+    selector: String;
+  };
+
+  type DType = {
+    index: String;
+    namespace: String;
+    name: String;
+    readyNumerator: Number;
+    readyDenominator: Number;
+    upToDate: Number;
+    available: Number;
+    age: String;
+    containers: String;
+    images: String;
+    selector: String;
+  };
+
   const [openDeployment, setOpenDeployment] = React.useState(false);
 
   const [selectedDeploymentReadyColor, setSelectedDeploymentReadyColor] =
@@ -141,7 +168,7 @@ function KraneDeploymentsList(props) {
   ] = useState("");
 
   const [openDeploymentLog, setOpenDeploymentLog] = React.useState(false);
-  const [deploymentLogs, setDeploymentLogs] = React.useState([]);
+  const [deploymentLogs, setDeploymentLogs] = React.useState<any>([]);
 
   const [openDeploymentYaml, setOpenDeploymentYaml] = React.useState(false);
   const [deploymentYaml, setDeploymentYaml] = React.useState([]);
@@ -176,10 +203,10 @@ function KraneDeploymentsList(props) {
   // const [kubeSystemDeploymentsCheck, setKubeSystemDeploymentsCheck] =
   //   React.useState(false);
 
-  const [filteredOutDeployments, setFilteredOutDeployments] = React.useState(
-    []
-  );
-  const [filteredOutRSs, setFilteredOutRSs] = React.useState([]);
+  const [filteredOutDeployments, setFilteredOutDeployments] = React.useState<
+    DType[]
+  >([]);
+  const [filteredOutRSs, setFilteredOutRSs] = React.useState<RSType[]>([]);
 
   const [selectedDeployment, setSelectedDeployment] = useState([
     {
@@ -211,9 +238,9 @@ function KraneDeploymentsList(props) {
     },
   ]);
 
-  const [replicaSetsArray, setReplicaSetsArray] = React.useState([]);
+  const [replicaSetsArray, setReplicaSetsArray] = React.useState<RSType[]>([]);
 
-  function filterRS(RSArray) {
+  function filterRS(RSArray: RSType[]) {
     //set new RS Arr state, based on namespace
     if (props.selectedNamespace !== "ALL") {
       //if false, separate out kube system pods and then set state
@@ -257,7 +284,7 @@ function KraneDeploymentsList(props) {
     ipcRenderer.on("got_deployments", (event, arg) => {
       let argArr = arg.split("");
 
-      let tempDeployments = [];
+      let tempDeployments: any[] = [];
 
       let i: number = 0;
 
@@ -388,14 +415,13 @@ function KraneDeploymentsList(props) {
       } //end of for loop parsing deployments return
 
       props.setDeploymentsArr(tempDeployments);
-
     }); //--------------------------------------end of ipc to parse deployments --------
 
     //Listen to "get replicaSets" return event and set pods array
     ipcRenderer.on("got_rs", (event, arg) => {
       let argArr = arg.split("");
 
-      let tempReplicaSets = [];
+      let tempReplicaSets: any = [];
 
       let i: number = 0;
 
@@ -501,7 +527,7 @@ function KraneDeploymentsList(props) {
           i++;
         }
 
-        let replicaSet = {
+        let replicaSet: any = {
           index: j,
           namespace: namespaceOutput.join(""),
           name: nameOutput.join(""),
@@ -519,7 +545,6 @@ function KraneDeploymentsList(props) {
       } //end of for loop parsing replicaSets return
 
       setReplicaSetsArray([...tempReplicaSets]);
-
     }); //--------------------------------------end of ipc to parse replicaSets --------
     setCount(1);
   }
@@ -564,7 +589,7 @@ function KraneDeploymentsList(props) {
     ipcRenderer.on("deploymentLogsRetrieved", (event, arg) => {
       let argArr = arg.split("\n");
       let temp = "";
-      let output = [];
+      let output: any = [];
       for (let i = 0; i < argArr.length; i++) {
         output.push(<p>{argArr[i]}</p>);
       }
@@ -588,7 +613,7 @@ function KraneDeploymentsList(props) {
   const handleDeploymentYamlOpen = (pod) => {
     ipcRenderer.on("deploymentYamlRetrieved", (event, arg) => {
       let argArr = arg.split("/n");
-      let output = [];
+      let output: any = [];
       for (let i = 0; i < argArr.length; i++) {
         output.push(
           <pre>
@@ -616,7 +641,7 @@ function KraneDeploymentsList(props) {
   const handleDeploymentDescribeOpen = (pod) => {
     ipcRenderer.on("deploymentDescribeRetrieved", (event, arg) => {
       let argArr = arg.split("/n");
-      let output = [];
+      let output: any = [];
 
       for (let i = 0; i < argArr.length; i++) {
         output.push(
@@ -645,7 +670,7 @@ function KraneDeploymentsList(props) {
   const handleDeploymentRolloutStatusOpen = (pod) => {
     ipcRenderer.on("deploymentRolloutStatusRetrieved", (event, arg) => {
       let argArr = arg.split("/n");
-      let output = [];
+      let output: any = [];
 
       for (let i = 0; i < argArr.length; i++) {
         output.push(
@@ -674,7 +699,7 @@ function KraneDeploymentsList(props) {
   const handleDeploymentRolloutHistoryOpen = (pod) => {
     ipcRenderer.on("deploymentRolloutHistoryRetrieved", (event, arg) => {
       let argArr = arg.split("/n");
-      let output = [];
+      let output: any = [];
       for (let i = 0; i < argArr.length; i++) {
         output.push(
           <pre>
@@ -811,8 +836,7 @@ function KraneDeploymentsList(props) {
     setDeploymentScaleNumber(e.target.value);
   };
 
-
-  let deploymentsList = [];
+  let deploymentsList: any = [];
   let filteredDeploys;
   //filter visible deployments and RS's by namespace
   if (props.selectedNamespace === "ALL") {
@@ -846,8 +870,8 @@ function KraneDeploymentsList(props) {
       deploymentReadyColor = "rgba(210, 223, 61)";
       deploymentReadyColorLight = "rgba(210, 223, 61)";
     }
-    
-//creates deployment list etc
+
+    //creates deployment list etc
     deploymentsList.push(
       <div
         key={i}

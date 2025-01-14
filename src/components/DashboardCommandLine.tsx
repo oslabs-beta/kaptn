@@ -1,3 +1,4 @@
+import React from "react";
 import { InputAdornment, Button, TextField, useTheme } from "@mui/material";
 import Tooltip, { TooltipProps, tooltipClasses } from "@mui/material/Tooltip";
 import { styled, lighten, darken } from "@mui/system";
@@ -38,16 +39,6 @@ const DashboardCommandLine = (props) => {
     props.setName(userInput2);
     props.setFlags([]);
   };
-
-  // const handlePaste = (event) => {
-  //   let userInput = event.clipboardData.items[0].getAsString();
-  //   //   console.log(userInput);
-  //   props.setUserInput(userInput);
-  //   //   props.setVerb(userInput);
-  //   //   props.setType(userInput);
-  //   //   props.setName(userInput);
-  //   //   props.setFlags([]);
-  // };
 
   return (
     <div
