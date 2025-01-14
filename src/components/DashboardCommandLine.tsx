@@ -1,3 +1,4 @@
+import React from "react";
 import { InputAdornment, Button, TextField, useTheme } from "@mui/material";
 import Tooltip, { TooltipProps, tooltipClasses } from "@mui/material/Tooltip";
 import { styled, lighten, darken } from "@mui/system";
@@ -38,7 +39,6 @@ const DashboardCommandLine = (props) => {
     props.setName(userInput2);
     props.setFlags([]);
   };
-
 
   return (
     <div
