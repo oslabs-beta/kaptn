@@ -39,15 +39,6 @@ const DashboardCommandLine = (props) => {
     props.setFlags([]);
   };
 
-  // const handlePaste = (event) => {
-  //   let userInput = event.clipboardData.items[0].getAsString();
-  //   //   console.log(userInput);
-  //   props.setUserInput(userInput);
-  //   //   props.setVerb(userInput);
-  //   //   props.setType(userInput);
-  //   //   props.setName(userInput);
-  //   //   props.setFlags([]);
-  // };
 
   return (
     <div
