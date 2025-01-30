@@ -132,7 +132,7 @@ function KraneDeploymentsList(props) {
   };
 
   type RSType = {
-    index: String;
+    index: Number;
     namespace: String;
     name: String;
     desired: String;
@@ -145,7 +145,7 @@ function KraneDeploymentsList(props) {
   };
 
   type DType = {
-    index: String;
+    index: Number;
     namespace: String;
     name: String;
     readyNumerator: Number;

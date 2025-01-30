@@ -143,7 +143,7 @@ function KranePodList(props) {
   };
 
   const [kubeSystemCheck, setKubeSystemCheck] = React.useState(false);
-  const [kubeSystemPods, setKubeSystemPods] = React.useState([]);
+  const [kubeSystemPods, setKubeSystemPods] = React.useState<any>([]);
 
 
   // ----------------------------------------- get pods info section ------------
@@ -386,7 +386,7 @@ function KranePodList(props) {
     let tempPodsStatsObj = props.podsStatsObj;
 
     let argArr = arg.split("");
-    let podUsageArray = [];
+    let podUsageArray : any[] = [];
 
     let pod = {};
 
@@ -400,10 +400,10 @@ function KranePodList(props) {
 
     // //for loop to put all pods in array of objects
     for (let j = 0; i < argArr.length; i++) {
-      let podCpuUsedArr = [];
-      let podMemoryUsedArr = [];
-      let podMemoryUsedDisplayArr = [];
-      let podName = [];
+      let podCpuUsedArr : string[] = [];
+      let podMemoryUsedArr : string[] = [];
+      let podMemoryUsedDisplayArr : string[] = [];
+      let podName  : string[] = [];
 
       //skips namespace because array order is same for both outputs
       while (argArr[i] !== " ") {
@@ -544,7 +544,7 @@ function KranePodList(props) {
   //Listen to "get cpuUsed" return event
   ipcRenderer.on("got_cpuLimits", (event, arg) => {
     let argArr = arg.split("");
-    let podLimitsArray = [];
+    let podLimitsArray : any[] = [];
 
     let pod = {};
 
@@ -558,10 +558,10 @@ function KranePodList(props) {
 
     // //for loop to put all pods in array of objects
     for (let j = 0; i < argArr.length; i++) {
-      let podCpuLimitsArr = [];
-      let podMemoryLimitsArr = [];
-      let podMemoryLimitsDisplayArr = [];
-      let podNameArr = [];
+      let podCpuLimitsArr : string[] = [];
+      let podMemoryLimitsArr : string[] = [];
+      let podMemoryLimitsDisplayArr : string[] = [];
+      let podNameArr : string[] = [];
 
       //take name because maybe be duplicate values
       while (argArr[i] !== " ") {
@@ -728,7 +728,7 @@ function KranePodList(props) {
   //handle returned pod container info
   ipcRenderer.on("podContainersRetrieved", (event, arg) => {
     let argArr = arg.split("");
-    let output = [];
+    let output : any[] = [];
 
     let i = 0;
     //skips all column titles
@@ -830,8 +830,8 @@ function KranePodList(props) {
       //reset to sorted by index
       toSortPods.sort((a, b) => a.index - b.index);
 
-      let numberArr = [];
-      let stringArr = [];
+      let numberArr : string[] = [];
+      let stringArr : string[] = [];
       for (let k = 0; k < props.podsArr.length; k++) {
         if (typeof props.podsArr[k]["podCpuPercent"] === "number") {
           numberArr.push(props.podsArr[k]);
@@ -843,8 +843,8 @@ function KranePodList(props) {
     } else if (sortedByDisplayArray[sortIncrement % 6] === "max memory") {
       //reset to sorted by index
       toSortPods.sort((a, b) => a.index - b.index);
-      let numberArr = [];
-      let stringArr = [];
+      let numberArr : string[] = [];
+      let stringArr : string[] = [];
       for (let k = 0; k < props.podsArr.length; k++) {
         if (typeof props.podsArr[k]["podMemoryPercent"] === "number") {
           numberArr.push(props.podsArr[k]);
@@ -909,8 +909,8 @@ function KranePodList(props) {
       //reset to sorted by index
       tempPods.sort((a, b) => a.index - b.index);
 
-      let numberArr = [];
-      let stringArr = [];
+      let numberArr : string[] = [];
+      let stringArr : string[] = [];
       for (let k = 0; k < props.podsArr.length; k++) {
         if (typeof props.podsArr[k]["podCpuPercent"] === "number") {
           numberArr.push(props.podsArr[k]);
@@ -922,8 +922,8 @@ function KranePodList(props) {
     } else if (sortedByDisplayArray[thisIndex] === "max memory") {
       //reset to sorted by index
       tempPods.sort((a, b) => a.index - b.index);
-      let numberArr = [];
-      let stringArr = [];
+      let numberArr : string[] = [];
+      let stringArr : string[] = [];
       for (let k = 0; k < props.podsArr.length; k++) {
         if (typeof props.podsArr[k]["podMemoryPercent"] === "number") {
           numberArr.push(props.podsArr[k]);
@@ -1000,9 +1000,9 @@ function KranePodList(props) {
 
   const handlePodLogOpen = (pod) => {
     ipcRenderer.on("podLogsRetrieved", (event, arg) => {
-      let argArr = arg.split("");
-      let temp = "";
-      let output = [];
+      let argArr : string[] = arg.split("");
+      let temp : string = "";
+      let output : JSX.Element[] = [];
       for (let i = 0; i < argArr.length; i++) {
         while (argArr[i] !== "\n") {
           temp += argArr[i];
@@ -1030,7 +1030,7 @@ function KranePodList(props) {
   const handlePodYamlOpen = (pod) => {
     ipcRenderer.on("podYamlRetrieved", (event, arg) => {
       let argArr = arg.split("/n");
-      let output = [];
+      let output : JSX.Element[] = [];
       for (let i = 0; i < argArr.length; i++) {
         output.push(
           <pre>
@@ -1059,7 +1059,7 @@ function KranePodList(props) {
   const handlePodDescribeOpen = (pod) => {
     ipcRenderer.on("podDescribeRetrieved", (event, arg) => {
       let argArr = arg.split("/n");
-      let output = [];
+      let output : JSX.Element[] = [];
 
       for (let i = 0; i < argArr.length; i++) {
         output.push(
@@ -1142,8 +1142,8 @@ function KranePodList(props) {
         //reset to sorted by index
         tempPods.sort((a, b) => a.index - b.index);
 
-        let numberArr = [];
-        let stringArr = [];
+        let numberArr : string[] = [];
+        let stringArr : string[] = [];
         for (let k = 0; k < tempPods.length; k++) {
           if (typeof tempPods[k]["podCpuPercent"] === "number") {
             numberArr.push(tempPods[k]);
@@ -1155,8 +1155,8 @@ function KranePodList(props) {
       } else if (sortedByDisplayArray[sortIncrement % 6] === "max memory") {
         //reset to sorted by index
         tempPods.sort((a, b) => a.index - b.index);
-        let numberArr = [];
-        let stringArr = [];
+        let numberArr : string[] = [];
+        let stringArr : string[] = [];
         for (let k = 0; k < tempPods.length; k++) {
           if (typeof tempPods[k]["podMemoryPercent"] === "number") {
             numberArr.push(tempPods[k]);
@@ -1195,7 +1195,7 @@ function KranePodList(props) {
   //--------------------------------------------- end of expand pods section ---
 
   // ---------------------------------------------------------- START OF FOR LOOP TO CREATE EACH POD"S JSX --------
-  let podsList = [];
+  let podsList : JSX.Element[] = [];
   for (let i = 0; i < props.podsArr.length; i++) {
     let readyStatusRunning;
     let PodCpuPercentColor;
@@ -1625,7 +1625,7 @@ function KranePodList(props) {
   } // end of for loop
   // ---------------------------------------- END OF FOR LOOP TO CREATE EACH POD"S JSX --------
 
-  let podContainerList = [];
+  let podContainerList : JSX.Element[] = [];
   let tempContainerList = props.podsContainersArr.filter(
     (container) => props.selectedPod[0]["name"] === container["podName"]
   );

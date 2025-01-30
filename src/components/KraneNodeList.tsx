@@ -25,13 +25,13 @@ function KraneNodeList(props) {
   const [openNode, setOpenNode] = React.useState(false);
 
   const [openNodeLog, setOpenNodeLog] = React.useState(false);
-  const [nodeLogs, setNodeLogs] = React.useState([]);
+  const [nodeLogs, setNodeLogs] = React.useState<any>([]);
 
   const [openNodeYaml, setOpenNodeYaml] = React.useState(false);
-  const [nodeYaml, setNodeYaml] = React.useState([]);
+  const [nodeYaml, setNodeYaml] = React.useState<any>([]);
 
   const [openNodeDescribe, setOpenNodeDescribe] = React.useState(false);
-  const [nodeDescribe, setNodeDescribe] = React.useState([]);
+  const [nodeDescribe, setNodeDescribe] = React.useState<any>([]);
 
   const [openNodeDrain, setOpenNodeDrain] = React.useState(false);
 
@@ -78,7 +78,7 @@ function KraneNodeList(props) {
   const theme = useTheme();
 
   let currDir = props.currDir;
-  let filteredNodes = [];
+  let filteredNodes : any[] = [];
 
 
   const style = {
@@ -366,8 +366,8 @@ function KraneNodeList(props) {
   const handlePodLogOpen = (pod) => {
     ipcRenderer.on("podLogsRetrieved", (event, arg) => {
       let argArr = arg.split("");
-      let temp = "";
-      let output = [];
+      let temp : string = "";
+      let output : JSX.Element[] = [];
 
       for (let i = 0; i < argArr.length; i++) {
         while (argArr[i] !== "\n") {
@@ -397,7 +397,7 @@ function KraneNodeList(props) {
   const handlePodYamlOpen = (pod) => {
     ipcRenderer.on("podYamlRetrieved", (event, arg) => {
       let argArr = arg.split("/n");
-      let output = [];
+      let output : JSX.Element[] = [];
 
       for (let i = 0; i < argArr.length; i++) {
         output.push(
@@ -634,7 +634,7 @@ const [count, setCount] = useState(0)
 
     let argArr = arg.split("");
 
-    let nodeUsageArray = [];
+    let nodeUsageArray : any[] = [];
 
     let i: number = 0;
 
@@ -646,11 +646,11 @@ const [count, setCount] = useState(0)
 
     // //for loop to parse response and put all nodes' stats in array of objects
     for (let j = 0; i < argArr.length; i++) {
-      let nodeNameArr = [];
-      let nodeCpuUsedArr = [];
-      let nodeCpuPercentArr = [];
-      let nodeMemoryUsedArr = [];
-      let nodeMemoryPercentArr = [];
+      let nodeNameArr : string[] = [];
+      let nodeCpuUsedArr : string[] = [];
+      let nodeCpuPercentArr : string[] = [];
+      let nodeMemoryUsedArr : string[] = [];
+      let nodeMemoryPercentArr : string[] = [];
 
       //saves name because array order is same for both outputs
       while (argArr[i] !== " ") {
@@ -814,7 +814,7 @@ const [count, setCount] = useState(0)
   //Listen to "get nodeCpuUsed" return event
   ipcRenderer.on("got_nodesCpuLimits", (event, arg) => {
     let argArr = arg.split("");
-    let nodeLimitsArray = [];
+    let nodeLimitsArray : any[] = [];
 
     let node = {};
 
@@ -843,9 +843,9 @@ const [count, setCount] = useState(0)
 
     // //for loop to put all pods in array of objects
     for (let j = 0; i < argArr.length; i++) {
-      let nodeCpuLimitsArr = [];
-      let nodeMemoryLimitsArr = [];
-      let nodeNameArr = [];
+      let nodeCpuLimitsArr : string[] = [];
+      let nodeMemoryLimitsArr : string[] = [];
+      let nodeNameArr : string[] = [];
 
       //take name because maybe be duplicate values]
       while (argArr[i] !== " ") {
@@ -964,8 +964,8 @@ const [count, setCount] = useState(0)
   const handleNodeLogOpen = (pod) => {
     ipcRenderer.on("nodeLogsRetrieved", (event, arg) => {
       let argArr = arg.split("");
-      let temp = "";
-      let output = [];
+      let temp : string = "";
+      let output : JSX.Element[]= [];
 
       for (let i = 0; i < argArr.length; i++) {
         while (argArr[i] !== "\n") {
@@ -994,7 +994,7 @@ const [count, setCount] = useState(0)
   const handleNodeYamlOpen = (pod) => {
     ipcRenderer.on("nodeYamlRetrieved", (event, arg) => {
       let argArr = arg.split("/n");
-      let output = [];
+      let output : JSX.Element[] = [];
 
       for (let i = 0; i < argArr.length; i++) {
         output.push(
@@ -1040,7 +1040,7 @@ const [count, setCount] = useState(0)
   const handleNodeDescribeOpen = (pod) => {
     ipcRenderer.on("nodeDescribeRetrieved", (event, arg) => {
       let argArr = arg.split("/n");
-      let output = [];
+      let output : JSX.Element[] = [];
 
       for (let i = 0; i < argArr.length; i++) {
         output.push(
@@ -1177,7 +1177,7 @@ const [count, setCount] = useState(0)
 
   //-----------------------------------------------------------START OF FOR LOOP TO PUSH NODE LIST JSX
 
-  let nodeList = [];
+  let nodeList : JSX.Element[] = [];
   for (let i = 0; i < props.nodesArr.length; i++) {
     let nodeReadyStatusRunning;
     let nodeReadyStatusRunningLight;
@@ -1582,7 +1582,7 @@ const [count, setCount] = useState(0)
     );
   }
 
-  let nodesPodsList = [];
+  let nodesPodsList : JSX.Element[] = [];
   let tempPodList = props.allPodsArr.filter(
     (pod) => selectedNode[0]["name"] === pod["node"]
   );
@@ -1994,7 +1994,7 @@ const [count, setCount] = useState(0)
     );
   }
 
-  let podContainerList = [];
+  let podContainerList : JSX.Element[] = [];
   let tempContainerList = props.podsContainersArr.filter(
     (container) => props.selectedPod[0]["name"] === container["podName"]
   );
