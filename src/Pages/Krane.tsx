@@ -38,7 +38,7 @@ type ArrPodObjs = {
 let filteredPods: any = [];
 
 function Krane(props) {
-  const [namespacesArr, setNamespacesArr] = useState(["ALL"]);
+  const [namespacesArr, setNamespacesArr] = useState<any>(["ALL"]);
   const [namespaceIndex, setNamespaceIndex] = useState(0);
   const [selectedNamespace, setSelectedNamespace] = useState(
     "ALL"
@@ -106,7 +106,7 @@ function Krane(props) {
 
   const theme = useTheme();
 
-  function handleClick(event) {
+  function handleManualStatRefresh(event) {
     // setDeploymentsArr([]);
     // setNodesArr([]);
     // setPodsArr([]);
@@ -133,7 +133,7 @@ function Krane(props) {
 
   }
 
-  // the below choose kube config function is incorrect ... to use custom kubeconfig location, it will require passing the following flag to all commands: --kubeconfig="path/to/kubeconfigfile
+  // the below choose kube config function is incorrect ... to use custom kubeconfig location, it will require passing the following flag to all commands: --kubeconfig="path/to/kubeconfigfile"
   // ... suggest creating state called customConfigPath and customConfigStatus ... if status is true, it passes customConfigPath in and adds whole statement to end of each command (with variable that is otherwise assigned value of "" to make it pass nothing and not affect commands unless altered via function below).
   const handleChooseKubeConfig = (event) => {
     let path = event.target.files[0].path.split("");
@@ -281,7 +281,7 @@ function Krane(props) {
     ipcRenderer.on("got_namespaces", (event, arg) => {
       let argArr = arg.split("");
 
-      let namespaceArrayOutput = [];
+      let namespaceArrayOutput : string[] = [];
 
       let i: number = 0;
 
@@ -309,7 +309,7 @@ function Krane(props) {
       }
 
       //for each namespace, create an array with MenuItems JSX for mui select component, starting with an "ALL" option first.
-      let finalOutput = [];
+      let finalOutput : JSX.Element[] = [];
       finalOutput.push(
         <MenuItem
           value={"ALL"}
@@ -357,7 +357,7 @@ function Krane(props) {
 
   function handleNamespaceChange(event) {
     setSelectedNamespace(event.target.value);
-    handleClick(null);
+    handleManualStatRefresh(null);
   }
 
   // ---------------------------------------------------------- START OF IF CONDITION TO DETERMINE MAIN DIV'S JSX --------

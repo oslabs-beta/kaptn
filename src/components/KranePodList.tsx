@@ -22,16 +22,27 @@ const LightTooltip = styled(({ className, ...props }: TooltipProps) => (
 }));
 
 
-type ArrPodObjs = {
-  name: string;
-  ready: string;
-  status: string;
-  restarts: string;
-  lastRestart: string;
-  age: string;
-  CpuPercent: number;
-  memoryPercent: number;
-};
+type PodsType = {
+    index: number,
+    namespace: string,
+    name: string,
+    ready: string,
+    status: string,
+    restarts: string,
+    lastRestart: string,
+    age: string,
+    podCpuUsed: string,
+    podMemoryUsed: string,
+    podMemoryUsedDisplay: string,
+    podCpuLimit:string,
+    podMemoryLimit: string,
+    podMemoryLimitDisplay: string,
+    ipAddress: string,
+    node: string,
+    nominatedNode: string,
+    readinessGates: string,
+    podContainers: any[],
+  };
 
 let filteredPods: any = [];
 
@@ -343,7 +354,7 @@ function KranePodList(props) {
         i++;
       }
 
-      let pod: any = {
+      let pod: PodsType = {
         index: j,
         namespace: namespaceOutput.join(""),
         name: nameOutput.join(""),

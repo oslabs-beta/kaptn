@@ -1,7 +1,7 @@
 import React from "react";
 const { ipcRenderer } = require("electron");
 import { render, screen, waitFor, fireEvent } from "@testing-library/react";
-import Dashboard from "../../src/pages/Dashboard";
+import Dashboard from "../../src/Pages/Dashboard";
 import "@testing-library/jest-dom";
 import { ProSidebarProvider } from "react-pro-sidebar";
 import { BrowserRouter } from "react-router-dom";

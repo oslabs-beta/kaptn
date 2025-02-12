@@ -91,6 +91,7 @@ export default withTooltip<AreaProps, TooltipData>(
           range: [innerHeight + margin.top, margin.top],
           domain: [
             -5,
+            //@ts-ignore
             (max(selectedNodeStats, getCpuValue) + 200 || 0) + innerHeight / 3,
           ],
           nice: true,
