@@ -1,25 +1,18 @@
 import React from "react";
-import { Sidebar, Menu, MenuItem } from "react-pro-sidebar";
-import { useState, useContext } from "react";
-import { Box, IconButton, useTheme } from "@mui/material";
+import {  useContext } from "react";
+import { IconButton, useTheme } from "@mui/material";
 import { Link } from "react-router-dom";
 import {
   AutoFixHigh,
-  MenuBook,
   ExitToAppOutlined,
   LightMode,
   BarChart,
   DarkMode,
-  BorderColor,
 } from "@mui/icons-material";
-import Grid from "@mui/system/Unstable_Grid";
 import { ColorModeContext } from "../theme";
 import Tooltip, { TooltipProps, tooltipClasses } from "@mui/material/Tooltip";
 import { styled } from "@mui/material/styles";
-import HomeRoundedIcon from "@mui/icons-material/HomeRounded";
 import PrecisionManufacturingIcon from "@mui/icons-material/PrecisionManufacturing";
-import ScatterPlotIcon from "@mui/icons-material/ScatterPlot";
-import LensBlurIcon from "@mui/icons-material/LensBlur";
 import TerminalIcon from "@mui/icons-material/Terminal";
 
 function SideNav(props) {
@@ -64,15 +57,6 @@ function SideNav(props) {
                 color: theme.palette.mode === "dark" ? "#c6bfe2" : "#6466b2",
               }}
             />
-            {/* <img
-              src="../../Artboard-1.png"
-              className="menuIcons"
-              fontSize="medium"
-              style={{
-                width: "28px",
-                color: theme.palette.mode === "dark" ? "#c6bfe2" : "#6466b2",
-              }}
-            /> */}
           </Link>
         </div>
       </LightTooltip>
