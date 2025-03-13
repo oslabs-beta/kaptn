@@ -126,7 +126,7 @@ ipcMain.on("check_promgraf_installed", (event, arg) => {
 ipcMain.on("check_metrics_installed", (event, arg) => {
   const { kubectlCheckMetricsInstallCommand, currDir } = arg;
 
-  // if kubectl command is entered with no directory chosen, use ZDOTDIR as directory address when calling exec command --- otherwise ("else" on line 55) submit command normally
+  // if kubectl command is entered with no directory chosen, use ZDOTDIR as directory address when calling exec command --- otherwise ("else" on further down) submit command normally
   if (currDir === "NONE SELECTED") {
     let kubDir = process.env.ZDOTDIR;
     exec(
@@ -169,7 +169,7 @@ ipcMain.on("check_metrics_installed", (event, arg) => {
 ipcMain.on("check_kubectl_installed", (event, arg) => {
   const { kubectlCheckKubectlInstallCommand, currDir } = arg;
 
-  // if kubectl command is entered with no directory chosen, use ZDOTDIR as directory address when calling exec command --- otherwise ("else" on line 55) submit command normally
+  // if kubectl command is entered with no directory chosen, use ZDOTDIR as directory address when calling exec command --- otherwise ("else" on further down) submit command normally
   if (currDir === "NONE SELECTED") {
     let kubDir = process.env.ZDOTDIR;
     exec(
@@ -212,7 +212,7 @@ ipcMain.on("check_kubectl_installed", (event, arg) => {
 ipcMain.on("install_metrics_server_command", (event, arg) => {
   const { kubectlMetricsServerInstallCommand, currDir } = arg;
 
-  // if kubectl command is entered with no directory chosen, use ZDOTDIR as directory address when calling exec command --- otherwise ("else" on line 55) submit command normally
+  // if kubectl command is entered with no directory chosen, use ZDOTDIR as directory address when calling exec command --- otherwise ("else" on further down) submit command normally
   if (currDir === "NONE SELECTED") {
     let kubDir = process.env.ZDOTDIR;
     exec(
@@ -1165,7 +1165,7 @@ ipcMain.on("deletePod_command", (event, arg) => {
 ipcMain.on("getNodesCpuUsed_command", (event, arg) => {
   const { nodesCpuUsedCommand, currDir } = arg;
 
-  // if kubectl command is entered with no directory chosen, use ZDOTDIR as directory address when calling exec command --- otherwise ("else" on line 55) submit command normally
+  // if kubectl command is entered with no directory chosen, use ZDOTDIR as directory address when calling exec command --- otherwise ("else" further down) submit command normally
   if (currDir === "NONE SELECTED") {
     let kubDir = process.env.ZDOTDIR;
     exec(` ${nodesCpuUsedCommand}`, { cwd: kubDir }, (err, stdout, stderr) => {
@@ -1200,7 +1200,7 @@ ipcMain.on("getNodesCpuUsed_command", (event, arg) => {
 ipcMain.on("getNodesCpuLimits_command", (event, arg) => {
   const { nodesCpuLimitsCommand, currDir } = arg;
 
-  // if kubectl command is entered with no directory chosen, use ZDOTDIR as directory address when calling exec command --- otherwise ("else" on line 55) submit command normally
+  // if kubectl command is entered with no directory chosen, use ZDOTDIR as directory address when calling exec command --- otherwise ("else" on further down) submit command normally
   if (currDir === "NONE SELECTED") {
     let kubDir = process.env.ZDOTDIR;
     exec(
@@ -1245,7 +1245,7 @@ ipcMain.on("getNodesCpuLimits_command", (event, arg) => {
 ipcMain.on("getCpuUsed_command", (event, arg) => {
   const { CpuUsedCommand, currDir } = arg;
 
-  // if kubectl command is entered with no directory chosen, use ZDOTDIR as directory address when calling exec command --- otherwise ("else" on line 55) submit command normally
+  // if kubectl command is entered with no directory chosen, use ZDOTDIR as directory address when calling exec command --- otherwise ("else" on further down) submit command normally
   if (currDir === "NONE SELECTED") {
     let kubDir = process.env.ZDOTDIR;
     exec(` ${CpuUsedCommand}`, { cwd: kubDir }, (err, stdout, stderr) => {
@@ -1280,7 +1280,7 @@ ipcMain.on("getCpuUsed_command", (event, arg) => {
 ipcMain.on("getCpuLimits_command", (event, arg) => {
   const { cpuLimitsCommand, currDir } = arg;
 
-  // if kubectl command is entered with no directory chosen, use ZDOTDIR as directory address when calling exec command --- otherwise ("else" on line 55) submit command normally
+  // if kubectl command is entered with no directory chosen, use ZDOTDIR as directory address when calling exec command --- otherwise ("else" on further down) submit command normally
   if (currDir === "NONE SELECTED") {
     let kubDir = process.env.ZDOTDIR;
     exec(` ${cpuLimitsCommand}`, { cwd: kubDir }, (err, stdout, stderr) => {
@@ -1315,7 +1315,7 @@ ipcMain.on("getCpuLimits_command", (event, arg) => {
 ipcMain.on("getNodes_command", (event, arg) => {
   const { kraneCommand, currDir } = arg;
 
-  // if kubectl command is entered with no directory chosen, use ZDOTDIR as directory address when calling exec command --- otherwise ("else" on line 55) submit command normally
+  // if kubectl command is entered with no directory chosen, use ZDOTDIR as directory address when calling exec command --- otherwise ("else" on further down) submit command normally
   if (currDir === "NONE SELECTED") {
     let kubDir = process.env.ZDOTDIR;
     exec(` ${kraneCommand}`, { cwd: kubDir }, (err, stdout, stderr) => {
@@ -1350,7 +1350,7 @@ ipcMain.on("getNodes_command", (event, arg) => {
 ipcMain.on("getPods_command", (event, arg) => {
   const { podsCommand, currDir } = arg;
 
-  // if kubectl command is entered with no directory chosen, use ZDOTDIR as directory address when calling exec command --- otherwise ("else" on line 55) submit command normally
+  // if kubectl command is entered with no directory chosen, use ZDOTDIR as directory address when calling exec command --- otherwise ("else" on further down) submit command normally
   if (currDir === "NONE SELECTED") {
     let kubDir = process.env.ZDOTDIR;
     exec(` ${podsCommand}`, { cwd: kubDir }, (err, stdout, stderr) => {
@@ -1389,7 +1389,7 @@ ipcMain.on("getPods_command", (event, arg) => {
 ipcMain.on("post_command", (event, arg) => {
   const { command, currDir } = arg;
 
-  // if kubectl command is entered with no directory chosen, use ZDOTDIR as directory address when calling exec command --- otherwise ("else" on line 55) submit command normally
+  // if kubectl command is entered with no directory chosen, use ZDOTDIR as directory address when calling exec command --- otherwise ("else" on further down) submit command normally
   if (currDir === "NONE SELECTED") {
     let kubDir = process.env.ZDOTDIR;
     exec(` ${command}`, { cwd: kubDir }, (err, stdout, stderr) => {
@@ -1501,7 +1501,7 @@ ipcMain.on("forward_ports", (event, arg) => {
   });
 });
 
-// Listen to forward_ports event
+// Listen to forward_ports kill port event
 ipcMain.on("kill_port", (event, arg) => {
   const ports = spawn(`kill -9 $(lsof -ti:3000)`, {
     shell: true,
@@ -1516,7 +1516,7 @@ ipcMain.on("retrieve_key", (event, arg) => {
   const getAPIKey = async () => {
     try {
       // If the API key is not in the cache, fetch it from the API
-      const response = await fetch("http://localhost:3000/api/auth/keys", {
+      const response = await fetch("http://localhost:3000/api/serviceaccounts", {
         method: "POST",
         mode: "no-cors",
         headers: {
@@ -1533,7 +1533,7 @@ ipcMain.on("retrieve_key", (event, arg) => {
       });
 
       const data = await response.json();
-
+      console.log('data1 is', data)
       let key = data.key;
 
       const arg = {
@@ -1555,12 +1555,13 @@ ipcMain.on("retrieve_key", (event, arg) => {
       );
 
       let data2 = await response2.json();
-
-      let uid = data2[0].uid;
+      console.log('data2 is', data2)
+      let uid = data.uid;
 
       const now = new Date().getTime();
       const from = new Date(now - 60 * 60 * 1000).getTime();
       let url = `http://localhost:3000/d/${uid}/kubernetes-api-server?orgId=1&refresh=10s&from=${from}&to=${now}&kiosk=true?username=admin&password=prom-operator`;
+      console.log('url is', url)
       require("electron").shell.openExternal(url);
       return event.sender.send("retrieve_key", `true`);
     } catch (error) {
