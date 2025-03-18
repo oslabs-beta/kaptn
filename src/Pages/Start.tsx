@@ -20,7 +20,7 @@ function Start(props) {
   const [metricsCheckStatus, setMetricsCheckStatus] = useState("checking");
   // const [metricsVersion, setMetricsVersion] = useState("");
 
-  let argOut = "";
+  let argOut;
   useEffect(() => {
     
       // command for check if metrics server installed is: kubectl get pods --all-namespaces | grep metrics-server
@@ -41,6 +41,7 @@ function Start(props) {
             props.setPromGrafCheckStatus("not_installed");
           }, 2400);
         }
+
       });
     
       ipcRenderer.on("checked_metrics_installed", (event, arg) => {
@@ -58,14 +59,11 @@ function Start(props) {
     
       ipcRenderer.on("checked_kubectl_installed", (event, arg) => {
         argOut = JSON.parse(arg);
-        let kubectlClientVersionArr = [];
-        let kubectlServerVersionArr = [];
-        //@ts-expect-error
+        let kubectlClientVersionArr : string[] = [];
+        let kubectlServerVersionArr : string[] = [];
         if (argOut.clientVersion.gitVersion) {
-          //@ts-expect-error
           let temp = argOut.clientVersion.gitVersion.slice(1, -2);
           setKubectlClientVersion(temp);
-          //@ts-expect-error
           temp = argOut.serverVersion.gitVersion.slice(1, -2);
           setKubectlServerVersion(temp);
     
@@ -92,7 +90,7 @@ function Start(props) {
             setKubectlCheckStatus("Installed");
           }, 800);
         }
-        //need to parse json object below this line and save client and server versions for when you dont have version +-1 sync warning (like i currently do).
+        //need to parse json object below this line and save client and server versions for when you dont have version +-1 sync warning.
         else if (arg[0] === "e" && arg[1] === "r" && arg[2] === "r") {
           setTimeout(() => {
             setKubectlCheckStatus("not_installed");
@@ -155,7 +153,7 @@ function Start(props) {
 
     
   //set the kubectl install div based on its check status
-  let kubectlInstalledDiv;
+  let kubectlInstalledDiv : JSX.Element;
   if (kubectlCheckStatus === "Installed") {
     kubectlInstalledDiv = (
       <div
@@ -234,7 +232,7 @@ function Start(props) {
     );
   }
 
-  let metricsInstalledDiv;
+  let metricsInstalledDiv : JSX.Element;
   if (metricsCheckStatus === "installed") {
     metricsInstalledDiv = (
       <div
@@ -315,7 +313,7 @@ function Start(props) {
     );
   }
 
-  let promGrafInstallDiv;
+  let promGrafInstallDiv : JSX.Element;
   if (props.promGrafCheckStatus === "not_installed") {
     promGrafInstallDiv = (
       <div
@@ -365,7 +363,7 @@ function Start(props) {
     );
   }
 
-  let loadingStatusDiv;
+  let loadingStatusDiv : JSX.Element;
   if (
     props.promGrafCheckStatus !== "checking" &&
     kubectlCheckStatus !== "checking" &&

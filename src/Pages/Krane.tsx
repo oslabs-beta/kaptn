@@ -107,6 +107,7 @@ function Krane(props) {
   const theme = useTheme();
 
   function handleManualStatRefresh(event) {
+    //kept below for reference to previous calls
     // setDeploymentsArr([]);
     // setNodesArr([]);
     // setPodsArr([]);
@@ -292,7 +293,7 @@ function Krane(props) {
       i++;
 
       for (let j = 0; i < argArr.length; i++) {
-        let namespaceOutput: any = [];
+        let namespaceOutput: string[] = [];
 
         //saves namespace
         while (arg[i] !== " ") {
@@ -361,7 +362,7 @@ function Krane(props) {
   }
 
   // ---------------------------------------------------------- START OF IF CONDITION TO DETERMINE MAIN DIV'S JSX --------
-  let deploymentsDiv;
+  let deploymentsDiv : JSX.Element;
   if (deploymentsShowStatus) {
     deploymentsDiv = (
       <>
@@ -381,7 +382,7 @@ function Krane(props) {
     );
   }
 
-  let nodesAndPodsDiv;
+  let nodesAndPodsDiv: JSX.Element;
   if (nodeShowStatus) {
     nodesAndPodsDiv = (
       <>
@@ -488,8 +489,8 @@ function Krane(props) {
     );
   }
 
-  let refreshShowDiv;
-  let noneChosenDiv;
+  let refreshShowDiv: JSX.Element;
+  let noneChosenDiv: JSX.Element;
   if (nodeShowStatus || deploymentsShowStatus) {
     refreshShowDiv = (
       <>
