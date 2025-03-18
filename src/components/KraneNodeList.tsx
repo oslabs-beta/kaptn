@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from "react";
 import Button from "@mui/material/Button";
-import { Typography, useTheme, Box, Modal, Checkbox } from "@mui/material";
+import { useTheme, Box, Modal} from "@mui/material";
 const { ipcRenderer } = require("electron");
 import CircularProgress from "@mui/material/CircularProgress";
 import Tooltip, { TooltipProps, tooltipClasses } from "@mui/material/Tooltip";
 import { styled } from "@mui/material/styles";
-import { JsxElement } from "typescript";
 import NodeCpuChart from "./NodeCpuChart";
 import NodeMemoryChart from "./NodeMemoryChart";
 
@@ -20,6 +19,28 @@ const LightTooltip = styled(({ className, ...props }: TooltipProps) => (
     fontSize: 11,
   },
 }));
+
+type NodeType = {
+      index: number,
+      name: string,
+      status: string,
+      role: string,
+      age: string,
+      version: string,
+      internalIp: string,
+      externalIp: string,
+      osImage: string,
+      kernal: string,
+      containerRuntime: string,
+      nodeCpuUsed: string,
+      nodeCpuLimit: string,
+      nodeCpuPercent: string,
+      nodeCpuPercentMath: string,
+      nodeMemoryUsed: string,
+      nodeMemoryUsedDisplay: string,
+      nodeMemoryLimit: string,
+      nodeMemoryPercent: string,
+}
 
 function KraneNodeList(props) {
   const [openNode, setOpenNode] = React.useState(false);
@@ -77,8 +98,9 @@ function KraneNodeList(props) {
 
   const theme = useTheme();
 
+
   let currDir = props.currDir;
-  let filteredNodes : any[] = [];
+  let filteredNodes : NodeType[] = [];
 
 
   const style = {
