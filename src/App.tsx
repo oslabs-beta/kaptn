@@ -16,7 +16,6 @@ function App() {
   const [grafVersion, setGrafVersion] = useState("");
   const [promVersion, setPromVersion] = useState("");
 
-
   const [podsStatsObj, setPodsStatsObj] = useState({});
   const [nodesStatsObj, setNodesStatsObj] = useState({});
   const [intervalArray, setIntervalArray] = useState([]);

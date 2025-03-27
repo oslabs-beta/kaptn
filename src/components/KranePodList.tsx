@@ -1,11 +1,10 @@
-import React, { useState, useEffect, useReducer } from "react";
+import React, { useState, useEffect, } from "react";
 import Button from "@mui/material/Button";
-import { Typography, useTheme, Box, Modal, Checkbox } from "@mui/material";
+import {  useTheme, Box, Modal } from "@mui/material";
 const { ipcRenderer } = require("electron");
 import CircularProgress from "@mui/material/CircularProgress";
 import Tooltip, { TooltipProps, tooltipClasses } from "@mui/material/Tooltip";
 import { styled } from "@mui/material/styles";
-import { JsxElement } from "typescript";
 import SortIcon from "@mui/icons-material/Sort";
 import PodCpuChart from "./PodCpuChart";
 import PodMemoryChart from "./PodMemoryChart";
@@ -21,6 +20,14 @@ const LightTooltip = styled(({ className, ...props }: TooltipProps) => (
   },
 }));
 
+type ContainerType = {
+  podName: string,
+  name: string,
+  cpuUsage: string,
+  cpuUsageMath: number,
+  memoryUsage: string,
+  memoryUsageMath: number,
+}
 
 type PodsType = {
     index: number,
@@ -41,8 +48,9 @@ type PodsType = {
     node: string,
     nominatedNode: string,
     readinessGates: string,
-    podContainers: any[],
+    podContainers: ContainerType[],
   };
+
 
 let filteredPods: any = [];
 
@@ -819,7 +827,7 @@ function KranePodList(props) {
         memoryUsageMath = temp;
       }
 
-      let container = {
+      let container : ContainerType = {
         podName: podName,
         name: name,
         cpuUsage: cpuUsage,
