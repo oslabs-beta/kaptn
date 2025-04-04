@@ -1,19 +1,19 @@
 import React, { useState, useEffect } from "react";
 import Button from "@mui/material/Button";
-import { Typography, useTheme, Box, Modal } from "@mui/material";
+import { useTheme, Box } from "@mui/material";
 const { ipcRenderer } = require("electron");
 import SideNav from "../components/Sidebar.js";
 import Tooltip, { TooltipProps, tooltipClasses } from "@mui/material/Tooltip";
 import { styled } from "@mui/material/styles";
-import { JsxElement } from "typescript";
 import KraneNodeList from "../components/KraneNodeList.js";
 import KranePodList from "../components/KranePodList.js";
 import KraneDeploymentsList from "../components/KraneDeploymentsList";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
-import Select, { SelectChangeEvent } from "@mui/material/Select";
+import Select from "@mui/material/Select";
 
+//mui custom styled tooltip for info and hint popups
 const LightTooltip = styled(({ className, ...props }: TooltipProps) => (
   <Tooltip {...props} classes={{ popper: className }} />
 ))(({ theme }) => ({
@@ -24,27 +24,13 @@ const LightTooltip = styled(({ className, ...props }: TooltipProps) => (
   },
 }));
 
-type ArrPodObjs = {
-  name: string;
-  ready: string;
-  status: string;
-  restarts: string;
-  lastRestart: string;
-  age: string;
-  CpuPercent: number;
-  memoryPercent: number;
-};
-
-let filteredPods: any = [];
-
 function Krane(props) {
-  const [namespacesArr, setNamespacesArr] = useState<any>(["ALL"]);
-  const [namespaceIndex, setNamespaceIndex] = useState(0);
-  const [selectedNamespace, setSelectedNamespace] = useState(
+  const [namespacesArr, setNamespacesArr] = useState<JSX.Element[] | string[]>(["ALL"]);
+  const [selectedNamespace, setSelectedNamespace] = useState<string>(
     "ALL"
   );
 
-  const [refreshSpeed, setRefreshSpeed] = useState(15);
+  const [refreshSpeed, setRefreshSpeed] = useState<number>(15);
 
   const [deploymentsArr, setDeploymentsArr] = useState([]);
   const [podsArr, setPodsArr] = useState([]);
@@ -55,29 +41,29 @@ function Krane(props) {
   const [nodesLimitsArr, setNodesLimitsArr] = useState([]);
 
   const [podsContainersArr, setPodsContainersArr] = useState([]);
-  const [currDir, setCurrDir] = useState("NONE SELECTED");
+  const [currDir, setCurrDir] = useState<string>("NONE SELECTED");
 
-  const [openPod, setOpenPod] = React.useState(false);
+  const [openPod, setOpenPod] = React.useState<boolean>(false);
 
-  const [openPodLog, setOpenPodLog] = React.useState(false);
+  const [openPodLog, setOpenPodLog] = React.useState<boolean>(false);
   const [podLogs, setPodLogs] = React.useState([]);
 
-  const [openPodYaml, setOpenPodYaml] = React.useState(false);
+  const [openPodYaml, setOpenPodYaml] = React.useState<boolean>(false);
   const [podYaml, setPodYaml] = React.useState([]);
 
-  const [openPodDescribe, setOpenPodDescribe] = React.useState(false);
+  const [openPodDescribe, setOpenPodDescribe] = React.useState<boolean>(false);
   const [podDescribe, setPodDescribe] = React.useState([]);
 
-  const [openPodDelete, setOpenPodDelete] = React.useState(false);
+  const [openPodDelete, setOpenPodDelete] = React.useState<boolean>(false);
 
-  const [selectedPodStatusColor, setSelectedPodStatusColor] = useState("");
+  const [selectedPodStatusColor, setSelectedPodStatusColor] = useState<string>("");
   const [selectedPodStatusColorLight, setSelectedPodStatusColorLight] =
-    useState("");
-  const [selectedPodCPUColor, setSelectedPodCPUColor] = useState("");
-  const [selectedPodCPUColorLight, setSelectedPodCPUColorLight] = useState("");
-  const [selectedPodMemoryColor, setSelectedPodMemoryColor] = useState("");
+    useState<string>("");
+  const [selectedPodCPUColor, setSelectedPodCPUColor] = useState<string>("");
+  const [selectedPodCPUColorLight, setSelectedPodCPUColorLight] = useState<string>("");
+  const [selectedPodMemoryColor, setSelectedPodMemoryColor] = useState<string>("");
   const [selectedPodMemoryColorLight, setSelectedPodMemoryColorLight] =
-    useState("");
+    useState<string>("");
   const [selectedPod, setSelectedPod] = useState([
     {
       index: "",
