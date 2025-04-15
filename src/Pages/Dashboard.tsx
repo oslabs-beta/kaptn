@@ -20,7 +20,7 @@ import DashboardCommandLine from "../components/DashboardCommandLine";
 import Terminal from "../components/Terminal";
 const { ipcRenderer } = require("electron");
 import commands from "../components/commands";
-import { Box, lighten, darken } from "@mui/system";
+import { Box } from "@mui/system";
 import BoltIcon from "@mui/icons-material/Bolt";
 import helpDesk from "../components/HelpDesk";
 import React from "react";
@@ -38,7 +38,7 @@ const LightTooltip = styled(({ className, ...props }: TooltipProps) => (
   },
 }));
 
-//section header (e.g. beginner, intermediate, etc) rules for grouped "command" option
+//section header (e.g. beginner, intermediate, etc) for grouped "command" options
 const BeginnerHeader = styled("div")(({ theme }) => ({
   position: "sticky",
   top: "-8px",
