@@ -17,8 +17,7 @@ import {
   Modal,
   Typography,
 } from "@mui/material";
-import { Box, styled, lighten, darken } from "@mui/system";
-import Grid from "@mui/system/Unstable_Grid";
+import { Box, styled} from "@mui/system";
 import SetupCommandLine from "../components/SetupCommandLine.jsx";
 import Terminal from "../components/Terminal.js";
 import Sidebar from "../components/Sidebar.jsx";
@@ -30,8 +29,6 @@ import Switch from "@mui/material/Switch";
 import Tooltip, { TooltipProps, tooltipClasses } from "@mui/material/Tooltip";
 import StarIcon from "@mui/icons-material/Star";
 import StarOutlineIcon from "@mui/icons-material/StarOutline";
-import StarHalfIcon from "@mui/icons-material/StarHalf";
-// import { makeStyles } from '@mui/material';
 
 const { ipcRenderer } = require("electron");
 
