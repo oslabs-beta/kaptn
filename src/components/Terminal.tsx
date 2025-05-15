@@ -16,7 +16,7 @@ const Terminal = (props) => {
       .split("\n")
       .map(function (item: string) {
         return (
-          <pre>
+          <pre key={key}>
             <span>{item}</span>
           </pre>
         );
