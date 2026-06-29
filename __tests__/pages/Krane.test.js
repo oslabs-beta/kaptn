@@ -34,7 +34,7 @@ describe("Krane test", () => {
     expect(buttons.length).toBe(7);
   });
 
-  it(`Renders choose directory from above text`, () => {
+  it(`Renders choose from above text`, () => {
     const choose = screen.getByText("Choose From Above to Begin");
     expect(choose).toBeTruthy();
   });
