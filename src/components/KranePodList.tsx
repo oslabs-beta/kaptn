@@ -1,7 +1,7 @@
 import React, { useState, useEffect, } from "react";
 import Button from "@mui/material/Button";
 import {  useTheme, Box, Modal } from "@mui/material";
-const { ipcRenderer } = require("electron");
+import { ipcRenderer } from "../electron-ipc";
 import CircularProgress from "@mui/material/CircularProgress";
 import Tooltip, { TooltipProps, tooltipClasses } from "@mui/material/Tooltip";
 import { styled } from "@mui/material/styles";
@@ -173,7 +173,12 @@ function KranePodList(props) {
 
   let podsArrOutput: any = [];
 
-  //Listen to "get pods" return event and set pods array
+  //Listen to "get pods" return event and set pods array.
+  //removeAllListeners before .on caps this channel at a single listener:
+  //without it, a new listener was added on every render and never removed,
+  //so listeners (and their retained closures) accumulated until the
+  //renderer slowed to a crawl and crashed.
+  ipcRenderer.removeAllListeners("got_pods");
   ipcRenderer.on("got_pods", (event, arg) => {
     let argArr = arg.split("");
 
@@ -400,6 +405,7 @@ function KranePodList(props) {
   }); // --------------------------end of ipc render to get all pods o wide info  -
 
   // ----------------------------------- Listen to "get cpuUsed" return event
+  ipcRenderer.removeAllListeners("got_cpuUsed");
   ipcRenderer.on("got_cpuUsed", (event, arg) => {
     let date = new Date().toISOString();
     let tempPodsStatsObj = props.podsStatsObj;
@@ -524,15 +530,20 @@ function KranePodList(props) {
       podUsageArray.push(pod);
     } //end of for loop
 
-    for (let j = 0; j < podUsageArray.length; j++) {
-      filteredPods[j]["podCpuUsed"] = podUsageArray[j]["podCpuUsed"];
-      filteredPods[j]["podMemoryUsed"] = podUsageArray[j]["podMemoryUsed"];
-      filteredPods[j]["podMemoryUsedDisplay"] =
-        podUsageArray[j]["podMemoryUsedDisplay"];
-    }
-    
-    props.setPodsArr([...filteredPods]);
-    props.setAllPodsArr([...filteredPods]);
+    props.setPodsArr((currentPods: any[]) => {
+      const updated = currentPods.map((pod: any) => {
+        const stats = podUsageArray.find((u: any) => u.podName === pod.name);
+        if (!stats) return pod;
+        return {
+          ...pod,
+          podCpuUsed: stats.podCpuUsed,
+          podMemoryUsed: stats.podMemoryUsed,
+          podMemoryUsedDisplay: stats.podMemoryUsedDisplay,
+        };
+      });
+      props.setAllPodsArr(updated);
+      return updated;
+    });
 
 
     for (let j = 0; j < podUsageArray.length; j++) {
@@ -560,7 +571,8 @@ function KranePodList(props) {
     props.setPodsStatsObj(tempPodsStatsObj);
   }); // -------------------- end of ipc render function for get pods cpu used
 
-  //Listen to "get cpuUsed" return event
+  //Listen to "get cpuLimits" return event
+  ipcRenderer.removeAllListeners("got_cpuLimits");
   ipcRenderer.on("got_cpuLimits", (event, arg) => {
     let argArr = arg.split("");
     let podLimitsArray : any[] = [];
@@ -660,7 +672,10 @@ function KranePodList(props) {
           podMemoryLimitsArr.push("0");
         }
 
-        i += 3;
+        // advance past the 2-char unit ("Mi"/"Gi") to land on the newline.
+        // The memory column is last and has no trailing spaces, so i += 3
+        // overran the "\n" and ate the first char of the next pod's name.
+        i += 2;
       }
 
       //   //join used values and add them to object
@@ -682,69 +697,58 @@ function KranePodList(props) {
         ind === podLimitsArray.findIndex((elem) => elem.podName === ele.podName)
     );
 
-    props.setPodsArr([...filteredPods]);
-    props.setAllPodsArr([...filteredPods]);
+    props.setPodsArr((currentPods: any[]) => {
+      const updatedPods = currentPods.map((pod: any) => {
+        const limits = lastPodsArr.find((u: any) => u.podName === pod.name);
+        if (!limits) return pod;
+        const currentCpu = limits.podCpuLimit;
+        const currentMemory = limits.podMemoryLimit;
+        const updated = {
+          ...pod,
+          podCpuLimit: currentCpu,
+          podMemoryLimit: currentMemory,
+          podMemoryLimitDisplay: limits.podMemoryLimitDisplay,
+        };
 
-    for (let j = 0; j < lastPodsArr.length; j++) {
-      let currentCpu = lastPodsArr[j]["podCpuLimit"];
-      let currentMemory = lastPodsArr[j]["podMemoryLimit"];
-      let currentMemoryDisplay = lastPodsArr[j]["podMemoryLimitDisplay"];
-      filteredPods[j]["podCpuLimit"] = currentCpu;
-      filteredPods[j]["podMemoryLimit"] = currentMemory;
-      filteredPods[j]["podMemoryLimitDisplay"] = currentMemoryDisplay;
-
-      if (currentCpu === "NONE") {
-        filteredPods[j]["podCpuPercent"] = "N/A";
-      } else {
-        let cpuUsed = Number(filteredPods[j]["podCpuUsed"]);
-        filteredPods[j]["podCpuPercent"] = cpuUsed / currentCpu;
-        if (filteredPods[j]["podCpuPercent"] >= 1) {
-          filteredPods[j]["podCpuPercent"] = 100;
+        if (currentCpu === "NONE") {
+          updated.podCpuPercent = "N/A";
         } else {
-          filteredPods[j]["podCpuPercent"] =
-            filteredPods[j]["podCpuPercent"] * 100;
-          if (filteredPods[j]["podCpuPercent"] % 1 !== 0) {
-            let temp = filteredPods[j]["podCpuPercent"].toFixed(1);
-            filteredPods[j]["podCpuPercent"] = Number(temp);
+          let cpuPercent = Number(pod.podCpuUsed) / currentCpu;
+          if (cpuPercent >= 1) {
+            updated.podCpuPercent = 100;
+          } else {
+            cpuPercent = cpuPercent * 100;
+            updated.podCpuPercent = cpuPercent % 1 !== 0 ? Number(cpuPercent.toFixed(1)) : cpuPercent;
           }
         }
-      }
 
-      if (currentMemory === "NONE") {
-        filteredPods[j]["podMemoryPercent"] = "N/A";
-      } else {
-        let memoryUsed = Number(filteredPods[j]["podMemoryUsed"]);
-        filteredPods[j]["podMemoryPercent"] = memoryUsed / currentMemory;
-        if (filteredPods[j]["podMemoryPercent"] >= 1) {
-          filteredPods[j]["podMemoryPercent"] = 100;
+        if (currentMemory === "NONE") {
+          updated.podMemoryPercent = "N/A";
         } else {
-          filteredPods[j]["podMemoryPercent"] =
-            filteredPods[j]["podMemoryPercent"] * 100;
-          if (filteredPods[j]["podMemoryPercent"] % 1 !== 0) {
-            let temp = filteredPods[j]["podMemoryPercent"].toFixed(1);
-            filteredPods[j]["podMemoryPercent"] = Number(temp);
+          let memPercent = Number(pod.podMemoryUsed) / currentMemory;
+          if (memPercent >= 1) {
+            updated.podMemoryPercent = 100;
+          } else {
+            memPercent = memPercent * 100;
+            updated.podMemoryPercent = memPercent % 1 !== 0 ? Number(memPercent.toFixed(1)) : memPercent;
           }
         }
-      }
+
+        return updated;
+      });
 
       if (props.selectedNamespace !== "ALL") {
-        let kubePods = filteredPods.filter(
-          (pod) => pod.namespace !== props.selectedNamespace
-        );
-        setKubeSystemPods([...kubePods]);
-
-        let kubeFilteredPods = filteredPods.filter(
-          (pod) => pod.namespace === props.selectedNamespace
-        );
-        props.setPodsArr([...kubeFilteredPods]);
-      } else if (props.selectedNamespace !== "ALL") {
-        props.setPodsArr([...filteredPods]);
-        props.setAllPodsArr([...filteredPods]);
+        setKubeSystemPods(updatedPods.filter((pod: any) => pod.namespace !== props.selectedNamespace));
+        props.setAllPodsArr(updatedPods);
+        return updatedPods.filter((pod: any) => pod.namespace === props.selectedNamespace);
       }
-    } //end of for loop
+      props.setAllPodsArr(updatedPods);
+      return updatedPods;
+    });
   }); //-------------------   end of ipc render function to get podcpu and memory limits
 
   //handle returned pod container info
+  ipcRenderer.removeAllListeners("podContainersRetrieved");
   ipcRenderer.on("podContainersRetrieved", (event, arg) => {
     let argArr = arg.split("");
     let output : any[] = [];
@@ -1018,7 +1022,7 @@ function KranePodList(props) {
   };
 
   const handlePodLogOpen = (pod) => {
-    ipcRenderer.on("podLogsRetrieved", (event, arg) => {
+    ipcRenderer.once("podLogsRetrieved", (event, arg) => {
       let argArr : string[] = arg.split("");
       let temp : string = "";
       let output : JSX.Element[] = [];
@@ -1047,7 +1051,7 @@ function KranePodList(props) {
   };
 
   const handlePodYamlOpen = (pod) => {
-    ipcRenderer.on("podYamlRetrieved", (event, arg) => {
+    ipcRenderer.once("podYamlRetrieved", (event, arg) => {
       let argArr = arg.split("/n");
       let output : JSX.Element[] = [];
       for (let i = 0; i < argArr.length; i++) {
@@ -1076,7 +1080,7 @@ function KranePodList(props) {
   };
 
   const handlePodDescribeOpen = (pod) => {
-    ipcRenderer.on("podDescribeRetrieved", (event, arg) => {
+    ipcRenderer.once("podDescribeRetrieved", (event, arg) => {
       let argArr = arg.split("/n");
       let output : JSX.Element[] = [];
 
@@ -1114,7 +1118,7 @@ function KranePodList(props) {
 
   const handlePodDelete = () => {
     //listen for pods deleted
-    ipcRenderer.on("deleted_pod", (event, arg) => {
+    ipcRenderer.once("deleted_pod", (event, arg) => {
       //parse response to check if successful and if so, close modals and refresh list
 
       props.getPodsAndContainers();

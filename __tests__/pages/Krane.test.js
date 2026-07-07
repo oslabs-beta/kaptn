@@ -8,7 +8,7 @@ import { BrowserRouter } from "react-router-dom";
 
 // Mock electron so we can use ipcRenderer
 jest.mock("electron", () => {
-  const mElectron = { ipcRenderer: { on: jest.fn(), send: jest.fn() } };
+  const mElectron = { ipcRenderer: { on: jest.fn(), once: jest.fn(), send: jest.fn(), removeAllListeners: jest.fn() } };
   return mElectron;
 });
 

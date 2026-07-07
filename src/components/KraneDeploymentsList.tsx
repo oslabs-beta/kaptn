@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Button from "@mui/material/Button";
 import { useTheme, Box, Modal, TextField } from "@mui/material";
-const { ipcRenderer } = require("electron");
+import { ipcRenderer } from "../electron-ipc";
 import Tooltip, { TooltipProps, tooltipClasses } from "@mui/material/Tooltip";
 import { styled } from "@mui/material/styles";
 
@@ -280,7 +280,10 @@ function KraneDeploymentsList(props) {
   const [count, setCount] = useState(0);
 
   if (count < 1) {
-    //Listen to "get deployments" return event and set pods array
+    //Listen to "get deployments" return event and set pods array.
+    //removeAllListeners first so a remount (toggling Deployments on/off)
+    //never leaves a stale listener behind and accumulates them.
+    ipcRenderer.removeAllListeners("got_deployments");
     ipcRenderer.on("got_deployments", (event, arg) => {
       let argArr = arg.split("");
 
@@ -418,6 +421,7 @@ function KraneDeploymentsList(props) {
     }); //--------------------------------------end of ipc to parse deployments --------
 
     //Listen to "get replicaSets" return event and set pods array
+    ipcRenderer.removeAllListeners("got_rs");
     ipcRenderer.on("got_rs", (event, arg) => {
       let argArr = arg.split("");
 
@@ -586,7 +590,7 @@ function KraneDeploymentsList(props) {
   };
 
   const handleDeploymentLogOpen = (pod) => {
-    ipcRenderer.on("deploymentLogsRetrieved", (event, arg) => {
+    ipcRenderer.once("deploymentLogsRetrieved", (event, arg) => {
       let argArr = arg.split("\n");
       let temp = "";
       let output: any = [];
@@ -611,7 +615,7 @@ function KraneDeploymentsList(props) {
   };
 
   const handleDeploymentYamlOpen = (pod) => {
-    ipcRenderer.on("deploymentYamlRetrieved", (event, arg) => {
+    ipcRenderer.once("deploymentYamlRetrieved", (event, arg) => {
       let argArr = arg.split("/n");
       let output: any = [];
       for (let i = 0; i < argArr.length; i++) {
@@ -639,7 +643,7 @@ function KraneDeploymentsList(props) {
   };
 
   const handleDeploymentDescribeOpen = (pod) => {
-    ipcRenderer.on("deploymentDescribeRetrieved", (event, arg) => {
+    ipcRenderer.once("deploymentDescribeRetrieved", (event, arg) => {
       let argArr = arg.split("/n");
       let output: any = [];
 
@@ -668,7 +672,7 @@ function KraneDeploymentsList(props) {
   };
 
   const handleDeploymentRolloutStatusOpen = (pod) => {
-    ipcRenderer.on("deploymentRolloutStatusRetrieved", (event, arg) => {
+    ipcRenderer.once("deploymentRolloutStatusRetrieved", (event, arg) => {
       let argArr = arg.split("/n");
       let output: any = [];
 
@@ -697,7 +701,7 @@ function KraneDeploymentsList(props) {
   };
 
   const handleDeploymentRolloutHistoryOpen = (pod) => {
-    ipcRenderer.on("deploymentRolloutHistoryRetrieved", (event, arg) => {
+    ipcRenderer.once("deploymentRolloutHistoryRetrieved", (event, arg) => {
       let argArr = arg.split("/n");
       let output: any = [];
       for (let i = 0; i < argArr.length; i++) {
@@ -734,7 +738,7 @@ function KraneDeploymentsList(props) {
 
   const handleDeploymentDelete = () => {
     //listen for pods deleted
-    ipcRenderer.on("deleted_deployment", (event, arg) => {
+    ipcRenderer.once("deleted_deployment", (event, arg) => {
       //parse response to check if successful and if so, close modals and refresh list
 
       props.getDeploymentsInfo();
@@ -761,7 +765,7 @@ function KraneDeploymentsList(props) {
 
   const handleDeploymentRollbackPrevious = () => {
     //listen for pods deleted
-    ipcRenderer.on("rolledBackPrevious_deployment", (event, arg) => {
+    ipcRenderer.once("rolledBackPrevious_deployment", (event, arg) => {
       //parse response to check if successful and if so, close modals and refresh list
 
       props.getDeploymentsInfo();
@@ -788,7 +792,7 @@ function KraneDeploymentsList(props) {
 
   const handleDeploymentRollingRestart = () => {
     //listen for pods deleted
-    ipcRenderer.on("completedRollingRestart_deployment", (event, arg) => {
+    ipcRenderer.once("completedRollingRestart_deployment", (event, arg) => {
       //parse response to check if successful and if so, close modals and refresh list
 
       props.getDeploymentsInfo();
@@ -815,7 +819,7 @@ function KraneDeploymentsList(props) {
 
   const handleDeploymentScale = () => {
     //listen for pods deleted
-    ipcRenderer.on("scaled_deployment", (event, arg) => {
+    ipcRenderer.once("scaled_deployment", (event, arg) => {
       //parse response to check if successful and if so, close modals and refresh list
 
       props.getDeploymentsInfo();
