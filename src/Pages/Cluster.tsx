@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Button from "@mui/material/Button";
 import { Typography, useTheme } from "@mui/material";
-const { ipcRenderer } = require("electron");
+import { ipcRenderer } from "../electron-ipc";
 import SideNav from "../components/Sidebar.js";
 import LaunchIcon from "@mui/icons-material/Launch";
 import { RadioButtonUnchecked } from "@mui/icons-material";

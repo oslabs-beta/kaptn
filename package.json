@@ -23,7 +23,14 @@
     "test": "jest"
   },
   "jest": {
-    "testEnvironment": "jsdom"
+    "testEnvironment": "jsdom",
+    "setupFiles": [
+      "<rootDir>/jest.setup.js"
+    ],
+    "moduleNameMapper": {
+      "^(.*)\\.jsx$": "$1.tsx",
+      "^(.*)\\.js$": ["$1.js", "$1.ts", "$1.tsx"]
+    }
   },
   "author": {
     "name": "Kaptn",

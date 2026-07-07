@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Button from "@mui/material/Button";
 import { useTheme, Box, Modal} from "@mui/material";
-const { ipcRenderer } = require("electron");
+import { ipcRenderer } from "../electron-ipc";
 import CircularProgress from "@mui/material/CircularProgress";
 import Tooltip, { TooltipProps, tooltipClasses } from "@mui/material/Tooltip";
 import { styled } from "@mui/material/styles";
@@ -386,7 +386,7 @@ function KraneNodeList(props) {
   };
 
   const handlePodLogOpen = (pod) => {
-    ipcRenderer.on("podLogsRetrieved", (event, arg) => {
+    ipcRenderer.once("podLogsRetrieved", (event, arg) => {
       let argArr = arg.split("");
       let temp : string = "";
       let output : JSX.Element[] = [];
@@ -417,7 +417,7 @@ function KraneNodeList(props) {
   };
 
   const handlePodYamlOpen = (pod) => {
-    ipcRenderer.on("podYamlRetrieved", (event, arg) => {
+    ipcRenderer.once("podYamlRetrieved", (event, arg) => {
       let argArr = arg.split("/n");
       let output : JSX.Element[] = [];
 
@@ -455,7 +455,7 @@ function KraneNodeList(props) {
 
   const handlePodDelete = () => {
     //listen for pods deleted
-    ipcRenderer.on("deleted_pod", (event, arg) => {
+    ipcRenderer.once("deleted_pod", (event, arg) => {
       //parse response to check if successful and if so, close modals and refresh list
 
       let podsCommand = "kubectl get pods --all-namespaces -o wide";
@@ -500,7 +500,11 @@ function KraneNodeList(props) {
 
 const [count, setCount] = useState(0)
 
-  //Listen to "get nodes" return event
+  //Listen to "get nodes" return event.
+  //removeAllListeners before .on caps this channel at a single listener;
+  //otherwise a new listener was added every render and never removed,
+  //accumulating until the renderer slowed down and crashed.
+  ipcRenderer.removeAllListeners("got_nodes");
   ipcRenderer.on("got_nodes", (event, arg) => {
     let nameOutput: any = [];
     let statusOutput: any = [];
@@ -649,6 +653,7 @@ const [count, setCount] = useState(0)
   }); // ------------------------------------------ end of ipc render for get nodes command
 
   //Listen to "get cpuUsed" return event
+  ipcRenderer.removeAllListeners("got_nodesCpuUsed");
   ipcRenderer.on("got_nodesCpuUsed", (event, arg) => {
     let date = new Date().toISOString();
     // let tempNodesStatsObj = JSON.parse(JSON.stringify(podsStatsObj));
@@ -789,21 +794,21 @@ const [count, setCount] = useState(0)
         nodeUsageArray.findIndex((elem) => elem.nodeName === ele.nodeName)
     );
 
-    for (let j = 0; j < finalNodeUsageArr.length; j++) {
-      filteredNodes[j]["nodeCpuUsed"] = finalNodeUsageArr[j]["nodeCpuUsed"];
-      filteredNodes[j]["nodeCpuPercent"] =
-        finalNodeUsageArr[j]["nodeCpuPercent"];
-      filteredNodes[j]["nodeCpuPercentMath"] =
-        finalNodeUsageArr[j]["nodeCpuPercentMath"];
-      filteredNodes[j]["nodeMemoryUsed"] =
-        finalNodeUsageArr[j]["nodeMemoryUsed"];
-      filteredNodes[j]["nodeMemoryPercent"] =
-        finalNodeUsageArr[j]["nodeMemoryPercent"];
-      filteredNodes[j]["nodeMemoryUsedDisplay"] =
-        finalNodeUsageArr[j]["nodeMemoryUsedDisplay"];
-    }
-
-    props.setNodesArr([...filteredNodes]);
+    props.setNodesArr((currentNodes: any[]) =>
+      currentNodes.map((node: any) => {
+        const stats = finalNodeUsageArr.find((u: any) => u.nodeName === node.name);
+        if (!stats) return node;
+        return {
+          ...node,
+          nodeCpuUsed: stats.nodeCpuUsed,
+          nodeCpuPercent: stats.nodeCpuPercent,
+          nodeCpuPercentMath: stats.nodeCpuPercentMath,
+          nodeMemoryUsed: stats.nodeMemoryUsed,
+          nodeMemoryPercent: stats.nodeMemoryPercent,
+          nodeMemoryUsedDisplay: stats.nodeMemoryUsedDisplay,
+        };
+      })
+    );
 
     for (let j = 0; j < nodeUsageArray.length; j++) {
       if (tempNodesStatsObj[nodeUsageArray[j]["nodeName"]] === undefined) {
@@ -834,6 +839,7 @@ const [count, setCount] = useState(0)
 
   //
   //Listen to "get nodeCpuUsed" return event
+  ipcRenderer.removeAllListeners("got_nodesCpuLimits");
   ipcRenderer.on("got_nodesCpuLimits", (event, arg) => {
     let argArr = arg.split("");
     let nodeLimitsArray : any[] = [];
@@ -968,12 +974,17 @@ const [count, setCount] = useState(0)
         nodeLimitsArray.findIndex((elem) => elem.nodeName === ele.nodeName)
     );
 
-    for (let j = 0; j < lastNodesArr.length; j++) {
-      filteredNodes[j]["nodeCpuLimit"] = lastNodesArr[j]["nodeCpuLimit"];
-      filteredNodes[j]["nodeMemoryLimit"] = lastNodesArr[j]["nodeMemoryLimit"];
-    }
-
-    props.setNodesArr([...filteredNodes]);
+    props.setNodesArr((currentNodes: any[]) =>
+      currentNodes.map((node: any) => {
+        const limits = lastNodesArr.find((u: any) => u.nodeName === node.name);
+        if (!limits) return node;
+        return {
+          ...node,
+          nodeCpuLimit: limits.nodeCpuLimit,
+          nodeMemoryLimit: limits.nodeMemoryLimit,
+        };
+      })
+    );
     props.setNodesLimitsArr([...nodeLimitsArray])
   });
 
@@ -984,7 +995,7 @@ const [count, setCount] = useState(0)
   }, []);
 
   const handleNodeLogOpen = (pod) => {
-    ipcRenderer.on("nodeLogsRetrieved", (event, arg) => {
+    ipcRenderer.once("nodeLogsRetrieved", (event, arg) => {
       let argArr = arg.split("");
       let temp : string = "";
       let output : JSX.Element[]= [];
@@ -1014,7 +1025,7 @@ const [count, setCount] = useState(0)
   };
 
   const handleNodeYamlOpen = (pod) => {
-    ipcRenderer.on("nodeYamlRetrieved", (event, arg) => {
+    ipcRenderer.once("nodeYamlRetrieved", (event, arg) => {
       let argArr = arg.split("/n");
       let output : JSX.Element[] = [];
 
@@ -1060,7 +1071,7 @@ const [count, setCount] = useState(0)
   };
 
   const handleNodeDescribeOpen = (pod) => {
-    ipcRenderer.on("nodeDescribeRetrieved", (event, arg) => {
+    ipcRenderer.once("nodeDescribeRetrieved", (event, arg) => {
       let argArr = arg.split("/n");
       let output : JSX.Element[] = [];
 
@@ -1099,7 +1110,7 @@ const [count, setCount] = useState(0)
 
   const handleNodeDrain = () => {
     //listen for pods deleted
-    ipcRenderer.on("drained_pod", (event, arg) => {
+    ipcRenderer.once("drained_pod", (event, arg) => {
       //parse response to check if successful and if so, close modals and refresh list
 
       props.getNodesInfo();
@@ -1126,7 +1137,7 @@ const [count, setCount] = useState(0)
 
   const handleNodeCordon = () => {
     //listen for pods deleted
-    ipcRenderer.on("cordoned_pod", (event, arg) => {
+    ipcRenderer.once("cordoned_pod", (event, arg) => {
       //parse response to check if successful and if so, close modals and refresh list
 
       props.getNodesInfo();
@@ -1153,7 +1164,7 @@ const [count, setCount] = useState(0)
 
   const handleNodeUncordon = () => {
     //listen for pods deleted
-    ipcRenderer.on("uncordoned_pod", (event, arg) => {
+    ipcRenderer.once("uncordoned_pod", (event, arg) => {
       //parse response to check if successful and if so, close modals and refresh list
 
       props.getNodesInfo();
@@ -1180,7 +1191,7 @@ const [count, setCount] = useState(0)
 
   const handleNodeDelete = () => {
     //listen for pods deleted
-    ipcRenderer.on("deleted_pod", (event, arg) => {
+    ipcRenderer.once("deleted_pod", (event, arg) => {
       //parse response to check if successful and if so, close modals and refresh list
 
       props.getNodesInfo();

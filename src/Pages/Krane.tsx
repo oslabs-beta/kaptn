@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Button from "@mui/material/Button";
 import { useTheme, Box } from "@mui/material";
-const { ipcRenderer } = require("electron");
+import { ipcRenderer } from "../electron-ipc";
 import SideNav from "../components/Sidebar";
 import Tooltip, { TooltipProps, tooltipClasses } from "@mui/material/Tooltip";
 import { styled } from "@mui/material/styles";
@@ -340,6 +340,12 @@ function Krane(props) {
       clearInterval(a);
       props.setIntervalArray([]);
     });
+
+    //remove the namespaces listener on unmount so it doesn't leak a new
+    //listener each time the Krane page is navigated to and back.
+    return () => {
+      ipcRenderer.removeAllListeners("got_namespaces");
+    };
   }, []);
 
   function handleNamespaceChange(event) {

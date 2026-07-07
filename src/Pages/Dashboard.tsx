@@ -18,7 +18,7 @@ import Grid from "@mui/system/Unstable_Grid";
 import SideNav from "../components/Sidebar";
 import DashboardCommandLine from "../components/DashboardCommandLine";
 import Terminal from "../components/Terminal";
-const { ipcRenderer } = require("electron");
+import { ipcRenderer, nodeProcess } from "../electron-ipc";
 import commands from "../components/commands";
 import { Box } from "@mui/system";
 import BoltIcon from "@mui/icons-material/Bolt";
@@ -63,8 +63,8 @@ function Dashboard(): JSX.Element {
   const [currDir, setCurrDir] = useState<string>("NONE SELECTED");
 
   //hack for now to make it work on first load for downloadable version with "users/~" instead of home path... just for first load of page, as changing directory after this fixes shortdir from then on
-  const [shortDir, setShortDir] = process.env.HOME
-    ? React.useState<string>(process.env.HOME.slice(7))
+  const [shortDir, setShortDir] = nodeProcess.env.HOME
+    ? React.useState<string>(nodeProcess.env.HOME.slice(7))
     : React.useState<string>("");
   const [userInput, setUserInput] = useState<string>("");
   const [command, setCommand] = useState<string>("");

@@ -75,6 +75,7 @@ export default withTooltip<AreaProps, TooltipData>(
     const innerWidth = width - margin.left - margin.right;
     const innerHeight = height - margin.top - margin.bottom;
     let selectedNodeStats = nodesStatsObj[`${selectedNode[0]["name"]}`];
+    if (!selectedNodeStats || selectedNodeStats.length === 0) return null;
 
     // scales
     const dateScale = useMemo(

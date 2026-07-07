@@ -57,6 +57,7 @@ export default withTooltip<AreaProps, TooltipData>(
     if (width < 10) return null;
 
     let selectedPodStats = podsStatsObj[`${selectedPod[0]["name"]}`];
+    if (!selectedPodStats || selectedPodStats.length === 0) return null;
 
     const theme = useTheme();
 

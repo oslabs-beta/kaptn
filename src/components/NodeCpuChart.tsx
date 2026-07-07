@@ -57,6 +57,7 @@ export default withTooltip<AreaProps, TooltipData>(
     if (width < 10) return null;
 
     let selectedNodeStats = nodesStatsObj[`${selectedNode[0]["name"]}`];
+    if (!selectedNodeStats || selectedNodeStats.length === 0) return null;
 
     const theme = useTheme();
 

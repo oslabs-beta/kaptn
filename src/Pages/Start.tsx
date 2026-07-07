@@ -4,7 +4,7 @@ import { Box } from "@mui/system";
 import { Typography } from "@mui/material";
 import { Link } from "react-router-dom";
 import { useTheme } from "@mui/material";
-const { ipcRenderer } = require("electron");
+import { ipcRenderer } from "../electron-ipc";
 import CheckIcon from "@mui/icons-material/Check";
 import LinearProgress from "@mui/material/LinearProgress";
 
