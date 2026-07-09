@@ -10,19 +10,5 @@ export default defineConfig({
     port: 4444,
     host: true,
     hmr: true,
-    proxy: {
-      '/api': {
-        target: 'http://localhost:6666',
-        changeOrigin: true,
-      },
-      '/user': {
-        target: 'http://localhost:6666',
-        changeOrigin: true,
-      },
-      '/prom-graf-setup': {
-        target: 'http://localhost:6666',
-        changeOrigin: true,
-      },
-    },
   },
 });

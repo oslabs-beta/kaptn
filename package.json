@@ -7,7 +7,7 @@
   "main": "main.js",
   "scripts": {
     "start": "NODE_ENV='development' electron .",
-    "dev": "concurrently \"NODE_ENV='development' nodemon server/server.js\" \"NODE_ENV='development' vite dev\" --host 0.0.0.0",
+    "dev": "NODE_ENV='development' vite dev --host 0.0.0.0",
     "build": "vite build",
     "build:mwl": "vite build && npm run pack",
     "build64": "vite build && npm run pack64",
@@ -29,7 +29,11 @@
     ],
     "moduleNameMapper": {
       "^(.*)\\.jsx$": "$1.tsx",
-      "^(.*)\\.js$": ["$1.js", "$1.ts", "$1.tsx"]
+      "^(.*)\\.js$": [
+        "$1.js",
+        "$1.ts",
+        "$1.tsx"
+      ]
     }
   },
   "author": {
@@ -59,7 +63,6 @@
     "@visx/vendor": "^3.3.0",
     "concurrently": "^8.0.1",
     "fix-path": "^3.0.0",
-    "nodemon": "^2.0.22",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-pro-sidebar": "^1.0.0",

@@ -1,11 +1,31 @@
 const path = require("path");
-const { app, BrowserWindow, ipcMain, ipcRenderer } = require("electron");
+const { app, BrowserWindow, ipcMain, ipcRenderer, session } = require("electron");
 const { exec, spawnSync, spawn, execSync } = require("child_process");
 const fixPath = require("fix-path");
 
 // const storage = require("electron-json-storage");
 
 const isDev = process.env.NODE_ENV === "development";
+
+// Command to read the Grafana admin password from the cluster secret. Uses the
+// standard grafana chart label so it is independent of the Helm release name or
+// namespace.
+const GRAFANA_PASSWORD_COMMAND =
+  "kubectl get secret -l app.kubernetes.io/name=grafana --all-namespaces -o jsonpath='{.items[0].data.admin-password}' | base64 --decode";
+
+// Resolve the live Grafana admin password. Resolves to "" if the secret can't
+// be read, letting each caller choose its own fallback. Never logs the value.
+function getGrafanaPassword() {
+  return new Promise((resolve) => {
+    exec(
+      GRAFANA_PASSWORD_COMMAND,
+      { cwd: process.env.ZDOTDIR },
+      (err, stdout) => {
+        resolve(err || !stdout ? "" : stdout.trim());
+      }
+    );
+  });
+}
 
 function createMainWindow() {
   const mainWindow = new BrowserWindow({
@@ -19,6 +39,8 @@ function createMainWindow() {
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
+      // enables the <webview> tag used to embed the Grafana dashboard inline
+      webviewTag: true,
       // enableRemoteModule: true,
     },
   });
@@ -1508,68 +1530,108 @@ ipcMain.on("kill_port", (event, arg) => {
   });
 });
 
+// retrieve the live Grafana admin password from the cluster secret.
+// Uses the standard grafana chart label so it works regardless of the Helm
+// release name or namespace, rather than a hardcoded secret name.
+ipcMain.on("get_grafana_password", (event, arg) => {
+  getGrafanaPassword().then((password) => {
+    // don't log the password — it's a plaintext credential
+    event.sender.send(
+      "get_grafana_password",
+      password || "COULD NOT RETRIEVE"
+    );
+  });
+});
+
 // step 4 - retrieve uid and launch metrics analyzer in new browser window
 ipcMain.on("retrieve_key", (event, arg) => {
-  const cacheKey = "api_key";
-
-  // Helper function to retrieve the API key and then UID
-  const getAPIKey = async () => {
+  // Find the dashboard's UID, then open it in an authenticated in-app window.
+  const launchDashboard = async () => {
     try {
-      // If the API key is not in the cache, fetch it from the API
-      const response = await fetch("http://localhost:3000/api/serviceaccounts", {
-        method: "POST",
-        mode: "no-cors",
-        headers: {
-          Authorization:
-            "Basic " + Buffer.from("admin:prom-operator").toString("base64"),
-          Accept: "*/*",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: Math.random().toString(36).substring(7),
-          role: "Admin",
-          secondsToLive: 86400,
-        }),
-      });
+      // Use the live Grafana password; fall back to the chart default so an
+      // old-default install still works if the secret can't be read.
+      const password = (await getGrafanaPassword()) || "prom-operator";
+      const basicAuth =
+        "Basic " + Buffer.from(`admin:${password}`).toString("base64");
 
-      const data = await response.json();
-      console.log('data1 is', data)
-      let key = data.key;
-
-      const arg = {
-        dashboard: "Kubernetes / API server",
-      };
-      const { dashboard } = arg;
-
-      let encodedDash = encodeURIComponent(dashboard);
-      // If the UID is not in the cache, fetch it from the API
-      let response2 = await fetch(
-        `http://localhost:3000/api/search?query=${encodedDash}`,
+      // Look up the dashboard's UID by title (authenticated with Basic auth).
+      const dashboard = "Kubernetes / API server";
+      const searchRes = await fetch(
+        `http://localhost:3000/api/search?query=${encodeURIComponent(dashboard)}`,
         {
           method: "GET",
           headers: {
-            Authorization: `Bearer ${key}`,
+            Authorization: basicAuth,
             "Content-Type": "application/json",
           },
         }
       );
+      const results = await searchRes.json();
+      // /api/search returns an array of matches; the UID lives on the result
+      // itself. The old code read it from the service-account response, which
+      // is why the dashboard link never resolved.
+      const uid =
+        Array.isArray(results) && results.length ? results[0].uid : null;
+      if (!uid) {
+        return event.sender.send("retrieve_key", "Error: dashboard not found");
+      }
 
-      let data2 = await response2.json();
-      console.log('data2 is', data2)
-      let uid = data.uid;
+      // Relative time range so each 10s refresh rolls the window forward and
+      // live data keeps appearing. Absolute from/to timestamps froze the view
+      // at the launch moment — refreshes kept re-fetching the same hour.
+      const url = `http://localhost:3000/d/${uid}/kubernetes-api-server?orgId=1&refresh=10s&from=now-24h&to=now&kiosk`;
 
-      const now = new Date().getTime();
-      const from = new Date(now - 60 * 60 * 1000).getTime();
-      let url = `http://localhost:3000/d/${uid}/kubernetes-api-server?orgId=1&refresh=10s&from=${from}&to=${now}&kiosk=true?username=admin&password=prom-operator`;
-      console.log('url is', url)
-      require("electron").shell.openExternal(url);
-      return event.sender.send("retrieve_key", `true`);
+      // Inject Basic auth on every request to Grafana in this window's session
+      // so it lands directly on the dashboard, past the login screen. This is
+      // the reason we can't use shell.openExternal — that hands the URL to the
+      // user's browser, which carries no auth, so Grafana shows its login page.
+      const grafanaSession = session.fromPartition("grafana-metrics");
+      grafanaSession.webRequest.onBeforeSendHeaders((details, callback) => {
+        if (details.url.startsWith("http://localhost:3000")) {
+          callback({
+            requestHeaders: {
+              ...details.requestHeaders,
+              Authorization: basicAuth,
+            },
+          });
+        } else {
+          callback({ requestHeaders: details.requestHeaders });
+        }
+      });
+
+      // Hand the resolved URL back to the renderer, which embeds it in a
+      // <webview partition="grafana-metrics"> — the same partition whose
+      // requests we just authenticated above, so it renders past the login
+      // screen inline in the page instead of a separate window.
+      return event.sender.send("retrieve_key", url);
     } catch (error) {
       return event.sender.send("retrieve_key", `Error: ${error}`);
     }
   };
 
-  getAPIKey();
+  launchDashboard();
+});
+
+// Background stats collection — dedicated channels (separate from Krane's
+// got_cpuUsed/got_nodesCpuUsed) so the app can accumulate CPU/memory history
+// from launch without colliding with Krane's own listeners. Errors are
+// swallowed (no cluster / metrics-server yet) so nothing is sent to collect.
+ipcMain.on("bgPodStats_command", (event, arg) => {
+  exec(
+    "kubectl top pods --all-namespaces",
+    { cwd: process.env.ZDOTDIR },
+    (err, stdout) => {
+      if (err || !stdout) return;
+      event.sender.send("bg_got_podStats", stdout);
+    }
+  );
+});
+
+ipcMain.on("bgNodeStats_command", (event, arg) => {
+  exec("kubectl top nodes", { cwd: process.env.ZDOTDIR }, (err, stdout) => {
+    if (err || !stdout) return;
+    event.sender.send("bg_got_nodeStats", stdout);
+  });
 });
 
 // Load the main window

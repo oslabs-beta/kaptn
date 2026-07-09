@@ -1,5 +1,5 @@
 import React from "react";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, act } from "@testing-library/react";
 import Cluster from "../../src/Pages/Cluster";
 import "@testing-library/jest-dom";
 import { BrowserRouter } from "react-router-dom";
@@ -8,9 +8,12 @@ jest.mock("electron", () => {
   const mElectron = {
     ipcRenderer: {
       on: jest.fn(),
+      once: jest.fn(),
       send: jest.fn(),
       removeListener: jest.fn(),
+      removeAllListeners: jest.fn(),
     },
+    clipboard: { writeText: jest.fn() },
   };
   return mElectron;
 });
@@ -61,17 +64,47 @@ describe("Cluster page", () => {
     expect(screen.getByText("Start port forwarding")).toBeInTheDocument();
   });
 
-  it("renders the LOG IN THROUGH BROWSER button", () => {
-    expect(screen.getByText(/LOG IN THROUGH BROWSER/)).toBeInTheDocument();
+  it("renders the OPEN METRICS VISUALIZER button", () => {
+    expect(screen.getByText(/OPEN METRICS VISUALIZER/)).toBeInTheDocument();
   });
 
   it("renders the HELPFUL TIP section", () => {
     expect(screen.getByText("HELPFUL TIP!")).toBeInTheDocument();
   });
 
-  it("displays default Grafana credentials", () => {
+  it("requests the live Grafana password on mount", () => {
+    const { ipcRenderer } = require("electron");
+    expect(ipcRenderer.send).toHaveBeenCalledWith("get_grafana_password");
+  });
+
+  it("masks the fetched Grafana password until revealed", () => {
+    const { ipcRenderer } = require("electron");
     expect(screen.getByText("admin")).toBeInTheDocument();
-    expect(screen.getByText("prom-operator")).toBeInTheDocument();
+
+    // simulate the main process returning the live password over IPC
+    const call = ipcRenderer.once.mock.calls
+      .filter((c) => c[0] === "get_grafana_password")
+      .pop();
+    const respond = call[1];
+    act(() => respond(null, "test-grafana-pw-123"));
+
+    // masked by default
+    expect(screen.queryByText("test-grafana-pw-123")).not.toBeInTheDocument();
+
+    // reveal it
+    fireEvent.click(screen.getByTitle("Reveal password"));
+    expect(screen.getByText("test-grafana-pw-123")).toBeInTheDocument();
+  });
+
+  it("copies the password to the clipboard", () => {
+    const { ipcRenderer, clipboard } = require("electron");
+    const call = ipcRenderer.once.mock.calls
+      .filter((c) => c[0] === "get_grafana_password")
+      .pop();
+    act(() => call[1](null, "test-grafana-pw-123"));
+
+    fireEvent.click(screen.getByTitle("Copy password"));
+    expect(clipboard.writeText).toHaveBeenCalledWith("test-grafana-pw-123");
   });
 
   it("sends prom_setup IPC message when Prometheus button clicked", () => {
@@ -97,7 +130,7 @@ describe("Cluster page", () => {
 
   it("sends retrieve_key IPC message when launch button clicked", () => {
     const { ipcRenderer } = require("electron");
-    const button = screen.getByText(/LOG IN THROUGH BROWSER/);
+    const button = screen.getByText(/OPEN METRICS VISUALIZER/);
     fireEvent.click(button);
     expect(ipcRenderer.send).toHaveBeenCalledWith("retrieve_key");
   });
