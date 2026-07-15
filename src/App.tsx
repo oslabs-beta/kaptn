@@ -7,7 +7,13 @@ import Topbar from "./components/Topbar.js";
 import Setup from "./Pages/Setup.js";
 import { ColorModeContext, useMode } from "./theme.js";
 import { CssBaseline, ThemeProvider } from "@mui/material";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { ipcRenderer } from "./electron-ipc";
+import { parseTopStats } from "./lib/parseTopStats";
+
+// cap history per pod/node so a long-running session doesn't grow unbounded:
+// 5760 points at the 15s cadence below is ~24h of data.
+const MAX_STATS_POINTS = 5760;
 
 function App() {
   const [theme, colorMode] = useMode();
@@ -19,7 +25,53 @@ function App() {
   const [podsStatsObj, setPodsStatsObj] = useState({});
   const [nodesStatsObj, setNodesStatsObj] = useState({});
   const [intervalArray, setIntervalArray] = useState([]);
-  
+
+  // Collect CPU/memory history for pods and nodes from the moment the app
+  // opens (not just when Krane is visited), so the charts have backfilled data
+  // the first time you open them. Krane keeps appending to the same objects
+  // when it's open — this just seeds and continues them cluster-wide.
+  useEffect(() => {
+    const appendStats = (setter, parsed) => {
+      const date = new Date().toISOString();
+      setter((prev) => {
+        const next = { ...prev };
+        for (const s of parsed) {
+          const point = {
+            date,
+            cpu: s.cpu,
+            memory: s.memory,
+            memoryDisplay: s.memoryDisplay,
+          };
+          const arr = next[s.name] ? [...next[s.name], point] : [point];
+          next[s.name] =
+            arr.length > MAX_STATS_POINTS ? arr.slice(-MAX_STATS_POINTS) : arr;
+        }
+        return next;
+      });
+    };
+
+    const onPods = (_event, arg) =>
+      appendStats(setPodsStatsObj, parseTopStats(arg, "pods"));
+    const onNodes = (_event, arg) =>
+      appendStats(setNodesStatsObj, parseTopStats(arg, "nodes"));
+
+    ipcRenderer.on("bg_got_podStats", onPods);
+    ipcRenderer.on("bg_got_nodeStats", onNodes);
+
+    const collect = () => {
+      ipcRenderer.send("bgPodStats_command");
+      ipcRenderer.send("bgNodeStats_command");
+    };
+    collect(); // seed immediately on app open
+    const id = setInterval(collect, 15000);
+
+    return () => {
+      clearInterval(id);
+      ipcRenderer.removeListener("bg_got_podStats", onPods);
+      ipcRenderer.removeListener("bg_got_nodeStats", onNodes);
+    };
+  }, []);
+
 
   // Hash router is used here to optimize for static file serving from Electron
   // More information here: https://reactrouter.com/en/main/router-components/hash-router

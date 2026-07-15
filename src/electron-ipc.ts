@@ -11,7 +11,7 @@
 // NOTE: if the app ever moves to `contextIsolation: true` /
 // `nodeIntegration: false`, replace this module with a preload script +
 // contextBridge — this is the only file that would need to change.
-export const { ipcRenderer } = (window as any).require("electron");
+export const { ipcRenderer, clipboard } = (window as any).require("electron");
 
 // Node's `process` global, exposed on `window` by Electron when
 // `nodeIntegration: true`. Renderer code should use this export instead of the
