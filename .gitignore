@@ -1,6 +1,7 @@
 node_modules
 build/
 dist/
+release/
 .DS_Store
 **/.DS_Store
 src/.DS_Store

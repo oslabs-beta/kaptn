@@ -1,4 +1,5 @@
 const path = require("path");
+const fs = require("fs");
 const { app, BrowserWindow, ipcMain, ipcRenderer, session } = require("electron");
 const { exec, spawnSync, spawn, execSync } = require("child_process");
 const fixPath = require("fix-path");
@@ -1503,31 +1504,90 @@ ipcMain.on("graf_setup", (event, arg) => {
 });
 
 // Listen to forward_ports event
-ipcMain.on("forward_ports", (event, arg) => {
-  let returnData = "";
-  const ports = spawn(
-    `kubectl port-forward deployment/prometheus666-grafana 3000`,
-    {
-      shell: true,
-    }
+// ---- Grafana port-forward (auto-managed) -----------------------------------
+// The app forwards localhost:3000 -> Grafana so it can reach Prometheus (for
+// the metrics dashboard and the Krane history charts). We start this
+// automatically on launch and kill/retry if the port is busy, so Prometheus
+// stats are ready even if the user goes straight to Krane.
+let grafanaForwardProc = null;
+let grafanaForwardActive = false;
+
+function broadcastForwardStatus() {
+  BrowserWindow.getAllWindows().forEach((w) =>
+    w.webContents.send("port_forward_status", grafanaForwardActive)
   );
+}
 
-  ports.stderr.on("data", (data) => {
-    returnData = `port forwarding error: ${data}`;
-    return event.sender.send("forward_ports", returnData);
+// free whatever currently holds :3000 (a stale forward, a previous app run, or
+// a manual one) so we can bind it ourselves
+function killPort3000() {
+  return new Promise((resolve) => {
+    const k = spawn("kill -9 $(lsof -ti:3000)", { shell: true });
+    k.on("close", () => resolve());
+    k.on("error", () => resolve());
+  });
+}
+
+async function startGrafanaPortForward(attempt = 0) {
+  const MAX_ATTEMPTS = 4;
+  if (grafanaForwardActive) {
+    broadcastForwardStatus();
+    return;
+  }
+  if (attempt === 0) await killPort3000(); // clear anything stale first
+
+  const proc = spawn(
+    "kubectl port-forward deployment/prometheus666-grafana 3000",
+    { shell: true }
+  );
+  grafanaForwardProc = proc;
+  let succeeded = false;
+
+  proc.stdout.on("data", (data) => {
+    if (!succeeded && data.toString().includes("Forwarding from")) {
+      succeeded = true;
+      grafanaForwardActive = true;
+      broadcastForwardStatus();
+    }
   });
 
-  ports.stdout.on("data", (data) => {
-    returnData = `stdout: ${data}`;
-    return event.sender.send("forward_ports", returnData);
+  proc.on("close", async () => {
+    grafanaForwardProc = null;
+    if (succeeded) {
+      // was working, then died (cluster gone, network, etc.)
+      grafanaForwardActive = false;
+      broadcastForwardStatus();
+      return;
+    }
+    if (attempt < MAX_ATTEMPTS) {
+      await killPort3000();
+      setTimeout(() => startGrafanaPortForward(attempt + 1), 700);
+    } else {
+      broadcastForwardStatus(); // give up quietly (likely no grafana installed)
+    }
   });
+
+  proc.on("error", () => {}); // failures surface via the close handler
+}
+
+// Cluster page (re)triggers a forward from its step-3 button.
+ipcMain.on("forward_ports", () => startGrafanaPortForward());
+
+// Cluster page asks for the current status on mount so step 3 reflects reality.
+ipcMain.on("getPortForwardStatus", (event) => {
+  event.sender.send("port_forward_status", grafanaForwardActive);
 });
 
-// Listen to forward_ports kill port event
-ipcMain.on("kill_port", (event, arg) => {
-  const ports = spawn(`kill -9 $(lsof -ti:3000)`, {
-    shell: true,
-  });
+// Manual kill (kept for the existing UI control).
+ipcMain.on("kill_port", () => {
+  if (grafanaForwardProc) {
+    try {
+      grafanaForwardProc.kill();
+    } catch (e) {}
+    grafanaForwardProc = null;
+  }
+  grafanaForwardActive = false;
+  killPort3000().then(broadcastForwardStatus);
 });
 
 // retrieve the live Grafana admin password from the cluster secret.
@@ -1634,7 +1694,118 @@ ipcMain.on("bgNodeStats_command", (event, arg) => {
   });
 });
 
+// Format a byte count the way the charts display memory (e.g. "120Mi", "2.1Gi").
+function formatMemDisplay(bytes) {
+  const mi = bytes / 1048576;
+  if (mi >= 1024) return `${(mi / 1024).toFixed(1)}Gi`;
+  return `${Math.round(mi)}Mi`;
+}
+
+const PROM_PROXY =
+  "http://localhost:3000/api/datasources/proxy/uid/prometheus/api/v1/query_range";
+
+// Query Prometheus (through Grafana's datasource proxy, reusing the Basic auth)
+// for a pod/node CPU+memory range, normalized to the SAME shape and units the
+// charts already use for local kubectl-top data: cpu in millicores, memory as
+// Mi*1000, plus an ISO date and display string. Powers the optional
+// "Prometheus" history source in the Krane charts.
+ipcMain.on("promRangeQuery", async (event, arg) => {
+  const { reqId, kind, name, rangeSeconds } = arg;
+  try {
+    const password = (await getGrafanaPassword()) || "prom-operator";
+    const auth = "Basic " + Buffer.from(`admin:${password}`).toString("base64");
+    const end = Math.floor(Date.now() / 1000);
+    const start = end - rangeSeconds;
+    const step = Math.max(15, Math.round(rangeSeconds / 300)); // ~300 points
+    const label = kind === "pod" ? "pod" : "node";
+    const cpuQ = `sum(rate(container_cpu_usage_seconds_total{${label}="${name}"}[5m]))`;
+    const memQ = `sum(container_memory_working_set_bytes{${label}="${name}"})`;
+
+    const runQuery = async (q) => {
+      const url = `${PROM_PROXY}?query=${encodeURIComponent(
+        q
+      )}&start=${start}&end=${end}&step=${step}`;
+      const res = await fetch(url, { headers: { Authorization: auth } });
+      const json = await res.json();
+      return json?.data?.result?.[0]?.values || [];
+    };
+
+    const [cpuVals, memVals] = await Promise.all([runQuery(cpuQ), runQuery(memQ)]);
+    const memByTs = new Map(memVals.map(([t, v]) => [t, Number(v)]));
+    const series = cpuVals.map(([t, v]) => {
+      const bytes = memByTs.get(t) || 0;
+      return {
+        date: new Date(t * 1000).toISOString(),
+        cpu: Math.round(Number(v) * 1000),
+        memory: Math.round((bytes / 1048576) * 1000),
+        memoryDisplay: formatMemDisplay(bytes),
+      };
+    });
+    event.sender.send("prom_range_result", { reqId, name, series, ok: true });
+  } catch (error) {
+    event.sender.send("prom_range_result", { reqId, name, series: [], ok: false });
+  }
+});
+
+// Lightweight check: is the Prometheus datasource reachable through Grafana?
+// (Requires the Grafana port-forward to be running.) Used to enable/disable the
+// Prometheus source toggle in the UI.
+ipcMain.on("promAvailable", async (event, arg) => {
+  try {
+    const password = (await getGrafanaPassword()) || "prom-operator";
+    const auth = "Basic " + Buffer.from(`admin:${password}`).toString("base64");
+    const res = await fetch(
+      "http://localhost:3000/api/datasources/proxy/uid/prometheus/api/v1/query?query=up",
+      { headers: { Authorization: auth } }
+    );
+    event.sender.send("prom_available", res.ok);
+  } catch (error) {
+    event.sender.send("prom_available", false);
+  }
+});
+
+// ---- persisted chart history ------------------------------------------------
+// The renderer's kubectl-top stats buffer is saved here periodically and
+// reloaded on the next launch, so the usage charts keep last session's data.
+const statsHistoryFile = () =>
+  path.join(app.getPath("userData"), "stats-history.json");
+
+ipcMain.on("loadStatsHistory", (event) => {
+  fs.readFile(statsHistoryFile(), "utf8", (err, data) => {
+    if (err) return event.sender.send("stats_history_loaded", null);
+    try {
+      event.sender.send("stats_history_loaded", JSON.parse(data));
+    } catch (e) {
+      event.sender.send("stats_history_loaded", null);
+    }
+  });
+});
+
+ipcMain.on("saveStatsHistory", (event, payload) => {
+  // write to a temp file then rename, so a quit mid-write can't leave a
+  // corrupt half-file behind
+  const file = statsHistoryFile();
+  const tmp = file + ".tmp";
+  fs.writeFile(tmp, JSON.stringify(payload), (err) => {
+    if (err) return;
+    fs.rename(tmp, file, () => {});
+  });
+});
+
 // Load the main window
 app.whenReady().then(() => {
   createMainWindow();
+  // Kick off the Grafana port-forward right away so Prometheus history is
+  // available even if the user opens Krane before visiting the cluster page.
+  startGrafanaPortForward();
+});
+
+// Tear the forward down cleanly on quit so we don't leave an orphaned
+// kubectl process holding port 3000.
+app.on("before-quit", () => {
+  if (grafanaForwardProc) {
+    try {
+      grafanaForwardProc.kill();
+    } catch (e) {}
+  }
 });

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Button from "@mui/material/Button";
 import {  useTheme, Box, Modal } from "@mui/material";
 import { ipcRenderer } from "../electron-ipc";
@@ -8,6 +8,8 @@ import { styled } from "@mui/material/styles";
 import SortIcon from "@mui/icons-material/Sort";
 import PodCpuChart from "./PodCpuChart";
 import PodMemoryChart from "./PodMemoryChart";
+import ChartControls from "./ChartControls";
+import { useChartHistory } from "../hooks/useChartHistory";
 
 
 const LightTooltip = styled(({ className, ...props }: TooltipProps) => (
@@ -64,6 +66,9 @@ function KranePodList(props) {
 
   const [showExpandedPodMemoryChart, setShowExpandedPodMemoryChart] =
     useState(false);
+
+  // source (kubectl top / Prometheus) + time-range for the expanded pod charts
+  const podChart = useChartHistory("pod", props.selectedPod?.[0]?.["name"] || "");
 
   const theme = useTheme();
 
@@ -172,6 +177,14 @@ function KranePodList(props) {
   } // ---------------------- end of handle click function to refresh pods
 
   let podsArrOutput: any = [];
+
+  // Latest usage/limits responses, stashed so a pods-list refresh can restore
+  // them even if `kubectl top` returned before `kubectl get pods` (that race
+  // used to leave stats wiped — pods stuck on LOADING for a whole cycle).
+  const lastPodUsageRef = useRef<any[]>([]);
+  const lastPodLimitsRef = useRef<any[]>([]);
+  // the list as it was just before the current refresh wiped it
+  const prevPodsRef = useRef<any[]>([]);
 
   //Listen to "get pods" return event and set pods array.
   //removeAllListeners before .on caps this channel at a single listener:
@@ -400,8 +413,90 @@ function KranePodList(props) {
         ind === podsArrOutput.findIndex((elem) => elem.name === ele.name)
     );
 
-    props.setPodsArr([...filteredPods]);
-    props.setAllPodsArr([...filteredPods]);
+    // Publish the fresh list with empty stats first — that produces the brief
+    // LOADING sweep on the gauges each refresh — then restore the last-known
+    // stats ~300ms later, so the sweep always ends in about half a second
+    // and stats can never be stuck on LOADING for a whole cycle (which used to
+    // happen when `kubectl top` finished before `kubectl get pods`). Fresh
+    // stats overwrite these restored values whenever they land.
+    props.setPodsArr((currentPods: any[]) => {
+      prevPodsRef.current = currentPods;
+      props.setAllPodsArr([...filteredPods]);
+      return [...filteredPods];
+    });
+
+    setTimeout(() => {
+      const percentOf = (used: any, limit: any) => {
+        if (limit === "NONE") return "N/A";
+        let p = (Number(used) / Number(limit)) * 100;
+        if (p >= 100) return 100;
+        return p % 1 !== 0 ? Number(p.toFixed(1)) : p;
+      };
+      props.setPodsArr((currentPods: any[]) => {
+        const merged = currentPods.map((pod: any) => {
+          const prev =
+            prevPodsRef.current.find((p: any) => p.name === pod.name) ||
+            ({} as any);
+          const usage =
+            lastPodUsageRef.current.find((u: any) => u.podName === pod.name) ||
+            ({} as any);
+          const limits =
+            lastPodLimitsRef.current.find(
+              (u: any) => u.podName === pod.name
+            ) || ({} as any);
+          const out = {
+            ...pod,
+            podCpuUsed:
+              pod.podCpuUsed || usage.podCpuUsed || prev.podCpuUsed || "",
+            podMemoryUsed:
+              pod.podMemoryUsed ||
+              usage.podMemoryUsed ||
+              prev.podMemoryUsed ||
+              "",
+            podMemoryUsedDisplay:
+              pod.podMemoryUsedDisplay ||
+              usage.podMemoryUsedDisplay ||
+              prev.podMemoryUsedDisplay ||
+              "",
+            podCpuLimit:
+              pod.podCpuLimit || limits.podCpuLimit || prev.podCpuLimit || "",
+            podMemoryLimit:
+              pod.podMemoryLimit ||
+              limits.podMemoryLimit ||
+              prev.podMemoryLimit ||
+              "",
+            podMemoryLimitDisplay:
+              pod.podMemoryLimitDisplay ||
+              limits.podMemoryLimitDisplay ||
+              prev.podMemoryLimitDisplay ||
+              "",
+            podCpuPercent: pod.podCpuPercent || prev.podCpuPercent || "",
+            podMemoryPercent:
+              pod.podMemoryPercent || prev.podMemoryPercent || "",
+            podContainers:
+              (pod.podContainers && pod.podContainers.length
+                ? pod.podContainers
+                : prev.podContainers) || [],
+          };
+          if (!out.podCpuPercent && out.podCpuUsed !== "" && out.podCpuLimit) {
+            out.podCpuPercent = percentOf(out.podCpuUsed, out.podCpuLimit);
+          }
+          if (
+            !out.podMemoryPercent &&
+            out.podMemoryUsed !== "" &&
+            out.podMemoryLimit
+          ) {
+            out.podMemoryPercent = percentOf(
+              out.podMemoryUsed,
+              out.podMemoryLimit
+            );
+          }
+          return out;
+        });
+        props.setAllPodsArr(merged);
+        return merged;
+      });
+    }, 500);
   }); // --------------------------end of ipc render to get all pods o wide info  -
 
   // ----------------------------------- Listen to "get cpuUsed" return event
@@ -529,6 +624,9 @@ function KranePodList(props) {
 
       podUsageArray.push(pod);
     } //end of for loop
+
+    // stash for got_pods to re-apply if this response won the race
+    lastPodUsageRef.current = podUsageArray;
 
     props.setPodsArr((currentPods: any[]) => {
       const updated = currentPods.map((pod: any) => {
@@ -696,6 +794,9 @@ function KranePodList(props) {
       (ele: any, ind: number) =>
         ind === podLimitsArray.findIndex((elem) => elem.podName === ele.podName)
     );
+
+    // stash for got_pods to re-apply if this response won the race
+    lastPodLimitsRef.current = lastPodsArr;
 
     props.setPodsArr((currentPods: any[]) => {
       const updatedPods = currentPods.map((pod: any) => {
@@ -892,8 +993,22 @@ function KranePodList(props) {
 
   useEffect(() => {
     props.getPodsAndContainers();
-    
+
   }, []); // end of use effect to get pods info on page open
+
+  // Keep the open pod-detail modal live: re-sync selectedPod with the latest
+  // pods array on each refresh so its gauges update (and briefly show LOADING)
+  // instead of freezing at the click-time snapshot.
+  useEffect(() => {
+    props.setSelectedPod((prev: any) => {
+      const name = prev?.[0]?.name;
+      if (!name) return prev;
+      const fresh =
+        (props.allPodsArr || []).find((p: any) => p.name === name) ||
+        (props.podsArr || []).find((p: any) => p.name === name);
+      return fresh ? [fresh] : prev;
+    });
+  }, [props.allPodsArr, props.podsArr]);
 
   //------------------------------------------------------------- END OF GET ALL POD INFO SECTION ---
 
@@ -2293,7 +2408,9 @@ function KranePodList(props) {
                             theme.palette.mode === "dark"
                               ? "#ffffff99"
                               : "darkpurple",
-                          margin: "0px 0 0px 0px",
+                          // nudged down so the column lines up with the CPU
+                          // and MEMORY sections to its right
+                          margin: "41px 0 0px 0px",
                           fontSize: "17px",
                           fontWeight: "300",
                           lineHeight: "29px",
@@ -2335,15 +2452,36 @@ function KranePodList(props) {
                           flexDirection: "column",
                           width: "510px",
                           height: "240px",
+                          // raised slightly to sit even with the pod info
+                          // column on the left
+                          margin: "-10px 0 0 0",
                         }}
                       >
+                        <div
+                          style={{
+                            display: "flex",
+                            width: "510px",
+                            justifyContent: "flex-end",
+                            margin: "6px 0 0 0",
+                          }}
+                        >
+                          <div
+                            style={{
+                              width: "260px",
+                              display: "flex",
+                              justifyContent: "center",
+                            }}
+                          >
+                            <ChartControls {...podChart} />
+                          </div>
+                        </div>
                         <div
                           style={{
                             display: "flex",
                             flexDirection: "row",
                             justifyContent: "center",
                             width: "510px",
-                            margin: "0 0 5px -25px",
+                            margin: "2px 0 5px -25px",
                           }}
                         >
                           {" "}
@@ -2420,19 +2558,27 @@ function KranePodList(props) {
                             />
                             <div
                               style={{
+                                // fixed box + flex centering so "LOADING" can
+                                // shrink without changing the footprint (which
+                                // would reflow the section)
                                 position: "relative",
                                 top: "-95px",
                                 left: "0px",
-                                fontSize:
-                                  props.selectedPod[0]["podCpuPercent"] ===
-                                  "N/A"
-                                    ? "32px"
-                                    : "42px",
+                                height: "48px",
+                                width: "100px",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                whiteSpace: "nowrap",
+                                fontSize: !props.selectedPod[0]["podCpuPercent"]
+                                  ? "18px"
+                                  : props.selectedPod[0]["podCpuPercent"] ===
+                                    "N/A"
+                                  ? "32px"
+                                  : "42px",
                                 fontWeight: "800",
-                                marginTop: props.selectedPod[0]["podCpuLimit"] ===
-                                "NONE"
-                                  ? "-50px" : "-60px",
-                                marginLeft: "-37px",
+                                marginTop: "-50px",
+                                marginLeft: "-39px",
                                 color:
                                   props.selectedPod[0]["podCpuPercent"] ===
                                   "N/A" && theme.palette.mode === "dark"
@@ -2450,7 +2596,9 @@ function KranePodList(props) {
                                     : "yellow",
                               }}
                             >
-                              {props.selectedPod[0]["podCpuPercent"] === "N/A"
+                              {!props.selectedPod[0]["podCpuPercent"]
+                                ? "LOADING"
+                                : props.selectedPod[0]["podCpuPercent"] === "N/A"
                                 ? `NO MAX`
                                 : `${props.selectedPod[0]["podCpuPercent"]}%`}
                             </div>
@@ -2518,8 +2666,11 @@ function KranePodList(props) {
                               }}
                             >
                               {" "}
-                              {props.selectedPod[0]["podCpuUsed"].toUpperCase()}
-                              m{" "}
+                              {!props.selectedPod[0]["podCpuUsed"]
+                                ? "~"
+                                : `${props.selectedPod[0][
+                                    "podCpuUsed"
+                                  ].toUpperCase()}m`}{" "}
                             </div>
                             <div
                               style={{ color: theme.palette.mode === "dark" ? "#ffffff80" : "#00000050", fontSize: "12px" }}
@@ -2529,15 +2680,18 @@ function KranePodList(props) {
                             </div>
                             <div
                               style={{
+                                // fixed-height flex box so NONE/number/loading
+                                // size changes never reflow the label (no jump)
+                                height: "30px",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
                                 fontSize:
                                   props.selectedPod[0]["podCpuLimit"] === "NONE"
                                     ? "20px"
                                     : "28px",
                                 fontWeight: "700",
-                                margin:
-                                  props.selectedPod[0]["podCpuLimit"] === "NONE"
-                                    ? "6px 0 -8px 0"
-                                    : "0px 0 -10px 0",
+                                margin: "0px 0 -6px 0",
                                 color:
                                   props.selectedPod[0]["podCpuPercent"] ===
                                   "N/A" && theme.palette.mode === "dark"
@@ -2555,7 +2709,9 @@ function KranePodList(props) {
                               }}
                             >
                               {" "}
-                              {props.selectedPod[0]["podCpuLimit"] === "NONE"
+                              {!props.selectedPod[0]["podCpuLimit"]
+                                ? "~"
+                                : props.selectedPod[0]["podCpuLimit"] === "NONE"
                                 ? "NONE"
                                 : `${props.selectedPod[0][
                                     "podCpuLimit"
@@ -2568,31 +2724,42 @@ function KranePodList(props) {
                               CPU LIMIT{" "}
                             </div>
                           </div>
-                          <LightTooltip
-                            title="CPU USAGE OVER TIME - CLICK TO EXPAND"
-                            placement="top"
-                            arrow
-                            enterDelay={1000}
-                            leaveDelay={100}
-                            enterNextDelay={3000}
-                          >
                           <div
-                              onClick={handlePodCpuChartOpen}
                             style={{
                               display: "flex",
-                              borderRadius: "15px",
-                              height: "93px",
-                              border: theme.palette.mode === "dark" ? "1.5px solid #ffffff50" : "1.5px solid #00000030",
+                              flexDirection: "column",
+                              alignItems: "center",
+                              width: "260px",
                             }}
                           >
-                            <PodCpuChart
-                              width={230}
-                              height={90}
-                              selectedPod={props.selectedPod}
-                              podsStatsObj={props.podsStatsObj}
-                            />
+                            <LightTooltip
+                              title="CPU USAGE OVER TIME - CLICK TO EXPAND"
+                              placement="top"
+                              arrow
+                              enterDelay={1000}
+                              leaveDelay={100}
+                              enterNextDelay={3000}
+                            >
+                            <div
+                                onClick={handlePodCpuChartOpen}
+                              style={{
+                                display: "flex",
+                                borderRadius: "15px",
+                                height: "93px",
+                                border: theme.palette.mode === "dark" ? "1.5px solid #ffffff50" : "1.5px solid #00000030",
+                              }}
+                            >
+                              <PodCpuChart
+                                width={230}
+                                height={90}
+                                selectedPod={props.selectedPod}
+                                podsStatsObj={podChart.getStatsObj(
+                                  props.podsStatsObj
+                                )}
+                              />
+                            </div>
+                            </LightTooltip>
                           </div>
-                          </LightTooltip>
                           <Modal
                             open={showExpandedPodCpuChart}
                             onClose={handlePodCpuChartClose}
@@ -2626,7 +2793,9 @@ function KranePodList(props) {
                                     width={840}
                                     height={400}
                                     selectedPod={props.selectedPod}
-                                    podsStatsObj={props.podsStatsObj}
+                                    podsStatsObj={podChart.getStatsObj(
+                                      props.podsStatsObj
+                                    )}
                                   />
                                 </div>
                               </div>
@@ -2718,19 +2887,27 @@ function KranePodList(props) {
                             />
                             <div
                               style={{
+                                // fixed box + flex centering so "LOADING" can
+                                // shrink without changing the footprint (which
+                                // would reflow the section)
                                 position: "relative",
                                 top: "-95px",
                                 left: "0px",
-                                fontSize:
-                                  props.selectedPod[0]["podMemoryPercent"] ===
-                                  "N/A"
-                                    ? "32px"
-                                    : "42px",
+                                height: "48px",
+                                width: "100px",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                whiteSpace: "nowrap",
+                                fontSize: !props.selectedPod[0]["podMemoryPercent"]
+                                  ? "18px"
+                                  : props.selectedPod[0]["podMemoryPercent"] ===
+                                    "N/A"
+                                  ? "32px"
+                                  : "42px",
                                 fontWeight: "800",
-                                marginTop:  props.selectedPod[0]["podMemoryPercent"] ===
-                                "N/A"
-                                  ? "-50px" : "-60px",
-                                marginLeft: "-37px",
+                                marginTop: "-50px",
+                                marginLeft: "-39px",
                                 color:
                                   props.selectedPod[0]["podMemoryPercent"] ===
                                   "N/A" && theme.palette.mode === "dark"
@@ -2747,8 +2924,10 @@ function KranePodList(props) {
                                     : "yellow",
                               }}
                             >
-                              {props.selectedPod[0]["podMemoryPercent"] ===
-                              "N/A"
+                              {!props.selectedPod[0]["podMemoryPercent"]
+                                ? "LOADING"
+                                : props.selectedPod[0]["podMemoryPercent"] ===
+                                  "N/A"
                                 ? `NO MAX`
                                 : `${props.selectedPod[0]["podMemoryPercent"]}%`}
                             </div>
@@ -2816,9 +2995,11 @@ function KranePodList(props) {
                               }}
                             >
                               {" "}
-                              {
-                                props.selectedPod[0]["podMemoryUsedDisplay"]
-                              }{" "}
+                              {!props.selectedPod[0]["podMemoryUsedDisplay"]
+                                ? "~"
+                                : props.selectedPod[0][
+                                    "podMemoryUsedDisplay"
+                                  ]}{" "}
                             </div>
                             <div
                               style={{ color: theme.palette.mode === "dark" ? "#ffffff80" : "#00000050", fontSize: "12px" }}
@@ -2828,15 +3009,18 @@ function KranePodList(props) {
                             </div>
                             <div
                               style={{
+                                // fixed-height flex box so NONE/number/loading
+                                // size changes never reflow the label (no jump)
+                                height: "30px",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
                                 fontSize:
                                   props.selectedPod[0]["podMemoryLimit"] === "NONE"
                                     ? "20px"
                                     : "28px",
                                 fontWeight: "700",
-                                margin:
-                                  props.selectedPod[0]["podMemoryLimit"] === "NONE"
-                                    ? "6px 0 -8px 0"
-                                    : "0px 0 -10px 0",
+                                margin: "0px 0 -6px 0",
                                 color:
                                   props.selectedPod[0]["podMemoryPercent"] ===
                                   "N/A" && theme.palette.mode === "dark" ?
@@ -2866,6 +3050,14 @@ function KranePodList(props) {
                               MEM LIMIT{" "}
                             </div>
                           </div>
+                          <div
+                            style={{
+                              display: "flex",
+                              flexDirection: "column",
+                              alignItems: "center",
+                              width: "260px",
+                            }}
+                          >
                           <LightTooltip
                             title="MEMORY USAGE OVER TIME - CLICK TO EXPAND"
                             placement="top"
@@ -2887,10 +3079,13 @@ function KranePodList(props) {
                               width={230}
                               height={90}
                               selectedPod={props.selectedPod}
-                              podsStatsObj={props.podsStatsObj}
+                              podsStatsObj={podChart.getStatsObj(
+                                props.podsStatsObj
+                              )}
                             />
                           </div>
                           </LightTooltip>
+                          </div>
                           <Modal
                             open={showExpandedPodMemoryChart}
                             onClose={handlePodMemoryChartClose}
@@ -2924,7 +3119,9 @@ function KranePodList(props) {
                                     width={840}
                                     height={400}
                                     selectedPod={props.selectedPod}
-                                    podsStatsObj={props.podsStatsObj}
+                                    podsStatsObj={podChart.getStatsObj(
+                                      props.podsStatsObj
+                                    )}
                                   />
                                 </div>
                               </div>
@@ -2937,7 +3134,9 @@ function KranePodList(props) {
                       style={{
                         flexDirection: "row",
                         justifyContent: "space-between",
-                        margin: "40px 0 0 0px",
+                        // enough to clear the memory section (the CPU controls
+                        // row added height above)
+                        margin: "60px 0 0 0px",
                       }}
                     >
                       <button

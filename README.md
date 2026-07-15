@@ -50,13 +50,18 @@ Kaptn is a fully downloadable desktop application that provides a user-friendly 
 ## Updates
 
 
-Version 2.0.1 -
+Version 3.0.0 -
 
-- Adds interactive, expandable visx graphs for pods' and nodes' historical cpu and memory usage.
+- Cluster Metrics overhaul, now with in-app visualizer replacing external browser, as well as automatic port-forwarding,auto-login to Grafana, and more.
 
-- Adds variable refresh rate.
+- Krane now offers Prometheus graphs and stats (when available) to offer altenratives stats in Krane.
 
-- Adds various other bugs fixes and additions including: Fixes bug with user directory in CLI
+- Krane stats now refresh from within the Detail View.
+
+- Krane Node and Pod stats persistence, so data from previous sessions (up to 7 days) can be viewed (when available).
+
+- Adds various other bugs, usability fixes and additions, including: Fixed various Krane bugs and crashes, Fixed memory leaks causing the app to crash after long sessions, and much more.
+
 
 For details on all previous updates and releases, please see the [CHANGELOG](https://github.com/oslabs-beta/kaptn/blob/main/CHANGELOG.md), or [Releases](https://github.com/oslabs-beta/kaptn/releases) page.
 

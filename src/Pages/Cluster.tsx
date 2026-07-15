@@ -102,14 +102,11 @@ function SetupButtons(props) {
       }, 1000);
     });
 
-    //Listen to forward_ports event
-    ipcRenderer.on("forward_ports", (event, arg) => {
-      setTimeout(() => {
-        setLog(log + "PORT FORWARD LOG:" + arg);
-        if (arg.includes("stdout: ")) {
-          setPortForwardStatus("true");
-        } else setPortForwardStatus(arg);
-      }, 1000);
+    // Port-forwarding is now auto-managed by the main process (started on
+    // launch, killed/retried if the port is busy). Step 3 just reflects the
+    // reported status instead of parsing raw kubectl output.
+    ipcRenderer.on("port_forward_status", (event, ok) => {
+      setPortForwardStatus(ok ? "true" : "no attempt");
     });
 
     //Listen to retrieve_key event
@@ -133,10 +130,16 @@ function SetupButtons(props) {
     return () => {
       ipcRenderer.removeAllListeners("prom_setup");
       ipcRenderer.removeAllListeners("graf_setup");
-      ipcRenderer.removeAllListeners("forward_ports");
+      ipcRenderer.removeAllListeners("port_forward_status");
       ipcRenderer.removeAllListeners("retrieve_key");
     };
   });
+
+  // On mount, ask the main process whether the auto-started forward is already
+  // up, so step 3 shows as done even when the user lands here after launch.
+  useEffect(() => {
+    ipcRenderer.send("getPortForwardStatus");
+  }, []);
 
   // Once the embedded dashboard loads, tint Grafana's canvas (the area behind
   // the panels) to match the app background instead of Grafana's near-black.
