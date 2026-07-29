@@ -99,7 +99,8 @@ After completion, the .dmg file will be available in the "dist" folder. If you g
 
 Our application defaults to start page, where installation checks will run, and where you will be able to choose which page you'd like to visit.
 
-![newStartPage](https://github.com/oslabs-beta/kaptn/assets/119518056/a2d473da-37a9-4b6d-b69d-f8fcd95f2b41)
+<img width="2200" height="1602" alt="kaptn-V3startpage" src="https://github.com/user-attachments/assets/42acccb3-c1f2-4e25-bfe6-ae1daea5b3b3" />
+
 
 ### Krane Cluster Manager
 
