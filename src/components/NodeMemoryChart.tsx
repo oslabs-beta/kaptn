@@ -15,6 +15,7 @@ import { LinearGradient } from "@visx/gradient";
 import { max, extent, bisector } from "@visx/vendor/d3-array";
 import { timeFormat } from "@visx/vendor/d3-time-format";
 import { useTheme } from "@mui/material";
+import { makeGapDefined } from "../lib/chartGaps";
 
 interface nodeStats {
   date: string;
@@ -74,8 +75,10 @@ export default withTooltip<AreaProps, TooltipData>(
     // bounds
     const innerWidth = width - margin.left - margin.right;
     const innerHeight = height - margin.top - margin.bottom;
-    let selectedNodeStats = nodesStatsObj[`${selectedNode[0]["name"]}`];
-    if (!selectedNodeStats || selectedNodeStats.length === 0) return null;
+    // default to [] so the hooks below always run — bailing out before them
+    // (when data is briefly empty during a source/range switch) would change
+    // the hook count between renders and violate the Rules of Hooks.
+    let selectedNodeStats = nodesStatsObj[`${selectedNode[0]["name"]}`] || [];
 
     // scales
     const dateScale = useMemo(
@@ -84,7 +87,7 @@ export default withTooltip<AreaProps, TooltipData>(
           range: [margin.left, innerWidth + margin.left],
           domain: extent(selectedNodeStats, getDate) as [Date, Date],
         }),
-      [innerWidth, margin.left]
+      [innerWidth, margin.left, selectedNodeStats]
     );
     const memoryValueScale = useMemo(
       () =>
@@ -97,7 +100,7 @@ export default withTooltip<AreaProps, TooltipData>(
           ],
           nice: true,
         }),
-      [margin.top, innerHeight]
+      [margin.top, innerHeight, selectedNodeStats]
     );
 
     // tooltip handler
@@ -128,6 +131,16 @@ export default withTooltip<AreaProps, TooltipData>(
       },
       [showTooltip, memoryValueScale, dateScale]
     );
+
+    // break the area path across large time gaps (app closed between
+    // sessions) instead of drawing a straight bridge through missing data
+    const gapDefined = useMemo(
+      () => makeGapDefined(selectedNodeStats, getDate),
+      [selectedNodeStats]
+    );
+
+    // all hooks have run — now safe to bail on empty data
+    if (!selectedNodeStats.length) return null;
 
     return (
       <div>
@@ -172,6 +185,7 @@ export default withTooltip<AreaProps, TooltipData>(
           />
           <AreaClosed<nodeStats>
             data={selectedNodeStats}
+            defined={gapDefined}
             x={(d) => dateScale(getDate(d)) ?? 0}
             y={(d) => memoryValueScale(getMemoryValue(d)) ?? 0}
             yScale={memoryValueScale}

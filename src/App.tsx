@@ -10,6 +10,7 @@ import { CssBaseline, ThemeProvider } from "@mui/material";
 import React, { useState, useEffect } from "react";
 import { ipcRenderer } from "./electron-ipc";
 import { parseTopStats } from "./lib/parseTopStats";
+import { mergeStatsHistory } from "./lib/statsHistory";
 
 // cap history per pod/node so a long-running session doesn't grow unbounded:
 // 5760 points at the 15s cadence below is ~24h of data.
@@ -25,6 +26,42 @@ function App() {
   const [podsStatsObj, setPodsStatsObj] = useState({});
   const [nodesStatsObj, setNodesStatsObj] = useState({});
   const [intervalArray, setIntervalArray] = useState([]);
+
+  // Persist the stats buffers across app restarts. A ref mirrors the latest
+  // state so the save interval below always reads current data (its closure
+  // would otherwise be frozen at mount).
+  const statsRef = React.useRef<any>({ pods: {}, nodes: {} });
+  useEffect(() => {
+    statsRef.current = { pods: podsStatsObj, nodes: nodesStatsObj };
+  }, [podsStatsObj, nodesStatsObj]);
+
+  useEffect(() => {
+    const onLoaded = (_event: any, saved: any) => {
+      if (!saved) return;
+      // merge behind whatever this session has already collected
+      setPodsStatsObj((prev) =>
+        mergeStatsHistory(saved.pods, prev, MAX_STATS_POINTS)
+      );
+      setNodesStatsObj((prev) =>
+        mergeStatsHistory(saved.nodes, prev, MAX_STATS_POINTS)
+      );
+    };
+    ipcRenderer.on("stats_history_loaded", onLoaded);
+    ipcRenderer.send("loadStatsHistory");
+
+    // Save every 5 minutes; worst case a quit loses the final <5min of points.
+    // Kept infrequent deliberately: the send serializes the whole stats buffer
+    // (which can reach tens of MB after hours of collection) on the UI thread,
+    // so doing it every minute caused visible freezes as the buffer grew.
+    const saveId = setInterval(() => {
+      ipcRenderer.send("saveStatsHistory", statsRef.current);
+    }, 300000);
+
+    return () => {
+      clearInterval(saveId);
+      ipcRenderer.removeListener("stats_history_loaded", onLoaded);
+    };
+  }, []);
 
   // Collect CPU/memory history for pods and nodes from the moment the app
   // opens (not just when Krane is visited), so the charts have backfilled data

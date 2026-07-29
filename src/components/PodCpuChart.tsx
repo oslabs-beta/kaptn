@@ -15,6 +15,7 @@ import { LinearGradient } from "@visx/gradient";
 import { max, extent, bisector } from "@visx/vendor/d3-array";
 import { timeFormat } from "@visx/vendor/d3-time-format";
 import { useTheme } from "@mui/material";
+import { makeGapDefined } from "../lib/chartGaps";
 
 interface podStats {
   date: string;
@@ -56,8 +57,10 @@ export default withTooltip<AreaProps, TooltipData>(
   }: AreaProps & WithTooltipProvidedProps<TooltipData>) => {
     if (width < 10) return null;
 
-    let selectedPodStats = podsStatsObj[`${selectedPod[0]["name"]}`];
-    if (!selectedPodStats || selectedPodStats.length === 0) return null;
+    // default to [] so the hooks below always run — bailing out before them
+    // (when data is briefly empty during a source/range switch) would change
+    // the hook count between renders and violate the Rules of Hooks.
+    let selectedPodStats = podsStatsObj[`${selectedPod[0]["name"]}`] || [];
 
     const theme = useTheme();
 
@@ -85,7 +88,7 @@ export default withTooltip<AreaProps, TooltipData>(
           range: [margin.left, innerWidth + margin.left],
           domain: extent(selectedPodStats, getDate) as [Date, Date],
         }),
-      [innerWidth, margin.left]
+      [innerWidth, margin.left, selectedPodStats]
     );
     const CpuValueScale = useMemo(
       () =>
@@ -97,7 +100,7 @@ export default withTooltip<AreaProps, TooltipData>(
           ],
           nice: true,
         }),
-      [margin.top, innerHeight]
+      [margin.top, innerHeight, selectedPodStats]
     );
 
     // tooltip handler
@@ -128,6 +131,16 @@ export default withTooltip<AreaProps, TooltipData>(
       },
       [showTooltip, CpuValueScale, dateScale]
     );
+
+    // break the area path across large time gaps (app closed between
+    // sessions) instead of drawing a straight bridge through missing data
+    const gapDefined = useMemo(
+      () => makeGapDefined(selectedPodStats, getDate),
+      [selectedPodStats]
+    );
+
+    // all hooks have run — now safe to bail on empty data
+    if (!selectedPodStats.length) return null;
 
     return (
       <div>
@@ -172,6 +185,7 @@ export default withTooltip<AreaProps, TooltipData>(
           />
           <AreaClosed<podStats>
             data={selectedPodStats}
+            defined={gapDefined}
             x={(d) => dateScale(getDate(d)) ?? 0}
             y={(d) => CpuValueScale(getCpuValue(d)) ?? 0}
             yScale={CpuValueScale}

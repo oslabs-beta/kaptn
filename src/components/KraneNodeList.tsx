@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Button from "@mui/material/Button";
 import { useTheme, Box, Modal} from "@mui/material";
 import { ipcRenderer } from "../electron-ipc";
@@ -7,6 +7,8 @@ import Tooltip, { TooltipProps, tooltipClasses } from "@mui/material/Tooltip";
 import { styled } from "@mui/material/styles";
 import NodeCpuChart from "./NodeCpuChart";
 import NodeMemoryChart from "./NodeMemoryChart";
+import ChartControls from "./ChartControls";
+import { useChartHistory } from "../hooks/useChartHistory";
 
 // const storage = require('electron-json-storage');
 
@@ -95,6 +97,9 @@ function KraneNodeList(props) {
 
   const [showExpandedNodeMemoryChart, setShowExpandedNodeMemoryChart] =
     useState(false);
+
+  // source (kubectl top / Prometheus) + time-range for the expanded node charts
+  const nodeChart = useChartHistory("node", selectedNode?.[0]?.["name"] || "");
 
   const theme = useTheme();
 
@@ -500,6 +505,14 @@ function KraneNodeList(props) {
 
 const [count, setCount] = useState(0)
 
+  // Latest usage/limits responses, stashed so a nodes-list refresh can restore
+  // them even if `kubectl top` returned before `kubectl get nodes` (that race
+  // used to leave stats wiped — stuck on LOADING for a whole cycle).
+  const lastNodeUsageRef = useRef<any[]>([]);
+  const lastNodeLimitsRef = useRef<any[]>([]);
+  // the list as it was just before the current refresh wiped it
+  const prevNodesRef = useRef<any[]>([]);
+
   //Listen to "get nodes" return event.
   //removeAllListeners before .on caps this channel at a single listener;
   //otherwise a new listener was added every render and never removed,
@@ -649,7 +662,74 @@ const [count, setCount] = useState(0)
     );
     filteredNodes = finalNodesInfoArr;
 
-    props.setNodesArr([...filteredNodes]);
+    // Publish the fresh list with empty stats first — that produces the brief
+    // LOADING sweep on the gauges each refresh — then restore the last-known
+    // stats ~300ms later, so the sweep always ends in about half a second
+    // and stats can never be stuck on LOADING for a whole cycle (which used to
+    // happen when `kubectl top` finished before `kubectl get nodes`). Fresh
+    // stats overwrite these restored values whenever they land.
+    props.setNodesArr((currentNodes: any[]) => {
+      prevNodesRef.current = currentNodes;
+      return [...finalNodesInfoArr];
+    });
+
+    setTimeout(() => {
+      props.setNodesArr((currentNodes: any[]) =>
+        currentNodes.map((node: any) => {
+          const prev =
+            prevNodesRef.current.find((n: any) => n.name === node.name) ||
+            ({} as any);
+          const usage =
+            lastNodeUsageRef.current.find(
+              (u: any) => u.nodeName === node.name
+            ) || ({} as any);
+          const limits =
+            lastNodeLimitsRef.current.find(
+              (u: any) => u.nodeName === node.name
+            ) || ({} as any);
+          return {
+            ...node,
+            nodeCpuUsed:
+              node.nodeCpuUsed || usage.nodeCpuUsed || prev.nodeCpuUsed || "",
+            nodeCpuPercent:
+              node.nodeCpuPercent ||
+              usage.nodeCpuPercent ||
+              prev.nodeCpuPercent ||
+              "",
+            nodeCpuPercentMath:
+              node.nodeCpuPercentMath ||
+              usage.nodeCpuPercentMath ||
+              prev.nodeCpuPercentMath ||
+              "",
+            nodeMemoryUsed:
+              node.nodeMemoryUsed ||
+              usage.nodeMemoryUsed ||
+              prev.nodeMemoryUsed ||
+              "",
+            nodeMemoryPercent:
+              node.nodeMemoryPercent ||
+              usage.nodeMemoryPercent ||
+              prev.nodeMemoryPercent ||
+              "",
+            nodeMemoryUsedDisplay:
+              node.nodeMemoryUsedDisplay ||
+              usage.nodeMemoryUsedDisplay ||
+              prev.nodeMemoryUsedDisplay ||
+              "",
+            nodeCpuLimit:
+              node.nodeCpuLimit ||
+              limits.nodeCpuLimit ||
+              prev.nodeCpuLimit ||
+              "",
+            nodeMemoryLimit:
+              node.nodeMemoryLimit ||
+              limits.nodeMemoryLimit ||
+              prev.nodeMemoryLimit ||
+              "",
+          };
+        })
+      );
+    }, 500);
   }); // ------------------------------------------ end of ipc render for get nodes command
 
   //Listen to "get cpuUsed" return event
@@ -793,6 +873,9 @@ const [count, setCount] = useState(0)
         ind ===
         nodeUsageArray.findIndex((elem) => elem.nodeName === ele.nodeName)
     );
+
+    // stash for got_nodes to re-apply if this response won the race
+    lastNodeUsageRef.current = finalNodeUsageArr;
 
     props.setNodesArr((currentNodes: any[]) =>
       currentNodes.map((node: any) => {
@@ -974,6 +1057,9 @@ const [count, setCount] = useState(0)
         nodeLimitsArray.findIndex((elem) => elem.nodeName === ele.nodeName)
     );
 
+    // stash for got_nodes to re-apply if this response won the race
+    lastNodeLimitsRef.current = lastNodesArr;
+
     props.setNodesArr((currentNodes: any[]) =>
       currentNodes.map((node: any) => {
         const limits = lastNodesArr.find((u: any) => u.nodeName === node.name);
@@ -993,6 +1079,18 @@ const [count, setCount] = useState(0)
     props.getNodesInfo();
 
   }, []);
+
+  // Keep the open node-detail modal live: re-sync selectedNode with the latest
+  // nodesArr on each refresh so its gauges update (and briefly show LOADING)
+  // like the list rows, instead of freezing at the click-time snapshot.
+  useEffect(() => {
+    setSelectedNode((prev: any) => {
+      const name = prev?.[0]?.name;
+      if (!name) return prev;
+      const fresh = props.nodesArr.find((n: any) => n.name === name);
+      return fresh ? [fresh] : prev;
+    });
+  }, [props.nodesArr]);
 
   const handleNodeLogOpen = (pod) => {
     ipcRenderer.once("nodeLogsRetrieved", (event, arg) => {
@@ -2699,10 +2797,28 @@ const [count, setCount] = useState(0)
                         <div
                           style={{
                             display: "flex",
+                            width: "510px",
+                            justifyContent: "flex-end",
+                            margin: "6px 0 0 0",
+                          }}
+                        >
+                          <div
+                            style={{
+                              width: "260px",
+                              display: "flex",
+                              justifyContent: "center",
+                            }}
+                          >
+                            <ChartControls {...nodeChart} />
+                          </div>
+                        </div>
+                        <div
+                          style={{
+                            display: "flex",
                             flexDirection: "row",
                             justifyContent: "center",
                             width: "510px",
-                            margin: "20px 0 5px -25px",
+                            margin: "2px 0 5px -25px",
                           }}
                         >
                           {" "}
@@ -2776,20 +2892,27 @@ const [count, setCount] = useState(0)
                             />
                             <div
                               style={{
+                                // fixed box + flex centering so the text can
+                                // shrink to "LOADING" without changing its
+                                // footprint (which would reflow the section)
                                 position: "relative",
                                 top: "-95px",
                                 left: "0px",
-                                fontSize:
-                                  selectedNode[0]["nodeCpuPercentMath"] ===
-                                  "N/A"
-                                    ? "32px"
-                                    : "42px",
+                                height: "48px",
+                                width: "100px",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                whiteSpace: "nowrap",
+                                fontSize: !selectedNode[0]["nodeCpuPercent"]
+                                  ? "18px"
+                                  : selectedNode[0]["nodeCpuPercentMath"] ===
+                                    "N/A"
+                                  ? "32px"
+                                  : "42px",
                                 fontWeight: "800",
-                                marginTop:
-                                  selectedNode[0]["nodeCpuLimit"] === "NONE"
-                                    ? "-60px"
-                                    : "-60px",
-                                marginLeft: "-37px",
+                                marginTop: "-50px",
+                                marginLeft: "-39px",
                                 color:
                                   selectedNode[0]["nodeCpuPercentMath"] ===
                                     "N/A" && theme.palette.mode === "dark"
@@ -2808,7 +2931,9 @@ const [count, setCount] = useState(0)
                                     : "yellow",
                               }}
                             >
-                              {selectedNode[0]["nodeCpuPercentMath"] === "N/A"
+                              {!selectedNode[0]["nodeCpuPercent"]
+                                ? "LOADING"
+                                : selectedNode[0]["nodeCpuPercentMath"] === "N/A"
                                 ? `NO MAX`
                                 : `${selectedNode[0]["nodeCpuPercentMath"]}%`}
                             </div>
@@ -2874,7 +2999,9 @@ const [count, setCount] = useState(0)
                               }}
                             >
                               {" "}
-                              {selectedNode[0]["nodeCpuUsed"]}m{" "}
+                              {!selectedNode[0]["nodeCpuUsed"]
+                                ? "~"
+                                : `${selectedNode[0]["nodeCpuUsed"]}m`}{" "}
                             </div>
                             <div
                               style={{
@@ -2890,15 +3017,19 @@ const [count, setCount] = useState(0)
                             </div>
                             <div
                               style={{
+                                // fixed-height flex box so the NONE(20px) vs
+                                // number(28px) size difference never reflows the
+                                // label below (the jump during loading)
+                                height: "30px",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
                                 fontSize:
                                   selectedNode[0]["nodeCpuLimit"] === "NONE"
                                     ? "20px"
                                     : "28px",
                                 fontWeight: "700",
-                                margin:
-                                  selectedNode[0]["nodeCpuLimit"] === "NONE"
-                                    ? "6px 0 -8px 0"
-                                    : "0px 0 -10px 0",
+                                margin: "0px 0 -6px 0",
                                 color:
                                   selectedNode[0]["nodeCpuLimit"] === "NONE" &&
                                   theme.palette.mode === "dark"
@@ -2918,7 +3049,9 @@ const [count, setCount] = useState(0)
                               }}
                             >
                               {" "}
-                              {selectedNode[0]["nodeCpuLimit"] === "NONE"
+                              {!selectedNode[0]["nodeCpuLimit"]
+                                ? "~"
+                                : selectedNode[0]["nodeCpuLimit"] === "NONE"
                                 ? "NONE"
                                 : `${selectedNode[0]["nodeCpuLimit"]}m`}{" "}
                             </div>
@@ -2936,34 +3069,45 @@ const [count, setCount] = useState(0)
                             </div>
                           </div>
 
-                          <LightTooltip
-                            title="CPU USAGE OVER TIME - CLICK TO EXPAND"
-                            placement="top"
-                            arrow
-                            enterDelay={1000}
-                            leaveDelay={100}
-                            enterNextDelay={3000}
+                          <div
+                            style={{
+                              display: "flex",
+                              flexDirection: "column",
+                              alignItems: "center",
+                              width: "260px",
+                            }}
                           >
-                            <div
-                              onClick={handleNodeCpuChartOpen}
-                              style={{
-                                display: "flex",
-                                borderRadius: "15px",
-                                height: "93px",
-                                border:
-                                  theme.palette.mode === "dark"
-                                    ? "1.5px solid #ffffff50"
-                                    : "1.5px solid #00000030",
-                              }}
+                            <LightTooltip
+                              title="CPU USAGE OVER TIME - CLICK TO EXPAND"
+                              placement="top"
+                              arrow
+                              enterDelay={1000}
+                              leaveDelay={100}
+                              enterNextDelay={3000}
                             >
-                              <NodeCpuChart
-                                width={230}
-                                height={90}
-                                selectedNode={selectedNode}
-                                nodesStatsObj={props.nodesStatsObj}
-                              />
-                            </div>
-                          </LightTooltip>
+                              <div
+                                onClick={handleNodeCpuChartOpen}
+                                style={{
+                                  display: "flex",
+                                  borderRadius: "15px",
+                                  height: "93px",
+                                  border:
+                                    theme.palette.mode === "dark"
+                                      ? "1.5px solid #ffffff50"
+                                      : "1.5px solid #00000030",
+                                }}
+                              >
+                                <NodeCpuChart
+                                  width={230}
+                                  height={90}
+                                  selectedNode={selectedNode}
+                                  nodesStatsObj={nodeChart.getStatsObj(
+                                    props.nodesStatsObj
+                                  )}
+                                />
+                              </div>
+                            </LightTooltip>
+                          </div>
                           <Modal
                             open={showExpandedNodeCpuChart}
                             onClose={handleNodeCpuChartClose}
@@ -2997,7 +3141,9 @@ const [count, setCount] = useState(0)
                                     width={840}
                                     height={400}
                                     selectedNode={selectedNode}
-                                    nodesStatsObj={props.nodesStatsObj}
+                                    nodesStatsObj={nodeChart.getStatsObj(
+                                      props.nodesStatsObj
+                                    )}
                                   />
                                 </div>
                               </div>
@@ -3092,19 +3238,26 @@ const [count, setCount] = useState(0)
                             />
                             <div
                               style={{
+                                // fixed box + flex centering so "LOADING" can
+                                // shrink without changing the footprint (which
+                                // would reflow the section)
                                 position: "relative",
                                 top: "-95px",
                                 left: "0px",
-                                fontSize:
-                                  selectedNode[0]["nodeMemoryPercent"] === "N/A"
-                                    ? "32px"
-                                    : "42px",
+                                height: "48px",
+                                width: "100px",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                whiteSpace: "nowrap",
+                                fontSize: !selectedNode[0]["nodeMemoryPercent"]
+                                  ? "18px"
+                                  : selectedNode[0]["nodeMemoryPercent"] === "N/A"
+                                  ? "32px"
+                                  : "42px",
                                 fontWeight: "800",
-                                marginTop:
-                                  selectedNode[0]["nodeMemoryPercent"] === "N/A"
-                                    ? "-50px"
-                                    : "-60px",
-                                marginLeft: "-37px",
+                                marginTop: "-50px",
+                                marginLeft: "-39px",
                                 color:
                                   selectedNode[0]["nodeMemoryPercent"] ===
                                     "N/A" && theme.palette.mode === "dark"
@@ -3127,7 +3280,9 @@ const [count, setCount] = useState(0)
                                     : "yellow",
                               }}
                             >
-                              {selectedNode[0]["nodeMemoryPercent"] === "N/A"
+                              {!selectedNode[0]["nodeMemoryPercent"]
+                                ? "LOADING"
+                                : selectedNode[0]["nodeMemoryPercent"] === "N/A"
                                 ? `NO MAX`
                                 : `${selectedNode[0]["nodeMemoryPercent"].slice(
                                     0,
@@ -3199,7 +3354,7 @@ const [count, setCount] = useState(0)
                                     ? `#2fc665`
                                     : Number(
                                         selectedNode[0][
-                                          "nodedMemoryPercent"
+                                          "nodeMemoryPercent"
                                         ].slice(0, -1)
                                       ) > 90
                                     ? "#cf4848"
@@ -3207,7 +3362,9 @@ const [count, setCount] = useState(0)
                               }}
                             >
                               {" "}
-                              {selectedNode[0]["nodeMemoryUsedDisplay"]}{" "}
+                              {!selectedNode[0]["nodeMemoryUsedDisplay"]
+                                ? "~"
+                                : selectedNode[0]["nodeMemoryUsedDisplay"]}{" "}
                             </div>
                             <div
                               style={{
@@ -3223,15 +3380,18 @@ const [count, setCount] = useState(0)
                             </div>
                             <div
                               style={{
+                                // fixed-height flex box so NONE/number/loading
+                                // size changes never reflow the label (no jump)
+                                height: "30px",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
                                 fontSize:
                                   selectedNode[0]["nodeMemoryLimit"] === "NONE"
                                     ? "20px"
                                     : "28px",
                                 fontWeight: "700",
-                                margin:
-                                  selectedNode[0]["nodeMemoryLimit"] === "NONE"
-                                    ? "6px 0 -8px 0"
-                                    : "0px 0 -10px 0",
+                                margin: "0px 0 -6px 0",
                                 color:
                                   selectedNode[0]["nodeMemoryLimit"] ===
                                     "NONE" && theme.palette.mode === "dark"
@@ -3272,6 +3432,14 @@ const [count, setCount] = useState(0)
                               MEM LIMIT{" "}
                             </div>
                           </div>
+                          <div
+                            style={{
+                              display: "flex",
+                              flexDirection: "column",
+                              alignItems: "center",
+                              width: "260px",
+                            }}
+                          >
                           <LightTooltip
                             title="MEMORY USAGE OVER TIME - CLICK TO EXPAND"
                             placement="top"
@@ -3295,11 +3463,14 @@ const [count, setCount] = useState(0)
                               <NodeMemoryChart
                                 width={230}
                                 height={90}
-                                nodesStatsObj={props.nodesStatsObj}
+                                nodesStatsObj={nodeChart.getStatsObj(
+                                  props.nodesStatsObj
+                                )}
                                 selectedNode={selectedNode}
                               />
                             </div>
                           </LightTooltip>
+                          </div>
                           <Modal
                             open={showExpandedNodeMemoryChart}
                             onClose={handleNodeMemoryChartClose}
@@ -3333,7 +3504,9 @@ const [count, setCount] = useState(0)
                                     width={840}
                                     height={400}
                                     selectedNode={selectedNode}
-                                    nodesStatsObj={props.nodesStatsObj}
+                                    nodesStatsObj={nodeChart.getStatsObj(
+                                      props.nodesStatsObj
+                                    )}
                                   />
                                 </div>
                               </div>
