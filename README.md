@@ -49,12 +49,15 @@ Kaptn is a fully downloadable desktop application that provides a user-friendly 
 
 ## Updates
 
-
 Version 3.0.0 -
 
-- Cluster Metrics overhaul, now with in-app visualizer replacing external browser, as well as automatic port-forwarding,auto-login to Grafana, and more.
+Kaptn 3.0.0 is a major release centered on a completely reimagined Cluster Metrics experience, a new Prometheus-backed history source for Krane, always-on stats that persist across sessions, and a broad round of stability fixes.
 
-- Krane now offers Prometheus graphs and stats (when available) to offer altenratives stats in Krane.
+This update includes:
+
+- Cluster Metrics overhaul, now with embedded visualizer in-app replacing external browser, as well as automatic port-forwarding, auto-login to Grafana, and more.
+
+- Krane now offers Prometheus graphs and stats (when available) to offer alternative sources for metrics in Krane.
 
 - Krane stats now refresh from within the Detail View.
 
@@ -62,8 +65,7 @@ Version 3.0.0 -
 
 - Adds various other bugs, usability fixes and additions, including: Fixed various Krane bugs and crashes, Fixed memory leaks causing the app to crash after long sessions, and much more.
 
-
-For details on all previous updates and releases, please see the [CHANGELOG](https://github.com/oslabs-beta/kaptn/blob/main/CHANGELOG.md), or [Releases](https://github.com/oslabs-beta/kaptn/releases) page.
+For more details on this release and all previous updates and releases, please see the [CHANGELOG](https://github.com/oslabs-beta/kaptn/blob/main/CHANGELOG.md), or [Releases](https://github.com/oslabs-beta/kaptn/releases) page.
 
 #
 
@@ -71,14 +73,13 @@ For details on all previous updates and releases, please see the [CHANGELOG](htt
 
 1. Download the latest release [here](https://github.com/oslabs-beta/kaptn/releases).
 
+**For Windows (portable) -** Open the .exe file.
 
-__For Windows (portable) -__ Open the .exe file.
+**For Linux (AppImage) -** Follow the instructions [here](https://docs.appimage.org/introduction/quickstart.html) to run the application.
 
-__For Linux (AppImage) -__ Follow the instructions [here](https://docs.appimage.org/introduction/quickstart.html) to run the application.
+**For Mac (Intel/x64/Universal) -** Double-click the .dmg installer, and drag and drop Kaptn in your Applications folder. If you get a warning that the app is from an unidentified developer, go to System Preferences > Security & Privacy > General and click "Open Anyway".
 
-__For Mac (Intel/x64/Universal) -__ Double-click the .dmg installer, and drag and drop Kaptn in your Applications folder. If you get a warning that the app is from an unidentified developer, go to System Preferences > Security & Privacy > General and click "Open Anyway".
-
-__For Mac (Apple Silicon/ARM64) -__ We do not have Mac code-signing, and therefore cannot offically offer an Apple Silicon/ARM64 version for download here. You can still use the "Mac Universal" version above, OR there is this work-around to create an Apple Silicon version on your computer:
+**For Mac (Apple Silicon/ARM64) -** We do not have Mac code-signing, and therefore cannot offically offer an Apple Silicon/ARM64 version for download here. You can still use the "Mac Universal" version above, OR there is this work-around to create an Apple Silicon version on your computer:
 
 First fork/clone the project. Then open a terminal in the project, and run:
 
@@ -105,40 +106,40 @@ Our application defaults to start page, where installation checks will run, and 
 Our all-new Krane Cluster Manager allows you to control your clusters at the click of a button. Simply choose "Nodes & Pods" or "Deployments" at the top of the screen, and you'll have the following options:
 
 - Nodes:
-    - View Live CPU and Memory Use
-    - View Graphs of Historical CPU and Memory Use
-    - View Node Yaml
-    - Decribe Node 
-    - Drain Node
-    - Cordon Node
-    - Uncordon Node
-    - Delete / Restart Node
+
+  - View Live CPU and Memory Use
+  - View Graphs of Historical CPU and Memory Use
+  - View Node Yaml
+  - Decribe Node
+  - Drain Node
+  - Cordon Node
+  - Uncordon Node
+  - Delete / Restart Node
 
 - Pods:
-    - View Live CPU and Memory Use
-    - View Graphs of Historical CPU and Memory Use
-    - View Pod Logs
-    - View Pod Yaml
-    - Decribe Pod
-    - Delete / Restart Pod
-    - Filter by Namespace
-    - Sort by Namespace, Max CPU and Memory, and more. 
+  - View Live CPU and Memory Use
+  - View Graphs of Historical CPU and Memory Use
+  - View Pod Logs
+  - View Pod Yaml
+  - Decribe Pod
+  - Delete / Restart Pod
+  - Filter by Namespace
+  - Sort by Namespace, Max CPU and Memory, and more.
 
 ![v201screencaps-nodesPods](https://github.com/oslabs-beta/kaptn/assets/119518056/60f19526-8c79-40c9-9a8c-000d38240dc6)
 
-
 - Deployments:
-    - View ReplicaSets and Statuses
-    - View Deployment Yaml
-    - View Deployment Logs
-    - Describe Deployment
-    - View Rollout Status
-    - View Rollout History
-    - Rollback to Previous Version
-    - Perform Rolling Restart
-    - Scale Deployment
-    - Delete Deployment
-    - Filter by Namespace
+  - View ReplicaSets and Statuses
+  - View Deployment Yaml
+  - View Deployment Logs
+  - Describe Deployment
+  - View Rollout Status
+  - View Rollout History
+  - Rollback to Previous Version
+  - Perform Rolling Restart
+  - Scale Deployment
+  - Delete Deployment
+  - Filter by Namespace
 
 ![v201screencaps-Deploys](https://github.com/oslabs-beta/kaptn/assets/119518056/33a362be-1be1-404e-9018-a3599735b9c7)
 
