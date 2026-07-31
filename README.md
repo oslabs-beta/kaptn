@@ -101,7 +101,6 @@ Our application defaults to start page, where installation checks will run, and 
 
 <img width="2200" height="1602" alt="kaptn-V3startpage" src="https://github.com/user-attachments/assets/42acccb3-c1f2-4e25-bfe6-ae1daea5b3b3" />
 
-
 ### Krane Cluster Manager
 
 Our all-new Krane Cluster Manager allows you to control your clusters at the click of a button. Simply choose "Nodes & Pods" or "Deployments" at the top of the screen, and you'll have the following options:
