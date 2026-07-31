@@ -121,8 +121,26 @@
     },
     "dmg": {
       "icon": "./public/icon.icns",
-      "title": "Kaptn",
-      "background": "./public/dmgbackground.tiff"
+      "title": "Kaptn ${version}",
+      "background": "./public/dmgbackground.png",
+      "window": {
+        "width": 544,
+        "height": 451
+      },
+      "iconSize": 100,
+      "contents": [
+        {
+          "x": 140,
+          "y": 270,
+          "type": "file"
+        },
+        {
+          "x": 404,
+          "y": 270,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ]
     },
     "linux": {
       "icon": "./public/icon.icns",
