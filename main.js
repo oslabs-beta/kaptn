@@ -716,6 +716,15 @@ ipcMain.on("rollingRestartDeployment_command", (event, arg) => {
 ipcMain.on("scaleDeployment_command", (event, arg) => {
   const { deploymentScaleCommand, currDir } = arg;
 
+  // Defense in depth: the replicas value is user-typed, so only run a scale
+  // command whose replicas token is a plain non-negative integer targeting a
+  // bare resource name. This rejects any attempt to smuggle shell syntax
+  // (e.g. "1; rm -rf ~") through the replicas field before it reaches the shell.
+  const SAFE_SCALE_COMMAND = /^kubectl scale --replicas=\d+ deployment\/[a-zA-Z0-9._-]+$/;
+  if (!SAFE_SCALE_COMMAND.test(String(deploymentScaleCommand).trim())) {
+    return event.sender.send("scaled_deployment", "Invalid scale command rejected.");
+  }
+
   // if kubectl command is entered with no directory chosen, use ZDOTDIR as directory address when calling exec command --- otherwise ("else" on line further down) submit command normally
   if (currDir === "NONE SELECTED") {
     let kubDir = process.env.ZDOTDIR;
