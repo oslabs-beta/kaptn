@@ -32,8 +32,8 @@ describe("Start test", () => {
     expect(kaptnLogo).toBeTruthy();
   });
 
-  it(`Renders v2.0.1`, () => {
-    const versionNumberText = screen.getByText("v2.0.1");
+  it(`Renders v3.0.0`, () => {
+    const versionNumberText = screen.getByText("v3.0.0");
     expect(versionNumberText).toBeTruthy();
   });
 

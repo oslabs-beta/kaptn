@@ -392,7 +392,7 @@ function KraneNodeList(props) {
 
   const handlePodLogOpen = (pod) => {
     ipcRenderer.once("podLogsRetrieved", (event, arg) => {
-      let argArr = arg.split("");
+      let argArr : string[] = arg.split("");
       let temp : string = "";
       let output : JSX.Element[] = [];
 

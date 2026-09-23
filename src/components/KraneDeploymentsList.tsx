@@ -818,6 +818,15 @@ function KraneDeploymentsList(props) {
   };
 
   const handleDeploymentScale = () => {
+    // Constrain the replicas value to a plain non-negative integer before it is
+    // interpolated into the shell command. This guarantees nothing but digits
+    // can reach the command string, closing the command-injection vector on the
+    // one field a user types free text into.
+    const replicas = parseInt(String(deploymentScaleNumber), 10);
+    if (!Number.isInteger(replicas) || replicas < 0) {
+      return; // ignore invalid input rather than building a command from it
+    }
+
     //listen for pods deleted
     ipcRenderer.once("scaled_deployment", (event, arg) => {
       //parse response to check if successful and if so, close modals and refresh list
@@ -828,7 +837,7 @@ function KraneDeploymentsList(props) {
       setOpenDeployment(false);
     });
 
-    let deploymentScaleCommand = `kubectl scale --replicas=${deploymentScaleNumber} deployment/${selectedDeployment[0]["name"]}`;
+    let deploymentScaleCommand = `kubectl scale --replicas=${replicas} deployment/${selectedDeployment[0]["name"]}`;
     //send get delete pod command
     ipcRenderer.send("scaleDeployment_command", {
       deploymentScaleCommand,
@@ -837,7 +846,10 @@ function KraneDeploymentsList(props) {
   };
 
   const handleSetDeploymentScaleNumber = (e) => {
-    setDeploymentScaleNumber(e.target.value);
+    // Keep state as a whole number only — strip any non-digit characters that a
+    // number input can still surface (e.g. "e", "-", ".").
+    const digitsOnly = String(e.target.value).replace(/[^0-9]/g, "");
+    setDeploymentScaleNumber(digitsOnly === "" ? 0 : parseInt(digitsOnly, 10));
   };
 
   let deploymentsList: any = [];
