@@ -2,6 +2,12 @@ import React, { useState, useEffect, useRef } from "react";
 import Button from "@mui/material/Button";
 import { useTheme, Box, Modal} from "@mui/material";
 import { ipcRenderer } from "../electron-ipc";
+import { isParseableKubectlTable } from "../lib/parseGuards";
+import {
+  useKraneListStatus,
+  KraneStatusMessage,
+  MetricsMissingNotice,
+} from "./KraneStatus";
 import CircularProgress from "@mui/material/CircularProgress";
 import Tooltip, { TooltipProps, tooltipClasses } from "@mui/material/Tooltip";
 import { styled } from "@mui/material/styles";
@@ -9,6 +15,7 @@ import NodeCpuChart from "./NodeCpuChart";
 import NodeMemoryChart from "./NodeMemoryChart";
 import ChartControls from "./ChartControls";
 import { useChartHistory } from "../hooks/useChartHistory";
+import { isMetricsUnavailableError } from "../lib/metricsState";
 
 // const storage = require('electron-json-storage');
 
@@ -45,6 +52,12 @@ type NodeType = {
 }
 
 function KraneNodeList(props) {
+  // "ok" (cards) / "empty" (no nodes) / "unreachable" / "error"
+  const { status, setStatus, detail } = useKraneListStatus(
+    "got_nodes",
+    () => props.setNodesArr([])
+  );
+
   const [openNode, setOpenNode] = React.useState(false);
 
   const [openNodeLog, setOpenNodeLog] = React.useState(false);
@@ -397,7 +410,7 @@ function KraneNodeList(props) {
       let output : JSX.Element[] = [];
 
       for (let i = 0; i < argArr.length; i++) {
-        while (argArr[i] !== "\n") {
+        while (i < argArr.length && argArr[i] !== "\n") {
           temp += argArr[i];
           i++;
         }
@@ -513,12 +526,102 @@ const [count, setCount] = useState(0)
   // the list as it was just before the current refresh wiped it
   const prevNodesRef = useRef<any[]>([]);
 
+  // Refresh-sweep bookkeeping. A sweep starts when got_nodes publishes blank
+  // stats (the LOADING flash) and settles when this cycle's `kubectl top nodes`
+  // answers — fresh stats on success, previous stats restored on failure or if
+  // nothing answers within the fallback window.
+  const settleTimerRef = useRef<any>(null);
+  const awaitingUsageRef = useRef(false);
+  const lastUsageResultRef = useRef({
+    at: 0,
+    ok: true,
+    message: "",
+    missing: false,
+  });
+  // true once a sweep settled with no stats to show because metrics-server has
+  // none yet: blank gauges then read STARTING UP instead of LOADING
+  const [nodeMetricsStartingUp, setNodeMetricsStartingUp] = useState(false);
+  // metrics-server not installed at all (shared with KranePodList via Krane):
+  // blank gauges read "—" and the sections show the install notice
+  const setMetricsServerMissing =
+    props.setMetricsServerMissing || (() => {});
+
+  useEffect(() => () => clearTimeout(settleTimerRef.current), []);
+
+  // Fill any stat still blank after a refresh from the last valid
+  // `kubectl top`/limits result, or the list as it was before the refresh.
+  // These held-over values are display only — chart history is appended solely
+  // in the got_nodesCpuUsed success handler, so they never reach the graphs.
+  const restoreNodeStats = () => {
+    props.setNodesArr((currentNodes: any[]) =>
+      currentNodes.map((node: any) => {
+        const prev =
+          prevNodesRef.current.find((n: any) => n.name === node.name) ||
+          ({} as any);
+        const usage =
+          lastNodeUsageRef.current.find(
+            (u: any) => u.nodeName === node.name
+          ) || ({} as any);
+        const limits =
+          lastNodeLimitsRef.current.find(
+            (u: any) => u.nodeName === node.name
+          ) || ({} as any);
+        return {
+          ...node,
+          nodeCpuUsed:
+            node.nodeCpuUsed || usage.nodeCpuUsed || prev.nodeCpuUsed || "",
+          nodeCpuPercent:
+            node.nodeCpuPercent ||
+            usage.nodeCpuPercent ||
+            prev.nodeCpuPercent ||
+            "",
+          nodeCpuPercentMath:
+            node.nodeCpuPercentMath ||
+            usage.nodeCpuPercentMath ||
+            prev.nodeCpuPercentMath ||
+            "",
+          nodeMemoryUsed:
+            node.nodeMemoryUsed ||
+            usage.nodeMemoryUsed ||
+            prev.nodeMemoryUsed ||
+            "",
+          nodeMemoryPercent:
+            node.nodeMemoryPercent ||
+            usage.nodeMemoryPercent ||
+            prev.nodeMemoryPercent ||
+            "",
+          nodeMemoryUsedDisplay:
+            node.nodeMemoryUsedDisplay ||
+            usage.nodeMemoryUsedDisplay ||
+            prev.nodeMemoryUsedDisplay ||
+            "",
+          nodeCpuLimit:
+            node.nodeCpuLimit || limits.nodeCpuLimit || prev.nodeCpuLimit || "",
+          nodeMemoryLimit:
+            node.nodeMemoryLimit ||
+            limits.nodeMemoryLimit ||
+            prev.nodeMemoryLimit ||
+            "",
+        };
+      })
+    );
+  };
+
   //Listen to "get nodes" return event.
   //removeAllListeners before .on caps this channel at a single listener;
   //otherwise a new listener was added every render and never removed,
   //accumulating until the renderer slowed down and crashed.
   ipcRenderer.removeAllListeners("got_nodes");
   ipcRenderer.on("got_nodes", (event, arg) => {
+    // No table to parse — either a genuinely empty cluster or "" from a failed
+    // command. Show the "no nodes" state; never parse the OOM-prone char stream
+    // on non-table input.
+    if (!isParseableKubectlTable(arg)) {
+      setStatus("empty");
+      props.setNodesArr([]);
+      return;
+    }
+
     let nameOutput: any = [];
     let statusOutput: any = [];
     let roleOutput: any = [];
@@ -533,14 +636,14 @@ const [count, setCount] = useState(0)
     let i: number = 0;
 
     //skip row of column titles
-    while (arg[i] !== "\n") {
+    while (i < arg.length && arg[i] !== "\n") {
       i++;
     }
     i++;
 
     let argArr = arg.split("");
     for (let j = 0; i < argArr.length; i++) {
-      while (arg[i] !== " ") {
+      while (i < arg.length && arg[i] !== " ") {
         nameOutput.push(arg[i]);
         i++;
       }
@@ -548,7 +651,7 @@ const [count, setCount] = useState(0)
         i++;
       }
 
-      while (arg[i] !== " ") {
+      while (i < arg.length && arg[i] !== " ") {
         statusOutput.push(arg[i]);
         i++;
       }
@@ -557,7 +660,7 @@ const [count, setCount] = useState(0)
         i++;
       }
 
-      while (arg[i] !== " ") {
+      while (i < arg.length && arg[i] !== " ") {
         roleOutput.push(arg[i]);
         i++;
       }
@@ -566,7 +669,7 @@ const [count, setCount] = useState(0)
         i++;
       }
 
-      while (arg[i] !== " ") {
+      while (i < arg.length && arg[i] !== " ") {
         ageOutput.push(arg[i]);
         i++;
       }
@@ -575,7 +678,7 @@ const [count, setCount] = useState(0)
         i++;
       }
 
-      while (arg[i] !== " ") {
+      while (i < arg.length && arg[i] !== " ") {
         versionOutput.push(arg[i]);
         i++;
       }
@@ -584,7 +687,7 @@ const [count, setCount] = useState(0)
         i++;
       }
 
-      while (arg[i] !== " ") {
+      while (i < arg.length && arg[i] !== " ") {
         internalIpOutput.push(arg[i]);
         i++;
       }
@@ -593,7 +696,7 @@ const [count, setCount] = useState(0)
         i++;
       }
 
-      while (arg[i] !== " ") {
+      while (i < arg.length && arg[i] !== " ") {
         externalIpOutput.push(arg[i]);
         i++;
       }
@@ -602,7 +705,7 @@ const [count, setCount] = useState(0)
         i++;
       }
 
-      while (arg[i] !== " " || arg[i + 1] !== " ") {
+      while (i < arg.length && (arg[i] !== " " || arg[i + 1] !== " ")) {
         osImageOutput.push(arg[i]);
         i++;
       }
@@ -614,7 +717,7 @@ const [count, setCount] = useState(0)
         i++;
       }
 
-      while (arg[i] !== " ") {
+      while (i < arg.length && arg[i] !== " ") {
         kernalOutput.push(arg[i]);
         i++;
       }
@@ -623,7 +726,7 @@ const [count, setCount] = useState(0)
         i++;
       }
 
-      while (arg[i] !== "\n") {
+      while (i < arg.length && arg[i] !== "\n") {
         containerRuntimeOutput.push(arg[i]);
         i++;
       }
@@ -662,79 +765,62 @@ const [count, setCount] = useState(0)
     );
     filteredNodes = finalNodesInfoArr;
 
-    // Publish the fresh list with empty stats first — that produces the brief
-    // LOADING sweep on the gauges each refresh — then restore the last-known
-    // stats ~300ms later, so the sweep always ends in about half a second
-    // and stats can never be stuck on LOADING for a whole cycle (which used to
-    // happen when `kubectl top` finished before `kubectl get nodes`). Fresh
-    // stats overwrite these restored values whenever they land.
+    // Start a sweep: publish the fresh list with blank stats (the brief LOADING
+    // flash on the gauges), then settle once this cycle's `kubectl top nodes`
+    // answers — see the got_nodesCpuUsed handlers below.
     props.setNodesArr((currentNodes: any[]) => {
       prevNodesRef.current = currentNodes;
       return [...finalNodesInfoArr];
     });
+    setStatus("ok");
+    setNodeMetricsStartingUp(false);
 
-    setTimeout(() => {
-      props.setNodesArr((currentNodes: any[]) =>
-        currentNodes.map((node: any) => {
-          const prev =
-            prevNodesRef.current.find((n: any) => n.name === node.name) ||
-            ({} as any);
-          const usage =
-            lastNodeUsageRef.current.find(
-              (u: any) => u.nodeName === node.name
-            ) || ({} as any);
-          const limits =
-            lastNodeLimitsRef.current.find(
-              (u: any) => u.nodeName === node.name
-            ) || ({} as any);
-          return {
-            ...node,
-            nodeCpuUsed:
-              node.nodeCpuUsed || usage.nodeCpuUsed || prev.nodeCpuUsed || "",
-            nodeCpuPercent:
-              node.nodeCpuPercent ||
-              usage.nodeCpuPercent ||
-              prev.nodeCpuPercent ||
-              "",
-            nodeCpuPercentMath:
-              node.nodeCpuPercentMath ||
-              usage.nodeCpuPercentMath ||
-              prev.nodeCpuPercentMath ||
-              "",
-            nodeMemoryUsed:
-              node.nodeMemoryUsed ||
-              usage.nodeMemoryUsed ||
-              prev.nodeMemoryUsed ||
-              "",
-            nodeMemoryPercent:
-              node.nodeMemoryPercent ||
-              usage.nodeMemoryPercent ||
-              prev.nodeMemoryPercent ||
-              "",
-            nodeMemoryUsedDisplay:
-              node.nodeMemoryUsedDisplay ||
-              usage.nodeMemoryUsedDisplay ||
-              prev.nodeMemoryUsedDisplay ||
-              "",
-            nodeCpuLimit:
-              node.nodeCpuLimit ||
-              limits.nodeCpuLimit ||
-              prev.nodeCpuLimit ||
-              "",
-            nodeMemoryLimit:
-              node.nodeMemoryLimit ||
-              limits.nodeMemoryLimit ||
-              prev.nodeMemoryLimit ||
-              "",
-          };
-        })
-      );
-    }, 500);
+    clearTimeout(settleTimerRef.current);
+    const last = lastUsageResultRef.current;
+    if (Date.now() - last.at < 1500) {
+      // this cycle's `kubectl top` already answered before the node list did:
+      // keep the flash briefly, then apply that result
+      awaitingUsageRef.current = false;
+      settleTimerRef.current = setTimeout(() => {
+        restoreNodeStats();
+        if (!last.ok) {
+          setMetricsServerMissing(last.missing);
+          setNodeMetricsStartingUp(
+            !last.missing && isMetricsUnavailableError(last.message)
+          );
+        }
+      }, 500);
+    } else {
+      awaitingUsageRef.current = true;
+      // nothing answered at all — revert to the previous stats
+      settleTimerRef.current = setTimeout(() => {
+        if (!awaitingUsageRef.current) return;
+        awaitingUsageRef.current = false;
+        restoreNodeStats();
+      }, 5000);
+    }
   }); // ------------------------------------------ end of ipc render for get nodes command
+
+  // `kubectl top nodes` failed (e.g. metrics-server still starting after a
+  // cluster restart): revert to the previous stats. A node with none to revert
+  // to shows STARTING UP instead of LOADING.
+  ipcRenderer.removeAllListeners("got_nodesCpuUsed_status");
+  ipcRenderer.on("got_nodesCpuUsed_status", (event, arg) => {
+    const message = (arg && arg.message) || "";
+    const missing = !!(arg && arg.metricsNotInstalled);
+    lastUsageResultRef.current = { at: Date.now(), ok: false, message, missing };
+    awaitingUsageRef.current = false;
+    clearTimeout(settleTimerRef.current);
+    restoreNodeStats();
+    setMetricsServerMissing(missing);
+    setNodeMetricsStartingUp(!missing && isMetricsUnavailableError(message));
+  });
 
   //Listen to "get cpuUsed" return event
   ipcRenderer.removeAllListeners("got_nodesCpuUsed");
   ipcRenderer.on("got_nodesCpuUsed", (event, arg) => {
+    if (!isParseableKubectlTable(arg)) return;
+
     let date = new Date().toISOString();
     // let tempNodesStatsObj = JSON.parse(JSON.stringify(podsStatsObj));
     let tempNodesStatsObj = props.nodesStatsObj;
@@ -746,7 +832,7 @@ const [count, setCount] = useState(0)
     let i: number = 0;
 
     //skips row of column titles
-    while (argArr[i] !== "\n") {
+    while (i < argArr.length && argArr[i] !== "\n") {
       i++;
     }
     i++;
@@ -760,7 +846,7 @@ const [count, setCount] = useState(0)
       let nodeMemoryPercentArr : string[] = [];
 
       //saves name because array order is same for both outputs
-      while (argArr[i] !== " ") {
+      while (i < argArr.length && argArr[i] !== " ") {
         nodeNameArr.push(arg[i]);
         i++;
       }
@@ -791,7 +877,7 @@ const [count, setCount] = useState(0)
         i++;
       }
       //saves cpu percent
-      while (argArr[i] !== " ") {
+      while (i < argArr.length && argArr[i] !== " ") {
         nodeCpuPercentArr.push(arg[i]);
         i++;
       }
@@ -840,7 +926,7 @@ const [count, setCount] = useState(0)
       }
 
       //saves memory percent
-      while (argArr[i] !== " ") {
+      while (i < argArr.length && argArr[i] !== " ") {
         nodeMemoryPercentArr.push(arg[i]);
         i++;
       }
@@ -893,6 +979,22 @@ const [count, setCount] = useState(0)
       })
     );
 
+    // settle the sweep: fresh stats are in; fill anything this result didn't
+    // cover (e.g. limits that landed before the list) from last-known values
+    lastUsageResultRef.current = {
+      at: Date.now(),
+      ok: true,
+      message: "",
+      missing: false,
+    };
+    setNodeMetricsStartingUp(false);
+    setMetricsServerMissing(false);
+    if (awaitingUsageRef.current) {
+      awaitingUsageRef.current = false;
+      clearTimeout(settleTimerRef.current);
+      restoreNodeStats();
+    }
+
     for (let j = 0; j < nodeUsageArray.length; j++) {
       if (tempNodesStatsObj[nodeUsageArray[j]["nodeName"]] === undefined) {
         let nodesCurrentStats = {
@@ -924,6 +1026,8 @@ const [count, setCount] = useState(0)
   //Listen to "get nodeCpuUsed" return event
   ipcRenderer.removeAllListeners("got_nodesCpuLimits");
   ipcRenderer.on("got_nodesCpuLimits", (event, arg) => {
+    if (!isParseableKubectlTable(arg)) return;
+
     let argArr = arg.split("");
     let nodeLimitsArray : any[] = [];
 
@@ -932,7 +1036,7 @@ const [count, setCount] = useState(0)
     let i: number = 0;
 
     //skips "name"
-    while (argArr[i] !== " ") {
+    while (i < argArr.length && argArr[i] !== " ") {
       i++;
     }
 
@@ -941,7 +1045,7 @@ const [count, setCount] = useState(0)
       i++;
     }
     //skips "CPU-limits"
-    while (argArr[i] !== " ") {
+    while (i < argArr.length && argArr[i] !== " ") {
       i++;
     }
     //skips spaces
@@ -959,7 +1063,7 @@ const [count, setCount] = useState(0)
       let nodeNameArr : string[] = [];
 
       //take name because maybe be duplicate values]
-      while (argArr[i] !== " ") {
+      while (i < argArr.length && argArr[i] !== " ") {
         nodeNameArr.push(argArr[i]);
         i++;
       }
@@ -992,7 +1096,7 @@ const [count, setCount] = useState(0)
       }
 
       //skip spaces after cpu limt value
-      while (arg[i] !== " ") {
+      while (i < arg.length && arg[i] !== " ") {
         i++;
       }
 
@@ -1099,7 +1203,7 @@ const [count, setCount] = useState(0)
       let output : JSX.Element[]= [];
 
       for (let i = 0; i < argArr.length; i++) {
-        while (argArr[i] !== "\n") {
+        while (i < argArr.length && argArr[i] !== "\n") {
           temp += argArr[i];
           i++;
         }
@@ -1432,11 +1536,16 @@ const [count, setCount] = useState(0)
               }}
             >
               <div
+                className="status-glow"
                 style={{
                   width: "12px",
                   height: "12px",
                   borderRadius: "15px",
                   backgroundColor:
+                    theme.palette.mode === "dark"
+                      ? `${nodeReadyStatusRunning}`
+                      : `${nodeReadyStatusRunningLight}`,
+                  color:
                     theme.palette.mode === "dark"
                       ? `${nodeReadyStatusRunning}`
                       : `${nodeReadyStatusRunningLight}`,
@@ -1578,7 +1687,9 @@ const [count, setCount] = useState(0)
                   top: "-48px",
                   left: "5px",
                   fontSize: !props.nodesArr[i]["nodeCpuPercent"]
-                    ? "13px"
+                    ? nodeMetricsStartingUp
+                      ? "9px"
+                      : "13px"
                     : "16px",
                   fontWeight: "500",
                   marginTop: !props.nodesArr[i]["nodeCpuPercent"]
@@ -1592,7 +1703,9 @@ const [count, setCount] = useState(0)
                 }}
               >
                 {!props.nodesArr[i]["nodeCpuPercent"]
-                  ? "LOADING"
+                  ? nodeMetricsStartingUp
+                    ? "STARTING UP"
+                    : props.metricsServerMissing ? "—" : "LOADING"
                   : props.nodesArr[i]["nodeCpuPercent"]}
               </div>
               <div
@@ -1673,7 +1786,9 @@ const [count, setCount] = useState(0)
                   fontWeight: "500",
                   marginLeft: "-10px",
                   fontSize: !props.nodesArr[i]["nodeMemoryPercent"]
-                    ? "13px"
+                    ? nodeMetricsStartingUp
+                      ? "9px"
+                      : "13px"
                     : "16px",
                   marginTop: !props.nodesArr[i]["nodeMemoryPercent"]
                     ? "-55px"
@@ -1685,7 +1800,9 @@ const [count, setCount] = useState(0)
                 }}
               >
                 {!props.nodesArr[i]["nodeMemoryPercent"]
-                  ? "LOADING"
+                  ? nodeMetricsStartingUp
+                    ? "STARTING UP"
+                    : props.metricsServerMissing ? "—" : "LOADING"
                   : `${props.nodesArr[i]["nodeMemoryPercent"]}`}
               </div>
               <div
@@ -1730,14 +1847,26 @@ const [count, setCount] = useState(0)
       nodesPodsStatuColor = "rgba(210, 223, 61)";
     }
 
-    if (tempPodList[i]["podCpuLimit"] === "NONE") {
+    // During a stats refresh a pod's used/limit values are briefly empty or
+    // undefined, which made the percent math NaN — shown as "NaN" in the red
+    // (>=90%) color. Detect that "still loading" state (non-finite percent) and
+    // render a muted LOADING placeholder instead of a red NaN.
+    const cpuNone = tempPodList[i]["podCpuLimit"] === "NONE";
+    const cpuPct =
+      (100 * Number(tempPodList[i]["podCpuUsed"])) /
+      Number(`${tempPodList[i]["podCpuLimit"]}`);
+    const cpuLoading = !cpuNone && !Number.isFinite(cpuPct);
+
+    const memNone = tempPodList[i]["podMemoryLimit"] === "NONE";
+    const memPct =
+      (100 * Number(tempPodList[i]["podMemoryUsed"])) /
+      Number(`${tempPodList[i]["podMemoryLimit"]}`);
+    const memLoading = !memNone && !Number.isFinite(memPct);
+
+    if (cpuNone || cpuLoading) {
       nodesPodsCpuPercentColor = "#ffffff80";
       nodesPodsCpuPercentColorLight = "#00000045";
-    } else if (
-      (100 * Number(tempPodList[i]["podCpuUsed"])) /
-        Number(`${tempPodList[i]["podCpuLimit"]}`) <
-      90
-    ) {
+    } else if (cpuPct < 90) {
       nodesPodsCpuPercentColor = "#2fc665";
       nodesPodsCpuPercentColorLight = "#2fc665";
     } else {
@@ -1745,7 +1874,7 @@ const [count, setCount] = useState(0)
       nodesPodsCpuPercentColorLight = "#cf4848";
     }
 
-    if (tempPodList[i]["podMemoryLimit"] === "NONE") {
+    if (memNone || memLoading) {
       nodesPodsMemoryColor = "#ffffff80";
       nodesPodsMemoryColorLight = "#00000045";
     } else if (tempPodList[i]["podMemoryPercent"] < 90) {
@@ -1947,13 +2076,7 @@ const [count, setCount] = useState(0)
                   variant="determinate"
                   // @ts-nocheck
                   thickness={1.35}
-                  value={
-                    tempPodList[i]["podCpuLimit"] === "NONE"
-                      ? 0
-                      : ((100 * Number(tempPodList[i]["podCpuUsed"])) /
-                          Number(`${tempPodList[i]["podCpuLimit"]}`)) *
-                        0.73
-                  }
+                  value={cpuNone || cpuLoading ? 0 : cpuPct * 0.73}
                   style={{
                     position: "relative",
                     top: "-48px",
@@ -1973,22 +2096,26 @@ const [count, setCount] = useState(0)
                   top: "-43px",
                   left: "5px",
                   fontSize:
-                    tempPodList[i]["podCpuLimit"] === "NONE" ? "13px" : "16px",
+                    cpuLoading && props.podMetricsStartingUp
+                      ? "9px"
+                      : cpuNone || cpuLoading
+                      ? "13px"
+                      : "16px",
                   fontWeight: "500",
-                  marginTop:
-                    tempPodList[i]["podCpuLimit"] === "NONE"
-                      ? "-55px"
-                      : "-60px",
-                  marginLeft:
-                    tempPodList[i]["podCpuLimit"] === "NONE" ? "-12px" : "-8px",
+                  marginTop: cpuNone || cpuLoading ? "-55px" : "-60px",
+                  marginLeft: cpuNone || cpuLoading ? "-12px" : "-8px",
                   color:
                     theme.palette.mode === "dark"
                       ? `${nodesPodsCpuPercentColor}`
                       : `${nodesPodsCpuPercentColorLight}`,
                 }}
               >
-                {tempPodList[i]["podCpuLimit"] === "NONE"
+                {cpuNone
                   ? `no max`
+                  : cpuLoading
+                  ? props.podMetricsStartingUp
+                    ? `STARTING UP`
+                    : props.metricsServerMissing ? `—` : `LOADING`
                   : `${
                       100 *
                       (Number(tempPodList[i]["podCpuUsed"]) /
@@ -2049,7 +2176,7 @@ const [count, setCount] = useState(0)
                   // @ts-nocheck
                   thickness={1.35}
                   value={
-                    tempPodList[i]["podMemoryLimit"] === "NONE"
+                    memNone || memLoading
                       ? 0
                       : 0.73 * tempPodList[i]["podMemoryPercent"]
                   }
@@ -2074,21 +2201,24 @@ const [count, setCount] = useState(0)
                   fontWeight: "500",
                   marginLeft: "-12px",
                   fontSize:
-                    tempPodList[i]["podMemoryLimit"] === "NONE"
+                    memLoading && props.podMetricsStartingUp
+                      ? "9px"
+                      : memNone || memLoading
                       ? "13px"
                       : "16px",
-                  marginTop:
-                    tempPodList[i]["podMemoryLimit"] === "NONE"
-                      ? "-55px"
-                      : "-60px",
+                  marginTop: memNone || memLoading ? "-55px" : "-60px",
                   color:
                     theme.palette.mode === "dark"
                       ? `${nodesPodsMemoryColor}`
                       : `${nodesPodsMemoryColorLight}`,
                 }}
               >
-                {tempPodList[i]["podMemoryLimit"] === "NONE"
+                {memNone
                   ? `no max`
+                  : memLoading
+                  ? props.podMetricsStartingUp
+                    ? `STARTING UP`
+                    : props.metricsServerMissing ? `—` : `LOADING`
                   : `${Math.min(
                       Math.round(
                         100 *
@@ -2542,7 +2672,9 @@ const [count, setCount] = useState(0)
 
   // ---------------------------------------------------------- START OF IF CONDITION TO DETERMINE MAIN DIV'S JSX --------
   let nodeListDiv;
-  if (props.nodesArr[0]) {
+  // Build this block when there are nodes OR when there's a status message to
+  // show (empty / unreachable / error) — otherwise an empty list renders nothing.
+  if (props.nodesArr[0] || status !== "ok") {
     nodeListDiv = (
       <>
         <div
@@ -2584,6 +2716,9 @@ const [count, setCount] = useState(0)
               {" "}
               ( {nodeList.length} total )
             </div>
+            {props.metricsServerMissing && (
+              <MetricsMissingNotice style={{ margin: "13px 0 0 18px" }} />
+            )}
           </div>
         </div>
         <div
@@ -2613,7 +2748,11 @@ const [count, setCount] = useState(0)
             margin: "-5px 0 0 50px",
           }}
         >
-          {nodeList}
+          {status === "ok" ? (
+            nodeList
+          ) : (
+            <KraneStatusMessage state={status} label="nodes" detail={detail} />
+          )}
           <Modal
             open={openNode}
             onClose={handleNodeClose}
@@ -2802,6 +2941,11 @@ const [count, setCount] = useState(0)
                             margin: "6px 0 0 0",
                           }}
                         >
+                          {props.metricsServerMissing && (
+                            <MetricsMissingNotice
+                              style={{ marginRight: "auto", alignSelf: "center" }}
+                            />
+                          )}
                           <div
                             style={{
                               width: "260px",
@@ -2830,6 +2974,7 @@ const [count, setCount] = useState(0)
                             flexDirection: "row",
                             justifyContent: "flex-start",
                             width: "510px",
+                            opacity: props.metricsServerMissing ? 0.35 : 1,
                           }}
                         >
                           <div
@@ -2905,7 +3050,9 @@ const [count, setCount] = useState(0)
                                 justifyContent: "center",
                                 whiteSpace: "nowrap",
                                 fontSize: !selectedNode[0]["nodeCpuPercent"]
-                                  ? "18px"
+                                  ? nodeMetricsStartingUp
+                                    ? "13px"
+                                    : "18px"
                                   : selectedNode[0]["nodeCpuPercentMath"] ===
                                     "N/A"
                                   ? "32px"
@@ -2932,7 +3079,9 @@ const [count, setCount] = useState(0)
                               }}
                             >
                               {!selectedNode[0]["nodeCpuPercent"]
-                                ? "LOADING"
+                                ? nodeMetricsStartingUp
+                                  ? "STARTING UP"
+                                  : props.metricsServerMissing ? "—" : "LOADING"
                                 : selectedNode[0]["nodeCpuPercentMath"] === "N/A"
                                 ? `NO MAX`
                                 : `${selectedNode[0]["nodeCpuPercentMath"]}%`}
@@ -3169,6 +3318,7 @@ const [count, setCount] = useState(0)
                             flexDirection: "row",
                             justifyContent: "flex-start",
                             width: "510px",
+                            opacity: props.metricsServerMissing ? 0.35 : 1,
                           }}
                         >
                           <div
@@ -3251,7 +3401,9 @@ const [count, setCount] = useState(0)
                                 justifyContent: "center",
                                 whiteSpace: "nowrap",
                                 fontSize: !selectedNode[0]["nodeMemoryPercent"]
-                                  ? "18px"
+                                  ? nodeMetricsStartingUp
+                                    ? "13px"
+                                    : "18px"
                                   : selectedNode[0]["nodeMemoryPercent"] === "N/A"
                                   ? "32px"
                                   : "42px",
@@ -3281,7 +3433,9 @@ const [count, setCount] = useState(0)
                               }}
                             >
                               {!selectedNode[0]["nodeMemoryPercent"]
-                                ? "LOADING"
+                                ? nodeMetricsStartingUp
+                                  ? "STARTING UP"
+                                  : props.metricsServerMissing ? "—" : "LOADING"
                                 : selectedNode[0]["nodeMemoryPercent"] === "N/A"
                                 ? `NO MAX`
                                 : `${selectedNode[0]["nodeMemoryPercent"].slice(

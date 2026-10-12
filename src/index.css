@@ -215,3 +215,19 @@ a {
   outline: none;
 }
 
+/* Slow pulsing glow for status lights and the custom-kubeconfig dot. The glow
+   color follows the element's own `color`, so each dot just sets `color` to its
+   hue and adds this class. */
+@keyframes glowPulse {
+  0%,
+  100% {
+    box-shadow: 0 0 1px 0 currentColor;
+  }
+  50% {
+    box-shadow: 0 0 7px 1.5px currentColor;
+  }
+}
+.status-glow {
+  animation: glowPulse 4.5s ease-in-out infinite;
+}
+

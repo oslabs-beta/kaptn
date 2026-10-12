@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import Button from "@mui/material/Button";
 import { useTheme, Box } from "@mui/material";
 import { ipcRenderer } from "../electron-ipc";
+import { isParseableKubectlTable } from "../lib/parseGuards";
 import SideNav from "../components/Sidebar";
 import Tooltip, { TooltipProps, tooltipClasses } from "@mui/material/Tooltip";
 import { styled } from "@mui/material/styles";
@@ -25,7 +26,18 @@ const LightTooltip = styled(({ className, ...props }: TooltipProps) => (
 }));
 
 function Krane(props) {
-  const [namespacesArr, setNamespacesArr] = useState<JSX.Element[] | string[]>(["ALL"]);
+  // Must be real <MenuItem> elements, never a bare string — the <Select> renders
+  // these directly as its children and MUI reads child.props.value on each. Start
+  // with just "ALL" so the dropdown is valid before (or without) a namespace load.
+  const [namespacesArr, setNamespacesArr] = useState<JSX.Element[]>([
+    <MenuItem value="ALL" key={0}>
+      ALL
+    </MenuItem>,
+  ]);
+
+  // null = unknown/checking; false = the namespaces command failed (cluster
+  // unreachable) — used to surface the "still not appearing" helper in a view.
+  const [clusterReachable, setClusterReachable] = useState<boolean | null>(null);
   const [selectedNamespace, setSelectedNamespace] = useState<string>(
     "ALL"
   );
@@ -41,6 +53,12 @@ function Krane(props) {
   const [nodesLimitsArr, setNodesLimitsArr] = useState([]);
 
   const [podsContainersArr, setPodsContainersArr] = useState([]);
+  // set by KranePodList when `kubectl top pods` fails with no stats to fall
+  // back on (metrics-server starting); read by both lists' pod gauges
+  const [podMetricsStartingUp, setPodMetricsStartingUp] = useState(false);
+  // true when `kubectl top` fails because metrics-server isn't installed;
+  // either list sets it, a successful `kubectl top` clears it
+  const [metricsServerMissing, setMetricsServerMissing] = useState(false);
   const [currDir, setCurrDir] = useState<string>("NONE SELECTED");
 
   const [openPod, setOpenPod] = React.useState<boolean>(false);
@@ -92,6 +110,14 @@ function Krane(props) {
 
   const theme = useTheme();
 
+  // Docs links opened in an in-app popup window (same lavender as the Start page).
+  const openHelp = (url: string) => ipcRenderer.send("open_help_link", url);
+  const linkStyle = {
+    color: theme.palette.mode === "dark" ? "#b7aefc" : "#4b3fce",
+    textDecoration: "underline",
+    cursor: "pointer",
+  };
+
   function handleManualStatRefresh(event) {
     //kept below for reference to previous calls
     // setDeploymentsArr([]);
@@ -120,15 +146,13 @@ function Krane(props) {
 
   }
 
-  // the below choose kube config function is incorrect ... to use custom kubeconfig location, it will require passing the following flag to all commands: --kubeconfig="path/to/kubeconfigfile"
-  // ... suggest creating state called customConfigPath and customConfigStatus ... if status is true, it passes customConfigPath in and adds whole statement to end of each command (with variable that is otherwise assigned value of "" to make it pass nothing and not affect commands unless altered via function below).
-  const handleChooseKubeConfig = (event) => {
-    let path = event.target.files[0].path.split("");
-    while (path[path.length - 1] !== "/") {
-      path.pop();
-    }
-    let absPath = path.join("");
-    setCurrDir(absPath);
+  const handleChooseKubeConfig = async () => {
+    // Native dialog (opens in ~/.kube with hidden files shown) returns the
+    // chosen kubeconfig file path, or null if cancelled. main.js applies it as
+    // KUBECONFIG and broadcasts "kubeconfig_changed", which re-fetches below.
+    const filePath = await ipcRenderer.invoke("choose_kubeconfig");
+    if (!filePath) return;
+    ipcRenderer.send("set_kubeconfig", filePath);
   };
 
   const [deploymentsShowStatus, setDeploymentsShowStatus] = useState(false);
@@ -264,8 +288,27 @@ function Krane(props) {
     });
   }
 
+  // Re-fetch when the kubeconfig changes (from the top bar or the picker below)
+  // so a chosen config takes effect immediately. Named handler + removeListener
+  // so we don't clobber the Topbar's listener on the same channel.
+  useEffect(() => {
+    const onKubeChange = () => {
+      getNamespaces();
+      getNodesInfo();
+      getDeploymentsInfo();
+    };
+    ipcRenderer.on("kubeconfig_changed", onKubeChange);
+    return () => ipcRenderer.removeListener("kubeconfig_changed", onKubeChange);
+  }, []);
+
   useEffect(() => {
     ipcRenderer.on("got_namespaces", (event, arg) => {
+      // This event only fires when the command succeeded, so the cluster is up.
+      setClusterReachable(true);
+      // Skip parsing when there's no namespace table (empty or error output),
+      // so the dropdown stays a clean "ALL" instead of garbage entries.
+      if (!isParseableKubectlTable(arg)) return;
+
       let argArr = arg.split("");
 
       let namespaceArrayOutput : string[] = [];
@@ -273,7 +316,7 @@ function Krane(props) {
       let i: number = 0;
 
       //skip row of column titles
-      while (arg[i] !== "\n") {
+      while (i < arg.length && arg[i] !== "\n") {
         i++;
       }
       i++;
@@ -282,7 +325,7 @@ function Krane(props) {
         let namespaceOutput: string[] = [];
 
         //saves namespace
-        while (arg[i] !== " ") {
+        while (i < arg.length && arg[i] !== " ") {
           namespaceOutput.push(arg[i]);
           i++;
         }
@@ -290,7 +333,7 @@ function Krane(props) {
         let prevNamespaces = [...namespacesArr];
         namespaceArrayOutput.push(output);
         //skips spaces
-        while (arg[i] !== "\n") {
+        while (i < arg.length && arg[i] !== "\n") {
           i++;
         }
       }
@@ -334,6 +377,12 @@ function Krane(props) {
       setNamespacesArr(finalOutput);
     });
 
+    // A down cluster sends this instead of got_namespaces — mark it unreachable
+    // so a chosen view can surface the "still not appearing" helper.
+    ipcRenderer.on("got_namespaces_status", () => {
+      setClusterReachable(false);
+    });
+
     getNamespaces();
 
     props.intervalArray.map((a) => {
@@ -345,6 +394,7 @@ function Krane(props) {
     //listener each time the Krane page is navigated to and back.
     return () => {
       ipcRenderer.removeAllListeners("got_namespaces");
+      ipcRenderer.removeAllListeners("got_namespaces_status");
     };
   }, []);
 
@@ -352,6 +402,77 @@ function Krane(props) {
     setSelectedNamespace(event.target.value);
     handleManualStatRefresh(null);
   }
+
+  // Helper shown when clusters don't appear — offers loading a custom kubeconfig.
+  // Reused on the landing screen and beneath a chosen view when unreachable.
+  // Shown in place of a chosen view when the cluster is unreachable.
+  const unreachablePanel = (
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        textAlign: "center",
+        margin: "11% 0 0 0",
+        gap: "6px",
+        textTransform: "uppercase",
+      }}
+    >
+      <div
+        style={{
+          fontFamily: "Outfit",
+          fontSize: "34px",
+          fontWeight: "900",
+          letterSpacing: "0.5px",
+          color: theme.palette.mode === "dark" ? "#ffffff" : "#3c3c9a",
+        }}
+      >
+        Cluster not found
+      </div>
+      <div
+        style={{
+          fontFamily: "Outfit",
+          fontSize: "22px",
+          fontWeight: "500",
+          letterSpacing: "0.5px",
+          color: theme.palette.mode === "dark" ? "#ffffff" : "#3c3c9a",
+        }}
+      >
+        Is{" "}
+        <span
+          onClick={() => openHelp("https://docs.docker.com/get-started/")}
+          style={linkStyle}
+        >
+          Docker
+        </span>{" "}
+        or{" "}
+        <span
+          onClick={() => openHelp("https://minikube.sigs.k8s.io/docs/start/")}
+          style={linkStyle}
+        >
+          minikube
+        </span>{" "}
+        running?
+      </div>
+      <div
+        style={{
+          fontFamily: "Outfit",
+          fontSize: "13px",
+          fontWeight: "600",
+          letterSpacing: "0.6px",
+          marginTop: "6px",
+          color: theme.palette.mode === "dark" ? "#ffffffaa" : "#3c3c9a",
+        }}
+      >
+        Or{" "}
+        <span onClick={handleChooseKubeConfig} style={linkStyle}>
+          click here
+        </span>{" "}
+        to choose a custom .kube/config file
+      </div>
+    </div>
+  );
 
   // ---------------------------------------------------------- START OF IF CONDITION TO DETERMINE MAIN DIV'S JSX --------
   let deploymentsDiv : JSX.Element;
@@ -379,6 +500,9 @@ function Krane(props) {
     nodesAndPodsDiv = (
       <>
         <KraneNodeList
+          podMetricsStartingUp={podMetricsStartingUp}
+          metricsServerMissing={metricsServerMissing}
+          setMetricsServerMissing={setMetricsServerMissing}
           nodesArr={nodesArr}
           setNodesArr={setNodesArr}
           nodesUsageArr={nodesUsageArr}
@@ -430,6 +554,10 @@ function Krane(props) {
           setKraneDeployIPCCount={setKraneDeployIPCCount}
         />
         <KranePodList
+          podMetricsStartingUp={podMetricsStartingUp}
+          setPodMetricsStartingUp={setPodMetricsStartingUp}
+          metricsServerMissing={metricsServerMissing}
+          setMetricsServerMissing={setMetricsServerMissing}
           selectedNamespace={selectedNamespace}
           podsArr={podsArr}
           setPodsArr={setPodsArr}
@@ -693,37 +821,6 @@ function Krane(props) {
         >
           Choose From Above to Begin
         </div>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            fontFamily: "Outfit",
-            margin: "25% 0 0 0",
-            fontSize: "8px",
-            fontWeight: "900",
-            opacity: ".42",
-            letterSpacing: "1px",
-            textTransform: "uppercase",
-            color: theme.palette.mode === "dark" ? "" : "#000000",
-          }}
-        >
-          CLUSTERS STILL NOT APPEARING AFTER CHOOSING?
-          <Button
-            variant="contained"
-            component="label"
-            style={{
-              backgroundColor: "transparent",
-              fontFamily: "Outfit",
-              margin: "-7.5px 0 0 -10px",
-              fontSize: "8px",
-              fontWeight: "900",
-              color: theme.palette.mode === "dark" ? "" : "#000000",
-            }}
-          >
-            CLICK HERE TO LOAD A CUSTOM .KUBE/CONFIG FILE
-            <input type="file" hidden onChange={handleChooseKubeConfig} />
-          </Button>
-        </div>
       </>
     );
   }
@@ -933,10 +1030,15 @@ function Krane(props) {
           </div>
 
           {refreshShowDiv}
-          <div style={{ marginTop: "-18px", width: "100%" }}>
-            {nodesAndPodsDiv}
-            {deploymentsDiv}
-          </div>
+          {(nodeShowStatus || deploymentsShowStatus) &&
+          clusterReachable === false ? (
+            unreachablePanel
+          ) : (
+            <div style={{ marginTop: "-18px", width: "100%" }}>
+              {nodesAndPodsDiv}
+              {deploymentsDiv}
+            </div>
+          )}
         </div>
         {noneChosenDiv}
       </div>

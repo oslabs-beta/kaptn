@@ -45,6 +45,13 @@ const CommandLine = (props) => {
   //   //   props.setFlags([]);
   // };
 
+  const isDark = theme.palette.mode === "dark";
+  // Lavender palette shared with the Krane / Cluster pages.
+  const accent = isDark ? "#8d85f3" : "#8881ce";
+  const fieldBg = isDark ? "#0e0727" : "#e6e1fb";
+  const fieldBorder = isDark ? "1px solid #ffffff2e" : "1px solid #b7b1e6";
+  const promptColor = isDark ? "rgb(109, 233, 68)" : "#685aef";
+
   return (
     <div
       style={{
@@ -73,20 +80,22 @@ const CommandLine = (props) => {
             p: 0,
             width: "76%",
             justifyContent: "start",
-            border: "1px solid white",
-            borderRadius: "3px",
-            background: theme.palette.mode === "dark" ? "#0e0727" : "#e6e1fb",
+            background: fieldBg,
+            borderRadius: "8px",
+            // modern rounded field with a soft lavender outline
+            "& .MuiOutlinedInput-root": {
+              borderRadius: "8px",
+              fontFamily: "monospace",
+              "& fieldset": { border: fieldBorder },
+              "&:hover fieldset": { border: `1px solid ${accent}` },
+              "&.Mui-focused fieldset": { border: `1.5px solid ${accent}` },
+            },
           }}
           InputProps={{
             startAdornment: (
               <InputAdornment
                 position="start"
-                style={{
-                  color:
-                    theme.palette.mode === "dark"
-                      ? "rgb(109, 233, 68)"
-                      : "#685aef",
-                }}
+                style={{ color: promptColor }}
               >
                 <strong> $ </strong>
               </InputAdornment>
@@ -106,12 +115,16 @@ const CommandLine = (props) => {
           variant="contained"
           style={{
             margin: "1px 6px 0 8px",
-            background: "transparent",
-            fontSize: "16px",
+            fontSize: "15px",
+            fontWeight: 600,
+            letterSpacing: "0.5px",
             height: "53px",
             width: "11%",
             color: "white",
-            backgroundColor: "#685aef",
+            backgroundColor: accent,
+            borderRadius: "8px",
+            boxShadow: "none",
+            textTransform: "none",
           }}
         >
           Run
@@ -128,9 +141,14 @@ const CommandLine = (props) => {
             height: "53px",
             width: "10%",
             fontSize: "11px",
-            color: theme.palette.mode === "dark" ? "lightgrey" : "grey",
+            fontWeight: 600,
+            letterSpacing: "0.5px",
+            color: isDark ? "#c6bfe2" : "#6f6aa6",
             background: "transparent",
-            border: ".1px solid gray",
+            border: isDark ? "1px solid #ffffff33" : "1px solid #b7b1e6",
+            borderRadius: "8px",
+            boxShadow: "none",
+            textTransform: "none",
           }}
         >
           Clear

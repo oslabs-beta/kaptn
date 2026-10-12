@@ -17,7 +17,7 @@ import {
   Modal,
   Typography,
 } from "@mui/material";
-import { Box, styled} from "@mui/system";
+import { Box, styled } from "@mui/system";
 import SetupCommandLine from "../components/SetupCommandLine.jsx";
 import Terminal from "../components/Terminal.js";
 import Sidebar from "../components/Sidebar.jsx";
@@ -29,6 +29,11 @@ import Switch from "@mui/material/Switch";
 import Tooltip, { TooltipProps, tooltipClasses } from "@mui/material/Tooltip";
 import StarIcon from "@mui/icons-material/Star";
 import StarOutlineIcon from "@mui/icons-material/StarOutline";
+import AutoFixHighIcon from "@mui/icons-material/AutoFixHigh";
+import ImageOutlinedIcon from "@mui/icons-material/ImageOutlined";
+import FolderOpenOutlinedIcon from "@mui/icons-material/FolderOpenOutlined";
+import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
+import MenuBookOutlinedIcon from "@mui/icons-material/MenuBookOutlined";
 
 import { ipcRenderer } from "../electron-ipc";
 
@@ -90,6 +95,104 @@ function Setup() {
 
   //for light/dark mode toggle
   const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
+
+  // Shared lavender design tokens, matched to the Krane + Cluster pages so the
+  // Easy Setup page reads as part of the same modern system. Everything here is
+  // presentation only — no behavior, wiring, or layout position changes.
+  const ui = {
+    titleColor: isDark ? "#ffffff" : "#4e50a5",
+    titleCardBg: isDark
+      ? "linear-gradient(135deg, #322863 0%, #241c4e 100%)"
+      : "linear-gradient(135deg, #d4cffb 0%, #c3bdf7 100%)",
+    cardBg: isDark ? "#2a2152" : "#c9c4f9",
+    cardBorder: isDark ? "1px solid #ffffff14" : "1px solid #ffffffcc",
+    cardShadow: isDark
+      ? "0 8px 20px rgba(0,0,0,0.30)"
+      : "0 8px 18px rgba(100,102,178,0.18)",
+    stepLabel: isDark ? "#a79fd6" : "#5a57a3",
+    accent: isDark ? "#8f85fb" : "#6c63d8",
+    divider: isDark ? "#ffffff1f" : "#ffffffcc",
+    chipBg: isDark ? "#1b1440" : "#ded9fb",
+    chipText: isDark ? "#9a93c8" : "#6f6aa6",
+    chipBorder: isDark ? "1px solid #ffffff14" : "1px solid #ffffff",
+    btnBg: isDark ? "#150f2d" : "#8881ce",
+    btnBorder: isDark ? "1px solid #6b5fe0" : "1px solid #ffffff",
+    link: isDark ? "#b7aefc" : "#4b3fce",
+    sectionLabel: isDark ? "#ffffff" : "#4e50a5",
+    learnBg: isDark ? "#241c4e" : "#e1dbfe",
+    learnBorder: isDark ? "1px solid #ffffff14" : "1px solid #ffffff",
+    learnRowAlt: isDark ? "#2e2663" : "#d3ccf7",
+    star: isDark ? "#8f85fb" : "#6c63d8",
+  };
+
+  // Reusable card shell for the three setup steps. Kept vertically tight so the
+  // whole left column clears the INPUT COMMANDS row beneath the terminal.
+  const cardStyle: React.CSSProperties = {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    padding: "10px 12px",
+    width: "100%",
+    boxSizing: "border-box",
+    borderRadius: "11px",
+    backgroundColor: ui.cardBg,
+    border: ui.cardBorder,
+    boxShadow: ui.cardShadow,
+    marginBottom: "9px",
+  };
+
+  // Icon + exact step label (kept as one text node so the label text is intact).
+  const stepLabelRow: React.CSSProperties = {
+    display: "flex",
+    alignItems: "center",
+    gap: "7px",
+    color: ui.stepLabel,
+    fontFamily: "Outfit",
+    fontSize: "11.5px",
+    fontWeight: 600,
+    letterSpacing: "0.6px",
+    marginBottom: "7px",
+  };
+
+  const dividerStyle: React.CSSProperties = {
+    width: "100%",
+    height: "1px",
+    background: ui.divider,
+  };
+
+  // Monospace "path" chip for the chosen image / directory.
+  const pathChip: React.CSSProperties = {
+    fontFamily: "monospace",
+    fontSize: "10px",
+    letterSpacing: "0.2px",
+    color: ui.chipText,
+    background: ui.chipBg,
+    border: ui.chipBorder,
+    borderRadius: "7px",
+    padding: "4px 9px",
+    margin: "7px 0",
+    maxWidth: "100%",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
+    textAlign: "center",
+  };
+
+  // Primary action button, matched to the Krane / Cluster button styling.
+  const primaryBtn: React.CSSProperties = {
+    backgroundColor: ui.btnBg,
+    color: "white",
+    border: ui.btnBorder,
+    borderRadius: "9px",
+    width: "100%",
+    fontSize: "12px",
+    fontWeight: 600,
+    letterSpacing: "0.5px",
+    padding: "8px 0",
+    textTransform: "none",
+    boxShadow: "none",
+  };
 
   const style = {
     position: "absolute",
@@ -103,7 +206,7 @@ function Setup() {
     boxShadow: 24,
     p: 4,
     padding: "10px",
-    borderRadius: "5px",
+    borderRadius: "12px",
   };
 
   //maps grouped command options alphabetically including if numbered
@@ -172,14 +275,14 @@ function Setup() {
   // Set current work directory, and short directory (for its visible label)
   const handleUploadDirectory = (event) => {
     let path = event.target.files[0].path.split("");
-    while (path[path.length - 1] !== "/") {
+    while (path.length > 0 && path[path.length - 1] !== "/") {
       path.pop();
     }
     let absPath = path.join("");
     setCurrDir(absPath);
     let absArr = absPath.split("");
     let shortArr = [];
-    for (let i = absArr.length - 2; absArr[i] !== "/"; i--) {
+    for (let i = absArr.length - 2; i >= 0 && absArr[i] !== "/"; i--) {
       shortArr.unshift(absArr[i]);
     }
     shortArr.unshift("/");
@@ -222,47 +325,26 @@ function Setup() {
     setK8ToolHover(toolHoverStatus);
   };
 
-  let k8toolStyle = {
+  // Modernized kubectl on/off pill (rounded, lavender outline). Hover brightens
+  // the border; behavior (the Switch + click handlers) is unchanged.
+  let k8toolStyle: React.CSSProperties = {
     display: "flex",
+    alignItems: "center",
     justifyContent: "flex-start",
-    border:
-      theme.palette.mode === "dark"
-        ? ".1px solid #ffffff50"
-        : ".1px solid #00000090",
-    borderRadius: "3px",
-    padding: "13px 0px 13px 8px",
+    border: isDark ? "1px solid #ffffff33" : "1px solid #00000030",
+    borderRadius: "9px",
+    padding: "12px 0px 12px 8px",
     width: "135px",
+    transition: "border-color 160ms ease",
   };
-  if (k8toolHover && theme.palette.mode === "dark") {
-    k8toolStyle = {
-      display: "flex",
-      justifyContent: "flex-start",
-      border: "1px solid #ffffff",
-      borderRadius: "3px",
-      padding: "13px 0px 13px 7.5px",
-      width: "135px",
-    };
-  } else if (k8toolHover && theme.palette.mode === "light") {
-    k8toolStyle = {
-      display: "flex",
-      justifyContent: "flex-start",
-      border: "1px solid #000000",
-      borderRadius: "3px",
-      padding: "13px 0px 13px 7.5px",
-      width: "135px",
-    };
+  if (k8toolHover && isDark) {
+    k8toolStyle = { ...k8toolStyle, border: "1px solid #8f85fb" };
+  } else if (k8toolHover && !isDark) {
+    k8toolStyle = { ...k8toolStyle, border: "1px solid #6c63d8" };
   }
 
   // Set the command state based on current inputs
   useEffect(() => {
-    ipcRenderer.on("post_command", (event, arg) => {
-      const newResponseState = [
-        ...response,
-        { command: command, response: arg },
-      ];
-      setResponse(newResponseState);
-    });
-
     let newCommand = "";
     if (tool !== "") newCommand += tool;
     if (verb !== "") newCommand += " " + verb;
@@ -283,18 +365,25 @@ function Setup() {
       return alert("Please choose working directory");
     } else if (command === ` clear`) {
       setResponse([]);
-    // } else if (command.slice(0, 3) === " cd ") {
-    //   let temp = command.slice(4, -1);
-    //   if (temp.slice(0, 2) === "../") {
-    //     console.log("short dir is:", shortDir);
-    //     console.log("CURR DIR IS:", currDir);
-    //     //parse and change currDir and shortDir to one directory higher
-    //   } else if (temp.slice(0, 2) === "./") {
-    //     //ignore or slice and parse going down levels
-    //     console.log("short dir is:", shortDir);
-    //     console.log("CURR DIR IS:", currDir);
-    //   }
-    } else ipcRenderer.send("post_command", { command, currDir });
+      // } else if (command.slice(0, 3) === " cd ") {
+      //   let temp = command.slice(4, -1);
+      //   if (temp.slice(0, 2) === "../") {
+      //     console.log("short dir is:", shortDir);
+      //     console.log("CURR DIR IS:", currDir);
+      //     //parse and change currDir and shortDir to one directory higher
+      //   } else if (temp.slice(0, 2) === "./") {
+      //     //ignore or slice and parse going down levels
+      //     console.log("short dir is:", shortDir);
+      //     console.log("CURR DIR IS:", currDir);
+      //   }
+    } else {
+      // Register a one-shot response listener only when a command is actually
+      // run, so listeners never accumulate (no MaxListenersExceededWarning).
+      ipcRenderer.once("post_command", (event, arg) => {
+        setResponse((prev) => [...prev, { command, response: arg }]);
+      });
+      ipcRenderer.send("post_command", { command, currDir });
+    }
   };
 
   // Type options
@@ -344,7 +433,7 @@ function Setup() {
         <div
           id="selections"
           style={{
-            width: "225px",
+            width: "208px",
             justifyContent: "center",
             alignContent: "flex-start",
           }}
@@ -353,157 +442,80 @@ function Setup() {
           <div
             style={{
               display: "flex",
-              flexDirection: "column",
               alignItems: "center",
-              padding: "8px",
+              justifyContent: "center",
+              gap: "8px",
+              padding: "9px",
               width: "100%",
-              borderRadius: "5px",
-              backgroundColor:
-                theme.palette.mode === "dark" ? "#2a2152" : "#c9c4f9",
-              marginBottom: "20px",
+              boxSizing: "border-box",
+              borderRadius: "11px",
+              background: ui.titleCardBg,
+              border: ui.cardBorder,
+              boxShadow: ui.cardShadow,
+              marginBottom: "11px",
             }}
           >
+            <AutoFixHighIcon style={{ fontSize: "20px", color: ui.accent }} />
             <div
               style={{
-                alignItems: "center",
-                justifyContent: "center",
                 fontFamily: "Outfit",
-                fontSize: "16px",
-                fontWeight: "800",
-                letterSpacing: "1px",
-                color: theme.palette.mode === "dark" ? "White" : "#4e50a5",
+                fontSize: "17px",
+                fontWeight: 800,
+                letterSpacing: "1.5px",
+                color: ui.titleColor,
               }}
             >
               EASY SETUP
             </div>
           </div>
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              padding: "15px",
-              width: "100%",
-              borderRadius: "5px",
-              backgroundColor:
-                theme.palette.mode === "dark" ? "#2a2152" : "#c9c4f9",
-              marginBottom: "18px",
-            }}
-          >
-            {/* --------------------------- IMAGE CREATION SECTION --------------------- */}
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                color: theme.palette.mode === "dark" ? "#9e9d9d" : "black",
-                paddingBottom: "10px",
-                fontSize: "10.5px",
-              }}
-            >
-              1. IMPORT IMAGE
-            </div>
-            <div
-              style={{
-                backgroundColor: "#716a8e",
-                width: "90%",
-                height: "1px",
-              }}
-            />
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                paddingTop: "5px",
-                fontSize: "9px",
-              }}
-            ></div>
 
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                padding: "10px",
-                fontSize: "9px",
-              }}
-            >
-              {imgPath}
+          {/* --------------------------- IMAGE CREATION SECTION --------------------- */}
+          <div style={cardStyle}>
+            <div style={stepLabelRow}>
+              <ImageOutlinedIcon style={{ fontSize: "16px", color: ui.accent }} />
+              <span>1. IMPORT IMAGE</span>
             </div>
+            <div style={dividerStyle} />
+            <div style={pathChip}>{imgPath}</div>
             <Box
               sx={{
-                "& > :not(style)": { m: 1, width: "160px" },
+                width: "100%",
+                "& > :not(style)": { m: 0, width: "100%" },
               }}
             >
-              {" "}
               <form onSubmit={handleImgUpload}>
                 <TextField
                   id="outlined-basic"
                   label="Enter .IMG"
                   value={imgField}
                   variant="outlined"
+                  size="small"
+                  fullWidth
                   onChange={(e) => handleImgField(e)}
+                  sx={{
+                    "& .MuiOutlinedInput-root": { borderRadius: "9px" },
+                  }}
                 />
               </form>
             </Box>
           </div>
+
           {/* ------------------- CHOOSE DIRECTORY SECTION ---------------------------- */}
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              padding: "5px",
-              width: "100%",
-              borderRadius: "5px",
-              bgcolor: theme.palette.mode === "dark" ? "#2a2152" : "#c9c4f9",
-              marginBottom: "18px",
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                color: theme.palette.mode === "dark" ? "#9e9d9d" : "black",
-                paddingBottom: "10px",
-                fontSize: "10.5px",
-                marginTop: "10px",
-              }}
-            >
-              2. CHOOSE WORKING DIRECTORY
+          <Box sx={cardStyle}>
+            <div style={stepLabelRow}>
+              <FolderOpenOutlinedIcon
+                style={{ fontSize: "16px", color: ui.accent }}
+              />
+              <span>2. CHOOSE DIRECTORY</span>
             </div>
-            <div
-              style={{
-                backgroundColor: "#716a8e",
-                width: "170px",
-                height: "1px",
-              }}
-            />
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                padding: "10px",
-                fontSize: "9px",
-              }}
-            >
-              {shortDir}
-            </div>
+            <div style={dividerStyle} />
+            <div style={pathChip}>{shortDir}</div>
 
             <Button
               variant="contained"
               component="label"
-              style={{
-                border: "1px solid white",
-                width: "170px",
-                marginBottom: "15px",
-                fontSize: "12px",
-                backgroundColor:
-                  theme.palette.mode === "dark" ? "#150f2d" : "#8881ce",
-              }}
+              startIcon={<FolderOpenOutlinedIcon style={{ fontSize: "17px" }} />}
+              style={primaryBtn}
             >
               CHOOSE DIRECTORY
               <input
@@ -516,53 +528,21 @@ function Setup() {
               />
             </Button>
           </Box>
+
           {/* ------------------------- CREATE YAML SECTION  ------------------------------- */}
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              // colored box behind buttons
-              bgcolor: theme.palette.mode === "dark" ? "#2a2152" : "#c9c4f9",
-              padding: "15px",
-              width: "100%",
-              borderRadius: "5px",
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                color: theme.palette.mode === "dark" ? "#9e9d9d" : "black",
-                paddingBottom: "10px",
-                fontSize: "10.5px",
-              }}
-            >
-              3. CHOOSE/CREATE YAML FILE
+          <Box sx={cardStyle}>
+            <div style={stepLabelRow}>
+              <DescriptionOutlinedIcon
+                style={{ fontSize: "16px", color: ui.accent }}
+              />
+              <span>3. CREATE YAML FILE</span>
             </div>
-            <div
-              style={{
-                backgroundColor: "#716a8e",
-                width: "170px",
-                height: "1px",
-              }}
-            />
+            <div style={dividerStyle} />
 
             <Button
               onClick={handleYamlOpen}
-              style={{
-                backgroundColor:
-                  theme.palette.mode === "dark" ? "#150f2d" : "#8881ce",
-                color: "white",
-                justifyContent: "center",
-                alignItems: "center",
-                marginTop: "20px",
-                border: "1px solid white",
-                width: "170px",
-                marginBottom: "15px",
-                fontSize: "12px",
-              }}
+              startIcon={<DescriptionOutlinedIcon style={{ fontSize: "17px" }} />}
+              style={{ ...primaryBtn, marginTop: "6px" }}
             >
               Configure .YAML FILE
             </Button>
@@ -598,6 +578,7 @@ function Setup() {
                   left: "65px",
                   alignItems: "center",
                   justifyContent: "center",
+                  borderRadius: "12px",
                 }}
                 color="black"
               >
@@ -739,19 +720,22 @@ function Setup() {
                 alignItems: "start",
                 fontFamily: "Outfit",
                 fontSize: "19px",
-                marginLeft: "50px",
+                fontWeight: 700,
+                letterSpacing: "1px",
+                marginLeft: "40px",
                 paddingBottom: "15px",
-                color: theme.palette.mode === "dark" ? "White" : "#4e50a5",
+                whiteSpace: "nowrap",
+                color: ui.sectionLabel,
               }}
             >
               INPUT COMMANDS
             </div>
             <EastIcon
               style={{
-                marginLeft: "5px",
+                marginLeft: "7px",
                 height: "30px",
                 paddingBottom: "15px",
-                color: theme.palette.mode === "dark" ? "White" : "#4e50a5",
+                color: ui.accent,
               }}
             />
           </div>
@@ -792,12 +776,13 @@ function Setup() {
                     style={{
                       padding: "0px 4px 0 6px",
                       fontSize: "15px",
+                      fontWeight: 500,
                       color:
-                        theme.palette.mode === "dark" && k8tool === "ON"
+                        isDark && k8tool === "ON"
                           ? "white"
-                          : theme.palette.mode === "dark" && k8tool === "OFF"
+                          : isDark && k8tool === "OFF"
                           ? "#ffffff99"
-                          : theme.palette.mode === "light" && k8tool === "ON"
+                          : !isDark && k8tool === "ON"
                           ? "#3f42c3"
                           : "#00000082",
                       letterSpacing: "-.2px",
@@ -826,14 +811,16 @@ function Setup() {
                     style={{
                       padding: "4.5px 1px 0 1px",
                       fontSize: "10px",
+                      fontWeight: 600,
+                      letterSpacing: "0.5px",
                       color:
-                        k8tool === "OFF" && theme.palette.mode === "light"
+                        k8tool === "OFF" && !isDark
                           ? "grey"
-                          : k8tool === "ON" && theme.palette.mode === "light"
-                          ? ""
-                          : k8tool === "OFF" && theme.palette.mode === "dark"
+                          : k8tool === "ON" && !isDark
+                          ? ui.accent
+                          : k8tool === "OFF" && isDark
                           ? "#ffffff99"
-                          : "",
+                          : ui.accent,
                       WebkitUserSelect: "none" /* Safari */,
                       MozUserSelect: "none" /* Firefox */,
                       msUserSelect: "none" /* IE10+/Edge */,
@@ -918,6 +905,7 @@ function Setup() {
                   justifyContent: "center",
                   textTransform: "uppercase",
                   fontWeight: "900",
+                  color: ui.accent,
                 }}
               >
                 {helpDesk.hasOwnProperty(verb) ? (
@@ -937,9 +925,7 @@ function Setup() {
                 aria-describedby="modal-modal-description"
               >
                 <Box sx={style}>
-                  <Typography
-                    id="modal-modal-title"
-                  ></Typography>
+                  <Typography id="modal-modal-title"></Typography>
                   <Typography
                     id="modal-modal-description"
                     style={{
@@ -1013,6 +999,7 @@ function Setup() {
                   justifyContent: "center",
                   textTransform: "uppercase",
                   fontWeight: "900",
+                  color: ui.accent,
                 }}
               >
                 {helpDesk.hasOwnProperty(type) ? (
@@ -1031,9 +1018,7 @@ function Setup() {
                 aria-describedby="modal-modal-description"
               >
                 <Box sx={style}>
-                  <Typography
-                    id="modal-modal-title"
-                  ></Typography>
+                  <Typography id="modal-modal-title"></Typography>
                   <Typography
                     id="modal-modal-description"
                     style={{
@@ -1153,39 +1138,57 @@ function Setup() {
             flexDirection: "column",
             height: "105px",
             width: "69%",
-            backgroundColor:
-              theme.palette.mode === "dark" ? "#2f2f6d" : "#e1dbfe",
-            borderRadius: "3px",
+            backgroundColor: ui.learnBg,
+            border: ui.learnBorder,
+            boxShadow: ui.cardShadow,
+            borderRadius: "12px",
             textAlign: "center",
-            padding: "5px 0 0 0px",
+            padding: "8px 0 0 0px",
             margin: "5px 0 0 0px",
             fontFamily: "Outfit",
             fontWeight: "900",
             letterSpacing: "1px",
             alignItems: "flex-start",
             fontSize: "18px",
-            color: theme.palette.mode === "dark" ? "white" : "#4e50a5",
+            overflow: "hidden",
+            color: ui.sectionLabel,
           }}
         >
           <div
             style={{
               display: "flex",
               flexDirection: "row",
-              borderBottom: ".5px solid white",
-              padding: "0 0 10px 14px",
+              alignItems: "center",
+              borderBottom:
+                isDark ? ".5px solid #ffffff33" : ".5px solid #ffffff",
+              padding: "0 14px 8px 14px",
               width: "100%",
+              boxSizing: "border-box",
               height: "33px",
               justifyContent: "space-between",
             }}
           >
-            LEARNING CENTER:
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
+                gap: "8px",
+              }}
+            >
+              <MenuBookOutlinedIcon
+                style={{ fontSize: "20px", color: ui.accent }}
+              />
+              LEARNING CENTER:
+            </div>
             <div
               style={{
                 fontSize: "9px",
                 fontFamily: "Roboto",
                 fontWeight: "400",
-                margin: "8px 1.8% 0 15%",
+                margin: "4px 1.8% 0 0",
                 lineHeight: "13px",
+                color: ui.chipText,
               }}
             >
               <em>
@@ -1206,12 +1209,11 @@ function Setup() {
             <div
               style={{
                 display: "flex",
-                padding: "1px 10px 0px 15px",
+                padding: "4px 10px 4px 15px",
                 flexDirection: "row",
                 justifyContent: "space-between",
                 alignItems: "center",
-                backgroundColor:
-                  theme.palette.mode === "dark" ? "#22225a" : "#c8bef7",
+                backgroundColor: ui.learnRowAlt,
               }}
             >
               <div
@@ -1221,6 +1223,7 @@ function Setup() {
                   fontWeight: "400",
                   height: "18px",
                   letterSpacing: ".5px",
+                  color: ui.link,
                 }}
               >
                 <a
@@ -1231,7 +1234,13 @@ function Setup() {
                   Follow along with Kubernetes official tutorial
                 </a>
               </div>
-              <div style={{ marginLeft: "68px", justifyContent: "flex-end" }}>
+              <div
+                style={{
+                  marginLeft: "68px",
+                  justifyContent: "flex-end",
+                  color: ui.star,
+                }}
+              >
                 <StarIcon fontSize="small" /> <StarIcon fontSize="small" />{" "}
                 <StarIcon fontSize="small" /> <StarIcon fontSize="small" />{" "}
                 <StarIcon fontSize="small" />
@@ -1240,7 +1249,7 @@ function Setup() {
             <div
               style={{
                 display: "flex",
-                padding: "0px 10px 0px 15px",
+                padding: "4px 10px 4px 15px",
                 flexDirection: "row",
                 justifyContent: "space-between",
                 alignItems: "center",
@@ -1253,6 +1262,7 @@ function Setup() {
                   fontWeight: "400",
                   height: "18px",
                   letterSpacing: ".5px",
+                  color: ui.link,
                 }}
               >
                 <a
@@ -1263,7 +1273,13 @@ function Setup() {
                   this hands-on tutorial with Nana from TechWorld
                 </a>
               </div>
-              <div style={{ marginLeft: "80px", justifyContent: "flex-end" }}>
+              <div
+                style={{
+                  marginLeft: "80px",
+                  justifyContent: "flex-end",
+                  color: ui.star,
+                }}
+              >
                 <StarIcon fontSize="small" /> <StarIcon fontSize="small" />{" "}
                 <StarIcon fontSize="small" /> <StarIcon fontSize="small" />{" "}
                 <StarIcon fontSize="small" />
@@ -1272,12 +1288,11 @@ function Setup() {
             <div
               style={{
                 display: "flex",
-                padding: "0px 10px 0px 15px",
+                padding: "4px 10px 4px 15px",
                 flexDirection: "row",
                 justifyContent: "space-between",
                 alignItems: "center",
-                backgroundColor:
-                  theme.palette.mode === "dark" ? "#22225a" : "#c8bef7",
+                backgroundColor: ui.learnRowAlt,
               }}
             >
               <div
@@ -1287,6 +1302,7 @@ function Setup() {
                   fontWeight: "400",
                   height: "18px",
                   letterSpacing: ".5px",
+                  color: ui.link,
                 }}
               >
                 <a
@@ -1297,7 +1313,13 @@ function Setup() {
                   this full tutorial from freeCodeCamp.org
                 </a>
               </div>
-              <div style={{ marginLeft: "100px", justifyContent: "flex-end" }}>
+              <div
+                style={{
+                  marginLeft: "100px",
+                  justifyContent: "flex-end",
+                  color: ui.star,
+                }}
+              >
                 <StarIcon fontSize="small" /> <StarIcon fontSize="small" />{" "}
                 <StarIcon fontSize="small" /> <StarIcon fontSize="small" />{" "}
                 <StarIcon fontSize="small" />
@@ -1306,10 +1328,9 @@ function Setup() {
             <div
               style={{
                 display: "flex",
-                padding: "0px 10px 0px 15px",
+                padding: "4px 10px 4px 15px",
                 flexDirection: "row",
                 justifyContent: "space-between",
-
                 alignItems: "center",
               }}
             >
@@ -1320,6 +1341,7 @@ function Setup() {
                   fontWeight: "400",
                   height: "18px",
                   letterSpacing: ".5px",
+                  color: ui.link,
                 }}
               >
                 <a
@@ -1330,7 +1352,13 @@ function Setup() {
                   Learn the basics about clusters, deployments & more
                 </a>
               </div>
-              <div style={{ marginLeft: "61px", justifyContent: "flex-end" }}>
+              <div
+                style={{
+                  marginLeft: "61px",
+                  justifyContent: "flex-end",
+                  color: ui.star,
+                }}
+              >
                 <StarIcon fontSize="small" /> <StarIcon fontSize="small" />{" "}
                 <StarIcon fontSize="small" /> <StarIcon fontSize="small" />{" "}
                 <StarOutlineIcon fontSize="small" />
@@ -1339,13 +1367,11 @@ function Setup() {
             <div
               style={{
                 display: "flex",
-                padding: "0px 10px 0px 15px",
+                padding: "4px 10px 4px 15px",
                 flexDirection: "row",
                 justifyContent: "space-between",
-
                 alignItems: "center",
-                backgroundColor:
-                  theme.palette.mode === "dark" ? "#22225a" : "#c8bef7",
+                backgroundColor: ui.learnRowAlt,
               }}
             >
               <div
@@ -1355,6 +1381,7 @@ function Setup() {
                   fontWeight: "400",
                   height: "18px",
                   letterSpacing: ".5px",
+                  color: ui.link,
                 }}
               >
                 <a href="https://kubernetes.io/docs/tutorials/" target="blank">
@@ -1362,7 +1389,13 @@ function Setup() {
                   Learn about Configuration, stateful sets & more
                 </a>
               </div>
-              <div style={{ marginLeft: "43px", justifyContent: "flex-end" }}>
+              <div
+                style={{
+                  marginLeft: "43px",
+                  justifyContent: "flex-end",
+                  color: ui.star,
+                }}
+              >
                 <StarIcon fontSize="small" /> <StarIcon fontSize="small" />{" "}
                 <StarIcon fontSize="small" /> <StarIcon fontSize="small" />{" "}
                 <StarOutlineIcon fontSize="small" />

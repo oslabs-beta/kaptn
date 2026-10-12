@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import Button from "@mui/material/Button";
 import { useTheme, Box, Modal, TextField } from "@mui/material";
 import { ipcRenderer } from "../electron-ipc";
+import { isParseableKubectlTable } from "../lib/parseGuards";
+import { useKraneListStatus, KraneStatusMessage } from "./KraneStatus";
 import Tooltip, { TooltipProps, tooltipClasses } from "@mui/material/Tooltip";
 import { styled } from "@mui/material/styles";
 
@@ -19,6 +21,12 @@ function KraneDeploymentsList(props) {
   const theme = useTheme();
 
   let currDir = props.currDir;
+
+  // "ok" (cards) / "empty" (no deployments) / "unreachable" / "error"
+  const { status, setStatus, detail } = useKraneListStatus(
+    "got_deployments",
+    () => props.setDeploymentsArr([])
+  );
 
   const openDeploymentModalStyle = {
     position: "absolute",
@@ -285,6 +293,15 @@ function KraneDeploymentsList(props) {
     //never leaves a stale listener behind and accumulates them.
     ipcRenderer.removeAllListeners("got_deployments");
     ipcRenderer.on("got_deployments", (event, arg) => {
+      // No table to parse — either a genuinely empty cluster or "" from a
+      // failed command. Show the "no deployments" state; never parse the OOM-
+      // prone char stream on non-table input.
+      if (!isParseableKubectlTable(arg)) {
+        setStatus("empty");
+        props.setDeploymentsArr([]);
+        return;
+      }
+
       let argArr = arg.split("");
 
       let tempDeployments: any[] = [];
@@ -292,7 +309,7 @@ function KraneDeploymentsList(props) {
       let i: number = 0;
 
       //skip row of column titles
-      while (arg[i] !== "\n") {
+      while (i < arg.length && arg[i] !== "\n") {
         i++;
       }
       i++;
@@ -310,7 +327,7 @@ function KraneDeploymentsList(props) {
         let selectorOutput: any = [];
 
         //saves namespace
-        while (arg[i] !== " ") {
+        while (i < arg.length && arg[i] !== " ") {
           namespaceOutput.push(arg[i]);
           i++;
         }
@@ -320,7 +337,7 @@ function KraneDeploymentsList(props) {
         }
 
         //saves name
-        while (arg[i] !== " ") {
+        while (i < arg.length && arg[i] !== " ") {
           nameOutput.push(arg[i]);
           i++;
         }
@@ -330,12 +347,12 @@ function KraneDeploymentsList(props) {
         }
 
         //saves ready
-        while (arg[i] !== "/") {
+        while (i < arg.length && arg[i] !== "/") {
           readyNumeratorOutput.push(arg[i]);
           i++;
         }
         i++;
-        while (arg[i] !== " ") {
+        while (i < arg.length && arg[i] !== " ") {
           readyDenominatorOutput.push(arg[i]);
           i++;
         }
@@ -346,7 +363,7 @@ function KraneDeploymentsList(props) {
         }
 
         //saves up-to-date
-        while (arg[i] !== " ") {
+        while (i < arg.length && arg[i] !== " ") {
           upToDateOutput.push(arg[i]);
           i++;
         }
@@ -356,7 +373,7 @@ function KraneDeploymentsList(props) {
         }
 
         //saves available
-        while (arg[i] !== " ") {
+        while (i < arg.length && arg[i] !== " ") {
           availableOutput.push(arg[i]);
           i++;
         }
@@ -365,7 +382,7 @@ function KraneDeploymentsList(props) {
           i++;
         }
         //saves age
-        while (arg[i] !== " ") {
+        while (i < arg.length && arg[i] !== " ") {
           ageOutput.push(arg[i]);
           i++;
         }
@@ -374,7 +391,7 @@ function KraneDeploymentsList(props) {
           i++;
         }
         //saves containers
-        while (arg[i] !== " ") {
+        while (i < arg.length && arg[i] !== " ") {
           containersOutput.push(arg[i]);
           i++;
         }
@@ -384,7 +401,7 @@ function KraneDeploymentsList(props) {
         }
 
         //saves images
-        while (arg[i] !== " ") {
+        while (i < arg.length && arg[i] !== " ") {
           imagesOutput.push(arg[i]);
           i++;
         }
@@ -394,7 +411,7 @@ function KraneDeploymentsList(props) {
         }
 
         //saves selector
-        while (arg[i] !== "\n") {
+        while (i < arg.length && arg[i] !== "\n") {
           selectorOutput.push(arg[i]);
           i++;
         }
@@ -418,11 +435,14 @@ function KraneDeploymentsList(props) {
       } //end of for loop parsing deployments return
 
       props.setDeploymentsArr(tempDeployments);
+      setStatus("ok");
     }); //--------------------------------------end of ipc to parse deployments --------
 
     //Listen to "get replicaSets" return event and set pods array
     ipcRenderer.removeAllListeners("got_rs");
     ipcRenderer.on("got_rs", (event, arg) => {
+      if (!isParseableKubectlTable(arg)) return;
+
       let argArr = arg.split("");
 
       let tempReplicaSets: any = [];
@@ -430,7 +450,7 @@ function KraneDeploymentsList(props) {
       let i: number = 0;
 
       //skip row of column titles
-      while (arg[i] !== "\n") {
+      while (i < arg.length && arg[i] !== "\n") {
         i++;
       }
       i++;
@@ -447,7 +467,7 @@ function KraneDeploymentsList(props) {
         let selectorOutput: any = [];
 
         //saves namespace
-        while (arg[i] !== " ") {
+        while (i < arg.length && arg[i] !== " ") {
           namespaceOutput.push(arg[i]);
           i++;
         }
@@ -457,7 +477,7 @@ function KraneDeploymentsList(props) {
         }
 
         //saves name
-        while (arg[i] !== " ") {
+        while (i < arg.length && arg[i] !== " ") {
           nameOutput.push(arg[i]);
           i++;
         }
@@ -467,7 +487,7 @@ function KraneDeploymentsList(props) {
         }
 
         //saves desired
-        while (arg[i] !== " ") {
+        while (i < arg.length && arg[i] !== " ") {
           desiredOutput.push(arg[i]);
           i++;
         }
@@ -478,7 +498,7 @@ function KraneDeploymentsList(props) {
         }
 
         //saves current
-        while (arg[i] !== " ") {
+        while (i < arg.length && arg[i] !== " ") {
           currentOutput.push(arg[i]);
           i++;
         }
@@ -488,7 +508,7 @@ function KraneDeploymentsList(props) {
         }
 
         //saves available
-        while (arg[i] !== " ") {
+        while (i < arg.length && arg[i] !== " ") {
           readyOutput.push(arg[i]);
           i++;
         }
@@ -497,7 +517,7 @@ function KraneDeploymentsList(props) {
           i++;
         }
         //saves age
-        while (arg[i] !== " ") {
+        while (i < arg.length && arg[i] !== " ") {
           ageOutput.push(arg[i]);
           i++;
         }
@@ -506,7 +526,7 @@ function KraneDeploymentsList(props) {
           i++;
         }
         //saves containers
-        while (arg[i] !== " ") {
+        while (i < arg.length && arg[i] !== " ") {
           containersOutput.push(arg[i]);
           i++;
         }
@@ -516,7 +536,7 @@ function KraneDeploymentsList(props) {
         }
 
         //saves images
-        while (arg[i] !== " ") {
+        while (i < arg.length && arg[i] !== " ") {
           imagesOutput.push(arg[i]);
           i++;
         }
@@ -526,7 +546,7 @@ function KraneDeploymentsList(props) {
         }
 
         //saves selector
-        while (arg[i] !== "\n") {
+        while (i < arg.length && arg[i] !== "\n") {
           selectorOutput.push(arg[i]);
           i++;
         }
@@ -979,11 +999,16 @@ function KraneDeploymentsList(props) {
               }}
             >
               <div
+                className="status-glow"
                 style={{
                   width: "12px",
                   height: "12px",
                   borderRadius: "15px",
                   backgroundColor:
+                    theme.palette.mode === "dark"
+                      ? deploymentReadyColor
+                      : deploymentReadyColorLight,
+                  color:
                     theme.palette.mode === "dark"
                       ? deploymentReadyColor
                       : deploymentReadyColorLight,
@@ -1222,7 +1247,11 @@ function KraneDeploymentsList(props) {
           width: "1200px",
         }}
       >
-        {deploymentsList}
+        {status === "ok" ? (
+          deploymentsList
+        ) : (
+          <KraneStatusMessage state={status} label="deployments" detail={detail} />
+        )}
         <Modal
           open={openDeployment}
           onClose={handleDeploymentClose}
