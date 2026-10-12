@@ -12,10 +12,22 @@ function Start(props) {
   //for light/dark mode toggle
   const theme = useTheme();
 
+  // Open an official getting-started page in its own in-app popup window.
+  const openHelp = (url: string) => ipcRenderer.send("open_help_link", url);
+  const linkStyle = {
+    color: theme.palette.mode === "dark" ? "#b7aefc" : "#4b3fce",
+    textDecoration: "underline",
+    cursor: "pointer",
+  };
+
   // CHECK KUBECTL VERSION SECTION
   const [kubectlCheckStatus, setKubectlCheckStatus] = useState("checking");
   const [kubectlClientVersion, setKubectlClientVersion] = useState("");
   const [kubectlServerVersion, setKubectlServerVersion] = useState("");
+
+  // null = still checking; false = cluster unreachable, so the cluster-dependent
+  // checks (metrics, prometheus/grafana) are shown greyed-out / suspended.
+  const [clusterReachable, setClusterReachable] = useState<boolean | null>(null);
 
   const [metricsCheckStatus, setMetricsCheckStatus] = useState("checking");
   // const [metricsVersion, setMetricsVersion] = useState("");
@@ -42,59 +54,63 @@ function Start(props) {
     });
 
     ipcRenderer.on("checked_metrics_installed", (event, arg) => {
-      if (!arg.length) {
-        //metrics not installed, save metrics status as not installed
+      // "installed" only when the output actually names the metrics-server pod.
+      // A non-empty error string (e.g. a connection error when the cluster is
+      // down) must NOT be read as "found" — that was the old `!arg.length` bug.
+      if (String(arg).includes("metrics-server")) {
         setTimeout(() => {
-          setMetricsCheckStatus("not_installed");
+          setMetricsCheckStatus("installed");
         }, 1500);
       } else {
         setTimeout(() => {
-          setMetricsCheckStatus("installed");
+          setMetricsCheckStatus("not_installed");
         }, 1500);
       }
     });
 
     ipcRenderer.on("checked_kubectl_installed", (event, arg) => {
-      argOut = JSON.parse(arg);
-      let kubectlClientVersionArr: string[] = [];
-      let kubectlServerVersionArr: string[] = [];
-      if (argOut.clientVersion.gitVersion) {
-        let temp = argOut.clientVersion.gitVersion.slice(1, -2);
-        setKubectlClientVersion(temp);
-        temp = argOut.serverVersion.gitVersion.slice(1, -2);
-        setKubectlServerVersion(temp);
-
-        setTimeout(() => {
-          setKubectlCheckStatus("Installed");
-        }, 800);
-      } else if (arg[0] === "W") {
-        //if first letter is "W" you are getting version warning, so this parses version warning output
-        let i = 44;
-        while (arg[i] !== ")") {
-          kubectlClientVersionArr.push(arg[i]);
-          i++;
-        }
-        i += 14;
-        while (arg[i] !== ")") {
-          kubectlServerVersionArr.push(arg[i]);
-          i++;
-        }
-        setKubectlClientVersion(`${kubectlClientVersionArr.join("")}`);
-
-        setKubectlServerVersion(`${kubectlServerVersionArr.join("")}`);
-
-        setTimeout(() => {
-          setKubectlCheckStatus("Installed");
-        }, 800);
+      // main.js sends kubectl's stdout: JSON with clientVersion when kubectl is
+      // installed, plus serverVersion only when the cluster is reachable. Empty
+      // or unparseable stdout means kubectl isn't installed.
+      let parsed: any = {};
+      try {
+        parsed = JSON.parse(arg);
+      } catch (e) {
+        parsed = {};
       }
-      //need to parse json object below this line and save client and server versions for when you dont have version +-1 sync warning.
-      else if (arg[0] === "e" && arg[1] === "r" && arg[2] === "r") {
+
+      const client = parsed?.clientVersion?.gitVersion;
+      const server = parsed?.serverVersion?.gitVersion;
+
+      if (!client) {
+        // no client version → kubectl isn't installed
+        // brief delay so the "cluster not running" message reads as a check
+        // (like the others) instead of flashing in instantly
+        setTimeout(() => setClusterReachable(false), 1200);
         setTimeout(() => {
           setKubectlCheckStatus("not_installed");
         }, 800);
-      } else {
+        return;
+      }
+
+      // kubectl is installed
+      setKubectlClientVersion(client.slice(1, -2));
+
+      if (server) {
+        // cluster reachable → full success
+        setKubectlServerVersion(server.slice(1, -2));
+        setClusterReachable(true);
         setTimeout(() => {
-          setKubectlCheckStatus("CannotDetect");
+          setKubectlCheckStatus("Installed");
+        }, 800);
+      } else {
+        // kubectl works but the cluster is unreachable — mark it so the
+        // cluster-dependent checks below are suspended, not run.
+        // brief delay so the "cluster not running" message reads as a check
+        // (like the others) instead of flashing in instantly
+        setTimeout(() => setClusterReachable(false), 1200);
+        setTimeout(() => {
+          setKubectlCheckStatus("InstalledUncertain");
         }, 800);
       }
     });
@@ -129,16 +145,11 @@ function Start(props) {
     });
   }, []);
 
+  // main.js picks the official install for the current cluster (minikube
+  // addon, or the official manifest — with the local-cluster TLS flag on
+  // Docker Desktop / kind)
   function handleInstallMetrics() {
-    let kubectlMetricsServerInstallCommand =
-      "kubectl apply -f https://raw.githubusercontent.com/pythianarora/total-practice/master/sample-kubernetes-code/metrics-server.yaml";
-
-    let currDir = "NONE SELECTED";
-
-    ipcRenderer.send("install_metrics_server_command", {
-      kubectlMetricsServerInstallCommand,
-      currDir,
-    });
+    ipcRenderer.send("install_metrics_server_command");
   }
 
   //set the kubectl install div based on its check status
@@ -216,7 +227,7 @@ function Start(props) {
           color: theme.palette.mode === "dark" ? "" : "#3c3c9a",
         }}
       >
-        Warning: If you not installed kubectl, please use the link to the right.
+        Warning: If you have not installed kubectl, please use the link to the right.
       </div>
     );
   }
@@ -455,9 +466,60 @@ function Start(props) {
 
             {kubectlInstalledDiv}
 
-            {metricsInstalledDiv}
+            {/* Metrics + Prometheus/Grafana need a live cluster. When it's
+                unreachable we don't run/show them at all — just this one line
+                (matching the kubectl line's size/weight) in their place. The
+                reserved min-height keeps the page from jumping as the number of
+                visible checks changes between states. */}
+            <div
+              style={{
+                minHeight: "62px",
+                width: "100%",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "flex-start",
+              }}
+            >
+              {clusterReachable === false ? (
+                <div
+                  style={{
+                    fontSize: "11px",
+                    color: theme.palette.mode === "dark" ? "" : "#3c3c9a",
+                    textAlign: "center",
+                    userSelect: "none",
+                    maxWidth: "460px",
+                    lineHeight: "1.5",
+                  }}
+                >
+                  Your cluster doesn't appear to be running. Get help starting{" "}
+                  <span
+                    onClick={() =>
+                      openHelp("https://docs.docker.com/get-started/")
+                    }
+                    style={linkStyle}
+                  >
+                    Docker
+                  </span>{" "}
+                  or{" "}
+                  <span
+                    onClick={() =>
+                      openHelp("https://minikube.sigs.k8s.io/docs/start/")
+                    }
+                    style={linkStyle}
+                  >
+                    Minikube
+                  </span>
+                  .
+                </div>
+              ) : (
+                <>
+                  {metricsInstalledDiv}
 
-            {promGrafInstallDiv}
+                  {promGrafInstallDiv}
+                </>
+              )}
+            </div>
           </div>
           <div
             style={{
@@ -537,6 +599,10 @@ function Start(props) {
               variant="h4"
               align="center"
               sx={{
+                // Nudge just this line up to sit level with the left side's
+                // "kubectl commands found" line, without moving anything else.
+                position: "relative",
+                top: "-32px",
                 fontFamily: "Roboto",
                 fontWeight: 300,
                 fontSize: "15px",
@@ -557,15 +623,14 @@ function Start(props) {
             >
               * In order for Kaptn to work as intended (including install checks
               to the left), please ensure that{" "}
-              <a
-                style={{
-                  color: theme.palette.mode === "dark" ? "lightgreen" : "green",
-                  fontWeight: "400",
-                }}
-                href="https://kubernetes.io/docs/tasks/tools/"
+              <span
+                style={{ ...linkStyle, textDecoration: "none", fontWeight: 425 }}
+                onClick={() =>
+                  openHelp("https://kubernetes.io/docs/tasks/tools/")
+                }
               >
                 kubectl commands are installed
-              </a>
+              </span>
               <br />
               and clusters are up and running before proceeding.
             </Typography>
@@ -578,7 +643,7 @@ function Start(props) {
             fontSize: "22px",
             fontWeight: "700",
             letterSpacing: "2px",
-            margin: "15px 0 0 8.3%",
+            margin: "5px 0 0 8.3%",
             textAlign: "left",
             color: theme.palette.mode === "dark" ? "#ffffff" : "#3c3c9a",
             paddingTop: "10px",

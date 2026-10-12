@@ -2,6 +2,12 @@ import React, { useState, useEffect, useRef } from "react";
 import Button from "@mui/material/Button";
 import {  useTheme, Box, Modal } from "@mui/material";
 import { ipcRenderer } from "../electron-ipc";
+import { isParseableKubectlTable } from "../lib/parseGuards";
+import {
+  useKraneListStatus,
+  KraneStatusMessage,
+  MetricsMissingNotice,
+} from "./KraneStatus";
 import CircularProgress from "@mui/material/CircularProgress";
 import Tooltip, { TooltipProps, tooltipClasses } from "@mui/material/Tooltip";
 import { styled } from "@mui/material/styles";
@@ -10,6 +16,7 @@ import PodCpuChart from "./PodCpuChart";
 import PodMemoryChart from "./PodMemoryChart";
 import ChartControls from "./ChartControls";
 import { useChartHistory } from "../hooks/useChartHistory";
+import { isMetricsUnavailableError, isBlankStat } from "../lib/metricsState";
 
 
 const LightTooltip = styled(({ className, ...props }: TooltipProps) => (
@@ -59,7 +66,11 @@ let filteredPods: any = [];
 let sortIncrement = 0;
 
 function KranePodList(props) {
-
+  // "ok" (cards) / "empty" (no pods) / "unreachable" / "error"
+  const { status, setStatus, detail } = useKraneListStatus("got_pods", () => {
+    props.setPodsArr([]);
+    props.setAllPodsArr([]);
+  });
 
   const [showExpandedPodCpuChart, setShowExpandedPodCpuChart] =
     useState(false);
@@ -186,6 +197,85 @@ function KranePodList(props) {
   // the list as it was just before the current refresh wiped it
   const prevPodsRef = useRef<any[]>([]);
 
+  // Refresh-sweep bookkeeping (same model as KraneNodeList): got_pods
+  // publishes blank stats (the LOADING flash); the sweep settles when this
+  // cycle's `kubectl top pods` answers — fresh stats on success, previous stats
+  // restored on failure or if nothing answers within the fallback window.
+  const settleTimerRef = useRef<any>(null);
+  const awaitingUsageRef = useRef(false);
+  const lastUsageResultRef = useRef({
+    at: 0,
+    ok: true,
+    message: "",
+    missing: false,
+  });
+  const setPodMetricsStartingUp = props.setPodMetricsStartingUp || (() => {});
+  // metrics-server not installed at all (shared with KraneNodeList via Krane)
+  const setMetricsServerMissing =
+    props.setMetricsServerMissing || (() => {});
+
+  useEffect(() => () => clearTimeout(settleTimerRef.current), []);
+
+  // CPU/memory % from used + limit. "" until both are known (never a fake 0%
+  // from a missing usage value); "N/A" when the pod has no limit.
+  const percentOf = (used: any, limit: any) => {
+    if (limit === "NONE") return "N/A";
+    if (isBlankStat(used) || isBlankStat(limit)) return "";
+    const p = (Number(used) / Number(limit)) * 100;
+    if (!Number.isFinite(p)) return "";
+    if (p >= 100) return 100;
+    return p % 1 !== 0 ? Number(p.toFixed(1)) : p;
+  };
+  const withPercents = (pod: any) => ({
+    ...pod,
+    podCpuPercent: percentOf(pod.podCpuUsed, pod.podCpuLimit),
+    podMemoryPercent: percentOf(pod.podMemoryUsed, pod.podMemoryLimit),
+  });
+
+  // Fill any stat still blank after a refresh from the last valid
+  // `kubectl top`/limits result, or the list as it was before the refresh.
+  // These held-over values are display only — chart history is appended solely
+  // in the got_cpuUsed success handler, so they never reach the graphs.
+  const fillPodStats = (pod: any) => {
+    const prev =
+      prevPodsRef.current.find((p: any) => p.name === pod.name) || ({} as any);
+    const usage =
+      lastPodUsageRef.current.find((u: any) => u.podName === pod.name) ||
+      ({} as any);
+    const limits =
+      lastPodLimitsRef.current.find((u: any) => u.podName === pod.name) ||
+      ({} as any);
+    return withPercents({
+      ...pod,
+      podCpuUsed: pod.podCpuUsed || usage.podCpuUsed || prev.podCpuUsed || "",
+      podMemoryUsed:
+        pod.podMemoryUsed || usage.podMemoryUsed || prev.podMemoryUsed || "",
+      podMemoryUsedDisplay:
+        pod.podMemoryUsedDisplay ||
+        usage.podMemoryUsedDisplay ||
+        prev.podMemoryUsedDisplay ||
+        "",
+      podCpuLimit: pod.podCpuLimit || limits.podCpuLimit || prev.podCpuLimit || "",
+      podMemoryLimit:
+        pod.podMemoryLimit || limits.podMemoryLimit || prev.podMemoryLimit || "",
+      podMemoryLimitDisplay:
+        pod.podMemoryLimitDisplay ||
+        limits.podMemoryLimitDisplay ||
+        prev.podMemoryLimitDisplay ||
+        "",
+      podContainers:
+        (pod.podContainers && pod.podContainers.length
+          ? pod.podContainers
+          : prev.podContainers) || [],
+    });
+  };
+  // each list is mapped from its own current value: podsArr may be filtered
+  // to the selected namespace while allPodsArr (the node modal's source) is not
+  const restorePodStats = () => {
+    props.setAllPodsArr((current: any[]) => current.map(fillPodStats));
+    props.setPodsArr((current: any[]) => current.map(fillPodStats));
+  };
+
   //Listen to "get pods" return event and set pods array.
   //removeAllListeners before .on caps this channel at a single listener:
   //without it, a new listener was added on every render and never removed,
@@ -193,12 +283,22 @@ function KranePodList(props) {
   //renderer slowed to a crawl and crashed.
   ipcRenderer.removeAllListeners("got_pods");
   ipcRenderer.on("got_pods", (event, arg) => {
+    // No table to parse — either a genuinely empty cluster or "" from a failed
+    // command. Show the "no pods" state; never parse the OOM-prone char stream
+    // on non-table input.
+    if (!isParseableKubectlTable(arg)) {
+      setStatus("empty");
+      props.setPodsArr([]);
+      props.setAllPodsArr([]);
+      return;
+    }
+
     let argArr = arg.split("");
 
     let i: number = 0;
 
     //skip row of column titles
-    while (arg[i] !== "\n") {
+    while (i < arg.length && arg[i] !== "\n") {
       i++;
     }
     i++;
@@ -218,7 +318,7 @@ function KranePodList(props) {
       let readinessOutput: any = [];
 
       //saves namespaces
-      while (arg[i] !== " ") {
+      while (i < arg.length && arg[i] !== " ") {
         namespaceOutput.push(arg[i]);
         i++;
       }
@@ -228,7 +328,7 @@ function KranePodList(props) {
       }
 
       //saves name
-      while (arg[i] !== " ") {
+      while (i < arg.length && arg[i] !== " ") {
         nameOutput.push(arg[i]);
         i++;
       }
@@ -237,7 +337,7 @@ function KranePodList(props) {
         i++;
       }
       //saves ready status
-      while (arg[i] !== " ") {
+      while (i < arg.length && arg[i] !== " ") {
         readyOutput.push(arg[i]);
         i++;
       }
@@ -248,7 +348,7 @@ function KranePodList(props) {
       }
 
       //saves status
-      while (arg[i] !== " ") {
+      while (i < arg.length && arg[i] !== " ") {
         statusOutput.push(arg[i]);
         i++;
       }
@@ -275,7 +375,7 @@ function KranePodList(props) {
         i++;
       } else {
         //save first part of "restarts"
-        while (arg[i] !== " ") {
+        while (i < arg.length && arg[i] !== " ") {
           restartsOutput.push(arg[i]);
           i++;
         }
@@ -284,7 +384,7 @@ function KranePodList(props) {
         i += 2;
 
         // save last restart
-        while (arg[i] !== ")") {
+        while (i < arg.length && arg[i] !== ")") {
           lastRestartOutput.push(arg[i]);
           i++;
         }
@@ -327,7 +427,7 @@ function KranePodList(props) {
       }
 
       //save ip address
-      while (arg[i] !== " ") {
+      while (i < arg.length && arg[i] !== " ") {
         ipOutput.push(arg[i]);
         i++;
       }
@@ -338,7 +438,7 @@ function KranePodList(props) {
       }
 
       //save node
-      while (arg[i] !== " ") {
+      while (i < arg.length && arg[i] !== " ") {
         nodeOutput.push(arg[i]);
         i++;
       }
@@ -349,7 +449,7 @@ function KranePodList(props) {
       }
 
       //save nominated node
-      while (arg[i] !== " ") {
+      while (i < arg.length && arg[i] !== " ") {
         nominatedOutput.push(arg[i]);
         i++;
       }
@@ -413,95 +513,70 @@ function KranePodList(props) {
         ind === podsArrOutput.findIndex((elem) => elem.name === ele.name)
     );
 
-    // Publish the fresh list with empty stats first — that produces the brief
-    // LOADING sweep on the gauges each refresh — then restore the last-known
-    // stats ~300ms later, so the sweep always ends in about half a second
-    // and stats can never be stuck on LOADING for a whole cycle (which used to
-    // happen when `kubectl top` finished before `kubectl get pods`). Fresh
-    // stats overwrite these restored values whenever they land.
-    props.setPodsArr((currentPods: any[]) => {
+    // Start a sweep: publish the fresh list with blank stats (the brief LOADING
+    // flash on the gauges), then settle once this cycle's `kubectl top pods`
+    // answers — see the got_cpuUsed handlers below.
+    props.setAllPodsArr((currentPods: any[]) => {
       prevPodsRef.current = currentPods;
-      props.setAllPodsArr([...filteredPods]);
       return [...filteredPods];
     });
+    props.setPodsArr([...filteredPods]);
+    setStatus("ok");
+    setPodMetricsStartingUp(false);
 
-    setTimeout(() => {
-      const percentOf = (used: any, limit: any) => {
-        if (limit === "NONE") return "N/A";
-        let p = (Number(used) / Number(limit)) * 100;
-        if (p >= 100) return 100;
-        return p % 1 !== 0 ? Number(p.toFixed(1)) : p;
-      };
-      props.setPodsArr((currentPods: any[]) => {
-        const merged = currentPods.map((pod: any) => {
-          const prev =
-            prevPodsRef.current.find((p: any) => p.name === pod.name) ||
-            ({} as any);
-          const usage =
-            lastPodUsageRef.current.find((u: any) => u.podName === pod.name) ||
-            ({} as any);
-          const limits =
-            lastPodLimitsRef.current.find(
-              (u: any) => u.podName === pod.name
-            ) || ({} as any);
-          const out = {
-            ...pod,
-            podCpuUsed:
-              pod.podCpuUsed || usage.podCpuUsed || prev.podCpuUsed || "",
-            podMemoryUsed:
-              pod.podMemoryUsed ||
-              usage.podMemoryUsed ||
-              prev.podMemoryUsed ||
-              "",
-            podMemoryUsedDisplay:
-              pod.podMemoryUsedDisplay ||
-              usage.podMemoryUsedDisplay ||
-              prev.podMemoryUsedDisplay ||
-              "",
-            podCpuLimit:
-              pod.podCpuLimit || limits.podCpuLimit || prev.podCpuLimit || "",
-            podMemoryLimit:
-              pod.podMemoryLimit ||
-              limits.podMemoryLimit ||
-              prev.podMemoryLimit ||
-              "",
-            podMemoryLimitDisplay:
-              pod.podMemoryLimitDisplay ||
-              limits.podMemoryLimitDisplay ||
-              prev.podMemoryLimitDisplay ||
-              "",
-            podCpuPercent: pod.podCpuPercent || prev.podCpuPercent || "",
-            podMemoryPercent:
-              pod.podMemoryPercent || prev.podMemoryPercent || "",
-            podContainers:
-              (pod.podContainers && pod.podContainers.length
-                ? pod.podContainers
-                : prev.podContainers) || [],
-          };
-          if (!out.podCpuPercent && out.podCpuUsed !== "" && out.podCpuLimit) {
-            out.podCpuPercent = percentOf(out.podCpuUsed, out.podCpuLimit);
-          }
-          if (
-            !out.podMemoryPercent &&
-            out.podMemoryUsed !== "" &&
-            out.podMemoryLimit
-          ) {
-            out.podMemoryPercent = percentOf(
-              out.podMemoryUsed,
-              out.podMemoryLimit
-            );
-          }
-          return out;
-        });
-        props.setAllPodsArr(merged);
-        return merged;
-      });
-    }, 500);
+    clearTimeout(settleTimerRef.current);
+    const last = lastUsageResultRef.current;
+    if (Date.now() - last.at < 1500) {
+      // this cycle's `kubectl top` already answered before the pod list did:
+      // keep the flash briefly, then apply that result
+      awaitingUsageRef.current = false;
+      settleTimerRef.current = setTimeout(() => {
+        restorePodStats();
+        if (!last.ok) {
+          setMetricsServerMissing(last.missing);
+          setPodMetricsStartingUp(
+            !last.missing && isMetricsUnavailableError(last.message)
+          );
+        }
+      }, 500);
+    } else {
+      awaitingUsageRef.current = true;
+      // nothing answered at all — revert to the previous stats
+      settleTimerRef.current = setTimeout(() => {
+        if (!awaitingUsageRef.current) return;
+        awaitingUsageRef.current = false;
+        restorePodStats();
+      }, 5000);
+    }
   }); // --------------------------end of ipc render to get all pods o wide info  -
+
+  // `kubectl top pods` failed (e.g. metrics-server still starting after a
+  // cluster restart): revert to the previous stats. A pod with none to revert
+  // to shows STARTING UP instead of LOADING.
+  ipcRenderer.removeAllListeners("got_cpuUsed_status");
+  ipcRenderer.on("got_cpuUsed_status", (event, arg) => {
+    const message = (arg && arg.message) || "";
+    const missing = !!(arg && arg.metricsNotInstalled);
+    lastUsageResultRef.current = { at: Date.now(), ok: false, message, missing };
+    awaitingUsageRef.current = false;
+    clearTimeout(settleTimerRef.current);
+    restorePodStats();
+    setMetricsServerMissing(missing);
+    setPodMetricsStartingUp(!missing && isMetricsUnavailableError(message));
+  });
+
+  // the limits command failed: keep the previous limits rather than leave the
+  // gauges blank (limits aren't metrics, so no STARTING UP state for these)
+  ipcRenderer.removeAllListeners("got_cpuLimits_status");
+  ipcRenderer.on("got_cpuLimits_status", () => {
+    restorePodStats();
+  });
 
   // ----------------------------------- Listen to "get cpuUsed" return event
   ipcRenderer.removeAllListeners("got_cpuUsed");
   ipcRenderer.on("got_cpuUsed", (event, arg) => {
+    if (!isParseableKubectlTable(arg)) return;
+
     let date = new Date().toISOString();
     let tempPodsStatsObj = props.podsStatsObj;
 
@@ -513,7 +588,7 @@ function KranePodList(props) {
     let i: number = 0;
 
     //skips row of column titles
-    while (argArr[i] !== "\n") {
+    while (i < argArr.length && argArr[i] !== "\n") {
       i++;
     }
     i++;
@@ -526,7 +601,7 @@ function KranePodList(props) {
       let podName  : string[] = [];
 
       //skips namespace because array order is same for both outputs
-      while (argArr[i] !== " ") {
+      while (i < argArr.length && argArr[i] !== " ") {
         i++;
       }
 
@@ -536,7 +611,7 @@ function KranePodList(props) {
       }
 
       //skips name because array order is same for both outputs
-      while (argArr[i] !== " ") {
+      while (i < argArr.length && argArr[i] !== " ") {
         podName.push(argArr[i]);
         i++;
       }
@@ -565,7 +640,7 @@ function KranePodList(props) {
       i++;
 
       //skip spaces after number of cores
-      while (arg[i] !== " ") {
+      while (i < arg.length && arg[i] !== " ") {
         i++;
       }
 
@@ -628,20 +703,36 @@ function KranePodList(props) {
     // stash for got_pods to re-apply if this response won the race
     lastPodUsageRef.current = podUsageArray;
 
-    props.setPodsArr((currentPods: any[]) => {
-      const updated = currentPods.map((pod: any) => {
-        const stats = podUsageArray.find((u: any) => u.podName === pod.name);
-        if (!stats) return pod;
-        return {
-          ...pod,
-          podCpuUsed: stats.podCpuUsed,
-          podMemoryUsed: stats.podMemoryUsed,
-          podMemoryUsedDisplay: stats.podMemoryUsedDisplay,
-        };
+    // merge fresh usage and recompute % (until limits are known the % stays
+    // blank rather than a fake 0%)
+    const applyUsage = (pod: any) => {
+      const stats = podUsageArray.find((u: any) => u.podName === pod.name);
+      if (!stats) return pod;
+      return withPercents({
+        ...pod,
+        podCpuUsed: stats.podCpuUsed,
+        podMemoryUsed: stats.podMemoryUsed,
+        podMemoryUsedDisplay: stats.podMemoryUsedDisplay,
       });
-      props.setAllPodsArr(updated);
-      return updated;
-    });
+    };
+    props.setAllPodsArr((currentPods: any[]) => currentPods.map(applyUsage));
+    props.setPodsArr((currentPods: any[]) => currentPods.map(applyUsage));
+
+    // settle the sweep: fresh stats are in; fill anything this result didn't
+    // cover (e.g. limits not back yet) from last-known values
+    lastUsageResultRef.current = {
+      at: Date.now(),
+      ok: true,
+      message: "",
+      missing: false,
+    };
+    setPodMetricsStartingUp(false);
+    setMetricsServerMissing(false);
+    if (awaitingUsageRef.current) {
+      awaitingUsageRef.current = false;
+      clearTimeout(settleTimerRef.current);
+      restorePodStats();
+    }
 
 
     for (let j = 0; j < podUsageArray.length; j++) {
@@ -672,6 +763,8 @@ function KranePodList(props) {
   //Listen to "get cpuLimits" return event
   ipcRenderer.removeAllListeners("got_cpuLimits");
   ipcRenderer.on("got_cpuLimits", (event, arg) => {
+    if (!isParseableKubectlTable(arg)) return;
+
     let argArr = arg.split("");
     let podLimitsArray : any[] = [];
 
@@ -680,7 +773,7 @@ function KranePodList(props) {
     let i: number = 0;
 
     //skips row of column titles
-    while (argArr[i] !== "\n") {
+    while (i < argArr.length && argArr[i] !== "\n") {
       i++;
     }
     i++;
@@ -693,7 +786,7 @@ function KranePodList(props) {
       let podNameArr : string[] = [];
 
       //take name because maybe be duplicate values
-      while (argArr[i] !== " ") {
+      while (i < argArr.length && argArr[i] !== " ") {
         podNameArr.push(argArr[i]);
         i++;
       }
@@ -726,7 +819,7 @@ function KranePodList(props) {
       }
 
       //skip spaces after cpu limt value
-      while (arg[i] !== " ") {
+      while (i < arg.length && arg[i] !== " ") {
         i++;
       }
 
@@ -798,52 +891,26 @@ function KranePodList(props) {
     // stash for got_pods to re-apply if this response won the race
     lastPodLimitsRef.current = lastPodsArr;
 
-    props.setPodsArr((currentPods: any[]) => {
-      const updatedPods = currentPods.map((pod: any) => {
-        const limits = lastPodsArr.find((u: any) => u.podName === pod.name);
-        if (!limits) return pod;
-        const currentCpu = limits.podCpuLimit;
-        const currentMemory = limits.podMemoryLimit;
-        const updated = {
-          ...pod,
-          podCpuLimit: currentCpu,
-          podMemoryLimit: currentMemory,
-          podMemoryLimitDisplay: limits.podMemoryLimitDisplay,
-        };
-
-        if (currentCpu === "NONE") {
-          updated.podCpuPercent = "N/A";
-        } else {
-          let cpuPercent = Number(pod.podCpuUsed) / currentCpu;
-          if (cpuPercent >= 1) {
-            updated.podCpuPercent = 100;
-          } else {
-            cpuPercent = cpuPercent * 100;
-            updated.podCpuPercent = cpuPercent % 1 !== 0 ? Number(cpuPercent.toFixed(1)) : cpuPercent;
-          }
-        }
-
-        if (currentMemory === "NONE") {
-          updated.podMemoryPercent = "N/A";
-        } else {
-          let memPercent = Number(pod.podMemoryUsed) / currentMemory;
-          if (memPercent >= 1) {
-            updated.podMemoryPercent = 100;
-          } else {
-            memPercent = memPercent * 100;
-            updated.podMemoryPercent = memPercent % 1 !== 0 ? Number(memPercent.toFixed(1)) : memPercent;
-          }
-        }
-
-        return updated;
+    // merge limits and recompute % — blank (not a fake 0%) while this pod's
+    // usage hasn't arrived yet
+    const applyLimits = (pod: any) => {
+      const limits = lastPodsArr.find((u: any) => u.podName === pod.name);
+      if (!limits) return pod;
+      return withPercents({
+        ...pod,
+        podCpuLimit: limits.podCpuLimit,
+        podMemoryLimit: limits.podMemoryLimit,
+        podMemoryLimitDisplay: limits.podMemoryLimitDisplay,
       });
+    };
+    props.setAllPodsArr((currentPods: any[]) => currentPods.map(applyLimits));
+    props.setPodsArr((currentPods: any[]) => {
+      const updatedPods = currentPods.map(applyLimits);
 
       if (props.selectedNamespace !== "ALL") {
         setKubeSystemPods(updatedPods.filter((pod: any) => pod.namespace !== props.selectedNamespace));
-        props.setAllPodsArr(updatedPods);
         return updatedPods.filter((pod: any) => pod.namespace === props.selectedNamespace);
       }
-      props.setAllPodsArr(updatedPods);
       return updatedPods;
     });
   }); //-------------------   end of ipc render function to get podcpu and memory limits
@@ -856,7 +923,7 @@ function KranePodList(props) {
 
     let i = 0;
     //skips all column titles
-    while (argArr[i] !== "\n") {
+    while (i < argArr.length && argArr[i] !== "\n") {
       i++;
     }
     i++;
@@ -868,7 +935,7 @@ function KranePodList(props) {
       let memoryUsage = "";
 
       //skips namespaces
-      while (argArr[i] !== " ") {
+      while (i < argArr.length && argArr[i] !== " ") {
         i++;
       }
 
@@ -878,7 +945,7 @@ function KranePodList(props) {
       }
 
       //saves pod name
-      while (argArr[i] !== " ") {
+      while (i < argArr.length && argArr[i] !== " ") {
         podName += argArr[i];
         i++;
       }
@@ -889,7 +956,7 @@ function KranePodList(props) {
       }
 
       //saves container name
-      while (argArr[i] !== " ") {
+      while (i < argArr.length && argArr[i] !== " ") {
         name += argArr[i];
         i++;
       }
@@ -900,7 +967,7 @@ function KranePodList(props) {
       }
 
       //saves cpu usage
-      while (argArr[i] !== " ") {
+      while (i < argArr.length && argArr[i] !== " ") {
         cpuUsage += argArr[i];
         i++;
       }
@@ -911,13 +978,13 @@ function KranePodList(props) {
       }
 
       //saves memory usage
-      while (argArr[i] !== " ") {
+      while (i < argArr.length && argArr[i] !== " ") {
         memoryUsage += argArr[i];
         i++;
       }
 
       //skips spaces
-      while (argArr[i] !== "\n") {
+      while (i < argArr.length && argArr[i] !== "\n") {
         i++;
       }
 
@@ -946,49 +1013,53 @@ function KranePodList(props) {
 
     props.setPodsContainersArr([...output]);
 
-    let toSortPods = [...props.podsArr];
-    // console.log(toSortPods);
-    if (sortedByDisplayArray[sortIncrement % 6] === "") {
-      toSortPods.sort((a, b) => a.index - b.index);
-    } else if (sortedByDisplayArray[sortIncrement % 6] === "max cpu") {
-      //reset to sorted by index
-      toSortPods.sort((a, b) => a.index - b.index);
+    // Re-apply the chosen sort to the CURRENT list (functional update). Sorting
+    // props.podsArr — this render's snapshot — and writing it back clobbered
+    // any stats merged since that render (e.g. limits landing just before this
+    // response), leaving the pod gauges on LOADING for the rest of the cycle.
+    props.setPodsArr((currentPods: any[]) => {
+      let toSortPods = [...currentPods];
+      if (sortedByDisplayArray[sortIncrement % 6] === "") {
+        toSortPods.sort((a, b) => a.index - b.index);
+      } else if (sortedByDisplayArray[sortIncrement % 6] === "max cpu") {
+        //reset to sorted by index
+        toSortPods.sort((a, b) => a.index - b.index);
 
-      let numberArr : string[] = [];
-      let stringArr : string[] = [];
-      for (let k = 0; k < props.podsArr.length; k++) {
-        if (typeof props.podsArr[k]["podCpuPercent"] === "number") {
-          numberArr.push(props.podsArr[k]);
-        } else stringArr.push(props.podsArr[k]);
+        let numberArr : string[] = [];
+        let stringArr : string[] = [];
+        for (let k = 0; k < currentPods.length; k++) {
+          if (typeof currentPods[k]["podCpuPercent"] === "number") {
+            numberArr.push(currentPods[k]);
+          } else stringArr.push(currentPods[k]);
+        }
+        numberArr.sort((a, b) => a["podCpuPercent"] - b["podCpuPercent"]);
+        toSortPods = [...stringArr, ...numberArr];
+        toSortPods.reverse();
+      } else if (sortedByDisplayArray[sortIncrement % 6] === "max memory") {
+        //reset to sorted by index
+        toSortPods.sort((a, b) => a.index - b.index);
+        let numberArr : string[] = [];
+        let stringArr : string[] = [];
+        for (let k = 0; k < currentPods.length; k++) {
+          if (typeof currentPods[k]["podMemoryPercent"] === "number") {
+            numberArr.push(currentPods[k]);
+          } else stringArr.push(currentPods[k]);
+        }
+        numberArr.sort((a, b) => a["podMemoryPercent"] - b["podMemoryPercent"]);
+        toSortPods = [...stringArr, ...numberArr];
+        toSortPods.reverse();
+      } else {
+        //reset to sorted by index
+        toSortPods.sort((a, b) => a.index - b.index);
+        //sort by whatever other propery name alphabeticcaly
+        toSortPods.sort((a, b) =>
+          a[sortedByArray[sortIncrement % 6]].localeCompare(
+            b[sortedByArray[sortIncrement % 6]]
+          )
+        );
       }
-      numberArr.sort((a, b) => a["podCpuPercent"] - b["podCpuPercent"]);
-      toSortPods = [...stringArr, ...numberArr];
-      toSortPods.reverse();
-    } else if (sortedByDisplayArray[sortIncrement % 6] === "max memory") {
-      //reset to sorted by index
-      toSortPods.sort((a, b) => a.index - b.index);
-      let numberArr : string[] = [];
-      let stringArr : string[] = [];
-      for (let k = 0; k < props.podsArr.length; k++) {
-        if (typeof props.podsArr[k]["podMemoryPercent"] === "number") {
-          numberArr.push(props.podsArr[k]);
-        } else stringArr.push(props.podsArr[k]);
-      }
-      numberArr.sort((a, b) => a["podMemoryPercent"] - b["podMemoryPercent"]);
-      toSortPods = [...stringArr, ...numberArr];
-      toSortPods.reverse();
-    } else {
-      //reset to sorted by index
-      toSortPods.sort((a, b) => a.index - b.index);
-      //sort by whatever other propery name alphabeticcaly
-      toSortPods.sort((a, b) =>
-        a[sortedByArray[sortIncrement % 6]].localeCompare(
-          b[sortedByArray[sortIncrement % 6]]
-        )
-      );
-    }
-
-    props.setPodsArr([...toSortPods]);
+      return [...toSortPods];
+    });
   });
 
   useEffect(() => {
@@ -1142,7 +1213,7 @@ function KranePodList(props) {
       let temp : string = "";
       let output : JSX.Element[] = [];
       for (let i = 0; i < argArr.length; i++) {
-        while (argArr[i] !== "\n") {
+        while (i < argArr.length && argArr[i] !== "\n") {
           temp += argArr[i];
           i++;
         }
@@ -1463,11 +1534,13 @@ function KranePodList(props) {
               }}
             >
               <div
+                className="status-glow"
                 style={{
                   width: "12px",
                   height: "12px",
                   borderRadius: "15px",
                   backgroundColor: `${readyStatusRunning}`,
+                  color: `${readyStatusRunning}`,
                   justifyContent: "right",
                   margin: "5px 0 2px 0",
                 }}
@@ -1596,17 +1669,20 @@ function KranePodList(props) {
                   position: "relative",
                   top: "-48px",
                   left: "5px",
-                  fontSize: !props.podsArr[i]["podCpuLimit"]
-                    ? "13px"
-                    : props.podsArr[i]["podCpuLimit"] === "NONE"
-                    ? "13px"
-                    : "16px",
+                  fontSize:
+                    props.podsArr[i]["podCpuLimit"] === "NONE"
+                      ? "13px"
+                      : isBlankStat(props.podsArr[i]["podCpuPercent"])
+                      ? props.podMetricsStartingUp
+                        ? "9px"
+                        : "13px"
+                      : "16px",
                   fontWeight: "500",
-                  marginTop: !props.podsArr[i]["podCpuLimit"]
-                    ? "-55px"
-                    : props.podsArr[i]["podCpuLimit"] === "NONE"
-                    ? "-55px"
-                    : "-60px",
+                  marginTop:
+                    props.podsArr[i]["podCpuLimit"] === "NONE" ||
+                    isBlankStat(props.podsArr[i]["podCpuPercent"])
+                      ? "-55px"
+                      : "-60px",
                   marginLeft:
                     props.podsArr[i]["podCpuLimit"] === "NONE"
                       ? "-10px"
@@ -1617,10 +1693,12 @@ function KranePodList(props) {
                       : `${PodCpuPercentColorLight}`,
                 }}
               >
-                {!props.podsArr[i]["podCpuLimit"]
-                  ? "loading"
-                  : props.podsArr[i]["podCpuLimit"] === "NONE"
+                {props.podsArr[i]["podCpuLimit"] === "NONE"
                   ? `no max`
+                  : isBlankStat(props.podsArr[i]["podCpuPercent"])
+                  ? props.podMetricsStartingUp
+                    ? "starting up"
+                    : props.metricsServerMissing ? "—" : "loading"
                   : `${props.podsArr[i]["podCpuPercent"]}%`}
               </div>
               <div
@@ -1714,26 +1792,31 @@ function KranePodList(props) {
                       props.podsArr[i]["podMemoryPercent"] === "N/A"
                         ? "-11px"
                         : "-10px",
-                    fontSize: !props.podsArr[i]["podMemoryLimit"]
-                      ? "13px"
-                      : props.podsArr[i]["podMemoryLimit"] === "NONE"
-                      ? "13px"
-                      : "16px",
-                    marginTop: !props.podsArr[i]["podMemoryLimit"]
-                      ? "-55px"
-                      : props.podsArr[i]["podMemoryLimit"] === "NONE"
-                      ? "-55px"
-                      : "-60px",
+                    fontSize:
+                      props.podsArr[i]["podMemoryLimit"] === "NONE"
+                        ? "13px"
+                        : isBlankStat(props.podsArr[i]["podMemoryPercent"])
+                        ? props.podMetricsStartingUp
+                          ? "9px"
+                          : "13px"
+                        : "16px",
+                    marginTop:
+                      props.podsArr[i]["podMemoryLimit"] === "NONE" ||
+                      isBlankStat(props.podsArr[i]["podMemoryPercent"])
+                        ? "-55px"
+                        : "-60px",
                     color:
                       theme.palette.mode === "dark"
                         ? `${PodMemoryPercentColor}`
                         : `${PodMemoryPercentColorLight}`,
                   }}
                 >
-                  {!props.podsArr[i]["podMemoryLimit"]
-                    ? "loading"
-                    : props.podsArr[i]["podMemoryPercent"] === "N/A"
+                  {props.podsArr[i]["podMemoryPercent"] === "N/A"
                     ? `no max`
+                    : isBlankStat(props.podsArr[i]["podMemoryPercent"])
+                    ? props.podMetricsStartingUp
+                      ? "starting up"
+                      : props.metricsServerMissing ? "—" : "loading"
                     : `${props.podsArr[i]["podMemoryPercent"]}%`}
                 </div>
                 <div
@@ -2178,7 +2261,10 @@ function KranePodList(props) {
 
   // ---------------------------------------------------------- START OF IF CONDITION TO DETERMINE MAIN DIV'S JSX --------
   let podListDiv;
-  if (props.podsArr[0]) {
+  // Build this block for pods, or for the "no pods found" empty state. The
+  // cluster-level unreachable/error banner is shown once by the nodes section
+  // above, so we deliberately don't repeat it here.
+  if (props.podsArr[0] || status === "empty") {
     podListDiv = (
       <>
         <div
@@ -2224,6 +2310,9 @@ function KranePodList(props) {
               >
                 ( {podsList.length} total )
               </div>
+              {props.metricsServerMissing && (
+                <MetricsMissingNotice style={{ margin: "28px 0 0 18px" }} />
+              )}
             </div>
             <div
               style={{
@@ -2297,7 +2386,11 @@ function KranePodList(props) {
             margin: "-6px 0 0 50px",
           }}
         >
-          {podsList}
+          {status === "ok" ? (
+            podsList
+          ) : (
+            <KraneStatusMessage state={status} label="pods" detail={detail} />
+          )}
           <Modal
             open={props.openPod}
             onClose={handlePodClose}
@@ -2465,6 +2558,11 @@ function KranePodList(props) {
                             margin: "6px 0 0 0",
                           }}
                         >
+                          {props.metricsServerMissing && (
+                            <MetricsMissingNotice
+                              style={{ marginRight: "auto", alignSelf: "center" }}
+                            />
+                          )}
                           <div
                             style={{
                               width: "260px",
@@ -2493,6 +2591,7 @@ function KranePodList(props) {
                             flexDirection: "row",
                             justifyContent: "flex-start",
                             width: "510px",
+                            opacity: props.metricsServerMissing ? 0.35 : 1,
                           }}
                         >
                           <div
@@ -2570,8 +2669,12 @@ function KranePodList(props) {
                                 alignItems: "center",
                                 justifyContent: "center",
                                 whiteSpace: "nowrap",
-                                fontSize: !props.selectedPod[0]["podCpuPercent"]
-                                  ? "18px"
+                                fontSize: isBlankStat(
+                                  props.selectedPod[0]["podCpuPercent"]
+                                )
+                                  ? props.podMetricsStartingUp
+                                    ? "13px"
+                                    : "18px"
                                   : props.selectedPod[0]["podCpuPercent"] ===
                                     "N/A"
                                   ? "32px"
@@ -2596,8 +2699,10 @@ function KranePodList(props) {
                                     : "yellow",
                               }}
                             >
-                              {!props.selectedPod[0]["podCpuPercent"]
-                                ? "LOADING"
+                              {isBlankStat(props.selectedPod[0]["podCpuPercent"])
+                                ? props.podMetricsStartingUp
+                                  ? "STARTING UP"
+                                  : props.metricsServerMissing ? "—" : "LOADING"
                                 : props.selectedPod[0]["podCpuPercent"] === "N/A"
                                 ? `NO MAX`
                                 : `${props.selectedPod[0]["podCpuPercent"]}%`}
@@ -2821,6 +2926,7 @@ function KranePodList(props) {
                             flexDirection: "row",
                             justifyContent: "flex-start",
                             width: "510px",
+                            opacity: props.metricsServerMissing ? 0.35 : 1,
                           }}
                         >
                           <div
@@ -2899,8 +3005,12 @@ function KranePodList(props) {
                                 alignItems: "center",
                                 justifyContent: "center",
                                 whiteSpace: "nowrap",
-                                fontSize: !props.selectedPod[0]["podMemoryPercent"]
-                                  ? "18px"
+                                fontSize: isBlankStat(
+                                  props.selectedPod[0]["podMemoryPercent"]
+                                )
+                                  ? props.podMetricsStartingUp
+                                    ? "13px"
+                                    : "18px"
                                   : props.selectedPod[0]["podMemoryPercent"] ===
                                     "N/A"
                                   ? "32px"
@@ -2924,8 +3034,10 @@ function KranePodList(props) {
                                     : "yellow",
                               }}
                             >
-                              {!props.selectedPod[0]["podMemoryPercent"]
-                                ? "LOADING"
+                              {isBlankStat(props.selectedPod[0]["podMemoryPercent"])
+                                ? props.podMetricsStartingUp
+                                  ? "STARTING UP"
+                                  : props.metricsServerMissing ? "—" : "LOADING"
                                 : props.selectedPod[0]["podMemoryPercent"] ===
                                   "N/A"
                                 ? `NO MAX`

@@ -9,6 +9,7 @@ jest.mock("electron", () => {
       on: jest.fn(),
       send: jest.fn(),
       removeListener: jest.fn(),
+      invoke: jest.fn(() => Promise.resolve("")),
     },
   };
   return mElectron;

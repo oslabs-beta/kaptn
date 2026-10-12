@@ -30,8 +30,8 @@ describe("Setup page", () => {
 
   it("renders the three setup steps", () => {
     expect(screen.getByText("1. IMPORT IMAGE")).toBeInTheDocument();
-    expect(screen.getByText("2. CHOOSE WORKING DIRECTORY")).toBeInTheDocument();
-    expect(screen.getByText("3. CHOOSE/CREATE YAML FILE")).toBeInTheDocument();
+    expect(screen.getByText("2. CHOOSE DIRECTORY")).toBeInTheDocument();
+    expect(screen.getByText("3. CREATE YAML FILE")).toBeInTheDocument();
   });
 
   it("renders the INPUT COMMANDS section", () => {
