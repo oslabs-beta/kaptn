@@ -137,14 +137,14 @@ function Dashboard(): JSX.Element {
   // Set current directory state
   const handleUploadDirectory = (event) => {
     let path = event.target.files[0].path.split("");
-    while (path[path.length - 1] !== "/") {
+    while (path.length > 0 && path[path.length - 1] !== "/") {
       path.pop();
     }
     let absPath = path.join("");
     setCurrDir(absPath);
     let absArr = absPath.split("");
     let shortArr = [];
-    for (let i = absArr.length - 2; absArr[i] !== "/"; i--) {
+    for (let i = absArr.length - 2; i >= 0 && absArr[i] !== "/"; i--) {
       shortArr.unshift(absArr[i]);
     }
     // shortArr.unshift("/");
@@ -212,6 +212,17 @@ function Dashboard(): JSX.Element {
   }
 
   useEffect(() => {
+    // Register the response listener once here (mount-only) so it never stacks
+    // on re-renders — the got_directory MaxListenersExceededWarning.
+    const onDirectory = (event: any, arg: string) => {
+      setCurrDir(arg);
+      let shortOutput: string[] = [];
+      for (let j = arg.length - 1; j >= 0 && arg[j] !== "/"; j--) {
+        shortOutput.unshift(arg[j]);
+      }
+      setShortDir(shortOutput.join(""));
+    };
+    ipcRenderer.on("got_directory", onDirectory);
 
     //send command to get working directory
     let getDirectoryCommand: string = "ls";
@@ -219,19 +230,12 @@ function Dashboard(): JSX.Element {
       getDirectoryCommand,
       currDir,
     });
+
+    return () => ipcRenderer.removeListener("got_directory", onDirectory);
   }, []);
 
   // Set the command state based on current inputs
   useEffect(() => {
-    // Listen to post_command response
-    ipcRenderer.on("post_command", (event, arg) => {
-      const newResponseState = [
-        ...response,
-        { command: command, response: arg },
-      ];
-      setResponse(newResponseState);
-    });
-
     let newCommand = "";
     if (tool !== "") newCommand += tool;
     if (verb !== "") newCommand += " " + verb;
@@ -264,7 +268,14 @@ function Dashboard(): JSX.Element {
       //     console.log("short dir is:", shortDir);
       //     console.log("CURR DIR IS:", currDir);
       //   }
-    } else ipcRenderer.send("post_command", { command, currDir });
+    } else {
+      // Register a one-shot response listener only when a command is actually
+      // run, so listeners never accumulate (no MaxListenersExceededWarning).
+      ipcRenderer.once("post_command", (event, arg) => {
+        setResponse((prev) => [...prev, { command, response: arg }]);
+      });
+      ipcRenderer.send("post_command", { command, currDir });
+    }
   };
 
   // Command list options
@@ -304,17 +315,6 @@ function Dashboard(): JSX.Element {
     "-o json",
     "-o yaml",
   ];
-
-  ipcRenderer.on("got_directory", (event, arg) => {
-    let output = arg;
-    setCurrDir(output);
-
-    let shortOutput = [];
-    for (let j = output.length - 1; output[j] !== "/"; j--) {
-      shortOutput.unshift(output[j]);
-    }
-    setShortDir(shortOutput.join(""));
-  });
 
   return (
     <>

@@ -1,12 +1,19 @@
 const path = require("path");
 const fs = require("fs");
-const { app, BrowserWindow, ipcMain, ipcRenderer, session } = require("electron");
+const { app, BrowserWindow, dialog, ipcMain, ipcRenderer, session } = require("electron");
 const { exec, spawnSync, spawn, execSync } = require("child_process");
 const fixPath = require("fix-path");
 
 // const storage = require("electron-json-storage");
 
 const isDev = process.env.NODE_ENV === "development";
+
+// Disable Chromium's background network services (Safe Browsing, component
+// updater, GCM/telemetry, etc.). This app never uses them, and offline or
+// behind a firewall they spam repeated TLS handshake failures — the
+// ssl_client_socket / net_error -101 console noise — that have nothing to do
+// with the app's own (localhost) requests. Must run before the app is ready.
+app.commandLine.appendSwitch("disable-background-networking");
 
 // Command to read the Grafana admin password from the cluster secret. Uses the
 // standard grafana chart label so it is independent of the Helm release name or
@@ -191,87 +198,57 @@ ipcMain.on("check_metrics_installed", (event, arg) => {
 //Listen for check if kubectl commands installed
 ipcMain.on("check_kubectl_installed", (event, arg) => {
   const { kubectlCheckKubectlInstallCommand, currDir } = arg;
-
-  // if kubectl command is entered with no directory chosen, use ZDOTDIR as directory address when calling exec command --- otherwise ("else" on further down) submit command normally
-  if (currDir === "NONE SELECTED") {
-    let kubDir = process.env.ZDOTDIR;
-    exec(
-      ` ${kubectlCheckKubectlInstallCommand}`,
-      { cwd: kubDir },
-      (err, stdout, stderr) => {
-        // Handle failed command execution
-        if (err) {
-          let output = err;
-        }
-        // Handle successful command execution but returned error (stderr)
-        if (stderr) {
-          return event.sender.send("checked_kubectl_installed", stderr);
-        }
-        // Handle successful command execution with no errors
-        return event.sender.send("checked_kubectl_installed", stdout);
-      }
-    );
-  } else {
-    exec(
-      ` ${kubectlCheckKubectlInstallCommand}`,
-      { cwd: currDir },
-      (err, stdout, stderr) => {
-        // Handle failed command execution
-        if (err) {
-          let output = err;
-        }
-        // Handle successful command execution but returned error (stderr)
-        if (stderr) {
-          return event.sender.send("checked_kubectl_installed", stderr);
-        }
-        // Handle successful command execution with no errors
-        return event.sender.send("checked_kubectl_installed", stdout);
-      }
-    );
-  }
+  const cwd = currDir === "NONE SELECTED" ? process.env.ZDOTDIR : currDir;
+  // Always send stdout. `kubectl version -o json` writes clientVersion there
+  // (plus serverVersion only when the cluster is reachable) even when it exits
+  // non-zero on a down cluster; stdout is empty only when kubectl isn't
+  // installed. stderr is intentionally ignored so a connection error can't be
+  // mistaken for "kubectl not installed".
+  exec(` ${kubectlCheckKubectlInstallCommand}`, { cwd }, (err, stdout) =>
+    event.sender.send("checked_kubectl_installed", stdout)
+  );
 });
 
-//Listen for attempt to install metrisc server
-ipcMain.on("install_metrics_server_command", (event, arg) => {
-  const { kubectlMetricsServerInstallCommand, currDir } = arg;
+const METRICS_SERVER_MANIFEST =
+  "https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml";
 
-  // if kubectl command is entered with no directory chosen, use ZDOTDIR as directory address when calling exec command --- otherwise ("else" on further down) submit command normally
-  if (currDir === "NONE SELECTED") {
-    let kubDir = process.env.ZDOTDIR;
-    exec(
-      ` ${kubectlMetricsServerInstallCommand}`,
-      { cwd: kubDir },
-      (err, stdout, stderr) => {
-        // Handle failed command execution
-        if (err) {
-          let output = err;
-        }
-        // Handle successful command execution but returned error (stderr)
-        if (stderr) {
-          return event.sender.send("installed_metrics", stderr);
-        }
-        // Handle successful command execution with no errors
-        return event.sender.send("installed_metrics", stdout);
-      }
+// Install metrics-server from its official source. The command is chosen here
+// (never taken from the renderer), based on the current kubectl context:
+//  - minikube: minikube's own addon, which handles kubelet TLS itself
+//  - Docker Desktop / kind: the official manifest plus --kubelet-insecure-tls.
+//    These local clusters' kubelets use self-signed certificates, so without
+//    the flag metrics-server installs but never serves any metrics.
+//  - anything else: the official manifest unchanged
+ipcMain.on("install_metrics_server_command", (event) => {
+  const cwd = process.env.ZDOTDIR;
+  const reply = (err, stdout, stderr) =>
+    event.sender.send(
+      "installed_metrics",
+      (err ? stderr || String(err) : stdout || stderr) || ""
     );
-  } else {
-    exec(
-      ` ${kubectlMetricsServerInstallCommand}`,
-      { cwd: currDir },
-      (err, stdout, stderr) => {
-        // Handle failed command execution
-        if (err) {
-          let output = err;
-        }
-        // Handle successful command execution but returned error (stderr)
-        if (stderr) {
-          return event.sender.send("installed_metrics", stderr);
-        }
-        // Handle successful command execution with no errors
-        return event.sender.send("installed_metrics", stdout);
-      }
-    );
-  }
+  const apply = `kubectl apply -f ${METRICS_SERVER_MANIFEST}`;
+
+  exec("kubectl config current-context", { cwd }, (ctxErr, ctxOut) => {
+    const context = ctxErr ? "" : String(ctxOut).trim();
+
+    if (context === "minikube") {
+      return exec("minikube addons enable metrics-server", { cwd }, reply);
+    }
+
+    if (context === "docker-desktop" || context.startsWith("kind-")) {
+      return exec(apply, { cwd }, (err, stdout, stderr) => {
+        if (err) return reply(err, stdout, stderr);
+        // double-quoted JSON so the same command works in sh and cmd.exe
+        exec(
+          'kubectl patch deployment metrics-server -n kube-system --type=json -p "[{\\"op\\":\\"add\\",\\"path\\":\\"/spec/template/spec/containers/0/args/-\\",\\"value\\":\\"--kubelet-insecure-tls\\"}]"',
+          { cwd },
+          reply
+        );
+      });
+    }
+
+    return exec(apply, { cwd }, reply);
+  });
 });
 
 //************************************************************ */
@@ -281,106 +258,72 @@ ipcMain.on("install_metrics_server_command", (event, arg) => {
 //Listen for command to get namespaces
 ipcMain.on("getNamespaces_command", (event, arg) => {
   const { namespacesCommand, currDir } = arg;
-
-  // if kubectl command is entered with no directory chosen, use ZDOTDIR as directory address when calling exec command --- otherwise ("else" on line further down) submit command normally
-  if (currDir === "NONE SELECTED") {
-    let kubDir = process.env.ZDOTDIR;
-    exec(` ${namespacesCommand}`, { cwd: kubDir }, (err, stdout, stderr) => {
-      // Handle failed command execution
-      if (err) {
-        let output = err;
-      }
-      // Handle successful command execution but returned error (stderr)
-      if (stderr) {
-        return event.sender.send("got_namespaces", stderr);
-      }
-      // Handle successful command execution with no errors
-      return event.sender.send("got_namespaces", stdout);
-    });
-  } else {
-    exec(` ${namespacesCommand}`, { cwd: currDir }, (err, stdout, stderr) => {
-      // Handle failed command execution
-      if (err) {
-        let output = err;
-      }
-      // Handle successful command execution but returned error (stderr)
-      if (stderr) {
-        return event.sender.send("got_namespaces", stderr);
-      }
-      // Handle successful command execution with no errors
-      return event.sender.send("got_namespaces", stdout);
-    });
-  }
+  const cwd = currDir === "NONE SELECTED" ? process.env.ZDOTDIR : currDir;
+  exec(` ${namespacesCommand}`, { cwd }, (err, stdout, stderr) =>
+    sendKraneResult(event, "got_namespaces", err, stdout, stderr)
+  );
 });
 
 //Listen for command to get deployments info
-ipcMain.on("getDeployments_command", (event, arg) => {
-  const { deploymentsCommand, currDir } = arg;
-
-  // if kubectl command is entered with no directory chosen, use ZDOTDIR as directory address when calling exec command --- otherwise ("else" on line further down) submit command normally
-  if (currDir === "NONE SELECTED") {
-    let kubDir = process.env.ZDOTDIR;
-    exec(` ${deploymentsCommand}`, { cwd: kubDir }, (err, stdout, stderr) => {
-      // Handle failed command execution
-      if (err) {
-        let output = err;
-      }
-      // Handle successful command execution but returned error (stderr)
-      if (stderr) {
-        return event.sender.send("got_deployments", stderr);
-      }
-      // Handle successful command execution with no errors
-      return event.sender.send("got_deployments", stdout);
-    });
-  } else {
-    exec(` ${deploymentsCommand}`, { cwd: currDir }, (err, stdout, stderr) => {
-      // Handle failed command execution
-      if (err) {
-        let output = err;
-      }
-      // Handle successful command execution but returned error (stderr)
-      if (stderr) {
-        return event.sender.send("got_deployments", stderr);
-      }
-      // Handle successful command execution with no errors
-      return event.sender.send("got_deployments", stdout);
+// Send a Krane list command's result to the renderer. On failure (kubectl
+// exits non-zero) it sends "<channel>_status" describing why, so the UI can
+// tell an unreachable cluster from an empty one. On success it sends the raw
+// stdout on "<channel>" (empty stdout is a valid "no resources found").
+function sendKraneResult(event, channel, err, stdout, stderr) {
+  if (err) {
+    const unreachable =
+      /connection refused|unable to connect|dial tcp|did you specify the right host/i.test(
+        stderr || ""
+      );
+    return event.sender.send(`${channel}_status`, {
+      state: unreachable ? "unreachable" : "error",
+      message: (stderr || String(err)).trim(),
     });
   }
+  return event.sender.send(channel, stdout);
+}
+
+// Like sendKraneResult, for `kubectl top`. On failure it also checks the
+// metrics APIService so the UI can tell "metrics-server not installed" (no
+// APIService, or its backing service is gone) from "installed but not serving
+// metrics yet" (e.g. still starting after a cluster restart).
+function sendTopResult(event, channel, err, stdout, stderr, cwd) {
+  if (!err) return sendKraneResult(event, channel, err, stdout, stderr);
+  exec(
+    `kubectl get apiservice v1beta1.metrics.k8s.io -o jsonpath="{.status.conditions[?(@.type=='Available')].reason}"`,
+    { cwd },
+    (apiErr, apiStdout, apiStderr) => {
+      const metricsNotInstalled = apiErr
+        ? /NotFound|not found/i.test(apiStderr || "")
+        : /ServiceNotFound/i.test(apiStdout || "");
+      const unreachable =
+        /connection refused|unable to connect|dial tcp|did you specify the right host/i.test(
+          stderr || ""
+        );
+      event.sender.send(`${channel}_status`, {
+        state: unreachable ? "unreachable" : "error",
+        message: (stderr || String(err)).trim(),
+        metricsNotInstalled,
+      });
+    }
+  );
+}
+
+ipcMain.on("getDeployments_command", (event, arg) => {
+  const { deploymentsCommand, currDir } = arg;
+  const cwd = currDir === "NONE SELECTED" ? process.env.ZDOTDIR : currDir;
+  exec(` ${deploymentsCommand}`, { cwd }, (err, stdout, stderr) =>
+    sendKraneResult(event, "got_deployments", err, stdout, stderr)
+  );
 });
 
 //Listen for command to get replicaSets info
 ipcMain.on("getReplicas_command", (event, arg) => {
   const { getReplicasCommand, currDir } = arg;
-
-  // if kubectl command is entered with no directory chosen, use ZDOTDIR as directory address when calling exec command --- otherwise ("else" on line further down) submit command normally
-  if (currDir === "NONE SELECTED") {
-    let kubDir = process.env.ZDOTDIR;
-    exec(` ${getReplicasCommand}`, { cwd: kubDir }, (err, stdout, stderr) => {
-      // Handle failed command execution
-      if (err) {
-        let output = err;
-      }
-      // Handle successful command execution but returned error (stderr)
-      if (stderr) {
-        return event.sender.send("got_rs", stderr);
-      }
-      // Handle successful command execution with no errors
-      return event.sender.send("got_rs", stdout);
-    });
-  } else {
-    exec(` ${getReplicasCommand}`, { cwd: currDir }, (err, stdout, stderr) => {
-      // Handle failed command execution
-      if (err) {
-        let output = err;
-      }
-      // Handle successful command execution but returned error (stderr)
-      if (stderr) {
-        return event.sender.send("got_rs", stderr);
-      }
-      // Handle successful command execution with no errors
-      return event.sender.send("got_rs", stdout);
-    });
-  }
+  const cwd = currDir === "NONE SELECTED" ? process.env.ZDOTDIR : currDir;
+  exec(` ${getReplicasCommand}`, { cwd }, (err, stdout, stderr) =>
+    sendKraneResult(event, "got_rs", err, stdout, stderr)
+  );
 });
 
 //Listen for command to view a podd logs
@@ -1196,79 +1139,19 @@ ipcMain.on("deletePod_command", (event, arg) => {
 //Listen for attempt to get pod cpu's used
 ipcMain.on("getNodesCpuUsed_command", (event, arg) => {
   const { nodesCpuUsedCommand, currDir } = arg;
-
-  // if kubectl command is entered with no directory chosen, use ZDOTDIR as directory address when calling exec command --- otherwise ("else" further down) submit command normally
-  if (currDir === "NONE SELECTED") {
-    let kubDir = process.env.ZDOTDIR;
-    exec(` ${nodesCpuUsedCommand}`, { cwd: kubDir }, (err, stdout, stderr) => {
-      // Handle failed command execution
-      if (err) {
-        let output = err;
-      }
-      // Handle successful command execution but returned error (stderr)
-      if (stderr) {
-        return event.sender.send("got_nodesCpuUsed", stderr);
-      }
-      // Handle successful command execution with no errors
-      return event.sender.send("got_nodesCpuUsed", stdout);
-    });
-  } else {
-    exec(` ${nodesCpuUsedCommand}`, { cwd: currDir }, (err, stdout, stderr) => {
-      // Handle failed command execution
-      if (err) {
-        let output = err;
-      }
-      // Handle successful command execution but returned error (stderr)
-      if (stderr) {
-        return event.sender.send("got_nodesCpuUsed", stderr);
-      }
-      // Handle successful command execution with no errors
-      return event.sender.send("got_nodesCpuUsed", stdout);
-    });
-  }
+  const cwd = currDir === "NONE SELECTED" ? process.env.ZDOTDIR : currDir;
+  exec(` ${nodesCpuUsedCommand}`, { cwd }, (err, stdout, stderr) =>
+    sendTopResult(event, "got_nodesCpuUsed", err, stdout, stderr, cwd)
+  );
 });
 
 //Listen for attempt to get pod cpu's used
 ipcMain.on("getNodesCpuLimits_command", (event, arg) => {
   const { nodesCpuLimitsCommand, currDir } = arg;
-
-  // if kubectl command is entered with no directory chosen, use ZDOTDIR as directory address when calling exec command --- otherwise ("else" on further down) submit command normally
-  if (currDir === "NONE SELECTED") {
-    let kubDir = process.env.ZDOTDIR;
-    exec(
-      ` ${nodesCpuLimitsCommand}`,
-      { cwd: kubDir },
-      (err, stdout, stderr) => {
-        // Handle failed command execution
-        if (err) {
-          let output = err;
-        }
-        // Handle successful command execution but returned error (stderr)
-        if (stderr) {
-          return event.sender.send("got_nodesCpuLimits", stderr);
-        }
-        // Handle successful command execution with no errors
-        return event.sender.send("got_nodesCpuLimits", stdout);
-      }
-    );
-  } else {
-    exec(
-      ` ${nodesCpuLimitsCommand}`,
-      { cwd: currDir },
-      (err, stdout, stderr) => {
-        // Handle failed command execution
-        if (err) {
-          let output = err;
-        }
-        // Handle successful command execution but returned error (stderr)
-        if (stderr) {
-          return event.sender.send("got_nodesCpuLimits", stderr);
-        }
-        // Handle successful command execution with no errors
-        return event.sender.send("got_nodesCpuLimits", stdout);
-      }
-    );
-  }
+  const cwd = currDir === "NONE SELECTED" ? process.env.ZDOTDIR : currDir;
+  exec(` ${nodesCpuLimitsCommand}`, { cwd }, (err, stdout, stderr) =>
+    sendKraneResult(event, "got_nodesCpuLimits", err, stdout, stderr)
+  );
 });
 
 //*********************************  POD LIST METHODS ******** */
@@ -1276,141 +1159,37 @@ ipcMain.on("getNodesCpuLimits_command", (event, arg) => {
 //Listen for attempt to get pod cpu's used
 ipcMain.on("getCpuUsed_command", (event, arg) => {
   const { CpuUsedCommand, currDir } = arg;
-
-  // if kubectl command is entered with no directory chosen, use ZDOTDIR as directory address when calling exec command --- otherwise ("else" on further down) submit command normally
-  if (currDir === "NONE SELECTED") {
-    let kubDir = process.env.ZDOTDIR;
-    exec(` ${CpuUsedCommand}`, { cwd: kubDir }, (err, stdout, stderr) => {
-      // Handle failed command execution
-      if (err) {
-        let output = err;
-      }
-      // Handle successful command execution but returned error (stderr)
-      if (stderr) {
-        return event.sender.send("got_cpuUsed", stderr);
-      }
-      // Handle successful command execution with no errors
-      return event.sender.send("got_cpuUsed", stdout);
-    });
-  } else {
-    exec(` ${CpuUsedCommand}`, { cwd: currDir }, (err, stdout, stderr) => {
-      // Handle failed command execution
-      if (err) {
-        let output = err;
-      }
-      // Handle successful command execution but returned error (stderr)
-      if (stderr) {
-        return event.sender.send("got_cpuUsed", stderr);
-      }
-      // Handle successful command execution with no errors
-      return event.sender.send("got_cpuUsed", stdout);
-    });
-  }
+  const cwd = currDir === "NONE SELECTED" ? process.env.ZDOTDIR : currDir;
+  exec(` ${CpuUsedCommand}`, { cwd }, (err, stdout, stderr) =>
+    sendTopResult(event, "got_cpuUsed", err, stdout, stderr, cwd)
+  );
 });
 
 //Listen for attempt to get pod cpu's used
 ipcMain.on("getCpuLimits_command", (event, arg) => {
   const { cpuLimitsCommand, currDir } = arg;
-
-  // if kubectl command is entered with no directory chosen, use ZDOTDIR as directory address when calling exec command --- otherwise ("else" on further down) submit command normally
-  if (currDir === "NONE SELECTED") {
-    let kubDir = process.env.ZDOTDIR;
-    exec(` ${cpuLimitsCommand}`, { cwd: kubDir }, (err, stdout, stderr) => {
-      // Handle failed command execution
-      if (err) {
-        let output = err;
-      }
-      // Handle successful command execution but returned error (stderr)
-      if (stderr) {
-        return event.sender.send("got_cpuLimits", stderr);
-      }
-      // Handle successful command execution with no errors
-      return event.sender.send("got_cpuLimits", stdout);
-    });
-  } else {
-    exec(` ${cpuLimitsCommand}`, { cwd: currDir }, (err, stdout, stderr) => {
-      // Handle failed command execution
-      if (err) {
-        let output = err;
-      }
-      // Handle successful command execution but returned error (stderr)
-      if (stderr) {
-        return event.sender.send("got_cpuLimits", stderr);
-      }
-      // Handle successful command execution with no errors
-      return event.sender.send("got_cpuLimits", stdout);
-    });
-  }
+  const cwd = currDir === "NONE SELECTED" ? process.env.ZDOTDIR : currDir;
+  exec(` ${cpuLimitsCommand}`, { cwd }, (err, stdout, stderr) =>
+    sendKraneResult(event, "got_cpuLimits", err, stdout, stderr)
+  );
 });
 
 //Listen to Krane get nodes command event
 ipcMain.on("getNodes_command", (event, arg) => {
   const { kraneCommand, currDir } = arg;
-
-  // if kubectl command is entered with no directory chosen, use ZDOTDIR as directory address when calling exec command --- otherwise ("else" on further down) submit command normally
-  if (currDir === "NONE SELECTED") {
-    let kubDir = process.env.ZDOTDIR;
-    exec(` ${kraneCommand}`, { cwd: kubDir }, (err, stdout, stderr) => {
-      // Handle failed command execution
-      if (err) {
-        let output = err;
-      }
-      // Handle successful command execution but returned error (stderr)
-      if (stderr) {
-        return event.sender.send("got_nodes", stderr);
-      }
-      // Handle successful command execution with no errors
-      return event.sender.send("got_nodes", stdout);
-    });
-  } else {
-    exec(` ${kraneCommand}`, { cwd: currDir }, (err, stdout, stderr) => {
-      // Handle failed command execution
-      if (err) {
-        let output = err;
-      }
-      // Handle successful command execution but returned error (stderr)
-      if (stderr) {
-        return event.sender.send("got_nodes", stderr);
-      }
-      // Handle successful command execution with no errors
-      return event.sender.send("got_nodes", stdout);
-    });
-  }
+  const cwd = currDir === "NONE SELECTED" ? process.env.ZDOTDIR : currDir;
+  exec(` ${kraneCommand}`, { cwd }, (err, stdout, stderr) =>
+    sendKraneResult(event, "got_nodes", err, stdout, stderr)
+  );
 });
 
 //Listen to Krane get nodes command event
 ipcMain.on("getPods_command", (event, arg) => {
   const { podsCommand, currDir } = arg;
-
-  // if kubectl command is entered with no directory chosen, use ZDOTDIR as directory address when calling exec command --- otherwise ("else" on further down) submit command normally
-  if (currDir === "NONE SELECTED") {
-    let kubDir = process.env.ZDOTDIR;
-    exec(` ${podsCommand}`, { cwd: kubDir }, (err, stdout, stderr) => {
-      // Handle failed command execution
-      if (err) {
-        let output = err;
-      }
-      // Handle successful command execution but returned error (stderr)
-      if (stderr) {
-        return event.sender.send("got_pods", stderr);
-      }
-      // Handle successful command execution with no errors
-      return event.sender.send("got_pods", stdout);
-    });
-  } else {
-    exec(` ${podsCommand}`, { cwd: currDir }, (err, stdout, stderr) => {
-      // Handle failed command execution
-      if (err) {
-        let output = err;
-      }
-      // Handle successful command execution but returned error (stderr)
-      if (stderr) {
-        return event.sender.send("got_pods", stderr);
-      }
-      // Handle successful command execution with no errors
-      return event.sender.send("got_pods", stdout);
-    });
-  }
+  const cwd = currDir === "NONE SELECTED" ? process.env.ZDOTDIR : currDir;
+  exec(` ${podsCommand}`, { cwd }, (err, stdout, stderr) =>
+    sendKraneResult(event, "got_pods", err, stdout, stderr)
+  );
 });
 
 //************************************************************ */
@@ -1681,6 +1460,103 @@ ipcMain.on("retrieve_key", (event, arg) => {
   launchDashboard();
 });
 
+// Open an official getting-started page (Docker / minikube) in its own in-app
+// popup window. The renderer only ever passes the two hardcoded https doc URLs;
+// we still require https so nothing else can be opened through this channel.
+ipcMain.on("open_help_link", (event, url) => {
+  if (typeof url !== "string" || !url.startsWith("https://")) return;
+  const helpWindow = new BrowserWindow({
+    width: 1100,
+    height: 800,
+    title: "Kaptn — Help",
+    autoHideMenuBar: true,
+  });
+  helpWindow.loadURL(url);
+
+  // This popup has no browser chrome, so wire up the usual ways to go
+  // back/forward: keyboard (Cmd/Alt + [ ] or arrows), mouse back/forward
+  // buttons, and a macOS three-finger swipe.
+  const wc = helpWindow.webContents;
+  wc.on("before-input-event", (e, input) => {
+    if (input.type !== "keyDown") return;
+    const mod = input.meta || input.alt;
+    const back =
+      (mod && (input.key === "ArrowLeft" || input.key === "[")) ||
+      input.key === "BrowserBack";
+    const forward =
+      (mod && (input.key === "ArrowRight" || input.key === "]")) ||
+      input.key === "BrowserForward";
+    if (back && wc.canGoBack()) {
+      e.preventDefault();
+      wc.goBack();
+    } else if (forward && wc.canGoForward()) {
+      e.preventDefault();
+      wc.goForward();
+    }
+  });
+  helpWindow.on("app-command", (e, cmd) => {
+    if (cmd === "browser-backward" && wc.canGoBack()) wc.goBack();
+    if (cmd === "browser-forward" && wc.canGoForward()) wc.goForward();
+  });
+  helpWindow.on("swipe", (e, direction) => {
+    if (direction === "right" && wc.canGoBack()) wc.goBack();
+    if (direction === "left" && wc.canGoForward()) wc.goForward();
+  });
+});
+
+// Open a native file dialog to pick a kubeconfig. `showHiddenFiles` reveals the
+// hidden ~/.kube folder, and defaultPath opens the dialog inside it so `config`
+// is right there — no OS-level "show hidden files" toggle required.
+ipcMain.handle("choose_kubeconfig", async () => {
+  const result = await dialog.showOpenDialog({
+    title: "Select your kubeconfig file",
+    defaultPath: path.join(app.getPath("home"), ".kube"),
+    properties: ["openFile", "showHiddenFiles"],
+  });
+  if (result.canceled || !result.filePaths.length) return null;
+  return result.filePaths[0];
+});
+
+// Where the chosen custom kubeconfig path is persisted across restarts.
+const kubeconfigFile = () =>
+  path.join(app.getPath("userData"), "kubeconfig.json");
+
+// Restore a previously-chosen kubeconfig on startup so every command uses it
+// immediately (exec inherits process.env). Called before the window is created.
+function loadPersistedKubeconfig() {
+  try {
+    const saved = JSON.parse(fs.readFileSync(kubeconfigFile(), "utf8"));
+    if (saved && saved.path) process.env.KUBECONFIG = saved.path;
+  } catch (e) {
+    // no saved config — leave kubectl's default (~/.kube/config)
+  }
+}
+
+// Point kubectl at a custom kubeconfig for the whole session, and persist it.
+// exec() inherits process.env by default, so this reaches every command with no
+// per-command changes. An empty path reverts to the default.
+ipcMain.on("set_kubeconfig", (event, kubePath) => {
+  const active = typeof kubePath === "string" && kubePath.length ? kubePath : "";
+  if (active) {
+    process.env.KUBECONFIG = active;
+    try {
+      fs.writeFileSync(kubeconfigFile(), JSON.stringify({ path: active }));
+    } catch (e) {}
+  } else {
+    delete process.env.KUBECONFIG;
+    try {
+      fs.unlinkSync(kubeconfigFile());
+    } catch (e) {}
+  }
+  // Tell every window so the top-bar indicator and any open view update in sync.
+  BrowserWindow.getAllWindows().forEach((w) =>
+    w.webContents.send("kubeconfig_changed", active)
+  );
+});
+
+// The renderer reads this on mount to show the "custom kubeconfig" indicator.
+ipcMain.handle("get_kubeconfig", () => process.env.KUBECONFIG || "");
+
 // Background stats collection — dedicated channels (separate from Krane's
 // got_cpuUsed/got_nodesCpuUsed) so the app can accumulate CPU/memory history
 // from launch without colliding with Krane's own listeners. Errors are
@@ -1803,7 +1679,15 @@ ipcMain.on("saveStatsHistory", (event, payload) => {
 
 // Load the main window
 app.whenReady().then(() => {
+  loadPersistedKubeconfig();
+  // Turn off Chromium's Secure DNS (DoH) probes. Offline or behind a firewall
+  // they fail repeatedly with the ssl_client_socket / net_error -101 noise;
+  // plain local name resolution is all this app needs.
+  try {
+    app.configureHostResolver({ secureDnsMode: "off" });
+  } catch (e) {}
   createMainWindow();
+
   // Kick off the Grafana port-forward right away so Prometheus history is
   // available even if the user opens Krane before visiting the cluster page.
   startGrafanaPortForward();

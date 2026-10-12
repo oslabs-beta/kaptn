@@ -8,7 +8,7 @@ import { BrowserRouter } from "react-router-dom";
 
 // Mock electron so we can use ipcRenderer
 jest.mock("electron", () => {
-  const mElectron = { ipcRenderer: { on: jest.fn(), once: jest.fn(), send: jest.fn(), removeAllListeners: jest.fn() } };
+  const mElectron = { ipcRenderer: { on: jest.fn(), once: jest.fn(), send: jest.fn(), removeAllListeners: jest.fn(), removeListener: jest.fn(), invoke: jest.fn(() => Promise.resolve("")) } };
   return mElectron;
 });
 
@@ -29,9 +29,9 @@ describe("Krane test", () => {
     );
   });
 
-  it("Renders seven Buttons", () => {
+  it("Renders six Buttons", () => {
     const buttons = screen.getAllByRole("button");
-    expect(buttons.length).toBe(7);
+    expect(buttons.length).toBe(6);
   });
 
   it(`Renders choose from above text`, () => {
@@ -39,14 +39,16 @@ describe("Krane test", () => {
     expect(choose).toBeTruthy();
   });
   
-  it(`Renders clusters not appearing text`, () => {
-    const choose = screen.getByText("CLUSTERS STILL NOT APPEARING AFTER CHOOSING?");
-    expect(choose).toBeTruthy();
+  // The "still not appearing" helper only shows after a tab is chosen and the
+  // cluster is unreachable — so it should NOT be on the default landing screen.
+  it(`Does not render clusters not appearing text on the landing screen`, () => {
+    const choose = screen.queryByText("CLUSTERS STILL NOT APPEARING AFTER CHOOSING?");
+    expect(choose).toBeNull();
   });
 
-  it("Renders custom config button", () => {
-    const customKubeConfigButton = screen.getByRole("button", { name: "CLICK HERE TO LOAD A CUSTOM .KUBE/CONFIG FILE" });
-    expect(customKubeConfigButton).toBeTruthy();
+  it("Does not render custom config button on the landing screen", () => {
+    const customKubeConfigButton = screen.queryByRole("button", { name: "CLICK HERE TO LOAD A CUSTOM .KUBE/CONFIG FILE" });
+    expect(customKubeConfigButton).toBeNull();
   });
 
 });
